@@ -56,6 +56,28 @@ module PacketGen
         expect(@pkt.ip.proto).to eq(Header::IP.known_layers[Header::IP].value)
         expect(@pkt.ip(2).proto).to eq(0)
       end
+
+      it 'raises on unknown protocol' do
+        expect { @pkt.add 'IPOT' }.to raise_error(ArgumentError)
+      end
+    end
+
+    describe '#is?' do
+      before(:each) do
+        @pkt = Packet.gen('IP')
+      end
+
+      it 'returns true for contained header type' do
+        expect(@pkt.is? 'IP').to be(true)
+      end
+
+      it 'returns false for absent header type' do
+        expect(@pkt.is? 'Eth').to be(true)
+      end
+
+      it 'raises on unknown protocol' do
+        expect { @pkt.is? 'IPOT' }.to raise_error(ArgumentError)
+      end
     end
   end
 end
