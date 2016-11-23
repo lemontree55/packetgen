@@ -25,7 +25,7 @@ PacketGen.gen('Ethernet')       # generate a Ethernet packet object
 PacketGen.gen('IP').add('IP')   # generate a IP-in-IP tunnel packet object
 
 # Generate a IP packet object, specifying addresses
-Packet.gen('IP', src: '192.168.1.1', dst: '192.168.1.2')
+PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.1.2')
 
 # get binary packet
 PacketGen.gen('IP').to_s
