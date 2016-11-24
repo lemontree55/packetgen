@@ -5,4 +5,5 @@ module PacketGen
 end
 
 require_relative 'header/header_class_methods'
+require_relative 'header/eth'
 require_relative 'header/ip'

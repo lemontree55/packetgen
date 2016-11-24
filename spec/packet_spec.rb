@@ -72,7 +72,7 @@ module PacketGen
       end
 
       it 'returns false for absent header type' do
-        expect(@pkt.is? 'Eth').to be(true)
+        expect(@pkt.is? 'Eth').to be(false)
       end
 
       it 'raises on unknown protocol' do
