@@ -5,30 +5,43 @@ module PacketGen
   describe Packet do
 
     describe '.gen' do
+      before(:each) do
+        @pkt = Packet.gen('IP')
+     end
+
       it 'raises on unknown protocol' do
         expect { Packet.gen 'IPOT' }.to raise_error(ArgumentError)
       end
 
       it 'generates a packet with one header' do
-        pkt = Packet.gen('IP')
-        expect(pkt.headers.size).to eq(1)
-        expect(pkt.headers.first).to be_a(Header::IP)
+        expect(@pkt.headers.size).to eq(1)
+        expect(@pkt.headers.first).to be_a(Header::IP)
       end
 
       it 'generates a packet with good protocol' do
-        pkt = Packet.gen('IP')
-        expect(pkt.is? 'IP').to be(true)
-      end
-
-      it 'magically defines `protocol` method' do
-        pkt = Packet.gen('IP')
-        expect(pkt.respond_to? :ip).to be(true)
-        expect(pkt.ip).to be_a(Header::IP)
+        expect(@pkt.is? 'IP').to be(true)
       end
 
       it 'accepts options for given protocol' do
         pkt = Packet.gen('IP', src: '192.168.1.1')
         expect(pkt.ip.src).to eq('192.168.1.1')
+      end
+
+      it 'magically defines `protocol` method' do
+        expect(@pkt.respond_to? :ip).to be(true)
+        expect(@pkt.ip).to be_a(Header::IP)
+      end
+
+      it 'magic methods accept arguments' do
+        @pkt.ip(src: '192.168.1.1', dst: '192.168.1.127')
+        expect(@pkt.ip.src).to eq('192.168.1.1')
+        expect(@pkt.ip.dst).to eq('192.168.1.127')
+      end
+
+      it 'magic methods raise on unknown attribute' do
+        attr = :unknown_attr
+        expect { @pkt.ip(attr => nil) }.to raise_error(ArgumentError).
+                                            with_message(/unknown #{attr} attribute/)
       end
     end
 

@@ -129,7 +129,12 @@ module PacketGen
       header = headers[layer - 1]
 
       if arg.is_a? Hash
-        header.set arg
+        arg.each do |key, value|
+          unless header.respond_to? "#{key}="
+            raise ArgumentError, "unknown #{key} attribute for #{header.class}"
+          end
+          header.send "#{key}=", value
+        end
       end
 
       header
