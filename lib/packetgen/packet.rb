@@ -84,6 +84,7 @@ module PacketGen
     # @param [String] protocol
     # @param [Hash] options protocol specific options
     # @return [self]
+    # @raise [ArgumentError] unknown protocol
     def add(protocol, options={})
       klass = check_protocol(protocol)
 
@@ -104,6 +105,7 @@ module PacketGen
 
     # Check if a protocol header is embedded in packet
     # @return [Boolean]
+    # @raise [ArgumentError] unknown protocol
     def is?(protocol)
       klass = check_protocol protocol
       @headers.any? { |h| h.is_a? klass }
@@ -118,6 +120,7 @@ module PacketGen
     #  @param [String] protocol
     #  @param [Hash] options
     # @return [Header::Base]
+    # @raise [ArgumentError] unknown protocol
     def header(protocol, arg)
       klass = check_protocol protocol
 
@@ -132,6 +135,9 @@ module PacketGen
       header
     end
 
+    # check if protocol is known
+    # @param [String] protocol
+    # @raise [ArgumentError] unknown protocol
     def check_protocol(protocol)
       unless Header.const_defined? protocol
         raise ArgumentError, "unknown #{protocol} protocol"
