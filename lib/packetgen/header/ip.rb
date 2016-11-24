@@ -1,11 +1,15 @@
 module PacketGen
   module Header
 
+    # IP header class
+    # @author Sylvain Daubert
     class IP < Struct.new(:version, :ihl, :tos, :len, :id, :frag, :ttl,
                           :proto,:sum, :src, :dst, :body)
       include StructFu
       extend HeaderClassMethods
 
+      # IP address, as a group of 4 bytes
+      # @author Sylvain Daubert
       class Addr < Struct.new(:a1, :a2, :a3, :a4)
         include StructFu
 
