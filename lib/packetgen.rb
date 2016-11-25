@@ -13,9 +13,10 @@ module PacketGen
 
   # Shortcut for {Packet.parse}
   # @param [String] binary_str
+  # @param [String] first_layer First protocol layer
   # @return [Packet]
-  def self.parse(binary_str)
-    Packet.parse binary_str
+  def self.parse(binary_str, first_layer: 'Eth')
+    Packet.parse binary_str, first_layer
   end
 
   # Shortcut for {Packet.capture}
