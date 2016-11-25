@@ -9,10 +9,10 @@ module PacketGen
       end
 
       it '#parse a string containing a dotted address' do
-        expect(@ipaddr[:a1].to_i).to eq(192)
-        expect(@ipaddr[:a2].to_i).to eq(168)
-        expect(@ipaddr[:a3].to_i).to eq(25)
-        expect(@ipaddr[:a4].to_i).to eq(43)
+        expect(@ipaddr.a1).to eq(192)
+        expect(@ipaddr.a2).to eq(168)
+        expect(@ipaddr.a3).to eq(25)
+        expect(@ipaddr.a4).to eq(43)
       end
 
       it '#to_i gets IP address as a 32-bit integer' do
