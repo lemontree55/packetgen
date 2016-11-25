@@ -43,6 +43,7 @@ module PacketGen
         end
       end
 
+      # @param [Hash] options
       def initialize(options={})
         super options[:version] || 4,
               options[:ihl] || 5,
@@ -175,6 +176,7 @@ module PacketGen
 
       # Set IP source address
       # @param [String] addr dotted IP address
+      # @return [String]
       def src=(addr)
         self[:src].parse addr
       end
@@ -189,6 +191,7 @@ module PacketGen
 
       # Set IP destination address
       # @param [String] addr dotted IP address
+      # @return [String]
       def dst=(addr)
         self[:dst].parse addr
       end
