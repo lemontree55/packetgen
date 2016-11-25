@@ -1,6 +1,10 @@
 require_relative 'spec_helper'
 
 module PacketGen
+  # Define fake header class for tests
+  module Header
+    class FakeHeader < Struct.new(:field); extend Header::HeaderClassMethods; end
+  end
 
   describe Packet do
 
@@ -72,6 +76,12 @@ module PacketGen
 
       it 'raises on unknown protocol' do
         expect { @pkt.add 'IPOT' }.to raise_error(ArgumentError)
+      end
+
+      it 'raises on unknown association' do
+        expect { @pkt.add 'FakeHeader' }.to raise_error(ArgumentError,
+                                                        /IP\.bind_layer\(.*FakeHeader/)
+
       end
     end
 

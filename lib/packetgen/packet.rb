@@ -91,9 +91,16 @@ module PacketGen
       header = klass.new(options)
       prev_header = @headers.last
       if prev_header
-        prev_header.body = header
         layer = prev_header.class.known_layers[klass]
+        if layer.nil?
+          msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
+          msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
+          msg << "#{prev_header.class.to_s.gsub(/(.*)::/, '').downcase}_proto_field: "
+          msg << "value_for_#{protocol.downcase})"
+          raise ArgumentError, msg
+        end
         prev_header[layer.key] = layer.value
+        prev_header.body = header
       end
       @headers << header
       unless respond_to? protocol.downcase
