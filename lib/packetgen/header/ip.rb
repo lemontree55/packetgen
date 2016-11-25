@@ -21,10 +21,10 @@ module PacketGen
         def parse(str)
           m = str.match(IPV4_ADDR_REGEX)
           if m
-            self[:a1] = m[1]
-            self[:a2] = m[2]
-            self[:a3] = m[3]
-            self[:a4] = m[4]
+            self[:a1] = m[1].to_i
+            self[:a2] = m[2].to_i
+            self[:a3] = m[3].to_i
+            self[:a4] = m[4].to_i
           end
           self
         end
@@ -61,19 +61,18 @@ module PacketGen
       # Compute checksum and set +sum+ field
       # @return [Integer]
       def calc_sum
-        checksum = (((self.v << 4) | self.hl) << 8) | self.ip_tos
+        checksum = (self.version << 12) | (self.ihl << 8) | self.tos
         checksum += self.len
         checksum += self.id
         checksum += self.frag
-        checksum += (self.ttl << 8) | self.ip_proto
-        checksum += self.src.to_i >> 16
-        checksum += self.src.to_i & 0xffff
-        checksum += self.dst.to_i >> 16
-        checksum += self.dst.to_i & 0xffff
-        checksum = checksum % 0xffff 
-        checksum = 0xffff - checksum
-        checksum == 0 ? 0xffff : checksum
-        self[:sum].value = checksum
+        checksum += (self.ttl << 8) | self.proto
+        checksum += (self[:src].to_i >> 16)
+        checksum += (self[:src].to_i & 0xffff)
+        checksum += self[:dst].to_i >> 16
+        checksum += self[:dst].to_i & 0xffff
+        checksum = (checksum & 0xffff) + (checksum >> 16)
+        checksum = ~(checksum % 0xffff ) & 0xffff
+        self[:sum].value = (checksum == 0) ? 0xffff : checksum
       end
 
       # Getter for TOS attribute
@@ -154,6 +153,19 @@ module PacketGen
         self[:proto].value = proto
       end
 
+      # Getter for sum attribute
+      # @return [Integer]
+      def sum
+        self[:sum].to_i
+      end
+
+      # Setter for  sum attribute
+      # @param [Integer] sum
+      # @return [Integer]
+      def sum=(sum)
+        self[:sum].value = sum
+      end
+
       # Get IP source address
       # @return [String] dotted address
       def src
@@ -183,6 +195,7 @@ module PacketGen
       alias :destination= :dst=
     end
 
+    Eth.bind_layer IP, proto: 0x800
     IP.bind_layer IP, proto: 4
   end
 end
