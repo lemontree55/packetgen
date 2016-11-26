@@ -133,7 +133,7 @@ module PacketGen
       end
 
       # Add a IDB to this section
-      # @param [IDB] ipb
+      # @param [IDB] idb
       # @return [self]
       def <<(idb)
         @interfaces << idb
