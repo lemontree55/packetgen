@@ -12,7 +12,24 @@ module PacketGen
       class MacAddr < Struct.new(:a0, :a1, :a2, :a3, :a4, :a5)
         include StructFu
         
-        # Parse a string to populate MacAddr
+        # @param [Hash] options
+        # @option options [Integer] :a0
+        # @option options [Integer] :a1
+        # @option options [Integer] :a2
+        # @option options [Integer] :a3
+        # @option options [Integer] :a4
+        # @option options [Integer] :a5
+        def initialize(options={})
+          super Int8.new(options[:a0]),
+                Int8.new(options[:a1]),
+                Int8.new(options[:a2]),
+                Int8.new(options[:a3]),
+                Int8.new(options[:a4]),
+                Int8.new(options[:a5])
+
+        end
+
+       # Parse a string to populate MacAddr
         # @param [String] str
         # @return [self]
         def parse(str)
@@ -20,13 +37,18 @@ module PacketGen
           unless bytes.size == 6
             raise ArgumentError, 'not a MAC address'
           end
-          self[:a0] = bytes[0].to_i(16)
-          self[:a1] = bytes[1].to_i(16)
-          self[:a2] = bytes[2].to_i(16)
-          self[:a3] = bytes[3].to_i(16)
-          self[:a4] = bytes[4].to_i(16)
-          self[:a5] = bytes[5].to_i(16)
+          self[:a0].read(bytes[0].to_i(16))
+          self[:a1].read(bytes[1].to_i(16))
+          self[:a2].read(bytes[2].to_i(16))
+          self[:a3].read(bytes[3].to_i(16))
+          self[:a4].read(bytes[4].to_i(16))
+          self[:a5].read(bytes[5].to_i(16))
           self
+        end
+
+        [:a0, :a1, :a2, :a3, :a4, :a5].each do |sym|
+          class_eval "def #{sym}; self[:#{sym}].to_i; end\n" \
+                     "def #{sym}=(v); self[:#{sym}].read v; end"
         end
 
         # Addr in human readable form (dotted format)

@@ -55,14 +55,14 @@ module PacketGen
         it '#dst= accepts a MAC address string' do
           @eth.dst = 'ff:fe:fd:fc:fb:fa'
           6.times do |i|
-            expect(@eth[:dst]["a#{i}".to_sym]).to eq(0xff - i)
+            expect(@eth[:dst]["a#{i}".to_sym].to_i).to eq(0xff - i)
           end
         end
 
         it '#src= accepts a MAC address string' do
           @eth.src = 'ff:fe:fd:fc:fb:fa'
           6.times do |i|
-            expect(@eth[:src]["a#{i}".to_sym]).to eq(0xff - i)
+            expect(@eth[:src]["a#{i}".to_sym].to_i).to eq(0xff - i)
           end
         end
 
