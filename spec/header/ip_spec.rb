@@ -125,7 +125,7 @@ module PacketGen
           it '#src= accepts dotted addresses' do
             @ip.src = '1.2.3.4'
             1.upto(4) do |i|
-              expect(@ip[:src]["a#{i}".to_sym]).to eq(i)
+              expect(@ip[:src]["a#{i}".to_sym].to_i).to eq(i)
             end
             expect(@ip[:src].to_i).to eq(0x01020304)
           end
@@ -133,7 +133,7 @@ module PacketGen
           it '#dst= accepts dotted addresses' do
             @ip.dst = '1.2.3.4'
             1.upto(4) do |i|
-              expect(@ip[:dst]["a#{i}".to_sym]).to eq(i)
+              expect(@ip[:dst]["a#{i}".to_sym].to_i).to eq(i)
             end
             expect(@ip[:dst].to_i).to eq(0x01020304)
           end

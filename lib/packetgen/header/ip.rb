@@ -15,18 +15,36 @@ module PacketGen
 
         IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
 
+        # @param [Hash] options
+        # @option options [Integer] :a1
+        # @option options [Integer] :a2
+        # @option options [Integer] :a3
+        # @option options [Integer] :a4
+        def initialize(options={})
+          super Int8.new(options[:a1]),
+                Int8.new(options[:a2]),
+                Int8.new(options[:a3]),
+                Int8.new(options[:a4])
+
+        end
+
         # Parse a dotted address
         # @param [String] str
         # @return [self]
         def parse(str)
           m = str.match(IPV4_ADDR_REGEX)
           if m
-            self[:a1] = m[1].to_i
-            self[:a2] = m[2].to_i
-            self[:a3] = m[3].to_i
-            self[:a4] = m[4].to_i
+            self[:a1].read m[1].to_i
+            self[:a2].read m[2].to_i
+            self[:a3].read m[3].to_i
+            self[:a4].read m[4].to_i
           end
           self
+        end
+
+        [:a1, :a2, :a3, :a4].each do |sym|
+          class_eval "def #{sym}; self[:#{sym}].to_i; end\n" \
+                     "def #{sym}=(v); self[:#{sym}].read v; end" 
         end
 
         # Addr in human readable form (dotted format)
@@ -38,14 +56,8 @@ module PacketGen
         # Addr as an integer
         # @return [Integer]
         def to_i
-          (self.a1.to_i << 24) | (self.a2.to_i << 16) | (self.a3.to_i << 8) |
-            self.a4.to_i
-        end
-
-        # Get binary string
-        # @return [String]
-        def to_s
-          [to_i].pack('N')
+          (self.a1 << 24) | (self.a2 << 16) | (self.a3 << 8) |
+            self.a4
         end
       end
 
