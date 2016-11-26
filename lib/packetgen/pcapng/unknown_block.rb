@@ -19,22 +19,22 @@ module PacketGen
       # @option options [Integer] :block_len block total length
       # @option options [::String] :body
       # @option options [Integer] :block_len2 block total length
-      def initialize(args={})
-        @endian = set_endianness(args[:endian] || :little)
-        init_fields(args)
-        super(args[:type], args[:block_len], args[:body], args[:block_len2])
+      def initialize(options={})
+        @endian = set_endianness(options[:endian] || :little)
+        init_fields(options)
+        super(options[:type], options[:block_len], options[:body], options[:block_len2])
       end
 
       # Used by {#initialize} to set the initial fields
       # @see #initialize possible options
       # @param [Hash] options
       # @return [Hash] return +options+
-      def init_fields(args={})
-        args[:type]  = @int32.new(args[:type] || 0)
-        args[:block_len] = @int32.new(args[:block_len] || MIN_SIZE)
-        args[:body] = StructFu::String.new(args[:body] || '')
-        args[:block_len2] = @int32.new(args[:block_len2] || MIN_SIZE)
-        args
+      def init_fields(options={})
+        options[:type]  = @int32.new(options[:type] || 0)
+        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
+        options[:body] = StructFu::String.new(options[:body] || '')
+        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
+        options
       end
 
       # Has this block option?
