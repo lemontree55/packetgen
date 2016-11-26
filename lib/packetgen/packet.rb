@@ -127,6 +127,19 @@ module PacketGen
       end
     end
 
+    # Get packet body
+    # @return [StructFu]
+    def body
+      @headers.last.body
+    end
+
+    # Set packet body
+    # @param [String]
+    # @return [void]
+    def body=(str)
+      @headers.last.body = str
+    end
+
     # Write a PCapNG file to disk.
     # @param [String] filename
     # @return [Array] see return from {PcapNG::File#to_file}
