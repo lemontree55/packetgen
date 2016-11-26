@@ -29,7 +29,6 @@ module PacketGen
       # @return [self]
       def read!(str)
         clear
-        PacketGen.force_binary(str)
         read(str)
       end
 
