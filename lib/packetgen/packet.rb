@@ -119,6 +119,14 @@ module PacketGen
       @headers.any? { |h| h.is_a? klass }
     end
 
+    # Recalculates all packet checksums
+    # @return [void]
+    def calc_sum
+      @headers.reverse.each do |header|
+        @header.calc_sum if @header.respond_to? :calc_sum
+      end
+    end
+
     private
 
     # @overload header(protocol, layer=1)

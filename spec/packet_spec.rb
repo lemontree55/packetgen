@@ -102,5 +102,17 @@ module PacketGen
         expect { @pkt.is? 'IPOT' }.to raise_error(ArgumentError)
       end
     end
+
+    describe '#calc_sum' do
+      it 'recalculates packet checksums' do
+        pending 'need UDP'
+        pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2').
+              add('UDP', sport: 45768, dport: 80)
+        pkt.body = 'abcdef'
+        pkt.recalc
+        expect(pkt.ip.sum).to eq(0)
+        expect(pkt.udp.sum).to eq(0)
+      end
+    end
   end
 end
