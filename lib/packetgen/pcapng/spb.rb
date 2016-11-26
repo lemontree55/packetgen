@@ -50,6 +50,8 @@ module PacketGen
         args
       end
 
+      # Has this block option?
+      # @return [false]
       def has_options?
         false
       end

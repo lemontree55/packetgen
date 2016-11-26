@@ -63,10 +63,6 @@ module PacketGen
         options
       end
 
-      def has_options?
-        self[:options].size > 0
-      end
-
       # Reads a String or a IO to populate the object
       # @param [::String,IO] str_or_io
       # @return [self]

@@ -4,6 +4,12 @@ module PacketGen
     # Mixin module to declare some common methods for block classes.
     module Block
 
+      # Has this block option?
+      # @return [Boolean]
+      def has_options?
+        self[:options].size > 0
+      end
+
       # Calculate block length and update :block_len and block_len2 fields
       # @return [void]
       def recalc_block_len

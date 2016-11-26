@@ -37,7 +37,13 @@ module PacketGen
         args
       end
 
-      # Reads a String or a IO to populate the object
+      # Has this block option?
+      # @return [false]
+      def has_options?
+        false
+      end
+
+     # Reads a String or a IO to populate the object
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
