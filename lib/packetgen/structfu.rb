@@ -80,6 +80,13 @@ module PacketGen
       e
     end
 
+    # Get binary string
+    # @return [String]
+    def to_s
+      puts "StructFu#to_s"
+      to_a.map { |field| field.to_s }.join
+    end
+
     # Ints all have a value, an endianness, and a default value.
     # Note that the signedness of Int values are implicit as
     # far as the subclasses are concerned; to_i and to_f will 
