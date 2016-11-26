@@ -71,6 +71,19 @@ module PacketGen
       end
     end
 
+    # Set the endianness for the various Int classes handled by self
+    # @param [:little, :big] e
+    # @return [:little, :big] returns e
+    def set_endianness(e)
+      unless [:little, :big].include? e
+        raise ArgumentError, "unknown endianness for #{self.class}"
+      end
+      @int64 = e == :little ? Int64le : Int64be
+      @int32 = e == :little ? Int32le : Int32be
+      @int16 = e == :little ? Int16le : Int16be
+      e
+    end
+
     # Ints all have a value, an endianness, and a default value.
     # Note that the signedness of Int values are implicit as
     # far as the subclasses are concerned; to_i and to_f will 
