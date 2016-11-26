@@ -55,7 +55,7 @@ module PacketGen
     def self.parse(binary_str, first_layer: 'Eth')
     end
 
-    # Shortcut for {Packet.capture}
+    # Capture packets from +iface+
     # @param [String] iface interface name
     # @param [Hash] options capture options. See {Packet.capture}.
     # @yieldparam [Packet] packet
@@ -63,13 +63,13 @@ module PacketGen
     def self.capture(iface, options={})
     end
 
-    # Shortcut for {Packet.read}
+    # Read packets from +filename+
     # @param [String] filename PcapNG file
     # @return [Array<Packet>]
     def self.read(filename)
     end
 
-    # Shortcut for {Packet.write}
+    # Write packets to +filename+
     # @param [String] filename
     # @param [Array<Packet>] packets packets to write
     # @return [void]
