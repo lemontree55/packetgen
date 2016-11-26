@@ -138,6 +138,13 @@ module PacketGen
             expect(@ip[:dst].to_i).to eq(0x01020304)
           end
         end
+
+        it '#to_s returns a binary string' do
+          ip = IP.new
+          idx = [ip.id].pack('n')
+          expect(ip.to_s).to eq("\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
+                                "\x7f\x00\x00\x01\x7f\x00\x00\x01")
+        end
       end
     end
   end

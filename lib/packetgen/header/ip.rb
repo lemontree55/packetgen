@@ -41,6 +41,12 @@ module PacketGen
           (self.a1.to_i << 24) | (self.a2.to_i << 16) | (self.a3.to_i << 8) |
             self.a4.to_i
         end
+
+        # Get binary string
+        # @return [String]
+        def to_s
+          [to_i].pack('N')
+        end
       end
 
       # @param [Hash] options
@@ -196,6 +202,13 @@ module PacketGen
         self[:dst].parse addr
       end
       alias :destination= :dst=
+
+      # Get binary string
+      # @return [String]
+      def to_s
+        first_byte = [(version << 4) | ihl].pack('C')
+        first_byte << to_a[2..-2].map { |field| field.to_s }.join
+      end
     end
 
     Eth.bind_layer IP, proto: 0x800
