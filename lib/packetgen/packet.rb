@@ -100,7 +100,7 @@ module PacketGen
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
-        prev_header[layer.key] = layer.value
+        prev_header[layer.key].read layer.value
         prev_header.body = header
       end
       @headers << header
@@ -138,6 +138,12 @@ module PacketGen
     # @return [void]
     def body=(str)
       @headers.last.body = str
+    end
+
+    # Get binary string
+    # @return [String]
+    def to_s
+      @headers.first.to_s
     end
 
     # Write a PCapNG file to disk.
