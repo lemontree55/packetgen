@@ -8,7 +8,7 @@ module PacketGen
   #
   # == Create a packet
   # Packets may be hand-made or parsed from a binary string:
-  #  Packet.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').add('UDP', sport: 45000, sport: 23)
+  #  Packet.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').add('UDP', sport: 45000, dport: 23)
   #  Packet.parse(binary_string)
   #
   # == Access packet information

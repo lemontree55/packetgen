@@ -42,7 +42,15 @@ module PacketGen
   def self.write(filename, packets)
     Packet.write filename, packets
   end
+
+  # Force binary encoding for +str+
+  # @param [String] str
+  # @return [String] binary encoded string
+  def self.force_binary(str)
+    str.force_encoding Encoding::BINARY
+  end
 end
 
 require 'packetgen/structfu'
 require 'packetgen/packet'
+require 'packetgen/pcapng'
