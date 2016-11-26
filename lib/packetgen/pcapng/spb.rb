@@ -12,11 +12,24 @@ module PacketGen
     class SPB < Struct.new(:type, :block_len, :orig_len, :data, :block_len2)
       include StructFu
       include Block
+
+      # @return [:little, :big]
       attr_accessor :endian
+      # @return [IPB]
       attr_accessor :interface
 
+      # Minimum SPB size
       MIN_SIZE     = 4*4
 
+      # @param [Hash] options
+      # @option options [:little, :big] :endian set block endianness
+      # @option options [Integer] :type
+      # @option options [Integer] :block_len block total length
+      # @option options [Integer] :orig_len actual length of the packet when it was
+      #                                     transmitted on the network
+      # @option options [::String] :data
+      # @option options [::String] :options
+      # @option options [Integer] :block_len2 block total length
       def initialize(args={})
         @endian = set_endianness(args[:endian] || :little)
         init_fields(args)
@@ -24,7 +37,10 @@ module PacketGen
               args[:block_len2])
       end
 
-      # Used by #initialize to set the initial fields
+      # Used by {#initialize} to set the initial fields
+      # @param [Hash] options
+      # @see #initialize possible options
+      # @return [Hash] return +options+
       def init_fields(args={})
         args[:type]  = @int32.new(args[:type] || PcapNG::SPB_TYPE.to_i)
         args[:block_len] = @int32.new(args[:block_len] || MIN_SIZE)
@@ -38,6 +54,9 @@ module PacketGen
         false
       end
 
+      # Reads a String or a IO to populate the object
+      # @param [::String,IO] str_or_io
+      # @return [self]
       def read(str_or_io)
         if str_or_io.respond_to? :read
           io = str_or_io
@@ -69,6 +88,7 @@ module PacketGen
       end
 
       # Return the object as a String
+      # @return [String]
       def to_s
         pad_field :data
         recalc_block_len

@@ -15,34 +15,52 @@ module PacketGen
                            :snaplen, :options, :block_len2)
       include StructFu
       include Block
+
+      # @return [:little, :big]
       attr_accessor :endian
+      # @return [SHB]
       attr_accessor :section
+      # @return [Array<EPB,SPB>]
       attr_accessor :packets
 
+      # Minimum IDB size
       MIN_SIZE     = 5*4
 
       # Option code for if_tsresol option
       OPTION_IF_TSRESOL = 9
 
-      def initialize(args={})
-        @endian = set_endianness(args[:endian] || :little)
+      # @param [Hash] options
+      # @option options [:little, :big] :endian set block endianness
+      # @option options [Integer] :type
+      # @option options [Integer] :block_len block total length
+      # @option options [Integer] :link_type
+      # @option options [Integer] :reserved
+      # @option options [Integer] :snaplen maximum number of octets captured from
+      #                                    each packet
+      # @option options [::String] :options
+      # @option options [Integer] :block_len2 block total length
+      def initialize(options={})
+        @endian = set_endianness(options[:endian] || :little)
         @packets = []
         @options_decoded = false
-        init_fields(args)
-        super(args[:type], args[:block_len], args[:link_type], args[:reserved],
-              args[:snaplen], args[:options], args[:block_len2])
+        init_fields(options)
+        super(options[:type], options[:block_len], options[:link_type], options[:reserved],
+              options[:snaplen], options[:options], options[:block_len2])
       end
 
-      # Used by #initialize to set the initial fields
-      def init_fields(args={})
-        args[:type]  = @int32.new(args[:type] || PcapNG::IDB_TYPE.to_i)
-        args[:block_len] = @int32.new(args[:block_len] || MIN_SIZE)
-        args[:link_type] = @int16.new(args[:link_type] || 1)
-        args[:reserved] = @int16.new(args[:reserved] || 0)
-        args[:snaplen] = @int32.new(args[:snaplen] || 0)
-        args[:options] = StructFu::String.new(args[:options] || '')
-        args[:block_len2] = @int32.new(args[:block_len2] || MIN_SIZE)
-        args
+      # Used by {#initialize} to set the initial fields
+      # @see #initialize possible options
+      # @param [Hash] options
+      # @return [Hash] return +options+
+      def init_fields(options={})
+        options[:type]  = @int32.new(options[:type] || PcapNG::IDB_TYPE.to_i)
+        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
+        options[:link_type] = @int16.new(options[:link_type] || 1)
+        options[:reserved] = @int16.new(options[:reserved] || 0)
+        options[:snaplen] = @int32.new(options[:snaplen] || 0)
+        options[:options] = StructFu::String.new(options[:options] || '')
+        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
+        options
       end
 
       def has_options?
@@ -50,6 +68,8 @@ module PacketGen
       end
 
       # Reads a String or a IO to populate the object
+      # @param [::String,IO] str_or_io
+      # @return [self]
       def read(str_or_io)
         if str_or_io.respond_to? :read
           io = str_or_io
@@ -74,12 +94,17 @@ module PacketGen
       end
       
       # Add a xPB to this section
+      # @param [EPB,SPB] xpb
+      # @return [self]
       def <<(xpb)
         @packets << xpb
+        self
       end
 
       # Give timestamp resolution for this interface
-      def ts_resol(force=false)
+      # @param [Boolean] force if +true+, force decoding even if already done
+      # @return [Float]
+      def ts_resol(force: false)
         if @options_decoded and not force
           @ts_resol
         else
@@ -111,6 +136,7 @@ module PacketGen
       end
 
       # Return the object as a String
+      # @return [String]
       def to_s
         pad_field :options
         recalc_block_len

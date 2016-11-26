@@ -20,7 +20,7 @@ module PacketGen
         expect(@idb.ts_resol).to eq(1E-4)
 
         @idb.options.read [9, 1, 0x83].pack('vvC')
-        expect(@idb.ts_resol(true)).to eq(2**-3)
+        expect(@idb.ts_resol(force: true)).to eq(2**-3)
       end
 
       context 'when reading' do

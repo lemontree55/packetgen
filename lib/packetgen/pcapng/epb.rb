@@ -1,7 +1,7 @@
 module PacketGen
   module PcapNG
 
-    # {EPB} represents a Extended Packet Block (EPB) of a pcapng file.
+    # {EPB} represents a Enhanced Packet Block (EPB) of a pcapng file.
     #
     # == EPB Definition
     #   Int32   :type           Default: 0x00000006
@@ -18,39 +18,64 @@ module PacketGen
                            :cap_len, :orig_len, :data, :options, :block_len2)
       include StructFu
       include Block
+
+      # @return [:little, :big]
       attr_accessor :endian
+      # @return [IPB]
       attr_accessor :interface
 
+      # Minimum EPB size
       MIN_SIZE     = 8*4
 
-      def initialize(args={})
-        @endian = set_endianness(args[:endian] || :little)
-        init_fields(args)
-        super(args[:type], args[:block_len], args[:interface_id], args[:tsh],
-              args[:tsl], args[:cap_len], args[:orig_len], args[:data],
-              args[:options], args[:block_len2])
+      # @param [Hash] options
+      # @option options [:little, :big] :endian set block endianness
+      # @option options [Integer] :type
+      # @option options [Integer] :block_len block total length
+      # @option options [Integer] :interface_id specifies the interface this packet
+      #   comes from
+      # @option options [Integer] :tsh timestamp (high nibbles)
+      # @option options [Integer] :tsl timestamp (low nibbles)
+      # @option options [Integer] :cap_len number of octets captured from the packet
+      # @option options [Integer] :orig_len actual length of the packet when it was
+      #   transmitted on the network
+      # @option options [::String] :data
+      # @option options [::String] :options
+      # @option options [Integer] :block_len2 block total length
+      def initialize(options={})
+        @endian = set_endianness(options[:endian] || :little)
+        init_fields(options)
+        super(options[:type], options[:block_len], options[:interface_id], options[:tsh],
+              options[:tsl], options[:cap_len], options[:orig_len], options[:data],
+              options[:options], options[:block_len2])
       end
 
-      # Used by #initialize to set the initial fields
-      def init_fields(args={})
-        args[:type]  = @int32.new(args[:type] || PcapNG::EPB_TYPE.to_i)
-        args[:block_len] = @int32.new(args[:block_len] || MIN_SIZE)
-        args[:interface_id] = @int32.new(args[:interface_id] || 0)
-        args[:tsh] = @int32.new(args[:tsh] || 0)
-        args[:tsl] = @int32.new(args[:tsl] || 0)
-        args[:cap_len] = @int32.new(args[:cap_len] || 0)
-        args[:orig_len] = @int32.new(args[:orig_len] || 0)
-        args[:data] = StructFu::String.new(args[:data] || '')
-        args[:options] = StructFu::String.new(args[:options] || '')
-        args[:block_len2] = @int32.new(args[:block_len2] || MIN_SIZE)
-        args
+      # Used by {#initialize} to set the initial fields
+      # @param [Hash] options
+      # @see #initialize possible options
+      # @return [Hash] return +options+
+      def init_fields(options={})
+        options[:type]  = @int32.new(options[:type] || PcapNG::EPB_TYPE.to_i)
+        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
+        options[:interface_id] = @int32.new(options[:interface_id] || 0)
+        options[:tsh] = @int32.new(options[:tsh] || 0)
+        options[:tsl] = @int32.new(options[:tsl] || 0)
+        options[:cap_len] = @int32.new(options[:cap_len] || 0)
+        options[:orig_len] = @int32.new(options[:orig_len] || 0)
+        options[:data] = StructFu::String.new(options[:data] || '')
+        options[:options] = StructFu::String.new(options[:options] || '')
+        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
+        options
       end
 
+      # Has this block option?
+      # @return [Boolean]
       def has_options?
         self[:options].size > 0
       end
 
       # Reads a String or a IO to populate the object
+      # @param [::String,IO] str_or_io
+      # @return [self]
       def read(str_or_io)
         if str_or_io.respond_to? :read
           io = str_or_io
@@ -82,11 +107,13 @@ module PacketGen
       end
 
       # Return timestamp as a Time object
+      # @return [Time]
       def timestamp
         Time.at((self[:tsh].to_i << 32 | self[:tsl].to_i) * ts_resol)
       end
 
       # Return the object as a String
+      # @return [String]
       def to_s
         pad_field :data, :options
         recalc_block_len

@@ -179,16 +179,16 @@ module PacketGen
 
         it 'creates a file and write self to it' do
           @pcapng.readfile @file
-          @pcapng.to_file :filename => @write_file.path
+          @pcapng.to_file @write_file.path
           @write_file.rewind
           expect(@write_file.read).to eq(::File.read(@file))
         end
 
         it 'appends a section to an existing file' do
           @pcapng.readfile @file
-          @pcapng.to_file :filename => @write_file.path
+          @pcapng.to_file @write_file.path
 
-          @pcapng.to_file :filename => @write_file.path, :append => true
+          @pcapng.to_file @write_file.path, :append => true
 
           @pcapng.clear
           @pcapng.readfile @write_file.path

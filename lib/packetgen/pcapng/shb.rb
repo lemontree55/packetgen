@@ -16,38 +16,65 @@ module PacketGen
                            :section_len, :options, :block_len2)
       include StructFu
       include Block
+
+      # @return [:little, :big]
       attr_accessor :endian
+      # Get interfaces for this section
+      # @return [Array<IDB>]
       attr_reader :interfaces
       # Get unsupported blocks given in pcapng file as raw data
+      # @return [Array<UnknownBlock>]
       attr_reader :unknown_blocks
 
+      # Magic value to retrieve SHB
       MAGIC_INT32  = 0x1A2B3C4D
+      # Magic value (little endian version)
       MAGIC_LITTLE = [MAGIC_INT32].pack('V')
+      # Magic value (big endian version)
       MAGIC_BIG    = [MAGIC_INT32].pack('N')
 
+      # Minimum SHB size
       MIN_SIZE     = 7*4
+      # +section_len+ value for undefined length
       SECTION_LEN_UNDEFINED = 0xffffffff_ffffffff
 
-      def initialize(args={})
-        @endian = set_endianness(args[:endian] || :little)
+      # @param [Hash] options
+      # @option options [:little, :big] :endian set block endianness
+      # @option options [Integer] :type
+      # @option options [Integer] :block_len block total length
+      # @option options [Integer] :magic magic number to distinguish little endian
+      #                                  sessions and big endian ones
+      # @option options [Integer] :ver_major number of the current major version of
+      #                                      the format
+      # @option options [Integer] :ver_minor number of the current minor version of
+      #                                      the format
+      # @option options [Integer] :section_len length of following section, excluding
+      #                                        he SHB itself
+      # @option options [::String] :options
+      # @option options [Integer] :block_len2 block total length
+      def initialize(options={})
+        @endian = set_endianness(options[:endian] || :little)
         @interfaces = []
         @unknown_blocks = []
-        init_fields(args)
-        super(args[:type], args[:block_len], args[:magic], args[:ver_major],
-              args[:ver_minor], args[:section_len], args[:options], args[:block_len2])
+        init_fields(options)
+        super(options[:type], options[:block_len], options[:magic], options[:ver_major],
+              options[:ver_minor], options[:section_len], options[:options], options[:block_len2])
       end
 
-      # Used by #initialize to set the initial fields
-      def init_fields(args={})
-        args[:type]  = @int32.new(args[:type] || PcapNG::SHB_TYPE.to_i)
-        args[:block_len] = @int32.new(args[:block_len] || MIN_SIZE)
-        args[:magic] = @int32.new(args[:magic] || MAGIC_INT32)
-        args[:ver_major] = @int16.new(args[:ver_major] || 1)
-        args[:ver_minor] = @int16.new(args[:ver_minor] || 0)
-        args[:section_len] = @int64.new(args[:section_len] || SECTION_LEN_UNDEFINED)
-        args[:options] = StructFu::String.new(args[:options] || '')
-        args[:block_len2] = @int32.new(args[:block_len2] || MIN_SIZE)
-        args
+      # Used by {#initialize} to set the initial fields
+      # @see #initialize possible options
+      # @param [Hash] options
+      # @return [Hash] return +options+
+      def init_fields(options={})
+        options[:type]  = @int32.new(options[:type] || PcapNG::SHB_TYPE.to_i)
+        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
+        options[:magic] = @int32.new(options[:magic] || MAGIC_INT32)
+        options[:ver_major] = @int16.new(options[:ver_major] || 1)
+        options[:ver_minor] = @int16.new(options[:ver_minor] || 0)
+        options[:section_len] = @int64.new(options[:section_len] || SECTION_LEN_UNDEFINED)
+        options[:options] = StructFu::String.new(options[:options] || '')
+        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
+        options
       end
 
       def has_options?
@@ -55,6 +82,8 @@ module PacketGen
       end
 
       # Reads a String or a IO to populate the object
+      # @param [::String,IO] str_or_io
+      # @return [self]
       def read(str_or_io)
         if str_or_io.respond_to? :read
           io = str_or_io
@@ -108,11 +137,15 @@ module PacketGen
       end
 
       # Add a IDB to this section
+      # @param [IDB] ipb
+      # @return [self]
       def <<(idb)
         @interfaces << idb
+        self
       end
 
       # Return the object as a String
+      # @return [String]
       def to_s
         body = @interfaces.map(&:to_s).join
         unless self[:section_len].to_i == SECTION_LEN_UNDEFINED

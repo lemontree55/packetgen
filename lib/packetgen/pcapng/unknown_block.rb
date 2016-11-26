@@ -5,18 +5,30 @@ module PacketGen
     class UnknownBlock < Struct.new(:type, :block_len, :body, :block_len2)
       include StructFu
       include Block
+
+      # @return [:little, :big]
       attr_accessor :endian
+      # @return [SHB]
       attr_accessor :section
 
+      # Minimum Iblock size
       MIN_SIZE     = 12
 
+      # @option options [:little, :big] :endian set block endianness
+      # @option options [Integer] :type
+      # @option options [Integer] :block_len block total length
+      # @option options [::String] :body
+      # @option options [Integer] :block_len2 block total length
       def initialize(args={})
         @endian = set_endianness(args[:endian] || :little)
         init_fields(args)
         super(args[:type], args[:block_len], args[:body], args[:block_len2])
       end
 
-      # Used by #initialize to set the initial fields
+      # Used by {#initialize} to set the initial fields
+      # @see #initialize possible options
+      # @param [Hash] options
+      # @return [Hash] return +options+
       def init_fields(args={})
         args[:type]  = @int32.new(args[:type] || 0)
         args[:block_len] = @int32.new(args[:block_len] || MIN_SIZE)
@@ -25,6 +37,9 @@ module PacketGen
         args
       end
 
+      # Reads a String or a IO to populate the object
+      # @param [::String,IO] str_or_io
+      # @return [self]
       def read(str_or_io)
         if str_or_io.respond_to? :read
           io = str_or_io
@@ -46,6 +61,7 @@ module PacketGen
       end
 
       # Return the object as a String
+      # @return [String]
       def to_s
         pad_field :body
         recalc_block_len
