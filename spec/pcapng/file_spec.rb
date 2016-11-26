@@ -102,6 +102,18 @@ module PacketGen
         end
       end
 
+      context '#read_packet_bytes' do
+        it 'returns an array of raw packets' do
+          pending 'need Packet#parse and ICMP'
+          raw_packets = @pcapng.read_packet_bytes(@file)
+          icmp = Packet.parse(raw_packets[2])
+          expect(icmp.ip.src).to eq('192.168.1.105')
+          expect(icmp.ip.dst).to eq('216.75.1.230')
+          expect(icmp.icmp.type).to eq(8)
+          expect(icmp.icmp.code).to eq(0)
+        end
+      end
+
       context '#read_packets' do
         #before(:all) do
         #  @expected = [UDPPacket] * 2 + [ICMPPacket] * 3 + [ARPPacket] * 2 +
