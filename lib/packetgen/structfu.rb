@@ -62,13 +62,9 @@ module PacketGen
       end
     end
 
-    # Handle deep copies correctly. Marshal in 1.9, re-read myself on 1.8
+    # Handle deep copies correctly.
     def clone
-      begin
-        Marshal.load(Marshal.dump(self))
-      rescue
-        self.class.new.read(self.to_s)
-      end
+      Marshal.load(Marshal.dump(self))
     end
 
     # Set the endianness for the various Int classes handled by self
