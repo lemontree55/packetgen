@@ -127,6 +127,14 @@ module PacketGen
       end
     end
 
+    # Write a PCapNG file to disk.
+    # @param [String] filename
+    # @return [Array] see return from {PcapNG::File#to_file}
+    # @see File
+    def to_f(filename)
+      File.new.array_to_file(filename: filename, array: [self])
+    end
+
     private
 
     # @overload header(protocol, layer=1)
