@@ -83,7 +83,6 @@ module PacketGen
     # Get binary string
     # @return [String]
     def to_s
-      puts "StructFu#to_s"
       to_a.map { |field| field.to_s }.join
     end
 
