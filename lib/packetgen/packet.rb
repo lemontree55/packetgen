@@ -128,6 +128,14 @@ module PacketGen
       end
     end
 
+    # Recalculate all packet length fields
+    # @return [void]
+    def calc_length
+      @headers.each do |header|
+        header.calc_length if header.respond_to? :calc_length
+      end
+    end
+
     # Get packet body
     # @return [StructFu]
     def body

@@ -95,6 +95,12 @@ module PacketGen
         self[:sum].value = (checksum == 0) ? 0xffff : checksum
       end
 
+      # Compute length and set +len+ field
+      # @return [Integer]
+      def calc_len
+        self[:len].value = self.sz
+      end
+
       # Getter for TOS attribute
       # @return [Integer]
       def tos
