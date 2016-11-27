@@ -3,6 +3,9 @@ require 'packetgen/version'
 # @author Sylvain Daubert
 module PacketGen
 
+  # Base exception class for PacketGen exceptions
+  class Error < StandardError; end
+
   # Shortcut for {Packet.gen}
   # @param [String] protocol base protocol for packet
   # @param [Hash] options specific options for +protocol+
