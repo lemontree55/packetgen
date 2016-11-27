@@ -26,7 +26,7 @@ module PacketGen
       # @return [Integer]
       # @raise FormatError +header+ not in a packet
       def header_id(header)
-        raise FormatError, 'header not in a packet' if packet.nil?
+        raise FormatError, "header of type #{header.class} not in a packet" if packet.nil?
         id = packet.headers.index(header)
         if id.nil?
           raise FormatError, "header of type #{header.class} not in packet #{packet}"
