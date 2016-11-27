@@ -103,6 +103,7 @@ module PacketGen
         prev_header[layer.key].read layer.value
         prev_header.body = header
       end
+      header.packet = self
       @headers << header
       unless respond_to? protocol.downcase
         self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
