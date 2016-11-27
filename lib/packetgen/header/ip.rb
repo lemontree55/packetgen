@@ -6,6 +6,7 @@ module PacketGen
     class IP < Struct.new(:version, :ihl, :tos, :len, :id, :frag, :ttl,
                           :proto,:sum, :src, :dst, :body)
       include StructFu
+      include HeaderMethods
       extend HeaderClassMethods
 
       # IP address, as a group of 4 bytes
