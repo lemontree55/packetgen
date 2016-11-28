@@ -21,7 +21,7 @@ module PacketGen
     LINKTYPE_ETHERNET = 1
 
     # Base error class for PcapNG
-    class Error < StandardError; end
+    class Error < PacketGen::Error; end
     # Invalid PcapNG file error
     class InvalidFileError < Error; end
 

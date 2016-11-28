@@ -103,6 +103,7 @@ module PacketGen
         prev_header[layer.key].read layer.value
         prev_header.body = header
       end
+      header.packet = self
       @headers << header
       unless respond_to? protocol.downcase
         self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
@@ -119,11 +120,19 @@ module PacketGen
       @headers.any? { |h| h.is_a? klass }
     end
 
-    # Recalculates all packet checksums
+    # Recalculate all packet checksums
     # @return [void]
     def calc_sum
       @headers.reverse.each do |header|
-        @header.calc_sum if @header.respond_to? :calc_sum
+        header.calc_sum if header.respond_to? :calc_sum
+      end
+    end
+
+    # Recalculate all packet length fields
+    # @return [void]
+    def calc_length
+      @headers.each do |header|
+        header.calc_length if header.respond_to? :calc_length
       end
     end
 

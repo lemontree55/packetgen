@@ -5,6 +5,7 @@ module PacketGen
     # @author Sylvain Daubert
     class Eth < Struct.new(:dst, :src, :proto, :body)
       include StructFu
+      include HeaderMethods
       extend HeaderClassMethods
 
       # Ethernet MAC address, as a group of 6 bytes

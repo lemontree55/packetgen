@@ -6,6 +6,7 @@ module PacketGen
     class IP < Struct.new(:version, :ihl, :tos, :len, :id, :frag, :ttl,
                           :proto,:sum, :src, :dst, :body)
       include StructFu
+      include HeaderMethods
       extend HeaderClassMethods
 
       # IP address, as a group of 4 bytes
@@ -92,6 +93,12 @@ module PacketGen
         checksum = (checksum & 0xffff) + (checksum >> 16)
         checksum = ~(checksum % 0xffff ) & 0xffff
         self[:sum].value = (checksum == 0) ? 0xffff : checksum
+      end
+
+      # Compute length and set +len+ field
+      # @return [Integer]
+      def calc_length
+        self[:len].value = self.sz
       end
 
       # Getter for TOS attribute
@@ -219,7 +226,7 @@ module PacketGen
       # @return [String]
       def to_s
         first_byte = [(version << 4) | ihl].pack('C')
-        first_byte << to_a[2..-2].map { |field| field.to_s }.join
+        first_byte << to_a[2..-1].map { |field| field.to_s }.join
       end
     end
 

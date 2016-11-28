@@ -105,13 +105,15 @@ module PacketGen
 
     describe '#calc_sum' do
       it 'recalculates packet checksums' do
-        pending 'need UDP'
-        pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2').
+        pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
               add('UDP', sport: 45768, dport: 80)
         pkt.body = 'abcdef'
-        pkt.recalc
         expect(pkt.ip.sum).to eq(0)
         expect(pkt.udp.sum).to eq(0)
+        pkt.calc_length
+        pkt.calc_sum
+        expect(pkt.ip.sum).to eq(0x74c6)
+        expect(pkt.udp.sum).to eq(0x1c87)
       end
     end
 
