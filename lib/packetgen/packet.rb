@@ -49,10 +49,14 @@ module PacketGen
     end
 
     # Parse a binary string and generate a Packet from it.
+    #   # auto-detect first header
+    #   Packet.parse str
+    #   # force decoding a Ethernet header for first header
+    #   Packet.parse str, first_header: 'Eth'
     # @param [String] binary_str
-    # @param [String] first_layer First protocol layer
+    # @param [String,nil] first_header First protocol header. +nil+ means discover it!
     # @return [Packet]
-    def self.parse(binary_str, first_layer: 'Eth')
+    def self.parse(binary_str, first_header: nil)
     end
 
     # Capture packets from +iface+
