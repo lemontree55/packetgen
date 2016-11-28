@@ -64,13 +64,13 @@ module PacketGen
       end
       alias :source_port :sport
 
-      # Setter for destination port
+      # Setter for source port
       # @param [Integer] port
       # @return [Integer]
-      def dport=(port)
-        self[:dport].read port
+      def sport=(port)
+        self[:sport].read port
       end
-      alias :destination_port= :dport=
+      alias :source_port= :sport=
 
       # Getter for destination port
       # @return [Integer]
