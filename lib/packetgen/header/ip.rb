@@ -97,7 +97,7 @@ module PacketGen
 
       # Compute length and set +len+ field
       # @return [Integer]
-      def calc_len
+      def calc_length
         self[:len].value = self.sz
       end
 
@@ -226,7 +226,7 @@ module PacketGen
       # @return [String]
       def to_s
         first_byte = [(version << 4) | ihl].pack('C')
-        first_byte << to_a[2..-2].map { |field| field.to_s }.join
+        first_byte << to_a[2..-1].map { |field| field.to_s }.join
       end
     end
 
