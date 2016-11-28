@@ -49,6 +49,29 @@ module PacketGen
       end
     end
 
+    describe '.parse' do
+      before(:each) do
+        file = PcapNG::File.new
+        fname = File.join(__dir__, 'pcapng', 'sample.pcapng')
+        @raw_pkts = file.read_packet_bytes(fname)
+      end
+
+      it 'parses a string ang get a packet' do
+        pkt = nil
+        expect { pkt = Packet.parse(@raw_pkts.first) }.not_to raise_error
+        expect(pkt).to respond_to :eth
+        expect(pkt).to respond_to :ip
+        expect(pkt).to respond_to :udp
+        expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
+        expect(pkt.ip.ttl).to eq(128)
+        expect(pkt.ip.src).to eq('192.168.1.105')
+        expect(pkt.udp.src).to eq(55261)
+        expect(pkt.udp.dst).to eq(53)
+        expect(pkt.udp.length).to eq(44)
+        expect(pkt.udp.sum).to eq(0x8bf8)
+      end
+    end
+
     describe '#add' do
       before(:each) do
         @pkt = Packet.gen('IP')
