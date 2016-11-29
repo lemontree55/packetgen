@@ -84,7 +84,7 @@ module PacketGen
         expect(pkt).to respond_to :udp
         expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
         expect(pkt.ip.src).to eq('192.168.1.105')
-        expect(pkt.udp.src).to eq(55261)
+        expect(pkt.udp.sport).to eq(55261)
       end
 
       it 'parses a string with first_header set to uncorrect header' do
@@ -96,6 +96,7 @@ module PacketGen
         expect(pkt.ip.version).to eq(0)
         expect(pkt.ip.ihl).to eq(0)
         expect(pkt.ip.id).to eq(0x74de)
+        expect(pkt.ip.proto).to eq(0x51)
       end
     end
 
