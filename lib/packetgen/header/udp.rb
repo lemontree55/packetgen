@@ -27,6 +27,19 @@ module PacketGen
         end
       end
 
+      # Read a IP header from a string
+      # @param [String] str binary string
+      # @return [self]
+      def read(str)
+        raise ArgumentError, 'string too short for Eth' if str.size < self.sz
+        force_binary str
+        self[:sport].read str[0, 2]
+        self[:dport].read str[2, 2]
+        self[:length].read str[4, 2]
+        self[:sum].read str[6, 2]
+        self[:body].read str[8..-1]
+      end
+
       # Compute checksum and set +sum+ field
       # @return [Integer]
       def calc_sum
