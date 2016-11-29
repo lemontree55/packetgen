@@ -34,6 +34,7 @@ module PacketGen
         # @param [String] str
         # @return [self]
         def parse(str)
+          return self if str.nil?
           bytes = str.split(/:/)
           unless bytes.size == 6
             raise ArgumentError, 'not a MAC address'

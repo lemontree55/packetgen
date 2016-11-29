@@ -33,6 +33,7 @@ module PacketGen
         # @param [String] str
         # @return [self]
         def parse(str)
+          return self if str.nil?
           m = str.match(IPV4_ADDR_REGEX)
           if m
             self[:a1].read m[1].to_i
