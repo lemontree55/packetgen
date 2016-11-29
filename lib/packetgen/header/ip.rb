@@ -43,6 +43,17 @@ module PacketGen
           self
         end
 
+        # Read a Addr from a string
+        # @param [String] str binary string
+        # @return [self]
+        def read(str)
+          raise ArgumentError, 'string too short for Eth' if str.size < self.sz
+          force_binary str
+          [:a1, :a2, :a3, :a4].each_with_index do |byte, i|
+            self[byte].read str[i, 1]
+          end
+        end
+
         [:a1, :a2, :a3, :a4].each do |sym|
           class_eval "def #{sym}; self[:#{sym}].to_i; end\n" \
                      "def #{sym}=(v); self[:#{sym}].read v; end" 
@@ -78,7 +89,29 @@ module PacketGen
               StructFu::String.new.read(options[:body])
       end
 
-      # Compute checksum and set +sum+ field
+      # Read a IP header from a string
+      # @param [String] str binary string
+      # @return [self]
+      def read(str)
+        raise ArgumentError, 'string too short for Eth' if str.size < self.sz
+        force_binary str
+        vihl = str[0, 1].unpack('C').first
+        self[:version] = vihl >> 4
+        self[:ihl] = vihl & 0x0f
+        self[:tos].read str[1, 1]
+        self[:len].read str[2, 2]
+        self[:id].read str[4, 2]
+        self[:frag].read str[6, 2]
+        self[:ttl].read str[8, 1]
+        self[:proto].read str[9, 1]
+        self[:sum].read str[10, 2]
+        self[:src].read str[12, 4]
+        self[:dst].read str[16, 4]
+        self[:body].read str[20..-1]
+        self
+      end
+
+       # Compute checksum and set +sum+ field
       # @return [Integer]
       def calc_sum
         checksum = (self.version << 12) | (self.ihl << 8) | self.tos
