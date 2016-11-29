@@ -1,6 +1,14 @@
 module PacketGen
   # Namespace for protocol header classes
+  # @author Sylvain Daubert
   module Header
+
+    # Get known header classes
+    # @return [Array<Class>]
+    def self.all
+      constants.map { |sym| const_get sym }.
+        select { |klass| klass < Struct && klass < HeaderMethods }
+    end
   end
 end
 
