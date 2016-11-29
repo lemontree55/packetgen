@@ -47,6 +47,7 @@ module PacketGen
         # @param [String] str binary string
         # @return [self]
         def read(str)
+          return self if str.nil?
           raise ParseError, 'string too short for Eth' if str.size < self.sz
           force_binary str
           [:a1, :a2, :a3, :a4].each_with_index do |byte, i|
@@ -93,6 +94,7 @@ module PacketGen
       # @param [String] str binary string
       # @return [self]
       def read(str)
+        return self if str.nil?
         raise ParseError, 'string too short for Eth' if str.size < self.sz
         force_binary str
         vihl = str[0, 1].unpack('C').first

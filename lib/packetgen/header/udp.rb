@@ -31,6 +31,7 @@ module PacketGen
       # @param [String] str binary string
       # @return [self]
       def read(str)
+        return self if str.nil?
         raise ParseError, 'string too short for Eth' if str.size < self.sz
         force_binary str
         self[:sport].read str[0, 2]
