@@ -60,8 +60,8 @@ module PacketGen
         end
 
         it 'raises when str is too short' do
-          expect { eth.read 'abcd' }.to raise_error(ArgumentError, /too short/)
-          expect { eth.read('abcdef' * 2) }.to raise_error(ArgumentError, /too short/)
+          expect { eth.read 'abcd' }.to raise_error(ParseError, /too short/)
+          expect { eth.read('abcdef' * 2) }.to raise_error(ParseError, /too short/)
         end
       end
 

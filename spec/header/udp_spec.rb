@@ -55,7 +55,7 @@ module PacketGen
         end
 
         it 'raises when str is too short' do
-          expect { udp.read 'abcd' }.to raise_error(ArgumentError, /too short/)
+          expect { udp.read 'abcd' }.to raise_error(ParseError, /too short/)
         end
       end
 

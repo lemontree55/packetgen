@@ -7,7 +7,10 @@ module PacketGen
   class Error < StandardError; end
 
   # Packet badly formatted
-  class FormatError < StandardError; end
+  class FormatError < Error; end
+
+  # Parsing error
+  class ParseError < Error; end
 
   # Shortcut for {Packet.gen}
   # @param [String] protocol base protocol for packet

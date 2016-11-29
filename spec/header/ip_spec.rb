@@ -94,8 +94,8 @@ module PacketGen
         end
 
         it 'raises when str is too short' do
-          expect { ip.read 'abcd' }.to raise_error(ArgumentError, /too short/)
-          expect { ip.read('a' * 18) }.to raise_error(ArgumentError, /too short/)
+          expect { ip.read 'abcd' }.to raise_error(ParseError, /too short/)
+          expect { ip.read('a' * 18) }.to raise_error(ParseError, /too short/)
         end
       end
 
