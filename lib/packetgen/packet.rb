@@ -56,7 +56,50 @@ module PacketGen
     # @param [String] binary_str
     # @param [String,nil] first_header First protocol header. +nil+ means discover it!
     # @return [Packet]
+    # @raise [ArgumentError] +first_header+ is an unknown header
     def self.parse(binary_str, first_header: nil)
+      pkt = new
+
+      if first_header.nil?
+        # No decoding forced for first header. Have to guess it!
+        Header.all.each do |hklass|
+          hdr = hklass.new
+          hdr.read binary_str
+          # First header is found when:
+          # * for one known header,
+          # * it exists a known binding with a upper header
+          hklass.known_headers.each do |nh, binding|
+            if hdr.send(binding.key) == binding.value
+              first_header = hklass.to_s.gsub(/.*::/, '')
+              break
+            end
+          end
+          break unless first_header.nil?
+        end
+        if first_header.nil?
+          raise ParseError, 'cannot identify first header in string'
+        end
+      end
+
+      pkt.add(first_header)
+      pkt.headers.last.read binary_str
+
+      # Decode upper headers recursively
+      decode_packet_bottom_up = true
+      while decode_packet_bottom_up do
+        last_known_hdr = pkt.headers.last
+        last_known_hdr.class.known_headers.each do |nh, binding|
+          if last_known_hdr.send(binding.key) == binding.value
+            str = last_known_hdr.body
+            pkt.add nh.to_s.gsub(/.*::/, '')
+            pkt.headers.last.read str
+            break
+          end
+        end
+        decode_packet_bottom_up = (pkt.headers.last != last_known_hdr)
+      end
+
+      pkt
     end
 
     # Capture packets from +iface+

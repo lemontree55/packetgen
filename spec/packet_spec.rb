@@ -57,7 +57,6 @@ module PacketGen
       end
 
       it 'parses a string, guess first header and get a packet' do
-        pending
         pkt = nil
         expect { pkt = Packet.parse(@raw_pkts.first) }.not_to raise_error
         expect(pkt).to respond_to :eth
@@ -66,16 +65,18 @@ module PacketGen
         expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
         expect(pkt.ip.ttl).to eq(128)
         expect(pkt.ip.src).to eq('192.168.1.105')
-        expect(pkt.udp.src).to eq(55261)
-        expect(pkt.udp.dst).to eq(53)
+        expect(pkt.udp.sport).to eq(55261)
+        expect(pkt.udp.dport).to eq(53)
         expect(pkt.udp.length).to eq(44)
         expect(pkt.udp.sum).to eq(0x8bf8)
       end
 
-      it 'raises if first header cannot be guessed'
+      it 'raises if first header cannot be guessed' do
+        str = "\x00" * 45
+        expect { Packet.parse str }.to raise_error(ParseError, /cannot identify/)
+      end
 
       it 'parses a string with first_header set to correct header' do
-        pending
         pkt = nil
         expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'Eth') }.
           not_to raise_error
@@ -88,7 +89,6 @@ module PacketGen
       end
 
       it 'parses a string with first_header set to uncorrect header' do
-        pending
         pkt = nil
         expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'IP') }.
           not_to raise_error
