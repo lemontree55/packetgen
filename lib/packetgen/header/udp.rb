@@ -114,6 +114,6 @@ module PacketGen
       end
     end
 
-    IP.bind_layer UDP, proto: UDP::IP_PROTOCOL
+    IP.bind_header UDP, proto: UDP::IP_PROTOCOL
   end
 end

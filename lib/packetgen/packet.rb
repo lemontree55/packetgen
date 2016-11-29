@@ -96,15 +96,15 @@ module PacketGen
       header = klass.new(options)
       prev_header = @headers.last
       if prev_header
-        layer = prev_header.class.known_layers[klass]
-        if layer.nil?
+        binding = prev_header.class.known_headers[klass]
+        if binding.nil?
           msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
           msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
           msg << "#{prev_header.class.to_s.gsub(/(.*)::/, '').downcase}_proto_field: "
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
-        prev_header[layer.key].read layer.value
+        prev_header[binding.key].read binding.value
         prev_header.body = header
       end
       header.packet = self

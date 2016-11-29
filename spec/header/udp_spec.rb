@@ -5,9 +5,9 @@ module PacketGen
 
     describe UDP do
 
-      describe 'layer' do
+      describe 'binding' do
         it 'in IP packets' do
-          expect(IP.known_layers[UDP].to_h).to eq({key: :proto, value: 17})
+          expect(IP.known_headers[UDP].to_h).to eq({key: :proto, value: 17})
         end
       end
 

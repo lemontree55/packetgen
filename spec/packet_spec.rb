@@ -120,7 +120,7 @@ module PacketGen
       it 'sets protocol information in previous header' do
         expect(@pkt.ip.proto).to eq(0)
         @pkt.add 'IP'
-        expect(@pkt.ip.proto).to eq(Header::IP.known_layers[Header::IP].value)
+        expect(@pkt.ip.proto).to eq(Header::IP.known_headers[Header::IP].value)
         expect(@pkt.ip(2).proto).to eq(0)
       end
 

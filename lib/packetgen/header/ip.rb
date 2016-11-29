@@ -230,7 +230,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_layer IP, proto: 0x800
-    IP.bind_layer IP, proto: 4
+    Eth.bind_header IP, proto: 0x800
+    IP.bind_header IP, proto: 4
   end
 end

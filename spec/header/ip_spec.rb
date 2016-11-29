@@ -26,12 +26,12 @@ module PacketGen
 
     describe IP do
 
-      describe 'layer' do
+      describe 'binding' do
         it 'in Eth packets' do
-          expect(Eth.known_layers[IP].to_h).to eq({key: :proto, value: 0x800})
+          expect(Eth.known_headers[IP].to_h).to eq({key: :proto, value: 0x800})
         end
         it 'in IP packets' do
-          expect(IP.known_layers[IP].to_h).to eq({key: :proto, value: 4})
+          expect(IP.known_headers[IP].to_h).to eq({key: :proto, value: 4})
         end
       end
 
