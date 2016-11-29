@@ -49,10 +49,57 @@ module PacketGen
     end
 
     # Parse a binary string and generate a Packet from it.
+    #   # auto-detect first header
+    #   Packet.parse str
+    #   # force decoding a Ethernet header for first header
+    #   Packet.parse str, first_header: 'Eth'
     # @param [String] binary_str
-    # @param [String] first_layer First protocol layer
+    # @param [String,nil] first_header First protocol header. +nil+ means discover it!
     # @return [Packet]
-    def self.parse(binary_str, first_layer: 'Eth')
+    # @raise [ArgumentError] +first_header+ is an unknown header
+    def self.parse(binary_str, first_header: nil)
+      pkt = new
+
+      if first_header.nil?
+        # No decoding forced for first header. Have to guess it!
+        Header.all.each do |hklass|
+          hdr = hklass.new
+          hdr.read binary_str
+          # First header is found when:
+          # * for one known header,
+          # * it exists a known binding with a upper header
+          hklass.known_headers.each do |nh, binding|
+            if hdr.send(binding.key) == binding.value
+              first_header = hklass.to_s.gsub(/.*::/, '')
+              break
+            end
+          end
+          break unless first_header.nil?
+        end
+        if first_header.nil?
+          raise ParseError, 'cannot identify first header in string'
+        end
+      end
+
+      pkt.add(first_header)
+      pkt.headers.last.read binary_str
+
+      # Decode upper headers recursively
+      decode_packet_bottom_up = true
+      while decode_packet_bottom_up do
+        last_known_hdr = pkt.headers.last
+        last_known_hdr.class.known_headers.each do |nh, binding|
+          if last_known_hdr.send(binding.key) == binding.value
+            str = last_known_hdr.body
+            pkt.add nh.to_s.gsub(/.*::/, '')
+            pkt.headers.last.read str
+            break
+          end
+        end
+        decode_packet_bottom_up = (pkt.headers.last != last_known_hdr)
+      end
+
+      pkt
     end
 
     # Capture packets from +iface+
@@ -92,15 +139,15 @@ module PacketGen
       header = klass.new(options)
       prev_header = @headers.last
       if prev_header
-        layer = prev_header.class.known_layers[klass]
-        if layer.nil?
+        binding = prev_header.class.known_headers[klass]
+        if binding.nil?
           msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
           msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
           msg << "#{prev_header.class.to_s.gsub(/(.*)::/, '').downcase}_proto_field: "
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
-        prev_header[layer.key].read layer.value
+        prev_header[binding.key].read binding.value
         prev_header.body = header
       end
       header.packet = self

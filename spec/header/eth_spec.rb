@@ -47,6 +47,24 @@ module PacketGen
         end
       end
 
+      describe '#read' do
+        let(:eth) { Eth.new}
+
+        it 'sets header from a string' do
+          str = (0...eth.sz).to_a.pack('C*') + 'body'
+          eth.read str
+          expect(eth.dst).to eq('00:01:02:03:04:05')
+          expect(eth.src).to eq('06:07:08:09:0a:0b')
+          expect(eth.proto).to eq(0x0c0d)
+          expect(eth.body).to eq('body')
+        end
+
+        it 'raises when str is too short' do
+          expect { eth.read 'abcd' }.to raise_error(ParseError, /too short/)
+          expect { eth.read('abcdef' * 2) }.to raise_error(ParseError, /too short/)
+        end
+      end
+
       describe 'setters' do
         before(:each) do
           @eth = Eth.new

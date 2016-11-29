@@ -33,6 +33,7 @@ module PacketGen
         # @param [String] str
         # @return [self]
         def parse(str)
+          return self if str.nil?
           m = str.match(IPV4_ADDR_REGEX)
           if m
             self[:a1].read m[1].to_i
@@ -41,6 +42,18 @@ module PacketGen
             self[:a4].read m[4].to_i
           end
           self
+        end
+
+        # Read a Addr from a string
+        # @param [String] str binary string
+        # @return [self]
+        def read(str)
+          return self if str.nil?
+          raise ParseError, 'string too short for Eth' if str.size < self.sz
+          force_binary str
+          [:a1, :a2, :a3, :a4].each_with_index do |byte, i|
+            self[byte].read str[i, 1]
+          end
         end
 
         [:a1, :a2, :a3, :a4].each do |sym|
@@ -78,7 +91,30 @@ module PacketGen
               StructFu::String.new.read(options[:body])
       end
 
-      # Compute checksum and set +sum+ field
+      # Read a IP header from a string
+      # @param [String] str binary string
+      # @return [self]
+      def read(str)
+        return self if str.nil?
+        raise ParseError, 'string too short for Eth' if str.size < self.sz
+        force_binary str
+        vihl = str[0, 1].unpack('C').first
+        self[:version] = vihl >> 4
+        self[:ihl] = vihl & 0x0f
+        self[:tos].read str[1, 1]
+        self[:len].read str[2, 2]
+        self[:id].read str[4, 2]
+        self[:frag].read str[6, 2]
+        self[:ttl].read str[8, 1]
+        self[:proto].read str[9, 1]
+        self[:sum].read str[10, 2]
+        self[:src].read str[12, 4]
+        self[:dst].read str[16, 4]
+        self[:body].read str[20..-1]
+        self
+      end
+
+       # Compute checksum and set +sum+ field
       # @return [Integer]
       def calc_sum
         checksum = (self.version << 12) | (self.ihl << 8) | self.tos
@@ -230,7 +266,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_layer IP, proto: 0x800
-    IP.bind_layer IP, proto: 4
+    Eth.bind_header IP, proto: 0x800
+    IP.bind_header IP, proto: 4
   end
 end

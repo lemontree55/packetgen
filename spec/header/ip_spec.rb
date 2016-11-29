@@ -26,12 +26,12 @@ module PacketGen
 
     describe IP do
 
-      describe 'layer' do
+      describe 'binding' do
         it 'in Eth packets' do
-          expect(Eth.known_layers[IP].to_h).to eq({key: :proto, value: 0x800})
+          expect(Eth.known_headers[IP].to_h).to eq({key: :proto, value: 0x800})
         end
         it 'in IP packets' do
-          expect(IP.known_layers[IP].to_h).to eq({key: :proto, value: 4})
+          expect(IP.known_headers[IP].to_h).to eq({key: :proto, value: 4})
         end
       end
 
@@ -72,6 +72,32 @@ module PacketGen
             expect(ip.send(key)).to eq(value)
           end
         end
+
+      describe '#read' do
+        let(:ip) { IP.new}
+
+        it 'sets header from a string' do
+          str = (1..ip.sz).to_a.pack('C*') + 'body'
+          ip.read str
+          expect(ip.version).to eq(0)
+          expect(ip.ihl).to eq(1)
+          expect(ip.tos).to eq(2)
+          expect(ip.len).to eq(0x0304)
+          expect(ip.id).to eq(0x0506)
+          expect(ip.frag).to eq(0x0708)
+          expect(ip.ttl).to eq(9)
+          expect(ip.proto).to eq(10)
+          expect(ip.sum).to eq(0x0b0c)
+          expect(ip.src).to eq('13.14.15.16')
+          expect(ip.dst).to eq('17.18.19.20')
+          expect(ip.body).to eq('body')
+        end
+
+        it 'raises when str is too short' do
+          expect { ip.read 'abcd' }.to raise_error(ParseError, /too short/)
+          expect { ip.read('a' * 18) }.to raise_error(ParseError, /too short/)
+        end
+      end
 
         describe '#calc_sum' do
           it 'compute IP header checksum' do

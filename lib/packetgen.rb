@@ -7,7 +7,10 @@ module PacketGen
   class Error < StandardError; end
 
   # Packet badly formatted
-  class FormatError < StandardError; end
+  class FormatError < Error; end
+
+  # Parsing error
+  class ParseError < Error; end
 
   # Shortcut for {Packet.gen}
   # @param [String] protocol base protocol for packet
@@ -19,10 +22,10 @@ module PacketGen
 
   # Shortcut for {Packet.parse}
   # @param [String] binary_str
-  # @param [String] first_layer First protocol layer
+  # @param [String] first_header First protocol header
   # @return [Packet]
-  def self.parse(binary_str, first_layer: 'Eth')
-    Packet.parse binary_str, first_layer
+  def self.parse(binary_str, first_header: nil)
+    Packet.parse binary_str, first_header
   end
 
   # Shortcut for {Packet.capture}

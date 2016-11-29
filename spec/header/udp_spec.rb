@@ -5,9 +5,9 @@ module PacketGen
 
     describe UDP do
 
-      describe 'layer' do
+      describe 'binding' do
         it 'in IP packets' do
-          expect(IP.known_layers[UDP].to_h).to eq({key: :proto, value: 17})
+          expect(IP.known_headers[UDP].to_h).to eq({key: :proto, value: 17})
         end
       end
 
@@ -38,6 +38,24 @@ module PacketGen
         it 'computes UDP length if length attribute not set' do
           udp = UDP.new(body: 'abcdefghijkl')
           expect(udp.length).to eq(20)
+        end
+      end
+
+      describe '#read' do
+        let(:udp) { UDP.new}
+
+        it 'sets header from a string' do
+          str = (0...udp.sz).to_a.pack('C*') + 'body'
+          udp.read str
+          expect(udp.sport).to eq(0x0001)
+          expect(udp.dport).to eq(0x0203)
+          expect(udp.length).to eq(0x0405)
+          expect(udp.sum).to eq(0x0607)
+          expect(udp.body).to eq('body')
+        end
+
+        it 'raises when str is too short' do
+          expect { udp.read 'abcd' }.to raise_error(ParseError, /too short/)
         end
       end
 
