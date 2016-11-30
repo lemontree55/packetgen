@@ -226,6 +226,12 @@ module PacketGen
       str << inspect_body
     end
 
+    # @param [Packet] other
+    # @return [Boolean]
+    def ==(other)
+      to_s == other.to_s
+    end
+
     private
 
     # @overload header(protocol, layer=1)
