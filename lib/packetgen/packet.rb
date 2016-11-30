@@ -276,7 +276,7 @@ module PacketGen
       str = '  ' + '  ' * level
       val = if value.is_a? StructFu::Int
               sz = value.to_s.size
-              "%-10s (0x%0#{2*sz}x)" % [val.to_i, val.to_i]
+              "%-10s (0x%0#{2*sz}x)" % [value.to_i, value.to_i]
             elsif value.respond_to? :to_x
               value.to_x
             else

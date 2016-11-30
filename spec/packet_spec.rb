@@ -95,6 +95,7 @@ module PacketGen
         expect(pkt).to respond_to :ip
         expect(pkt.ip.version).to eq(0)
         expect(pkt.ip.ihl).to eq(0)
+        expect(pkt.ip.tos).to eq(3)
         expect(pkt.ip.id).to eq(0x74de)
         expect(pkt.ip.proto).to eq(0x51)
       end
