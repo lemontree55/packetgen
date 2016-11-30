@@ -113,17 +113,25 @@ module PacketGen
     def self.capture(iface, options={})
     end
 
-    # Read packets from +filename+
+    # Read packets from +filename+.
+    #
+    # For more control, see {PcapNG::File}.
     # @param [String] filename PcapNG file
     # @return [Array<Packet>]
     def self.read(filename)
+      PcapNG::File.new.read_packets filename
     end
 
     # Write packets to +filename+
+    #
+    # For more options, see {PcapNG::File}.
     # @param [String] filename
     # @param [Array<Packet>] packets packets to write
     # @return [void]
     def self.write(filename, packets)
+      pf = PcapNG::File.new
+      pf.array_to_file packets
+      pf.to_f filename
     end
 
     # @private

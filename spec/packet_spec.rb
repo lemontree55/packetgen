@@ -101,6 +101,28 @@ module PacketGen
       end
     end
 
+    context '.read/.write' do
+      let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
+
+      it '.read reads a PcapNG file and returns a Array of Packet' do
+        ary = Packet.read(file)
+        expect(ary).to be_a(Array)
+        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+      end
+
+      it '.write writes a Array of Packet to a file' do
+        ary = Packet.read(file)
+        write_file = Tempfile.new('pcapng')
+        begin
+          Packet.write(write_file.path, ary)
+          expect(Packet.read(write_file.path)).to eq(ary)
+        ensure
+          write_file.close
+          write_file.unlink
+        end
+      end
+    end
+
     describe '#add' do
       before(:each) do
         @pkt = Packet.gen('IP')
