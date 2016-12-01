@@ -1,3 +1,5 @@
+require 'pcaprub'
+
 module PacketGen
 
   # An object of type {Packet} handles a network packet. This packet may contain
@@ -221,6 +223,15 @@ module PacketGen
       File.new.array_to_file(filename: filename, array: [self])
     end
 
+    # send packet on wire
+    # @param [String] iface interface name. Default to first non-loopback interface
+    # @return [void]
+    def to_w(iface=nil)
+      iface ||= default_iface
+
+      #PCAPRUB::Pcap.open_live(iface, snaplength, false, 1)
+    end
+
     # @return [String]
     def inspect
       str = dashed_line(self.class)
@@ -315,6 +326,18 @@ module PacketGen
         end
       end
       str << '-' * INSPECT_MAX_WIDTH << "\n"
+    end
+
+    def default_iface
+      return @default_iface if @default_iface
+
+      ipaddr = `ip addr`.split("\n")
+      @default_iface = ipaddr.each_with_index do |line, i|
+        m = line.match(/^\d+: (\w+\d+):/)
+        next if m.nil?
+        next if m[1] == 'lo'
+        break m[1]
+      end
     end
   end
 end
