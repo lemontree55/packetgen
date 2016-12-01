@@ -83,6 +83,117 @@ module PacketGen
         end
       end
 
+      # @param [Hash] options
+      # @option options [Integer] :version
+      # @option options [Integer] :traffic_length
+      # @option options [Integer] :flow_label
+      # @option options [Integer] :length
+      # @option options [Integer] :next
+      # @option options [Integer] :hop
+      # @option options [String] :src colon-delimited source address
+      # @option options [String] :dst colon-delimited destination address
+      # @option options [String] :body binary string
+      def initialize(options={})
+        super options[:version] || 6,
+              options[:traffic_class] || 0,
+              options[:flow_label] || 0,
+              Int16.new(options[:length] || 40),
+              Int8.new(options[:next]),
+              Int8.new(options[:hop] || 64),
+              Addr.new.parse(options[:src] || '::1'),
+              Addr.new.parse(options[:dst] || '::1'),
+              StructFu::String.new.read(options[:body])
+      end
+
+      # Read a IP header from a string
+      # @param [String] str binary string
+      # @return [self]
+      def read(str)
+      end
+
+      # Compute length and set +len+ field
+      # @return [Integer]
+      def calc_length
+      end
+
+      # Getter for length attribute
+      # @return [Integer]
+      def length
+        self[:length].to_i
+      end
+
+      # Setter for length attribute
+      # @param [Integer] i
+      # @return [Integer]
+      def length=(i)
+        self[:length].read i
+      end
+
+      # Getter for next attribute
+      # @return [Integer]
+      def next
+        self[:next].to_i
+      end
+
+      # Setter for next attribute
+      # @param [Integer] i
+      # @return [Integer]
+      def next=(i)
+        self[:next].read i
+      end
+
+      # Getter for hop attribute
+      # @return [Integer]
+      def hop
+        self[:hop].to_i
+      end
+
+      # Setter for hop attribute
+      # @param [Integer] i
+      # @return [Integer]
+      def hop=(i)
+        self[:hop].read i
+      end
+
+      # Getter for src attribute
+      # @return [String]
+      def src
+        self[:src].to_x
+      end
+      alias :source :src
+
+      # Setter for src attribute
+      # @param [String] addr
+      # @return [Integer]
+      def src=(addr)
+        self[:src].parse addr
+      end
+      alias :source= :src=
+
+      # Getter for dst attribute
+      # @return [String]
+      def dst
+        self[:dst].to_x
+      end
+      alias :destination :dst
+
+      # Setter for dst attribute
+      # @param [String] addr
+      # @return [Integer]
+      def dst=(addr)
+        self[:dst].parse addr
+      end
+      alias :destination= :dst=
+
+      # Get binary string
+      # @return [String]
+      def to_s
+        first32 = (version << 28) | (traffic_class << 20) | flow_label
+        [first32].pack('N') << to_a[3..-1].map { |field| field.to_s }.join
+      end
     end
+
+    Eth.bind_header IPv6, proto: 0x86DD
+    IP.bind_header IPv6, proto: 41    # 6to4
   end
 end
