@@ -97,7 +97,7 @@ module PacketGen
         super options[:version] || 6,
               options[:traffic_class] || 0,
               options[:flow_label] || 0,
-              Int16.new(options[:length] || 40),
+              Int16.new(options[:length]),
               Int8.new(options[:next]),
               Int8.new(options[:hop] || 64),
               Addr.new.parse(options[:src] || '::1'),
@@ -129,6 +129,7 @@ module PacketGen
       # Compute length and set +len+ field
       # @return [Integer]
       def calc_length
+        self.length = body.length
       end
 
       # Getter for length attribute

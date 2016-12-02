@@ -48,7 +48,7 @@ module PacketGen
           expect(ipv6.version).to eq(6)
           expect(ipv6.traffic_class).to eq(0)
           expect(ipv6.flow_label).to eq(0)
-          expect(ipv6.length).to eq(40)
+          expect(ipv6.length).to eq(0)
           expect(ipv6.next).to eq(0)
           expect(ipv6.hop).to eq(64)
           expect(ipv6.src).to eq('::1')
@@ -100,11 +100,11 @@ module PacketGen
 
         describe '#calc_length' do
           it 'compute IPv6 length field' do
-            pending
-            ipv6 = IPv6.new(len: 60, id: 0x1c46, frag: 0x4000, ttl: 64, proto: 6,
-                        src: '172.16.10.99', dst: '172.16.10.12')
-            ipv6.calc_sum
-            expect(ipv6.sum).to eq(0xb1e6)
+            ipv6 = IPv6.new
+            body = (0...rand(60_000)).to_a.pack('C*')
+            ipv6.body = body
+            ipv6.calc_length
+            expect(ipv6.length).to eq(body.size)
           end
         end
 
@@ -145,8 +145,10 @@ module PacketGen
 
         it '#to_s returns a binary string' do
           ipv6 = IPv6.new
-          expected = "\x60\x00\x00\x00\x00\x28\x00\x40"
-          expected << ("\x00" * 15 + "\x01") * 2
+          ipv6.body = 'body'
+          ipv6.calc_length
+          expected = "\x60\x00\x00\x00\x00\x04\x00\x40"
+          expected << ("\x00" * 15 + "\x01") * 2 << 'body'
           PacketGen.force_binary expected
           expect(ipv6.to_s).to eq(expected)
         end
