@@ -109,6 +109,21 @@ module PacketGen
       # @param [String] str binary string
       # @return [self]
       def read(str)
+        return self if str.nil?
+        raise ParseError, 'string too short for Eth' if str.size < self.sz
+        force_binary str
+        first32 = str[0, 4].unpack('N').first
+        self.version = first32 >> 28
+        self.traffic_class = (first32 >> 20) & 0xff
+        self.flow_label = first32 & 0xfffff
+
+        self[:length].read str[4, 2]
+        self[:next].read str[6, 1]
+        self[:hop].read str[7, 1]
+        self[:src].read str[8, 16]
+        self[:dst].read str[24, 16]
+        self[:body].read str[40..-1]
+        self
       end
 
       # Compute length and set +len+ field

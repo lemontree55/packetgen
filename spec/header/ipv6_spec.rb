@@ -79,27 +79,22 @@ module PacketGen
         let(:ipv6) { IPv6.new}
 
         it 'sets header from a string' do
-          pending
           str = (1..ipv6.sz).to_a.pack('C*') + 'body'
           ipv6.read str
           expect(ipv6.version).to eq(0)
-          expect(ipv6.ihl).to eq(1)
-          expect(ipv6.tos).to eq(2)
-          expect(ipv6.len).to eq(0x0304)
-          expect(ipv6.id).to eq(0x0506)
-          expect(ipv6.frag).to eq(0x0708)
-          expect(ipv6.ttl).to eq(9)
-          expect(ipv6.proto).to eq(10)
-          expect(ipv6.sum).to eq(0x0b0c)
-          expect(ipv6.src).to eq('13.14.15.16')
-          expect(ipv6.dst).to eq('17.18.19.20')
+          expect(ipv6.traffic_class).to eq(0x10)
+          expect(ipv6.flow_label).to eq(0x20304)
+          expect(ipv6.length).to eq(0x0506)
+          expect(ipv6.next).to eq(7)
+          expect(ipv6.hop).to eq(8)
+          expect(ipv6.src).to eq('90a:b0c:d0e:f10:1112:1314:1516:1718')
+          expect(ipv6.dst).to eq('191a:1b1c:1d1e:1f20:2122:2324:2526:2728')
           expect(ipv6.body).to eq('body')
         end
 
         it 'raises when str is too short' do
-          pending
           expect { ipv6.read 'abcd' }.to raise_error(ParseError, /too short/)
-          expect { ipv6.read('a' * 18) }.to raise_error(ParseError, /too short/)
+          expect { ipv6.read('a' * 39) }.to raise_error(ParseError, /too short/)
         end
       end
 
