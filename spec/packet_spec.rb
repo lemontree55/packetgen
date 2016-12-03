@@ -56,7 +56,7 @@ module PacketGen
         @raw_pkts = file.read_packet_bytes(fname)
       end
 
-      it 'parses a string, guess first header and get a packet' do
+      it 'parses a string, guess first header and get a packet (IPv4)' do
         pkt = nil
         expect { pkt = Packet.parse(@raw_pkts.first) }.not_to raise_error
         expect(pkt).to respond_to :eth
@@ -69,6 +69,18 @@ module PacketGen
         expect(pkt.udp.dport).to eq(53)
         expect(pkt.udp.length).to eq(44)
         expect(pkt.udp.sum).to eq(0x8bf8)
+      end
+
+      it 'parses a string, guess first header and get a packet (IPv6)' do
+        pkt = Packet.read(File.join(__dir__, 'pcapng', 'ipv6_tcp.pcapng')).first
+        expect(pkt).to respond_to :eth
+        expect(pkt).to respond_to :ipv6
+        expect(pkt.ipv6.version).to eq(6)
+        expect(pkt.ipv6.traffic_class).to eq(0)
+        expect(pkt.ipv6.flow_label).to eq(0x594ac)
+        expect(pkt.ipv6.length).to eq(40)
+        expect(pkt.ipv6.next).to eq(6)
+        expect(pkt.ipv6.dst).to eq('2a00:1450:4007:810::2003')
       end
 
       it 'raises if first header cannot be guessed' do
