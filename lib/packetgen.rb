@@ -61,6 +61,20 @@ module PacketGen
   def self.force_binary(str)
     str.force_encoding Encoding::BINARY
   end
+
+  # Get default network interface (ie. first non-loopback declared interface)
+  # @return [String]
+  def self.default_iface
+    return @default_iface if @default_iface
+
+    ipaddr = `ip addr`.split("\n")
+    @default_iface = ipaddr.each_with_index do |line, i|
+      m = line.match(/^\d+: (\w+\d+):/)
+      next if m.nil?
+      next if m[1] == 'lo'
+      break m[1]
+    end
+  end
 end
 
 require 'packetgen/structfu'
