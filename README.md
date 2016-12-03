@@ -9,7 +9,7 @@ Yes. But PacketFu is limited:
 * upper protocols use fixed layers: TCP always uses IPv4, IP and IPv6 always uses Ethernet as MAC,...
 * cannot handle tunneled packets (IP-in-IP, or deciphered ESP packets,...)
 * cannot easily encapsulate or decapsulate packets
-* parse packets bottom-up to get real protocol stack
+* parse packets top-down, and sometimes bad parse down layers
 * cannot send packet on wire at IP/IPv6 level (Ethernet header is mandatory)
 
 ## use cases
@@ -94,7 +94,7 @@ pkt.decap('IP', 'ESP')                 # pkt is now inner IP/TCP packet
 ```
 # read a PcapNG file, containing multiple packets
 packets = PacketGen.read('file.pcapng')
-packets.first.udp_sport = 65535
+packets.first.udp.sport = 65535
 # write only one packet to a PcapNG file
 pkt.write('one_packet.pcapng')
 # write multiple packets to a PcapNG file
