@@ -132,7 +132,12 @@ module PacketGen
       def proto=(proto)
         self[:proto].value = proto
       end
-      
+
+      # send Eth packet on wire.
+      # @param [String] iface interface name
+      # @return [void]
+      def to_w(iface)
+      end
     end
   end
 end

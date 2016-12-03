@@ -96,6 +96,10 @@ module PacketGen
                                           "\x00\x00\x00\x00\x00\x00\x08\x00")
         expect(ethx).to eq(expected)
       end
+
+      it 'responds to #to_w' do
+        expect(Eth.new).to respond_to(:to_w)
+      end
     end
   end
 end
