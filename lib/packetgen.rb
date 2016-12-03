@@ -12,6 +12,9 @@ module PacketGen
   # Parsing error
   class ParseError < Error; end
 
+  # Sending packet on wire error
+  class WireError < Error; end
+
   # Shortcut for {Packet.gen}
   # @param [String] protocol base protocol for packet
   # @param [Hash] options specific options for +protocol+

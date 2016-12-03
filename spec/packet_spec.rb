@@ -191,6 +191,13 @@ module PacketGen
       end
     end
 
+    describe '#to_w' do
+      it 'raises when first header do not implement #to_w' do
+        pkt = Packet.gen('UDP')
+        expect { pkt.to_w }.to raise_error(WireError, /don't known how to send/)
+      end
+    end
+
     it '#to_s returns a binary string from complete packet' do
       pkt = Packet.gen('Eth', dst: '00:01:02:03:04:05').add('IP')
       idx = [pkt.ip.id].pack('n')

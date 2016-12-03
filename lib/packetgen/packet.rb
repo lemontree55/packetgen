@@ -223,13 +223,17 @@ module PacketGen
       File.new.array_to_file(filename: filename, array: [self])
     end
 
-    # send packet on wire
+    # send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
     # @return [void]
     def to_w(iface=nil)
       iface ||= default_iface
-
-      #PCAPRUB::Pcap.open_live(iface, snaplength, false, 1)
+      if @headers.first.respond_to? :to_w
+        @headers.first.to_w(iface)
+      else
+        type = @headers.first.class.to_s.gsub(/.*::/, '')
+        raise WireError, "don't known how to send a #{type} packet on wire"
+      end
     end
 
     # @return [String]
