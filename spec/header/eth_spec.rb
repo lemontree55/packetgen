@@ -90,15 +90,17 @@ module PacketGen
         end
       end
 
+      describe '#to_w' do
+        it 'responds to #to_w' do
+          expect(Eth.new).to respond_to(:to_w)
+        end
+      end
+
       it '#to_s returns a binary string' do
         ethx = Eth.new(dst: '00:01:02:03:04:05', proto: 0x800).to_s
         expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
                                           "\x00\x00\x00\x00\x00\x00\x08\x00")
         expect(ethx).to eq(expected)
-      end
-
-      it 'responds to #to_w' do
-        expect(Eth.new).to respond_to(:to_w)
       end
     end
   end
