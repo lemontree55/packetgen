@@ -107,9 +107,13 @@ module PacketGen
 
     # Capture packets from +iface+
     # @param [String] iface interface name
-    # @param [Hash] options capture options. See {Packet.capture}.
-    # @yieldparam [Packet] packet
-    # @return [Array<Packet>]
+    # @param [Hash] options capture options
+    # @option options [Integer] :max maximum number of packets to capture
+    # @option options [Integer] :timeout maximum number of seconds before end
+    #    of capture
+    # @option options [String] :filter bpf filter
+    # @yieldparam [Packet] packet if a block is given, yield each captured packet
+    # @return [Array<Packet>] captured packet
     def self.capture(iface, options={})
     end
 
