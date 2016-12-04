@@ -44,7 +44,7 @@ module PacketGen
       end
 
       it 'capture packets using a filter' do
-        cap = capture('lo') do
+        cap = capture('lo', filter: 'ip dst 127.0.0.2') do
           system '(ping -c 1 127.0.0.1; ping -c 1 127.0.0.2) > /dev/null'
         end
 
