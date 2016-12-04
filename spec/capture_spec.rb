@@ -22,7 +22,8 @@ module PacketGen
       it 'capture packets and returns a array of Packet', :sudo do
         cap = Capture.new('lo')
         cap_thread = Thread.new { cap.start }
-        system 'ping 127.0.0.1 -c 3 -W 0.1 -w 1 > /dev/null'
+        sleep 0.1
+        system 'ping 127.0.0.1 -c 3 -W 0.2 -w 3 > /dev/null'
         cap_thread.kill
         packets = cap.packets
         expect(packets).to be_a(Array)
