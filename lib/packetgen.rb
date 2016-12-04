@@ -37,7 +37,7 @@ module PacketGen
   # @yieldparam [Packet] packet
   # @return [Array<Packet>]
   def self.capture(iface, options={})
-    Packet.capture(protocol, options) { |packet| yield packet }
+    Packet.capture(iface, options) { |packet| yield packet }
   end
 
   # Shortcut for {Packet.read}
@@ -79,4 +79,5 @@ end
 
 require 'packetgen/structfu'
 require 'packetgen/packet'
+require 'packetgen/capture'
 require 'packetgen/pcapng'
