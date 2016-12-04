@@ -20,11 +20,10 @@ module PacketGen
 
     describe '#start', :sudo do
       it 'capture packets and returns a array of Packet' do
-        cap = Capture.new('lo')
-        cap_thread = Thread.new { cap.start }
-        sleep 0.1
-        system 'ping 127.0.0.1 -c 3 -i 0.2 > /dev/null'
-        cap_thread.join(0.5)
+        cap = capture('lo') do
+          system 'ping 127.0.0.1 -c 3 -i 0.2 > /dev/null'
+        end
+
         packets = cap.packets
         expect(packets).to be_a(Array)
         expect(packets.size).to eq(6)

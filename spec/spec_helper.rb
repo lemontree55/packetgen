@@ -8,6 +8,7 @@ RSpec.configure do |c|
   if c.filter[:sudo]
     SimpleCov.command_name 'rspec:sudo'
   end
+  c.include CaptureHelper
 end
 
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
