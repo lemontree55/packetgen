@@ -52,8 +52,8 @@ module PacketGen
         cap_thread.join(0.5)
         packets = cap.packets
         expect(packets.size).to eq(1)
-        expect(packet.first.ip.src).to eq('127.0.0.1')
-        expect(packet.first.ip.dst).to eq('127.0.0.2')
+        expect(packets.first.ip.src).to eq('127.0.0.1')
+        expect(packets.first.ip.dst).to eq('127.0.0.2')
       end
 
       it 'capture raw packets with option parse: false' do
@@ -62,7 +62,7 @@ module PacketGen
         sleep 0.1
         system 'ping 127.0.0.1 -c 1 > /dev/null'
         cap_thread.join(0.5)
-        packets = cap.packets
+        packets = cap.raw_packets
         expect(packets).to be_a(Array)
         expect(packets.size).to eq(2)
         expect(packets.all? { |p| p.is_a? String }).to be(true)
