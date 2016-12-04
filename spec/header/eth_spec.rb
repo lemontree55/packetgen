@@ -96,6 +96,7 @@ module PacketGen
         end
 
         it 'send a Eth header on wire' do
+          pending
           body = PacketGen.force_binary("\x00" * 64)
           eth = Eth.new(dst: 'ff:ff:ff:ff:ff:ff',
                         src: 'ff:ff:ff:ff:ff:ff',
