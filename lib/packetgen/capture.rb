@@ -74,7 +74,7 @@ module PacketGen
     def set_filter
       return if @filter.nil?
       return if @filter.empty?
-      @pcap.set_filter @filter
+      @pcap.setfilter @filter
     end
   end
 end
