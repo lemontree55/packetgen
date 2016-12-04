@@ -59,7 +59,7 @@ module PacketGen
 
     private
 
-    def set_common_options(options)
+    def set_options(options)
       @max = options[:max]
       @filter = options[:filter]
       @timeout = options[:timeout] || 1
