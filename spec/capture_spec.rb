@@ -24,7 +24,7 @@ module PacketGen
         cap_thread = Thread.new { cap.start }
         sleep 0.1
         system 'ping 127.0.0.1 -c 3 -W 0.2 -w 3 > /dev/null'
-        cap_thread.kill
+        cap_thread.join(0.5)
         packets = cap.packets
         expect(packets).to be_a(Array)
         expect(packets.size).to eq(3)
