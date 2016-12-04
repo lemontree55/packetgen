@@ -18,8 +18,8 @@ module PacketGen
       end
     end
 
-    describe '#start' do
-      it 'capture packets and returns a array of Packet', :sudo do
+    describe '#start', :sudo do
+      it 'capture packets and returns a array of Packet' do
         cap = Capture.new('lo')
         cap_thread = Thread.new { cap.start }
         sleep 0.1
@@ -56,7 +56,7 @@ module PacketGen
         expect(packet.first.ip.dst).to eq('127.0.0.2')
       end
 
-      it 'capture packets and returns a array of string with :parse option to false' do
+      it 'capture raw packets with option parse: false' do
         cap = Capture.new('lo')
         cap_thread = Thread.new { cap.start(parse: false) }
         sleep 0.1
