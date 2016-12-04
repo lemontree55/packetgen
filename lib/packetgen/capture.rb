@@ -53,9 +53,9 @@ module PacketGen
           packet = Packet.parse(packet_data)
           p packet
           @packets << packet
-          yield packet
+          yield packet if block_given?
         else
-          yield packet_data
+          yield packet_data if block_given?
         end
         if @max
           break if @raw_packets.size >= @max
