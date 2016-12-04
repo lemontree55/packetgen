@@ -11,4 +11,4 @@ install:
   - bundler install --path vendor/bundle --jobs=3 --retry=3
 script:
   - bundler exec rake
-  - sudo bundler exec rake spec:sudo
+  - sudo $(which bundler) exec rake spec:sudo
