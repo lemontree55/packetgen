@@ -44,11 +44,10 @@ module PacketGen
       end
 
       it 'capture packets using a filter' do
-        cap = Capture.new('lo', timeout: 1)
-        cap_thread = Thread.new { cap.start(filter: 'ip dst 127.0.0.2') }
-        sleep 0.1
-        system '(ping -c 1 127.0.0.1; ping -c 1 127.0.0.2) > /dev/null'
-        cap_thread.join(0.5)
+        cap = capture('lo') do
+          system '(ping -c 1 127.0.0.1; ping -c 1 127.0.0.2) > /dev/null'
+        end
+
         packets = cap.packets
         expect(packets.size).to eq(1)
         expect(packets.first.ip.src).to eq('127.0.0.1')
@@ -56,11 +55,10 @@ module PacketGen
       end
 
       it 'capture raw packets with option parse: false' do
-        cap = Capture.new('lo')
-        cap_thread = Thread.new { cap.start(parse: false) }
-        sleep 0.1
-        system 'ping 127.0.0.1 -c 1 > /dev/null'
-        cap_thread.join(0.5)
+        cap = capture('lo', parse: false) do
+          system 'ping 127.0.0.1 -c 1 > /dev/null'
+        end
+
         packets = cap.raw_packets
         expect(packets).to be_a(Array)
         expect(packets.size).to eq(2)
@@ -68,11 +66,10 @@ module PacketGen
       end
 
       it 'capture :max packets' do
-        cap = Capture.new('lo')
-        cap_thread = Thread.new { cap.start(max: 2) }
-        sleep 0.1
-        system 'ping -c 2 -i 0.2 127.0.0.1 > /dev/null'
-        cap_thread.join(0.5)
+        cap = capture('lo', max: 2) do
+          system 'ping -c 2 -i 0.2 127.0.0.1 > /dev/null'
+        end
+
         packets = cap.packets
         expect(packets.size).to eq(2)
       end
@@ -84,7 +81,7 @@ module PacketGen
         sleep 0.1
         system 'ping -c 2 127.0.0.1 > /dev/null'
         cap_thread.join(0.5)
-        expect(yielded_packets.size).to eq(4)
+        expect(yielded_packets.size).to eq(cap.packets.size)
         expect(yielded_packets).to eq(cap.packets)
       end
 
@@ -95,7 +92,7 @@ module PacketGen
         sleep 0.1
         system 'ping -c 2 127.0.0.1 > /dev/null'
         cap_thread.join(0.5)
-        expect(yielded_packets.size).to eq(4)
+        expect(yielded_packets.size).to eq(cap.raw_packets.size)
         expect(yielded_packets).to eq(cap.raw_packets)
       end
     end
