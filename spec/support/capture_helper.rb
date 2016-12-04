@@ -3,7 +3,7 @@ module CaptureHelper
   def capture(iface, options={}, &blk)
     timeout = options[:timeout] || 0
 
-    cap = Capture.new(iface, options)
+    cap = PacketGen::Capture.new(iface, options)
     cap_thread = Thread.new { cap.start }
     sleep 0.1
     blk.call
