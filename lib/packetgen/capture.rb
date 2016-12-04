@@ -63,11 +63,23 @@ module PacketGen
     private
 
     def set_options(options)
-      @max = options[:max]
-      @filter = options[:filter]
-      @timeout = options[:timeout] || 0
-      @promisc = options[:promisc] || false
-      @snaplen = options[:snaplen] || DEFAULT_SNAPLEN
+      @max = options[:max] if options[:max]
+      @filter = options[:filter] if options[:filter]
+      if options[:timeout]
+        @timeout = options[:timeout]
+      else
+        @timeout ||= 0
+      end
+      if options[:promisc]
+        @promisc = options[:promisc]
+      else
+        @promisc ||= false
+      end
+      if options[:snaplen]
+        @snaplen = options[:snaplen]
+      else
+        @snaplen ||= DEFAULT_SNAPLEN
+      end
       if options[:parse].nil?
         @parse = true if @parse.nil?
       else
