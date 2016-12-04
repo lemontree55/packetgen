@@ -19,12 +19,13 @@ module PacketGen
     # @param [Hash] options
     # @option options [Integer] :max maximum number of packets to capture
     # @option options [Integer] :timeout maximum number of seconds before end
-    #    of capture
+    #    of capture. Default: +nil+ (no timeout)
     # @option options [String] :filter bpf filter
     # @option options [Boolean] :promiscuous (default: +false+)
     # @option options [Boolean] :parse parse raw data to generate packets before
     #    yielding.  Default: +true+
     # @option options [Integer] :snaplen maximum number of bytes to capture for
+    #    each packet
     def initialize(iface, options={})
       @packets = []
       @raw_packets = []
@@ -38,23 +39,25 @@ module PacketGen
     #    captured packet (Packet or raw data String, depending on +:parse+)
     def start(options={})
       set_options options
-      @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, @timeout)
+      @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, 1)
       set_filter
 
-      @pcap.each do |packet_data|
-        @raw_packets << packet_data
-        if @parse
-          packet = Packet.parse(packet_data)
-          p packet
-          @packets << packet
-          yield packet if block_given?
-        else
-          yield packet_data if block_given?
-        end
-        if @max
-          break if @raw_packets.size >= @max
+      cap_thread = Thread.new do
+        @pcap.each do |packet_data|
+          @raw_packets << packet_data
+          if @parse
+            packet = Packet.parse(packet_data)
+            @packets << packet
+            yield packet if block_given?
+          else
+            yield packet_data if block_given?
+          end
+          if @max
+            break if @raw_packets.size >= @max
+          end
         end
       end
+      cap_thread.join(@timeout)
     end
 
     private
@@ -62,7 +65,7 @@ module PacketGen
     def set_options(options)
       @max = options[:max]
       @filter = options[:filter]
-      @timeout = options[:timeout] || 1
+      @timeout = options[:timeout] || 0
       @promisc = options[:promisc] || false
       @snaplen = options[:snaplen] || DEFAULT_SNAPLEN
       @parse = options[:parse].nil? ? true : options[:parse]
