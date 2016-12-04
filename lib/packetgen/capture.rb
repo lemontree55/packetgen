@@ -68,7 +68,11 @@ module PacketGen
       @timeout = options[:timeout] || 0
       @promisc = options[:promisc] || false
       @snaplen = options[:snaplen] || DEFAULT_SNAPLEN
-      @parse = options[:parse].nil? ? true : options[:parse]
+      if options[:parse].nil?
+        @parse = true if @parse.nil?
+      else
+        @parse = options[:parse]
+      end
     end
 
     def set_filter
