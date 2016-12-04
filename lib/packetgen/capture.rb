@@ -22,32 +22,26 @@ module PacketGen
     #    of capture
     # @option options [String] :filter bpf filter
     # @option options [Boolean] :promiscuous (default: +false+)
+    # @option options [Boolean] :parse parse raw data to generate packets before
+    #    yielding.  Default: +true+
     # @option options [Integer] :snaplen maximum number of bytes to capture for
     def initialize(iface, options={})
       @packets = []
       @raw_packets = []
       @iface = iface
-      @max = options[:max]
-      @timeout = options[:timeout] || 1
-      @filter = options[:filter]
-      @promisc = options[:promisc] || false
-      @snaplen = options[:snaplen] || DEFAULT_SNAPLEN
-      @parse = options[:parse].nil? ? true : options[:parse]
+      set_options options
     end
 
     # Start capture
-    # @param [Hash] options complete options from {#initialize}.
-    # @option options [Integer] :max maximum number of packets to capture
-    # @option options [String] :filter
-    # @option options [Boolean] :parse parse raw data to generate packets before
-    #    yielding.  Default: +true+
-    # @yieldparam [Packet,String] packet_data if a block is given, yield each
+    # @param [Hash] options complete see {#initialize}.
+    # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+)
     def start(options={})
+      set_options options
       @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, @timeout)
       set_filter
+
       @pcap.each do |packet_data|
-        p packet_data
         @raw_packets << packet_data
         if @parse
           packet = Packet.parse(packet_data)
@@ -64,6 +58,15 @@ module PacketGen
     end
 
     private
+
+    def set_common_options(options)
+      @max = options[:max]
+      @filter = options[:filter]
+      @timeout = options[:timeout] || 1
+      @promisc = options[:promisc] || false
+      @snaplen = options[:snaplen] || DEFAULT_SNAPLEN
+      @parse = options[:parse].nil? ? true : options[:parse]
+    end
 
     def set_filter
       return if @filter.nil?
