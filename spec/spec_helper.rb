@@ -7,6 +7,8 @@ end
 RSpec.configure do |c|
   if c.filter[:sudo]
     SimpleCov.command_name 'rspec:sudo'
+  else
+    SimpleCov.command_name 'rspec'
   end
 end
 
