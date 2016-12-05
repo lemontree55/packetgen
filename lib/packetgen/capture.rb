@@ -42,7 +42,7 @@ module PacketGen
       @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, 1)
       set_filter
 
-      cap_thread = Thread.new do
+      @cap_thread = Thread.new do
         @pcap.each do |packet_data|
           @raw_packets << packet_data
           if @parse
@@ -57,7 +57,16 @@ module PacketGen
           end
         end
       end
-      cap_thread.join(@timeout)
+      @cap_thread.join(@timeout)
+    end
+
+    # Stop capture. Should be used from another thread, as {#start} blocs.
+    #
+    # BEWARE: multiple capture should not be started in different threads. No effort
+    # has been made to make Capture nor PacketGen thread-safe.
+    # @return [void]
+    def stop
+      @cap_thread.kill
     end
 
     private

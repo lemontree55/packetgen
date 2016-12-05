@@ -7,7 +7,8 @@ module CaptureHelper
     cap_thread = Thread.new { cap.start }
     sleep 0.1
     blk.call
-    cap_thread.join(timeout * 2 + 1)
+    sleep timeout + 2
+    cap.stop
 
     cap
   end
