@@ -114,9 +114,13 @@ module PacketGen
     # @option options [Integer] :timeout maximum number of seconds before end
     #    of capture
     # @option options [String] :filter bpf filter
+    # @option options [Boolean] :promiscuous
     # @yieldparam [Packet] packet if a block is given, yield each captured packet
     # @return [Array<Packet>] captured packet
     def self.capture(iface, options={})
+      capture = Capture.new(iface, options)
+      capture.start { |packet| yield packet }
+      capture.packets
     end
 
     # Read packets from +filename+.
