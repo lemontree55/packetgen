@@ -95,21 +95,20 @@ module PacketGen
           expect(Eth.new).to respond_to(:to_w)
         end
 
-        it 'send a Eth header on wire' do
-          pending
+        it 'send a Eth header on wire', :sudo do
           body = PacketGen.force_binary("\x00" * 64)
-          eth = Eth.new(dst: 'ff:ff:ff:ff:ff:ff',
-                        src: 'ff:ff:ff:ff:ff:ff',
-                        proto: 0xffff,
-                        body: body)
-          Thread.new { sleep 1; eth.to_w('eth0') }
-          packets = Packet.capture('eth0', max: 1, filter: 'ether', timeout: 2)
-          pkt = packets.first
-          expect(pkt.is? 'Eth').to be(true)
-          expect(pkt.dst).to eq('ff:ff:ff:ff:ff:ff')
-          expect(pkt.src).to eq('ff:ff:ff:ff:ff:ff')
-          expect(pkt.proto).to eq(0xffff)
-          expect(pkt.body).to eq(body)
+          pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff',
+                           src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
+          Thread.new { sleep 1; pkt.eth.to_w('eth0') }
+          packets = Packet.capture('eth0', max: 1,
+                                   filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                   timeout: 2)
+          packet = packets.first
+          expect(packet.is? 'Eth').to be(true)
+          expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
+          expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
+          expect(packet.eth.proto).to eq(0x0800)
+          expect(packet.ip.body).to eq(body)
         end
       end
 

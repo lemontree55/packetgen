@@ -119,7 +119,11 @@ module PacketGen
     # @return [Array<Packet>] captured packet
     def self.capture(iface, options={})
       capture = Capture.new(iface, options)
-      capture.start { |packet| yield packet }
+      if block_given?
+        capture.start { |packet| yield packet }
+      else
+        capture.start
+      end
       capture.packets
     end
 
