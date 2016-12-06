@@ -241,6 +241,7 @@ module PacketGen
     def to_f(filename)
       File.new.array_to_file(filename: filename, array: [self])
     end
+    alias :write :to_f
 
     # send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
