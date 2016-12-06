@@ -3,7 +3,7 @@ module PacketGen
 
     # IP header class
     # @author Sylvain Daubert
-    class IP < Struct.new(:version, :ihl, :tos, :len, :id, :frag, :ttl,
+    class IP < Struct.new(:version, :ihl, :tos, :length, :id, :frag, :ttl,
                           :proto,:sum, :src, :dst, :body)
       include StructFu
       include HeaderMethods
@@ -80,7 +80,7 @@ module PacketGen
         super options[:version] || 4,
               options[:ihl] || 5,
               Int8.new(options[:tos] || 0),
-              Int16.new(options[:len] || 20),
+              Int16.new(options[:length] || 20),
               Int16.new(options[:id] || rand(65535)),
               Int16.new(options[:frag] || 0),
               Int8.new(options[:ttl] || 64),
@@ -102,7 +102,7 @@ module PacketGen
         self[:version] = vihl >> 4
         self[:ihl] = vihl & 0x0f
         self[:tos].read str[1, 1]
-        self[:len].read str[2, 2]
+        self[:length].read str[2, 2]
         self[:id].read str[4, 2]
         self[:frag].read str[6, 2]
         self[:ttl].read str[8, 1]
@@ -118,7 +118,7 @@ module PacketGen
       # @return [Integer]
       def calc_sum
         checksum = (self.version << 12) | (self.ihl << 8) | self.tos
-        checksum += self.len
+        checksum += self.length
         checksum += self.id
         checksum += self.frag
         checksum += (self.ttl << 8) | self.proto
@@ -131,10 +131,10 @@ module PacketGen
         self[:sum].value = (checksum == 0) ? 0xffff : checksum
       end
 
-      # Compute length and set +len+ field
+      # Compute length and set +length+ field
       # @return [Integer]
       def calc_length
-        self[:len].value = self.sz
+        self[:length].value = self.sz
       end
 
       # Getter for TOS attribute
@@ -150,17 +150,17 @@ module PacketGen
         self[:tos].value = tos
       end
 
-      # Getter for len attribute
+      # Getter for length attribute
       # @return [Integer]
-      def len
-        self[:len].to_i
+      def length
+        self[:length].to_i
       end
 
-      # Setter for len attribute
-      # @param [Integer] len
+      # Setter for length attribute
+      # @param [Integer] length
       # @return [Integer]
-      def len=(len)
-        self[:len].value = len
+      def length=(length)
+        self[:length].value = length
       end
 
       # Getter for id attribute

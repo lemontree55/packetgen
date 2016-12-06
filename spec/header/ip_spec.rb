@@ -41,7 +41,7 @@ module PacketGen
           expect(ip).to be_a(IP)
           expect(ip.version).to eq(4)
           expect(ip.tos).to eq(0)
-          expect(ip.len).to eq(20)
+          expect(ip.length).to eq(20)
           expect(ip.id).to be < 65536
           expect(ip.frag).to eq(0)
           expect(ip.ttl).to eq(64)
@@ -57,7 +57,7 @@ module PacketGen
             version: 15,
             ihl: 15,
             tos: 255,
-            len: 1000,
+            length: 1000,
             id: 153,
             frag: 0x4000,
             ttl: 2,
@@ -82,7 +82,7 @@ module PacketGen
           expect(ip.version).to eq(0)
           expect(ip.ihl).to eq(1)
           expect(ip.tos).to eq(2)
-          expect(ip.len).to eq(0x0304)
+          expect(ip.length).to eq(0x0304)
           expect(ip.id).to eq(0x0506)
           expect(ip.frag).to eq(0x0708)
           expect(ip.ttl).to eq(9)
@@ -101,7 +101,7 @@ module PacketGen
 
         describe '#calc_sum' do
           it 'compute IP header checksum' do
-            ip = IP.new(len: 60, id: 0x1c46, frag: 0x4000, ttl: 64, proto: 6,
+            ip = IP.new(length: 60, id: 0x1c46, frag: 0x4000, ttl: 64, proto: 6,
                         src: '172.16.10.99', dst: '172.16.10.12')
             ip.calc_sum
             expect(ip.sum).to eq(0xb1e6)
@@ -118,9 +118,9 @@ module PacketGen
             expect(@ip[:tos].to_i).to eq(254)
           end
 
-          it '#len= accepts integers' do
-            @ip.len = 0xff10
-            expect(@ip[:len].to_i).to eq(0xff10)
+          it '#length= accepts integers' do
+            @ip.length = 0xff10
+            expect(@ip[:length].to_i).to eq(0xff10)
           end
 
           it '#id= accepts integers' do
