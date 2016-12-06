@@ -99,8 +99,8 @@ module PacketGen
           body = PacketGen.force_binary("\x00" * 64)
           pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff',
                            src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
-          Thread.new { sleep 1; pkt.eth.to_w('eth0') }
-          packets = Packet.capture('eth0', max: 1,
+          Thread.new { sleep 1; pkt.eth.to_w('lo') }
+          packets = Packet.capture('lo', max: 1,
                                    filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                    timeout: 2)
           packet = packets.first
