@@ -80,6 +80,9 @@ module PacketGen
       PCAP_TIMEOUT = 1
 
       # @param [Hash] options
+      # @option options [String] :dst MAC destination address
+      # @option options [String] :src MAC source address
+      # @option options [Integer] :proto
       def initialize(options={})
         super MacAddr.new.parse(options[:dst] || '00:00:00:00:00:00'),
               MacAddr.new.parse(options[:src] || '00:00:00:00:00:00'),

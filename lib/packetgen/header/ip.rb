@@ -76,6 +76,17 @@ module PacketGen
       end
 
       # @param [Hash] options
+      # @option options [Integer] :version
+      # @option options [Integer] :ihl this header size in 4-byte words
+      # @option options [Integer] :tos
+      # @option options [Integer] :length IP packet length, including this header
+      # @option options [Integer] :id
+      # @option options [Integer] :frag
+      # @option options [Integer] :ttl
+      # @option options [Integer] :proto
+      # @option options [Integer] :sum IP header checksum
+      # @option options [String] :src IP source dotted address
+      # @option options [String] :dst IP destination dotted address
       def initialize(options={})
         super options[:version] || 4,
               options[:ihl] || 5,

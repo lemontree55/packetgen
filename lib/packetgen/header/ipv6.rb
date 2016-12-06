@@ -87,7 +87,7 @@ module PacketGen
       # @option options [Integer] :version
       # @option options [Integer] :traffic_length
       # @option options [Integer] :flow_label
-      # @option options [Integer] :length
+      # @option options [Integer] :length payload length
       # @option options [Integer] :next
       # @option options [Integer] :hop
       # @option options [String] :src colon-delimited source address
