@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.org/sdaubert/packetgen.svg?branch=master)](https://travis-ci.org/sdaubert/packetgen)
+
 # PacketGen
 
 PacketGen aims at generate and capture network packets easily.
