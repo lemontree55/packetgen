@@ -1,3 +1,5 @@
+require 'pcaprub'
+
 module PacketGen
 
   # An object of type {Packet} handles a network packet. This packet may contain
@@ -112,9 +114,17 @@ module PacketGen
     # @option options [Integer] :timeout maximum number of seconds before end
     #    of capture
     # @option options [String] :filter bpf filter
+    # @option options [Boolean] :promiscuous
     # @yieldparam [Packet] packet if a block is given, yield each captured packet
     # @return [Array<Packet>] captured packet
     def self.capture(iface, options={})
+      capture = Capture.new(iface, options)
+      if block_given?
+        capture.start { |packet| yield packet }
+      else
+        capture.start
+      end
+      capture.packets
     end
 
     # Read packets from +filename+.
@@ -223,6 +233,19 @@ module PacketGen
     # @see File
     def to_f(filename)
       File.new.array_to_file(filename: filename, array: [self])
+    end
+
+    # send packet on wire. Use first header +#to_w+ method.
+    # @param [String] iface interface name. Default to first non-loopback interface
+    # @return [void]
+    def to_w(iface=nil)
+      iface ||= PacketGen.default_iface
+      if @headers.first.respond_to? :to_w
+        @headers.first.to_w(iface)
+      else
+        type = @headers.first.class.to_s.gsub(/.*::/, '')
+        raise WireError, "don't known how to send a #{type} packet on wire"
+      end
     end
 
     # @return [String]

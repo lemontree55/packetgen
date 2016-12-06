@@ -72,6 +72,13 @@ module PacketGen
         end
       end
 
+      # @private snap length for PCAPRUB
+      PCAP_SNAPLEN = 0xffff
+      # @private promiscuous (or not) for PCAPRUB
+      PCAP_PROMISC = false
+      # @private timeout for PCAPRUB
+      PCAP_TIMEOUT = 1
+
       # @param [Hash] options
       def initialize(options={})
         super MacAddr.new.parse(options[:dst] || '00:00:00:00:00:00'),
@@ -132,7 +139,14 @@ module PacketGen
       def proto=(proto)
         self[:proto].value = proto
       end
-      
+
+      # send Eth packet on wire.
+      # @param [String] iface interface name
+      # @return [void]
+      def to_w(iface)
+        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC, PCAP_TIMEOUT)
+        pcap.inject self.to_s
+      end
     end
   end
 end

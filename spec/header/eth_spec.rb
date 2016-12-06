@@ -90,6 +90,28 @@ module PacketGen
         end
       end
 
+      describe '#to_w' do
+        it 'responds to #to_w' do
+          expect(Eth.new).to respond_to(:to_w)
+        end
+
+        it 'send a Eth header on wire', :sudo do
+          body = PacketGen.force_binary("\x00" * 64)
+          pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff',
+                           src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
+          Thread.new { sleep 1; pkt.eth.to_w('eth0') }
+          packets = Packet.capture('eth0', max: 1,
+                                   filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                   timeout: 2)
+          packet = packets.first
+          expect(packet.is? 'Eth').to be(true)
+          expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
+          expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
+          expect(packet.eth.proto).to eq(0x0800)
+          expect(packet.ip.body).to eq(body)
+        end
+      end
+
       it '#to_s returns a binary string' do
         ethx = Eth.new(dst: '00:01:02:03:04:05', proto: 0x800).to_s
         expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
