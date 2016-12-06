@@ -1,4 +1,5 @@
 
+[![Gem Version](https://badge.fury.io/rb/packetgen.svg)](https://badge.fury.io/rb/packetgen)
 [![Build Status](https://travis-ci.org/sdaubert/packetgen.svg?branch=master)](https://travis-ci.org/sdaubert/packetgen)
 
 # PacketGen
