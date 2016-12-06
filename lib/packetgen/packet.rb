@@ -208,6 +208,13 @@ module PacketGen
       end
     end
 
+    # Recalculate all calculatable fields (for now: length and sum)
+    # @return [void]
+    def calc
+      calc_sum
+      calc_length
+    end
+
     # Get packet body
     # @return [StructFu]
     def body
