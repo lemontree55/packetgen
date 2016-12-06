@@ -24,7 +24,7 @@ For now, PacketGen is only a concept...
 PacketGen.gen('IP')             # generate a IP packet object
 PacketGen.gen('TCP')            # generate a TCP over IP packet object
 PacketGen.gen('IP').add('TCP')  # the same
-PacketGen.gen('Ethernet')       # generate a Ethernet packet object
+PacketGen.gen('Eth')            # generate a Ethernet packet object
 PacketGen.gen('IP').add('IP')   # generate a IP-in-IP tunnel packet object
 
 # Generate a IP packet object, specifying addresses
@@ -39,11 +39,11 @@ need PcapRub for Ethernet packets. Need a C extension (use of C socket API) for 
 
 ```
 # send Ethernet packet
-PacketGen.gen('Ethernet', src: '00:00:00:00:01', dst: '00:00:00:00:02').to_w
+PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').to_w
 # send IP packet
 PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').to_w
 # send forged IP packet over Ethernet
-PacketGen.gen('Ethernet', src: '00:00:00:00:01', dst: '00:00:00:00:02').add('IP').to_w('eth1')
+PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').add('IP').to_w('eth1')
 ```
 
 ### Parse packets from binary data
