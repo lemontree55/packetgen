@@ -165,6 +165,30 @@ module PacketGen
           end
         end
 
+        describe '#to_w' do
+          it 'responds to #to_w' do
+            expect(IP.new).to respond_to(:to_w)
+          end
+
+          it 'send a IP header on wire', :sudo do
+            body = PacketGen.force_binary("\x00" * 64)
+            pkt = Packet.gen('IP').add('UDP', sport: 35535, dport: 65535, body: body)
+            pkt.calc
+            Thread.new { sleep 1; pkt.ip.to_w('lo') }
+            packets = Packet.capture('lo', max: 1,
+                                     filter: 'ip dst 127.0.0.1',
+                                     timeout: 4)
+            packet = packets.first
+            expect(packet.is? 'IP').to be(true)
+            expect(packet.ip.dst).to eq('127.0.0.1')
+            expect(packet.ip.src).to eq('127.0.0.1')
+            expect(packet.ip.proto).to eq(UDP::IP_PROTOCOL)
+            expect(packet.udp.sport).to eq(35535)
+            expect(packet.udp.dport).to eq(65535)
+            expect(packet.body).to eq(body)
+          end
+        end
+
         it '#to_s returns a binary string' do
           ip = IP.new
           idx = [ip.id].pack('n')

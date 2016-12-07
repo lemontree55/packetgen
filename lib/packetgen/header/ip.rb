@@ -1,3 +1,5 @@
+require 'socket'
+
 module PacketGen
   module Header
 
@@ -274,6 +276,18 @@ module PacketGen
       def to_s
         first_byte = [(version << 4) | ihl].pack('C')
         first_byte << to_a[2..-1].map { |field| field.to_s }.join
+      end
+
+      # Send IP packet on wire.
+      #
+      # When sending packet at IP level, +sum+ and +length+ fields are set by
+      # kernel, so bad IP packets cannot be sent this way. To do so, use {Eth#to_w}.
+      # @param [String,nil] iface interface name. Not used
+      # @return [void]
+      def to_w(iface=nil)
+        sock = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
+        sockaddrin = Socket.sockaddr_in(0, dst)
+        sock.send to_s, 0, sockaddrin
       end
     end
 
