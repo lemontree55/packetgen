@@ -4,7 +4,7 @@
 
 # PacketGen
 
-PacketGen aims at generate and capture network packets easily.
+PacketGen provides simple ways to generate, send and capture network packets easily.
 
 ## Why PacketGen
 Why create PacketGen ? There is already PacketFu!
@@ -18,7 +18,12 @@ Yes. But PacketFu is limited:
 
 ## use cases
 
-For now, PacketGen is only a concept...
+These use cases are the roadmap for PacketGen.
+
+Not yet implemented:
+- send packet on wire at IP and IPv6 levels (ie without explicity defining a Eth header)
+- encapsulation/decapsulation
+- some protocols...
 
 ### Easily create packets
 ```
