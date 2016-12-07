@@ -59,7 +59,6 @@ module PacketGen
 
         packets = cap.raw_packets
         expect(packets).to be_a(Array)
-        expect(packets.size).to eq(2)
         expect(packets.all? { |p| p.is_a? String }).to be(true)
       end
 
