@@ -61,12 +61,19 @@ module PacketGen
       end
 
       describe '#calc_sum' do
-        it 'computes UDP header checksum' do
+        it 'computes UDP over IP header checksum' do
           pkt = Packet.gen('IP').add('UDP', sport: 1, dport: 65000)
           pkt.body = 'abcd'
-          pkt.calc_length
-          pkt.calc_sum
+          pkt.calc
           expect(pkt.udp.sum).to eq(0x3f23)
+        end
+
+        it 'computes UDP over IPv6 header checksum' do
+          pkt = Packet.gen('IPv6', src: '2145::1', dst: '1:2:3:4:5:6:7:809').
+                add('UDP', sport: 41000, dport: 42000)
+          pkt.body = 'abcd'
+          pkt.calc
+          expect(pkt.udp.sum).to eq(0xcd6b)
         end
       end
 
