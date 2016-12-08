@@ -8,6 +8,7 @@ module PacketGen
       describe 'binding' do
         it 'in IP packets' do
           expect(IP.known_headers[UDP].to_h).to eq({key: :proto, value: 17})
+          expect(IPv6.known_headers[UDP].to_h).to eq({key: :next, value: 17})
         end
       end
 
