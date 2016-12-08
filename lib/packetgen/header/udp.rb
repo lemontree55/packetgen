@@ -45,10 +45,7 @@ module PacketGen
       # @return [Integer]
       def calc_sum
         ip = ip_header(self)
-        sum = ip[:src].to_i >> 16
-        sum += ip[:src].to_i & 0xffff
-        sum += ip[:dst].to_i >> 16
-        sum += ip[:dst].to_i & 0xffff
+        sum = ip.pseudo_header_sum
         sum += IP_PROTOCOL
         sum += length
         sum += sport
@@ -129,5 +126,6 @@ module PacketGen
     end
 
     IP.bind_header UDP, proto: UDP::IP_PROTOCOL
+    IPv6.bind_header UDP, next: UDP::IP_PROTOCOL
   end
 end

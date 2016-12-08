@@ -278,6 +278,13 @@ module PacketGen
         first_byte << to_a[2..-1].map { |field| field.to_s }.join
       end
 
+      # Get IP part of pseudo header sum.
+      # @return [Integer]
+      def pseudo_header_sum
+        sum = self[:src].to_i + self[:dst].to_i
+        (sum >> 16) + (sum & 0xffff)
+      end
+
       # Send IP packet on wire.
       #
       # When sending packet at IP level, +sum+ and +length+ fields are set by
