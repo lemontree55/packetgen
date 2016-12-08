@@ -211,8 +211,8 @@ module PacketGen
     # Recalculate all calculatable fields (for now: length and sum)
     # @return [void]
     def calc
-      calc_sum
       calc_length
+      calc_sum
     end
 
     # Get packet body

@@ -42,7 +42,7 @@ module PacketGen
       # @raise FormatError +header+ not in a packet
       def ip_header(header)
         hid = header_id(header)
-        iph = packet.headers[0...hid].reverse.find { |h| h.is_a? IP }
+        iph = packet.headers[0...hid].reverse.find { |h| h.is_a? IP or h.is_a? IPv6 }
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
         iph
       end

@@ -207,6 +207,15 @@ module PacketGen
         first32 = (version << 28) | (traffic_class << 20) | flow_label
         [first32].pack('N') << to_a[3..-1].map { |field| field.to_s }.join
       end
+
+      # Get IPv6 part of pseudo header sum.
+      # @return [Integer]
+      def pseudo_header_sum
+        sum = 0
+        self[:src].each { |word| sum += word.to_i }
+        self[:dst].each { |word| sum += word.to_i }
+        sum
+      end
     end
 
     Eth.bind_header IPv6, proto: 0x86DD
