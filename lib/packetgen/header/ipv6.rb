@@ -221,24 +221,31 @@ module PacketGen
       # Send IPv6 packet on wire.
       #
       # When sending packet at IPv6 level, +version+, +flow_label+ and +length+
-      # fields are set by kernel,  so bad IPv6 packets cannot be sent this way.
-      # To do so, use {Eth#to_w}.
-      # @param [String,nil] iface interface name. Not used
+      # fields are set by kernel. Source address should be a unicast address
+      # assigned to the host. To set any of this fields, use {Eth#to_w}.
+      # @param [String] iface interface name
       # @return [void]
       def to_w(iface=nil)
         sock = Socket.new(Socket::AF_INET6, Socket::SOCK_RAW, self.next)
-        sockaddrin6 = Socket.sockaddr_in6(0, dst)
+        sockaddrin = Socket.sockaddr_in(0, dst)
+
         # IPv6 RAW sockets don't have IPHDRINCL option to send IPv6 header.
-        # So, header must be built using socket options.
-        # Only dst address, traffic_class and hop_limit can be set this way.
-        pkt_info = Socket::AncillaryData.ipv6_pktinfo(AddrInfo.ip(src), 0)
-        sock.setsockopt Socket::IPPROTO_IPV6, Socket::IPV6_PKTINFO, pkt_info
-        sock.setsockopt Socket::IPPROTO_IPV6, Socket::IPV6_TCLASS, traffic_class
-        # RFC 3542 §4: IPV6_HOPLIMIT can be used as ancillary data items only
-        hop_limit = Socket::AncilliaryData.int(Socket::AF_INET6,
-                                               Socket::IPPROTO_IPV6,
-                                               Socket::IPV6_HOPLIMIT, hop)
-        sock.sendmsg body.to_s, 0, sockaddrin6, hop_limit
+        # So, header must be built using ancillary data.
+        # Only src address, traffic_class and hop_limit can be set this way.
+        hop_limit = Socket::AncillaryData.int(Socket::AF_INET6,
+                                              Socket::IPPROTO_IPV6,
+                                              Socket::IPV6_HOPLIMIT, hop)
+        tc = Socket::AncillaryData.int(Socket::AF_INET6,
+                                       Socket::IPPROTO_IPV6,
+                                       Socket::IPV6_TCLASS,
+                                       traffic_class)
+
+        # src address is set through PKT_INFO, which needs interface index.
+        ifaddr = Socket.getifaddrs.find { |ia| ia.name == iface }
+        raise WireError, "unknown #{iface} interface" if ifaddr.nil?
+        pkt_info = Socket::AncillaryData.ipv6_pktinfo(Addrinfo.ip(src), ifaddr.ifindex)
+
+        sock.sendmsg body.to_s, 0, sockaddrin, hop_limit, tc, pkt_info
       end
     end
 

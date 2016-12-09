@@ -150,20 +150,20 @@ module PacketGen
 
           it 'sends a IPv6 header on wire', :sudo do
             body = PacketGen.force_binary("\x00" * 64)
-            pkt = Packet.gen('IPv6', traffic_class: 0x40, hop_limit: 0x22, src: '::2').
+            pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
                   add('UDP', sport: 35535, dport: 65535, body: body)
             pkt.calc
-            Thread.new { sleep 1; pkt.ip.to_w('lo') }
+            Thread.new { sleep 1; pkt.ipv6.to_w('lo') }
             packets = Packet.capture('lo', max: 1,
                                      filter: 'ip6 dst ::1',
                                      timeout: 4)
             packet = packets.first
             expect(packet.is? 'IPv6').to be(true)
             expect(packet.ipv6.dst).to eq('::1')
-            expect(packet.ipv6.src).to eq('::2')
+            expect(packet.ipv6.src).to eq('::1')
             expect(packet.ipv6.next).to eq(UDP::IP_PROTOCOL)
             expect(packet.ipv6.traffic_class).to eq(0x40)
-            expect(packet.ipv6.hop_limit).to eq(0x22)
+            expect(packet.ipv6.hop).to eq(0x22)
             expect(packet.udp.sport).to eq(35535)
             expect(packet.udp.dport).to eq(65535)
             expect(packet.body).to eq(body)
