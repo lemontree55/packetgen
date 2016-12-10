@@ -1,6 +1,7 @@
 module PacketGen
   module Header
-    # IP header class
+
+    # ICMP header class
     # @author Sylvain Daubert
     class ICMP < Struct.new(:type, :code, :sum, :body)
       include StructFu
