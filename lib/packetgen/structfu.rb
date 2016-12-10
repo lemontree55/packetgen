@@ -239,6 +239,10 @@ module PacketGen
         self.replace str
         self
       end
+
+      # @author Sylvain Daubert
+      # Added for consistency with Struct classes
+      alias :sz :length
     end
 
     # Provides a primitive for creating strings, preceeded by

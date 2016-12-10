@@ -99,12 +99,21 @@ module PacketGen
       end
 
         describe '#calc_length' do
-          it 'compute IPv6 length field' do
+          it 'computes IPv6 length field' do
             ipv6 = IPv6.new
             body = (0...rand(60_000)).to_a.pack('C*')
             ipv6.body = body
             ipv6.calc_length
             expect(ipv6.length).to eq(body.size)
+          end
+
+          it 'computes IPv6 length field when IPv6 body is another protocol' do
+            p Header.constants
+            pkt = Packet.gen('IPv6').add('UDP')
+            body = (0...rand(60_000)).to_a.pack('C*')
+            pkt.body = body
+            pkt.ipv6.calc_length
+            expect(pkt.ipv6.length).to eq(body.size + UDP.new.sz)
           end
         end
 
