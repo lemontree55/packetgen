@@ -130,7 +130,7 @@ module PacketGen
       # Compute length and set +len+ field
       # @return [Integer]
       def calc_length
-        self.length = body.length
+        self.length = body.sz
       end
 
       # Getter for length attribute
