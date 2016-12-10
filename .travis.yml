@@ -10,8 +10,8 @@ install:
   - sudo apt-get install libpcap-dev -qq
   - bundler install --path vendor/bundle --jobs=3 --retry=3
 before_script:
+  - sudo ip addr add ::1/64 scope host dev lo
   - /sbin/ifconfig
-  - ip addr
 script:
   - bundler exec rake
   - rvmsudo bundle exec rake spec:sudo
