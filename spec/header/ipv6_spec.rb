@@ -143,7 +143,34 @@ module PacketGen
           end
         end
 
-        it '#to_s returns a binary string' do
+        describe '#to_w' do
+          it 'responds to #to_w' do
+            expect(IPv6.new).to respond_to(:to_w)
+          end
+
+          it 'sends a IPv6 header on wire', :sudo, :notravis do
+            body = PacketGen.force_binary("\x00" * 64)
+            pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
+                  add('UDP', sport: 35535, dport: 65535, body: body)
+            pkt.calc
+            Thread.new { sleep 1; pkt.ipv6.to_w('lo') }
+            packets = Packet.capture('lo', max: 1,
+                                     filter: 'ip6 dst ::1',
+                                     timeout: 4)
+            packet = packets.first
+            expect(packet.is? 'IPv6').to be(true)
+            expect(packet.ipv6.dst).to eq('::1')
+            expect(packet.ipv6.src).to eq('::1')
+            expect(packet.ipv6.next).to eq(UDP::IP_PROTOCOL)
+            expect(packet.ipv6.traffic_class).to eq(0x40)
+            expect(packet.ipv6.hop).to eq(0x22)
+            expect(packet.udp.sport).to eq(35535)
+            expect(packet.udp.dport).to eq(65535)
+            expect(packet.body).to eq(body)
+          end
+        end
+
+       it '#to_s returns a binary string' do
           ipv6 = IPv6.new
           ipv6.body = 'body'
           ipv6.calc_length

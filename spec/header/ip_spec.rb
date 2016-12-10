@@ -170,7 +170,7 @@ module PacketGen
             expect(IP.new).to respond_to(:to_w)
           end
 
-          it 'send a IP header on wire', :sudo do
+          it 'sends a IP header on wire', :sudo do
             body = PacketGen.force_binary("\x00" * 64)
             pkt = Packet.gen('IP').add('UDP', sport: 35535, dport: 65535, body: body)
             pkt.calc
