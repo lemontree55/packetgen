@@ -21,7 +21,6 @@ Yes. But PacketFu is limited:
 These use cases are the roadmap for PacketGen.
 
 Not yet implemented:
-- send packet on wire at IP and IPv6 levels (ie without explicity defining a Eth header)
 - encapsulation/decapsulation
 - some protocols...
 
