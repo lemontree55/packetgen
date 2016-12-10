@@ -104,7 +104,6 @@ module PacketGen
 
       context '#read_packet_bytes' do
         it 'returns an array of raw packets' do
-          pending 'need Packet#parse and ICMP'
           raw_packets = @pcapng.read_packet_bytes(@file)
           icmp = Packet.parse(raw_packets[2])
           expect(icmp.ip.src).to eq('192.168.1.105')
