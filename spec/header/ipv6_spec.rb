@@ -148,7 +148,7 @@ module PacketGen
             expect(IPv6.new).to respond_to(:to_w)
           end
 
-          it 'sends a IPv6 header on wire', :sudo do
+          it 'sends a IPv6 header on wire', :sudo, :notravis do
             body = PacketGen.force_binary("\x00" * 64)
             pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
                   add('UDP', sport: 35535, dport: 65535, body: body)
