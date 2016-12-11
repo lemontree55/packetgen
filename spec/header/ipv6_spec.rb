@@ -108,7 +108,6 @@ module PacketGen
           end
 
           it 'computes IPv6 length field when IPv6 body is another protocol' do
-            p Header.constants
             pkt = Packet.gen('IPv6').add('UDP')
             body = (0...rand(60_000)).to_a.pack('C*')
             pkt.body = body
