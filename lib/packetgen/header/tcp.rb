@@ -50,7 +50,7 @@ module PacketGen
         self[:dport].read str[2, 2]
         self[:seq].read str[4, 4]
         self[:ack].read str[8, 4]
-        u16 = str[12, 2].unpack 'n'.first
+        u16 = str[12, 2].unpack('n').first
         self[:hlen] = u16 >> 12
         self[:reserved] =  (u16 >> 9) & 0x7
         self[:flags] = u16 & 0x1ff
@@ -192,9 +192,9 @@ module PacketGen
       def to_s
         ary1 = to_a[0..3]
         ary2 = to_a[7..10]
-        u16 = ((options[:hlen] & 0xf) << 12) |
-              ((options[:reserved] & 0x7) << 9) |
-              (options[:flags] & 0x1ff)
+        u16 = ((self[:hlen] & 0xf) << 12) |
+              ((self[:reserved] & 0x7) << 9) |
+              (self[:flags] & 0x1ff)
         ary1.map(&:to_s).join << [u16].pack('n') << ary2.map(&:to_s).join
       end
     end
