@@ -111,7 +111,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
-        raise ParseError, 'string too short for Eth' if str.size < self.sz
+        raise ParseError, 'string too short for IPv6' if str.size < self.sz
         force_binary str
         first32 = str[0, 4].unpack('N').first
         self.version = first32 >> 28
