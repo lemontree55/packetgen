@@ -84,6 +84,109 @@ module PacketGen
         self[:hlen] = 5 + self[:options].sz / 4
       end
 
+      # Getter for source port
+      # @return [Integer]
+      def sport
+        self[:sport].to_i
+      end
+      alias :source_port :sport
+
+      # Setter for source port
+      # @param [Integer] port
+      # @return [Integer]
+      def sport=(port)
+        self[:sport].read port
+      end
+      alias :source_port= :sport=
+
+      # Getter for destination port
+      # @return [Integer]
+      def dport
+        self[:dport].to_i
+      end
+      alias :destination_port :dport
+
+      # Setter for destination port
+      # @param [Integer] port
+      # @return [Integer]
+      def dport=(port)
+        self[:dport].read port
+      end
+      alias :destination_port= :dport=
+
+      # Getter for seq attribuute
+      # @return [Integer]
+      def seq
+        self[:seq].to_i
+      end
+      alias :sequence_number :seq
+
+      # Setter for seq attribuute
+      # @param [Integer] seq
+      # @return [Integer]
+      def seq=(seq)
+        self[:seq].read seq
+      end
+      alias :sequence_number= :seq=
+
+      # Getter for ack attribuute
+      # @return [Integer]
+      def ack
+        self[:ack].to_i
+      end
+      alias :acknowledgment_number :ack
+
+      # Setter for ack attribuute
+      # @param [Integer] ack
+      # @return [Integer]
+      def ack=(ack)
+        self[:ack].read ack
+      end
+      alias :acknowledgment_number= :ack=
+
+      # Getter for wsize attribuute
+      # @return [Integer]
+      def wsize
+        self[:wsize].to_i
+      end
+      alias :window_size :wsize
+
+      # Setter for wsize attribuute
+      # @param [Integer] wsize
+      # @return [Integer]
+      def wsize=(wsize)
+        self[:wsize].read wsize
+      end
+      alias :window_size= :wsize=
+
+      # Getter for sum attribuute
+      # @return [Integer]
+      def sum
+        self[:sum].to_i
+      end
+
+      # Setter for sum attribuute
+      # @param [Integer] sum
+      # @return [Integer]
+      def sum=(sum)
+        self[:sum].read sum
+      end
+
+      # Getter for urg attribuute
+      # @return [Integer]
+      def urg
+        self[:urg].to_i
+      end
+      alias :urgent_pointer :urg
+
+      # Setter for urg attribuute
+      # @param [Integer] urg
+      # @return [Integer]
+      def urg=(urg)
+        self[:urg].read urg
+      end
+      alias :urgent_pointer= :urg=
+
       # Get binary string
       # @return [String]
       def to_s
