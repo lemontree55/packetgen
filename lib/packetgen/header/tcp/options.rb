@@ -28,3 +28,5 @@ module PacketGen
     end
   end
 end
+
+require_relative 'option'
