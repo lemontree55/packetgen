@@ -91,7 +91,6 @@ module PacketGen
         end
 
         it 'computes TCP over IPv6 header checksum' do
-          pending 'need options'
           pkt = Packet.read(File.join(__dir__, '..', 'pcapng', 'ipv6_tcp.pcapng'))[1]
           expect(pkt.is? 'IPv6').to be(true)
           sum = pkt.tcp.sum
@@ -144,7 +143,6 @@ module PacketGen
 
       describe '#to_s' do
         it 'returns a binary string' do
-          pending 'need options'
           strings = []
           file = PcapNG::File.new
           strings << file.read_packet_bytes(File.join(__dir__, '..', 'pcapng',
