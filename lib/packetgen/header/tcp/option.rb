@@ -85,6 +85,12 @@ module PacketGen
           self[:length].read i
         end
 
+        # Say if option has a length
+        # @return [Boolean]
+        def has_length?
+          self[:kind].value && kind >= 2
+        end
+
         # Getter for value attribute
         # @return [String, Integer]
         def value
@@ -110,6 +116,13 @@ module PacketGen
           str << self[:length].to_s unless self[:length].value.nil?
           str << self[:value].to_s if length > 2
           str
+        end
+
+        # @return [String]
+        def inspect
+          str = "#<#{self.class} kind=#{self[:kind].value.inspect} "
+          str << "length=#{self[:length].value.inspect} " if self[:length].value
+          str << "value=#{self[:value].inspect}>"
         end
       end
 
