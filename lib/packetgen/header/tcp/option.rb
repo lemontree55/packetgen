@@ -118,6 +118,16 @@ module PacketGen
           str
         end
 
+        # Get option as a human readable string
+        # @return [String]
+        def to_x
+          str = self.class == Option ? "unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
+          if length > 2 and self[:value].to_s.size > 0
+            str << ":#{self[:value].to_s.inspect}"
+          end
+          str
+        end
+
         # @return [String]
         def inspect
           str = "#<#{self.class} kind=#{self[:kind].value.inspect} "
@@ -152,6 +162,11 @@ module PacketGen
           super options.merge!(kind: MSS_KIND, length: 4)
           self[:value] = Int16.new(options[:value])
         end
+
+        # @return [String]
+        def to_x
+          "MSS:#{value}"
+        end
       end
 
       # Window Size TCP option
@@ -161,6 +176,11 @@ module PacketGen
         def initialize(options={})
           super options.merge!(kind: WS_KIND, length: 3)
           self[:value] = Int8.new(options[:value])
+        end
+
+        # @return [String]
+        def to_x
+          "WS:#{value}"
         end
       end
 
@@ -191,6 +211,11 @@ module PacketGen
           super options.merge!(kind: ECHO_KIND, length: 6)
           self[:value] = Int32.new(options[:value])
         end
+
+        # @return [String]
+        def to_x
+          "WS:#{value}"
+        end
       end
 
       # Echo Reply TCP option
@@ -201,6 +226,11 @@ module PacketGen
           super options.merge!(kind: ECHOREPLY_KIND, length: 6)
           self[:value] = Int32.new(options[:value])
         end
+
+        # @return [String]
+        def to_x
+          "WS:#{value}"
+        end
       end
 
       # Timestamp TCP option
@@ -210,6 +240,12 @@ module PacketGen
         def initialize(options={})
           super options.merge!(kind: TS_KIND, length: 10)
           self[:value] = StructFu::String.new.read(options[:value] || "\0" * 8)
+        end
+
+        # @return [String]
+        def to_x
+          value, echo_reply = self[:value].unpack('NN')
+          "WS:#{value};#{echo_reply}"
         end
       end
     end

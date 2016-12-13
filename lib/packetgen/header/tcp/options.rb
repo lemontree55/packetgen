@@ -53,6 +53,12 @@ module PacketGen
           map(&:to_s).join
         end
 
+        # Get a human readable string
+        # @return [String]
+        def to_x
+          map(&:to_x).join(', ')
+        end
+
         # Get options size in bytes
         # @return [Integer]
         def sz
