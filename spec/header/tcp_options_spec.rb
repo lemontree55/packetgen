@@ -68,6 +68,42 @@ module PacketGen
           end
         end
 
+        describe '#add' do
+          let(:options) { Options.new }
+
+          it 'adds an option without value' do
+            options.add 'NOP'
+            expect(options.size).to eq(1)
+            expect(options.first).to be_a(NOP)
+            expect(options.first.value).to eq('')
+          end
+
+          it 'adds an option with value' do
+            options.add 'ECHO', 0x87654321
+            options.add 'TS', [0x01234567, 0x89abcdef].pack('N2')
+            expect(options.size).to eq(2)
+            expect(options.first).to be_a(ECHO)
+            expect(options.first.value).to eq(0x87654321)
+            expect(options.last).to be_a(TS)
+            expected_ts_value = PacketGen.force_binary("\x01\x23\x45\x67\x89\xab\xcd\xef")
+            expect(options.last.value).to eq(expected_ts_value)
+          end
+
+          it 'may be serialized with another #add' do
+            options.add('SACK').add('MSS', 500).add('NOP').add('NOP')
+            expect(options.size).to eq(4)
+            expect(options.sz).to eq(8)
+            expect(options[0]).to be_a(SACK)
+            expect(options[1]).to be_a(MSS)
+            expect(options[2]).to be_a(NOP)
+            expect(options[3]).to be_a(NOP)
+          end
+
+          it 'raises on unknown option' do
+            expect { options.add 'UNKNOWN' }.to raise_error(ArgumentError, /^unknown opt/)
+          end
+        end
+
         describe '#to_s' do
           it 'returns encoded options' do
             @packets.each do |pkt|

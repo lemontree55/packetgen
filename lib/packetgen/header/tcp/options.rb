@@ -47,6 +47,20 @@ module PacketGen
           self
         end
 
+        # Add a well-known option
+        # @param [String] opt option name
+        # @param [Object] value
+        # @return [self]
+        # @raise [ArgumentError] unknown option
+        def add(opt, value=nil)
+          raise ArgumentError, "unknown option #{opt}" unless TCP.const_defined?(opt)
+          klass = TCP.const_get(opt)
+          raise ArgumentError "unknown option #{opt}" unless klass < Option
+          option = klass.new(value: value)
+          self << option
+          self
+        end
+
         # Get options binary string
         # @return [String]
         def to_s
