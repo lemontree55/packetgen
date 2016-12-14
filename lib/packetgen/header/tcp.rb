@@ -2,6 +2,30 @@ module PacketGen
   module Header
 
     # TCP header class
+    #
+    # == Create a TCP header
+    #  # standalone
+    #  tcph = PacketGen::Header::TCP.new
+    #  # in a IP packet
+    #  pkt = PacketGen.gen('IP').add('TCP')
+    #  # access to TCP header
+    #  pkt.tcp   # => PacketGen::Header::TCP
+    #
+    # == TCP attributes
+    #  tcph.sport = 4500
+    #  tcph.dport = 80
+    #  tcph.seq = 43
+    #  tcph.ack = 0x45678925
+    #  tcph.wsize = 0x240
+    #
+    # == Flags
+    # TODO
+    #
+    # == Options
+    # {#options} TCP attribute is a {Options}. {Option} may added to it:
+    #  tcph.options << PacketGen::Header::TCP::MSS.new(1250)
+    # Another way is to use {Options#add}:
+    #  tcph.options.add 'MSS', 1250
     # @author Sylvain Daubert
     class TCP < Struct.new(:sport, :dport, :seq, :ack, :hlen, :reserved,
                            :flags, :wsize, :sum, :urg, :options, :body)
