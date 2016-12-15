@@ -1,7 +1,9 @@
 module PacketGen
   module Header
 
-    # ARP header class
+    # An ARP header consists of:
+    # * a hardware type (+hw_type) field ({Int16}),
+    # * a protocol type (+proto+)
     # @author Sylvain Daubert
     class ARP < Struct.new(:hw_type, :proto, :hw_len, :proto_len, :opcode,
                           :src_mac, :src_ip, :dst_mac, :dst_ip, :body)
