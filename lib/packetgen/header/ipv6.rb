@@ -250,6 +250,6 @@ module PacketGen
     end
 
     Eth.bind_header IPv6, ethertype: 0x86DD
-    IP.bind_header IPv6, proto: 41    # 6to4
+    IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end

@@ -31,7 +31,7 @@ module PacketGen
           expect(Eth.known_headers[IP].to_h).to eq({key: :ethertype, value: 0x800})
         end
         it 'in IP packets' do
-          expect(IP.known_headers[IP].to_h).to eq({key: :proto, value: 4})
+          expect(IP.known_headers[IP].to_h).to eq({key: :protocol, value: 4})
         end
       end
 
@@ -45,7 +45,7 @@ module PacketGen
           expect(ip.id).to be < 65536
           expect(ip.frag).to eq(0)
           expect(ip.ttl).to eq(64)
-          expect(ip.proto).to eq(0)
+          expect(ip.protocol).to eq(0)
           expect(ip.sum).to eq(0)
           expect(ip.src).to eq('127.0.0.1')
           expect(ip.dst).to eq('127.0.0.1')
@@ -61,7 +61,7 @@ module PacketGen
             id: 153,
             frag: 0x4000,
             ttl: 2,
-            proto: 250,
+            protocol: 250,
             sum: 1,
             src: '1.1.1.1',
             dst: '2.2.2.2',
@@ -86,7 +86,7 @@ module PacketGen
           expect(ip.id).to eq(0x0506)
           expect(ip.frag).to eq(0x0708)
           expect(ip.ttl).to eq(9)
-          expect(ip.proto).to eq(10)
+          expect(ip.protocol).to eq(10)
           expect(ip.sum).to eq(0x0b0c)
           expect(ip.src).to eq('13.14.15.16')
           expect(ip.dst).to eq('17.18.19.20')
@@ -101,7 +101,7 @@ module PacketGen
 
         describe '#calc_sum' do
           it 'compute IP header checksum' do
-            ip = IP.new(length: 60, id: 0x1c46, frag: 0x4000, ttl: 64, proto: 6,
+            ip = IP.new(length: 60, id: 0x1c46, frag: 0x4000, ttl: 64, protocol: 6,
                         src: '172.16.10.99', dst: '172.16.10.12')
             ip.calc_sum
             expect(ip.sum).to eq(0xb1e6)
@@ -138,9 +138,9 @@ module PacketGen
             expect(@ip[:ttl].to_i).to eq(255)
           end
 
-          it '#proto= accepts integers' do
-            @ip.proto = 255
-            expect(@ip[:proto].to_i).to eq(255)
+          it '#protocol= accepts integers' do
+            @ip.protocol = 255
+            expect(@ip[:protocol].to_i).to eq(255)
           end
 
           it '#sum= accepts integers' do
@@ -182,7 +182,7 @@ module PacketGen
             expect(packet.is? 'IP').to be(true)
             expect(packet.ip.dst).to eq('127.0.0.1')
             expect(packet.ip.src).to eq('127.0.0.1')
-            expect(packet.ip.proto).to eq(UDP::IP_PROTOCOL)
+            expect(packet.ip.protocol).to eq(UDP::IP_PROTOCOL)
             expect(packet.udp.sport).to eq(35535)
             expect(packet.udp.dport).to eq(65535)
             expect(packet.body).to eq(body)

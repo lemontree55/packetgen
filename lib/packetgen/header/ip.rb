@@ -6,7 +6,7 @@ module PacketGen
     # IP header class
     # @author Sylvain Daubert
     class IP < Struct.new(:version, :ihl, :tos, :length, :id, :frag, :ttl,
-                          :proto,:sum, :src, :dst, :body)
+                          :protocol, :sum, :src, :dst, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -85,7 +85,7 @@ module PacketGen
       # @option options [Integer] :id
       # @option options [Integer] :frag
       # @option options [Integer] :ttl
-      # @option options [Integer] :proto
+      # @option options [Integer] :protocol
       # @option options [Integer] :sum IP header checksum
       # @option options [String] :src IP source dotted address
       # @option options [String] :dst IP destination dotted address
@@ -97,7 +97,7 @@ module PacketGen
               Int16.new(options[:id] || rand(65535)),
               Int16.new(options[:frag] || 0),
               Int8.new(options[:ttl] || 64),
-              Int8.new(options[:proto]),
+              Int8.new(options[:protocol]),
               Int16.new(options[:sum] || 0),
               Addr.new.parse(options[:src] || '127.0.0.1'),
               Addr.new.parse(options[:dst] || '127.0.0.1'),
@@ -119,7 +119,7 @@ module PacketGen
         self[:id].read str[4, 2]
         self[:frag].read str[6, 2]
         self[:ttl].read str[8, 1]
-        self[:proto].read str[9, 1]
+        self[:protocol].read str[9, 1]
         self[:sum].read str[10, 2]
         self[:src].read str[12, 4]
         self[:dst].read str[16, 4]
@@ -134,7 +134,7 @@ module PacketGen
         checksum += self.length
         checksum += self.id
         checksum += self.frag
-        checksum += (self.ttl << 8) | self.proto
+        checksum += (self.ttl << 8) | self.protocol
         checksum += (self[:src].to_i >> 16)
         checksum += (self[:src].to_i & 0xffff)
         checksum += self[:dst].to_i >> 16
@@ -215,17 +215,17 @@ module PacketGen
         self[:ttl].value = ttl
       end
 
-      # Getter for proto attribute
+      # Getter for protocol attribute
       # @return [Integer]
-      def proto
-        self[:proto].to_i
+      def protocol
+        self[:protocol].to_i
       end
 
-      # Setter for  proto attribute
-      # @param [Integer] proto
+      # Setter for  protocol attribute
+      # @param [Integer] protocol
       # @return [Integer]
-      def proto=(proto)
-        self[:proto].value = proto
+      def protocol=(protocol)
+        self[:protocol].value = protocol
       end
 
       # Getter for sum attribute
@@ -299,6 +299,6 @@ module PacketGen
     end
 
     Eth.bind_header IP, ethertype: 0x800
-    IP.bind_header IP, proto: 4
+    IP.bind_header IP, protocol: 4
   end
 end

@@ -125,7 +125,7 @@ module PacketGen
       end
     end
 
-    IP.bind_header UDP, proto: UDP::IP_PROTOCOL
+    IP.bind_header UDP, protocol: UDP::IP_PROTOCOL
     IPv6.bind_header UDP, next: UDP::IP_PROTOCOL
   end
 end

@@ -109,7 +109,7 @@ module PacketGen
         expect(pkt.ip.ihl).to eq(0)
         expect(pkt.ip.tos).to eq(3)
         expect(pkt.ip.id).to eq(0x74de)
-        expect(pkt.ip.proto).to eq(0x51)
+        expect(pkt.ip.protocol).to eq(0x51)
       end
     end
 
@@ -154,10 +154,10 @@ module PacketGen
       end
 
       it 'sets protocol information in previous header' do
-        expect(@pkt.ip.proto).to eq(0)
+        expect(@pkt.ip.protocol).to eq(0)
         @pkt.add 'IP'
-        expect(@pkt.ip.proto).to eq(Header::IP.known_headers[Header::IP].value)
-        expect(@pkt.ip(2).proto).to eq(0)
+        expect(@pkt.ip.protocol).to eq(Header::IP.known_headers[Header::IP].value)
+        expect(@pkt.ip(2).protocol).to eq(0)
       end
 
       it 'raises on unknown protocol' do
