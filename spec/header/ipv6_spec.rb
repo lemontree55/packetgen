@@ -60,7 +60,7 @@ module PacketGen
           options = {
             version: 15,
             traffic_class: 128,
-            flow_label: 0xf851ec,
+            flow_label: 0x851ec,
             length: 10_000,
             next: 250,
             hop: 129,

@@ -10,8 +10,7 @@ module PacketGen
 
     # IPv6 header class
     # @author Sylvain Daubert
-    class IPv6 < Struct.new(:version, :traffic_class, :flow_label, :length,
-                            :next, :hop, :src, :dst, :body)
+    class IPv6 < Struct.new(:u32, :length, :next, :hop, :src, :dst, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -90,7 +89,7 @@ module PacketGen
 
       # @param [Hash] options
       # @option options [Integer] :version
-      # @option options [Integer] :traffic_length
+      # @option options [Integer] :traffic_class
       # @option options [Integer] :flow_label
       # @option options [Integer] :length payload length
       # @option options [Integer] :next
@@ -99,16 +98,25 @@ module PacketGen
       # @option options [String] :dst colon-delimited destination address
       # @option options [String] :body binary string
       def initialize(options={})
-        super options[:version] || 6,
-              options[:traffic_class] || 0,
-              options[:flow_label] || 0,
+        super Int32.new(0x60000000),
               Int16.new(options[:length]),
               Int8.new(options[:next]),
               Int8.new(options[:hop] || 64),
               Addr.new.parse(options[:src] || '::1'),
               Addr.new.parse(options[:dst] || '::1'),
               StructFu::String.new.read(options[:body])
+        self.version = options[:version] if options[:version]
+        self.traffic_class = options[:traffic_class] if options[:traffic_class]
+        self.flow_label = options[:flow_label] if options[:flow_label]
       end
+
+      # @!attribute version
+      #   @return [Integer] 4-bit version attribute
+      # @!attribute traffic_class
+      #   @return [Integer] 8-bit traffic_class attribute
+      # @!attribute flow_label
+      #   @return [Integer] 20-bit flow_label attribute
+      define_bit_fields_on :u32, :version, 4, :traffic_class, 8, :flow_label, 20
 
       # Read a IP header from a string
       # @param [String] str binary string
@@ -137,13 +145,13 @@ module PacketGen
         self.length = body.sz
       end
 
-      # Getter for length attribute
-      # @return [Integer]
+      # @!attribute length
+      #   16-bit payload length attribute
+      #   @return [Integer]
       def length
         self[:length].to_i
       end
 
-      # Setter for length attribute
       # @param [Integer] i
       # @return [Integer]
       def length=(i)
@@ -205,13 +213,6 @@ module PacketGen
         self[:dst].parse addr
       end
       alias :destination= :dst=
-
-      # Get binary string
-      # @return [String]
-      def to_s
-        first32 = (version << 28) | (traffic_class << 20) | flow_label
-        [first32].pack('N') << to_a[3..-1].map { |field| field.to_s }.join
-      end
 
       # Get IPv6 part of pseudo header sum.
       # @return [Integer]
