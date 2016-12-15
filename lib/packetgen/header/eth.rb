@@ -1,9 +1,14 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
 
     # Ethernet header class
     # @author Sylvain Daubert
-    class Eth < Struct.new(:dst, :src, :proto, :body)
+    class Eth < Struct.new(:dst, :src, :ethertype, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -86,7 +91,7 @@ module PacketGen
       def initialize(options={})
         super MacAddr.new.parse(options[:dst] || '00:00:00:00:00:00'),
               MacAddr.new.parse(options[:src] || '00:00:00:00:00:00'),
-              Int16.new(options[:proto] || 0),
+              Int16.new(options[:ethertype] || 0),
               StructFu::String.new.read(options[:body])
       end
 
@@ -99,7 +104,7 @@ module PacketGen
         force_binary str
         self[:dst].read str[0, 6]
         self[:src].read str[6, 6]
-        self[:proto].read str[12, 2]
+        self[:ethertype].read str[12, 2]
         self[:body].read str[14..-1]
         self
       end
@@ -132,15 +137,15 @@ module PacketGen
 
       # Get protocol field
       # @return [Integer]
-      def proto
-        self[:proto].to_i
+      def ethertype
+        self[:ethertype].to_i
       end
 
       # Set protocol field
       # @param [Integer] proto
       # @return [Integer]
-      def proto=(proto)
-        self[:proto].value = proto
+      def ethertype=(type)
+        self[:ethertype].value = type
       end
 
       # send Eth packet on wire.

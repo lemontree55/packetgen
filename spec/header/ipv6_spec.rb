@@ -34,10 +34,10 @@ module PacketGen
 
       describe 'binding' do
         it 'in Eth packets' do
-          expect(Eth.known_headers[IPv6].to_h).to eq({key: :proto, value: 0x86dd})
+          expect(Eth.known_headers[IPv6].to_h).to eq({key: :ethertype, value: 0x86dd})
         end
         it 'in IP packets' do
-          expect(IP.known_headers[IPv6].to_h).to eq({key: :proto, value: 41})
+          expect(IP.known_headers[IPv6].to_h).to eq({key: :protocol, value: 41})
         end
       end
 
