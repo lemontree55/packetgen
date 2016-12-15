@@ -6,7 +6,7 @@ module PacketGen
     describe TCP do
       describe 'binding' do
         it 'in IP packets' do
-          expect(IP.known_headers[TCP].to_h).to eq({key: :proto, value: 6})
+          expect(IP.known_headers[TCP].to_h).to eq({key: :protocol, value: 6})
           expect(IPv6.known_headers[TCP].to_h).to eq({key: :next, value: 6})
         end
       end
@@ -17,14 +17,14 @@ module PacketGen
           expect(tcp).to be_a(TCP)
           expect(tcp.sport).to eq(0)
           expect(tcp.dport).to eq(0)
-          expect(tcp.seq).to_not eq(0)
-          expect(tcp.ack).to eq(0)
+          expect(tcp.seqnum).to_not eq(0)
+          expect(tcp.acknum).to eq(0)
           expect(tcp.hlen).to eq(5)
           expect(tcp.reserved).to eq(0)
           expect(tcp.flags).to eq(0)
-          expect(tcp.wsize).to eq(0)
+          expect(tcp.window).to eq(0)
           expect(tcp.sum).to eq(0)
-          expect(tcp.urg).to eq(0)
+          expect(tcp.urg_pointer).to eq(0)
           expect(tcp.options).to be_empty
           expect(tcp.body).to be_empty
         end
@@ -33,14 +33,14 @@ module PacketGen
           options = {
             sport: 1234,
             dport: 4567,
-            seq: 0xff00fe02,
-            ack: 0xfedcba98,
-            hlen: 15,
+            seqnum: 0xff00fe02,
+            acknum: 0xfedcba98,
+            data_offset: 15,
             reserved: 5,
             flags: 0x11,
-            wsize: 0x5342,
+            window: 0x5342,
             sum: 0xfedc,
-            urg: 0x1234,
+            urg_pointer: 0x1234,
             body: 'abcdef'
           }
           tcp = TCP.new(options)
@@ -61,14 +61,14 @@ module PacketGen
           tcp.read str
           expect(tcp.sport).to eq(0x0001)
           expect(tcp.dport).to eq(0x0203)
-          expect(tcp.seq).to eq(0x04050607)
-          expect(tcp.ack).to eq(0x08090a0b)
+          expect(tcp.seqnum).to eq(0x04050607)
+          expect(tcp.acknum).to eq(0x08090a0b)
           expect(tcp.hlen).to eq(5)
           expect(tcp.reserved).to eq(6)
           expect(tcp.flags).to eq(0x0d)
-          expect(tcp.wsize).to eq(0x0e0f)
+          expect(tcp.window).to eq(0x0e0f)
           expect(tcp.sum).to eq(0x1011)
-          expect(tcp.urg).to eq(0x1213)
+          expect(tcp.urg_pointer).to eq(0x1213)
           expect(tcp.options).to be_empty
           expect(tcp.body).to eq('body')
         end
@@ -114,19 +114,19 @@ module PacketGen
           expect(tcp[:dport].value).to eq(146)
         end
 
-        it '#seq= accepts integers' do
-          tcp.seq = 0x5432897b
-          expect(tcp[:seq].value).to eq(0x5432897b)
+        it '#seqnum= accepts integers' do
+          tcp.seqnum = 0x5432897b
+          expect(tcp[:seqnum].value).to eq(0x5432897b)
         end
 
-        it '#ack= accepts integers' do
-          tcp.ack = 0x5432897c
-          expect(tcp[:ack].value).to eq(0x5432897c)
+        it '#acknum= accepts integers' do
+          tcp.acknum = 0x5432897c
+          expect(tcp[:acknum].value).to eq(0x5432897c)
         end
 
-        it '#wsize= accepts integers' do
-          tcp.wsize = 60000
-          expect(tcp[:wsize].value).to eq(60000)
+        it '#window= accepts integers' do
+          tcp.window = 60000
+          expect(tcp[:window].value).to eq(60000)
         end
 
         it '#sum= accepts integers' do
@@ -134,9 +134,9 @@ module PacketGen
           expect(tcp[:sum].value).to eq(65500)
         end
 
-        it '#urg= accepts integers' do
-          tcp.urg = 37560
-          expect(tcp[:urg].value).to eq(37560)
+        it '#urg_pointer= accepts integers' do
+          tcp.urg_pointer = 37560
+          expect(tcp[:urg_pointer].value).to eq(37560)
         end
 
       end

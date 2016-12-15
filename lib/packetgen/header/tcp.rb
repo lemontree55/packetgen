@@ -27,8 +27,8 @@ module PacketGen
     # Another way is to use {Options#add}:
     #  tcph.options.add 'MSS', 1250
     # @author Sylvain Daubert
-    class TCP < Struct.new(:sport, :dport, :seq, :ack, :hlen, :reserved,
-                           :flags, :wsize, :sum, :urg, :options, :body)
+    class TCP < Struct.new(:sport, :dport, :seqnum, :acknum, :data_offset, :reserved,
+                           :flags, :window, :sum, :urg_pointer, :options, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -39,26 +39,26 @@ module PacketGen
       # @param [Hash] options
       # @option options [Integer] :sport
       # @option options [Integer] :dport
-      # @option options [Integer] :seq
-      # @option options [Integer] :ack
-      # @option options [Integer] :hlen
+      # @option options [Integer] :seqnum
+      # @option options [Integer] :acknum
+      # @option options [Integer] :data_offset
       # @option options [Integer] :reserved
       # @option options [Integer] :flags
-      # @option options [Integer] :wsize
+      # @option options [Integer] :window
       # @option options [Integer] :sum
-      # @option options [Integer] :urg
+      # @option options [Integer] :urg_pointer
       # @option options [String] :body
       def initialize(options={})
         super Int16.new(options[:sport]),
               Int16.new(options[:dport]),
-              Int32.new(options[:seq] || rand(2**32)),
-              Int32.new(options[:ack]),
-              options[:hlen] || 5,
+              Int32.new(options[:seqnum] || rand(2**32)),
+              Int32.new(options[:acknum]),
+              options[:data_offset] || options[:hlen] || 5,
               options[:reserved] || 0,
               options[:flags] || 0,
-              Int16.new(options[:wsize]),
+              Int16.new(options[:window] || options[:wsize]),
               Int16.new(options[:sum]),
-              Int16.new(options[:urg]),
+              Int16.new(options[:urg_pointer]),
               TCP::Options.new,
               StructFu::String.new.read(options[:body])
       end
@@ -72,17 +72,17 @@ module PacketGen
         force_binary str
         self[:sport].read str[0, 2]
         self[:dport].read str[2, 2]
-        self[:seq].read str[4, 4]
-        self[:ack].read str[8, 4]
+        self[:seqnum].read str[4, 4]
+        self[:acknum].read str[8, 4]
         u16 = str[12, 2].unpack('n').first
-        self[:hlen] = u16 >> 12
+        self[:data_offset] = u16 >> 12
         self[:reserved] =  (u16 >> 9) & 0x7
         self[:flags] = u16 & 0x1ff
-        self[:wsize].read str[14, 2]
+        self[:window].read str[14, 2]
         self[:sum].read str[16, 2]
-        self[:urg].read str[18, 2]
-        self[:options].read str[20, (self[:hlen] - 5) * 4] if self[:hlen] > 5
-        self[:body].read str[self[:hlen] * 4..-1]
+        self[:urg_pointer].read str[18, 2]
+        self[:options].read str[20, (self[:data_offset] - 5) * 4] if self[:data_offset] > 5
+        self[:body].read str[self[:data_offset] * 4..-1]
       end
 
       # Compute checksum and set +sum+ field
@@ -102,10 +102,10 @@ module PacketGen
         self[:sum].value = (sum == 0) ? 0xffff : sum
       end
 
-      # Compute header length and set +hlen+ field
+      # Compute header length and set +data_offset+ field
       # @return [Integer]
       def calc_length
-        self[:hlen] = 5 + self[:options].sz / 4
+        self[:data_offset] = 5 + self[:options].sz / 4
       end
 
       # Getter for source port
@@ -138,50 +138,53 @@ module PacketGen
       end
       alias :destination_port= :dport=
 
-      # Getter for seq attribuute
+      # Getter for seqnum attribuute
       # @return [Integer]
-      def seq
-        self[:seq].to_i
+      def seqnum
+        self[:seqnum].to_i
       end
-      alias :sequence_number :seq
+      alias :sequence_number :seqnum
 
-      # Setter for seq attribuute
+      # Setter for seqnum attribuute
       # @param [Integer] seq
       # @return [Integer]
-      def seq=(seq)
-        self[:seq].read seq
+      def seqnum=(seq)
+        self[:seqnum].read seq
       end
-      alias :sequence_number= :seq=
+      alias :sequence_number= :seqnum=
 
-      # Getter for ack attribuute
+      # Getter for acknum attribuute
       # @return [Integer]
-      def ack
-        self[:ack].to_i
+      def acknum
+        self[:acknum].to_i
       end
-      alias :acknowledgment_number :ack
+      alias :acknowledgment_number :acknum
 
-      # Setter for ack attribuute
+      # Setter for acknum attribuute
       # @param [Integer] ack
       # @return [Integer]
-      def ack=(ack)
-        self[:ack].read ack
+      def acknum=(ack)
+        self[:acknum].read ack
       end
-      alias :acknowledgment_number= :ack=
+      alias :acknowledgment_number= :acknum=
 
-      # Getter for wsize attribuute
-      # @return [Integer]
-      def wsize
-        self[:wsize].to_i
-      end
-      alias :window_size :wsize
+      alias :hlen :data_offset
+      alias :hlen= :data_offset=
 
-      # Setter for wsize attribuute
-      # @param [Integer] wsize
+      # Getter for window attribuute
       # @return [Integer]
-      def wsize=(wsize)
-        self[:wsize].read wsize
+      def window
+        self[:window].to_i
       end
-      alias :window_size= :wsize=
+      alias :wsize :window
+
+      # Setter for window attribuute
+      # @param [Integer] window
+      # @return [Integer]
+      def window=(window)
+        self[:window].read window
+      end
+      alias :wsize= :window=
 
       # Getter for sum attribuute
       # @return [Integer]
@@ -196,34 +199,32 @@ module PacketGen
         self[:sum].read sum
       end
 
-      # Getter for urg attribuute
+      # Getter for urg_pointer attribuute
       # @return [Integer]
-      def urg
-        self[:urg].to_i
+      def urg_pointer
+        self[:urg_pointer].to_i
       end
-      alias :urgent_pointer :urg
 
-      # Setter for urg attribuute
+      # Setter for urg_pointer attribuute
       # @param [Integer] urg
       # @return [Integer]
-      def urg=(urg)
-        self[:urg].read urg
+      def urg_pointer=(urg)
+        self[:urg_pointer].read urg
       end
-      alias :urgent_pointer= :urg=
 
       # Get binary string
       # @return [String]
       def to_s
         ary1 = to_a[0..3]
         ary2 = to_a[7..10]
-        u16 = ((self[:hlen] & 0xf) << 12) |
+        u16 = ((self[:data_offset] & 0xf) << 12) |
               ((self[:reserved] & 0x7) << 9) |
               (self[:flags] & 0x1ff)
         ary1.map(&:to_s).join << [u16].pack('n') << ary2.map(&:to_s).join
       end
     end
 
-    IP.bind_header TCP, proto: TCP::IP_PROTOCOL
+    IP.bind_header TCP, protocol: TCP::IP_PROTOCOL
     IPv6.bind_header TCP, next: TCP::IP_PROTOCOL
   end
 end
