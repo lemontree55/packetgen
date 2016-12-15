@@ -142,7 +142,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_header ARP, proto: 0x806
+    Eth.bind_header ARP, ethertype: 0x806
   end
 end
 

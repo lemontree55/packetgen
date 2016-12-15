@@ -298,7 +298,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_header IP, proto: 0x800
+    Eth.bind_header IP, ethertype: 0x800
     IP.bind_header IP, proto: 4
   end
 end

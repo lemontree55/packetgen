@@ -28,7 +28,7 @@ module PacketGen
 
       describe 'binding' do
         it 'in Eth packets' do
-          expect(Eth.known_headers[IP].to_h).to eq({key: :proto, value: 0x800})
+          expect(Eth.known_headers[IP].to_h).to eq({key: :ethertype, value: 0x800})
         end
         it 'in IP packets' do
           expect(IP.known_headers[IP].to_h).to eq({key: :proto, value: 4})

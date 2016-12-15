@@ -30,14 +30,14 @@ module PacketGen
           expect(eth).to be_a(Eth)
           expect(eth.dst).to eq('00:00:00:00:00:00')
           expect(eth.src).to eq('00:00:00:00:00:00')
-          expect(eth.proto).to eq(0)
+          expect(eth.ethertype).to eq(0)
         end
 
         it 'accepts options' do
           options = {
             dst: '00:01:02:03:04:05',
             src: '00:ff:ff:ff:ff:4c',
-            proto: 0x800,
+            ethertype: 0x800,
             body: 'this is a body'
           }
           eth = Eth.new(options)
@@ -55,7 +55,7 @@ module PacketGen
           eth.read str
           expect(eth.dst).to eq('00:01:02:03:04:05')
           expect(eth.src).to eq('06:07:08:09:0a:0b')
-          expect(eth.proto).to eq(0x0c0d)
+          expect(eth.ethertype).to eq(0x0c0d)
           expect(eth.body).to eq('body')
         end
 
@@ -85,8 +85,8 @@ module PacketGen
         end
 
         it '#proto= accepts an integer' do
-          @eth.proto = 0xabcd
-          expect(@eth[:proto].value).to eq(0xabcd)
+          @eth.ethertype = 0xabcd
+          expect(@eth[:ethertype].value).to eq(0xabcd)
         end
       end
 
@@ -107,13 +107,13 @@ module PacketGen
           expect(packet.is? 'Eth').to be(true)
           expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
           expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
-          expect(packet.eth.proto).to eq(0x0800)
+          expect(packet.eth.ethertype).to eq(0x0800)
           expect(packet.ip.body).to eq(body)
         end
       end
 
       it '#to_s returns a binary string' do
-        ethx = Eth.new(dst: '00:01:02:03:04:05', proto: 0x800).to_s
+        ethx = Eth.new(dst: '00:01:02:03:04:05', ethertype: 0x800).to_s
         expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
                                           "\x00\x00\x00\x00\x00\x00\x08\x00")
         expect(ethx).to eq(expected)
