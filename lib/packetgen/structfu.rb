@@ -1,9 +1,9 @@
-# -*- coding: binary -*-
+# -*- coding: utf-8 -*-
 module PacketGen
+  # Copied from PacketFu:
+  #
   # StructFu, a nifty way to leverage Ruby's built in Struct class
   # to create meaningful binary data.
-  #
-  # Copied from PacketFu:
   #
   # Copyright (c) 2008-2014, Tod Beardsley
   # All rights reserved.
@@ -30,6 +30,7 @@ module PacketGen
   # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
   # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  # @author Tod Beardsley
   module StructFu
   
     # Normally, self.size and self.length will refer to the Struct
@@ -82,6 +83,7 @@ module PacketGen
 
     # Get binary string
     # @return [String]
+    # @author Sylvain Daubert
     def to_s
       to_a.map { |field| field.to_s }.join
     end

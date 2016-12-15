@@ -1,3 +1,8 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
 
@@ -28,7 +33,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
-        raise ParseError, 'string too short for Eth' if str.size < self.sz
+        raise ParseError, 'string too short for ICMP' if str.size < self.sz
         force_binary str
         self[:type].read str[0, 1]
         self[:code].read str[1, 1]
@@ -92,6 +97,6 @@ module PacketGen
       end
     end
 
-    IP.bind_header ICMP, proto: ICMP::IP_PROTOCOL
+    IP.bind_header ICMP, protocol: ICMP::IP_PROTOCOL
   end
 end

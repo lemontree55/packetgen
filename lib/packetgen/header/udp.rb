@@ -1,3 +1,8 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
 
@@ -32,7 +37,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
-        raise ParseError, 'string too short for Eth' if str.size < self.sz
+        raise ParseError, 'string too short for UDP' if str.size < self.sz
         force_binary str
         self[:sport].read str[0, 2]
         self[:dport].read str[2, 2]
@@ -125,7 +130,7 @@ module PacketGen
       end
     end
 
-    IP.bind_header UDP, proto: UDP::IP_PROTOCOL
+    IP.bind_header UDP, protocol: UDP::IP_PROTOCOL
     IPv6.bind_header UDP, next: UDP::IP_PROTOCOL
   end
 end

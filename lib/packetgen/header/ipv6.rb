@@ -1,4 +1,8 @@
 # coding: utf-8
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
 require 'ipaddr'
 
 module PacketGen
@@ -111,7 +115,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
-        raise ParseError, 'string too short for Eth' if str.size < self.sz
+        raise ParseError, 'string too short for IPv6' if str.size < self.sz
         force_binary str
         first32 = str[0, 4].unpack('N').first
         self.version = first32 >> 28
@@ -249,7 +253,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_header IPv6, proto: 0x86DD
-    IP.bind_header IPv6, proto: 41    # 6to4
+    Eth.bind_header IPv6, ethertype: 0x86DD
+    IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end
