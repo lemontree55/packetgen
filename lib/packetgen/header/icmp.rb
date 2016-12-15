@@ -97,6 +97,6 @@ module PacketGen
       end
     end
 
-    IP.bind_header ICMP, proto: ICMP::IP_PROTOCOL
+    IP.bind_header ICMP, protocol: ICMP::IP_PROTOCOL
   end
 end
