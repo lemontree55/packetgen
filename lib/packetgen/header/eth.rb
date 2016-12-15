@@ -1,7 +1,27 @@
 module PacketGen
   module Header
 
-    # Ethernet header class
+    # An Ethernet header consists of:
+    # * a destination MAC address ({MacAddr}),
+    # * a source MAC address (MacAddr),
+    # * a Ethertype (named +proto+ here) ({Int16}),
+    # * and a body (a {String} or another Header class).
+    #
+    # == Create a Ethernet header
+    #  # standalone
+    #  eth = PacketGen::Header::Eth.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('Eth')
+    #  # access to Ethernet header
+    #  pkt.eth   # => PacketGen::Header::Eth
+    #
+    # == Ethernet attributes
+    #  eth.dst = "00:01:02:03:04:05'
+    #  eth.src      # => "00:01:01:01:01:01"
+    #  eth[:src]    # => PacketGen::Header::Eth::MacAddr
+    #  eth.proto    # => 16-bit Integer
+    #  eth.body = "This is a body"
+    #
     # @author Sylvain Daubert
     class Eth < Struct.new(:dst, :src, :ethertype, :body)
       include StructFu
@@ -30,7 +50,7 @@ module PacketGen
 
         end
 
-        # Parse a string to populate MacAddr
+        # Parse a string to populate +MacAddr+
         # @param [String] str
         # @return [self]
         def parse(str)
@@ -48,7 +68,7 @@ module PacketGen
           self
         end
 
-        # Read a MacAddr from a string
+        # Read a +MacAddr+ from a binary string
         # @param [String] str binary string
         # @return [self]
         def read(str)
@@ -65,7 +85,7 @@ module PacketGen
                      "def #{sym}=(v); self[:#{sym}].read v; end"
         end
 
-        # Addr in human readable form (dotted format)
+        # +MacAddr+ in human readable form (colon format)
         # @return [String]
         def to_x
           members.map { |m| "#{'%02x' % self[m]}" }.join(':')
