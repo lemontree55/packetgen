@@ -1,4 +1,4 @@
-# -*- coding: binary -*-
+# -*- coding: utf-8 -*-
 module PacketGen
   # Copied from PacketFu:
   #
