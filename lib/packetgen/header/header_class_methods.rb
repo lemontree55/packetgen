@@ -63,32 +63,34 @@ module PacketGen
                  else
                    1
                  end
-          shift = idx - (size - 1)
-          field_mask = (2**size - 1) << shift
-          clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
+          unless field == :_
+            shift = idx - (size - 1)
+            field_mask = (2**size - 1) << shift
+            clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
 
-          if size == 1
-            class_eval <<-EOM
-            def #{field}?
-              val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-              val != 0
+            if size == 1
+              class_eval <<-EOM
+              def #{field}?
+                val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+                val != 0
+              end
+              def #{field}=(v)
+                val = v ? 1 : 0
+                self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+                self[:#{attr}].value |= val << #{shift}
+              end
+              EOM
+            else
+              class_eval <<-EOM
+              def #{field}
+                (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+              end
+              def #{field}=(v)
+                self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+                self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
+              end
+              EOM
             end
-            def #{field}=(v)
-              val = v ? 1 : 0
-              self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-              self[:#{attr}].value |= val << #{shift}
-            end
-            EOM
-          else
-            class_eval <<-EOM
-            def #{field}
-              (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-            end
-            def #{field}=(v)
-              self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-              self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
-            end
-            EOM
           end
 
           idx -= size
