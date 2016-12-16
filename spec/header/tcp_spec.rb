@@ -156,6 +156,25 @@ module PacketGen
           end
         end
       end
+
+      context 'flags field' do
+        let(:tcp) { TCP.new }
+
+        it 'may be accessed through all flag_* methods' do
+          all_flags = (%i(flag_ns flag_cwr flag_ece flag_urg flag_ack flag_psh) +
+                       %i(flag_rst flas_syn flag_fin)).reverse
+          8.downto(0) do |i|
+            expect(tcp.send "#{all_flags[i]}?").to eq(false)
+            tcp.flags = 1 << i
+            expect(tcp.send "#{all_flags[i]}?").to eq(true)
+            tcp.send "#{all_flags[i]}=", false
+            expect(tcp.flags).to eq(0)
+          end
+
+          tcp.flags = 0x155
+          9.times { |i| expect(tcp.send "#{all_flags[i]}?").to be(i % 2 == 0) }
+        end
+      end
     end
   end
 end
