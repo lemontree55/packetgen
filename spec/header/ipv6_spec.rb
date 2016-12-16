@@ -37,7 +37,7 @@ module PacketGen
           expect(Eth.known_headers[IPv6].to_h).to eq({key: :ethertype, value: 0x86dd})
         end
         it 'in IP packets' do
-          expect(IP.known_headers[IPv6].to_h).to eq({key: :proto, value: 41})
+          expect(IP.known_headers[IPv6].to_h).to eq({key: :protocol, value: 41})
         end
       end
 
@@ -60,7 +60,7 @@ module PacketGen
           options = {
             version: 15,
             traffic_class: 128,
-            flow_label: 0xf851ec,
+            flow_label: 0x851ec,
             length: 10_000,
             next: 250,
             hop: 129,

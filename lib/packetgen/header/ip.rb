@@ -1,12 +1,65 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
 require 'socket'
 
 module PacketGen
   module Header
 
-    # IP header class
+    # A IP header consists of:
+    # * a first byte ({#u8} of {Int8} type) composed of:
+    #   * a 4-bit {#version} field,
+    #   * a 4-bit IP header length ({#ihl}) field,
+    # * a total length ({#length}, {Int16} type),
+    # * a ID ({#id}, +Int16+ type),
+    # * a {#frag} worg (+Int16+) composed of:
+    #   * 3 1-bit flags ({#flag_rsv}, {#flag_df} and {#flag_mf}),
+    #   * a 13-bit {#fragment_offset} field,
+    # * a Time-to-Live ({#ttl}) field (+Int8+),
+    # * a {#protocol} field (+Int8+),
+    # * a checksum ({#sum}) field (+Int16+),
+    # * a source IP address ({#src}, {Addr} type),
+    # * a destination IP ddress ({#dst}, +Addr+ type),
+    # * and a {#body} ({String} type).
+    #
+    # == Create a IP header
+    #  # standalone
+    #  ip = PacketGen::Header::IP.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IP')
+    #  # access to IP header
+    #  pkt.ip   # => PacketGen::Header::IP
+    #
+    # == IP attributes
+    #  ip.u8 = 0x45
+    #  # the same as
+    #  ip.version = 4
+    #  ip.ihl = 5
+    #
+    #  ip.length = 0x43
+    #  ip.id = 0x1234
+    #
+    #  ip.frag = 0x2031
+    #  # the same as:
+    #  ip.flag_mf = true
+    #  ip.fragment_offset = 0x31
+    #
+    #  ip.flag_rsv?  # => Boolean
+    #  ip.flag_df?   # => Boolean
+    #  ip.flag_mf?   # => Boolean
+    #
+    #  ip.ttl = 0x40
+    #  ip.protocol = 6
+    #  ip.sum = 0xffff
+    #  ip.src = '127.0.0.1'
+    #  ip.src                # => "127.0.0.1"
+    #  ip[:src]              # => PacketGen::Header::IP::Addr
+    #  ip.dst = '127.0.0.2'
+    #  ip.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IP < Struct.new(:version, :ihl, :tos, :length, :id, :frag, :ttl,
-                          :proto,:sum, :src, :dst, :body)
+    class IP < Struct.new(:u8, :tos, :length, :id, :frag, :ttl,
+                          :protocol, :sum, :src, :dst, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -85,24 +138,39 @@ module PacketGen
       # @option options [Integer] :id
       # @option options [Integer] :frag
       # @option options [Integer] :ttl
-      # @option options [Integer] :proto
+      # @option options [Integer] :protocol
       # @option options [Integer] :sum IP header checksum
       # @option options [String] :src IP source dotted address
       # @option options [String] :dst IP destination dotted address
       def initialize(options={})
-        super options[:version] || 4,
-              options[:ihl] || 5,
+        super Int8.new(((options[:version] || 4) << 4) | (options[:ihl] || 5)),
               Int8.new(options[:tos] || 0),
               Int16.new(options[:length] || 20),
               Int16.new(options[:id] || rand(65535)),
               Int16.new(options[:frag] || 0),
               Int8.new(options[:ttl] || 64),
-              Int8.new(options[:proto]),
+              Int8.new(options[:protocol]),
               Int16.new(options[:sum] || 0),
               Addr.new.parse(options[:src] || '127.0.0.1'),
               Addr.new.parse(options[:dst] || '127.0.0.1'),
               StructFu::String.new.read(options[:body])
       end
+
+      # @!attribute version
+      #   @return [Integer] 4-bit version attribute
+      # @!attribute ihl
+      #   @return [Integer] 4-bit IP header length attribute
+      define_bit_fields_on :u8, :version, 4, :ihl, 4
+
+      # @!attribute flag_rsv
+      #   @return [Boolean] reserved bit from flags
+      # @!attribute flag_df
+      #   @return [Boolean] Don't Fragment flag 
+      # @!attribute flag_mf
+      #   @return [Boolena] More Fragment flags
+      # @!attribute fragment_offset
+      #   @return [Integer] 13-bit fragment offset
+      define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
 
       # Read a IP header from a string
       # @param [String] str binary string
@@ -111,15 +179,13 @@ module PacketGen
         return self if str.nil?
         raise ParseError, 'string too short for IP' if str.size < self.sz
         force_binary str
-        vihl = str[0, 1].unpack('C').first
-        self[:version] = vihl >> 4
-        self[:ihl] = vihl & 0x0f
+        self[:u8].read str[0, 1]
         self[:tos].read str[1, 1]
         self[:length].read str[2, 2]
         self[:id].read str[4, 2]
         self[:frag].read str[6, 2]
         self[:ttl].read str[8, 1]
-        self[:proto].read str[9, 1]
+        self[:protocol].read str[9, 1]
         self[:sum].read str[10, 2]
         self[:src].read str[12, 4]
         self[:dst].read str[16, 4]
@@ -130,11 +196,11 @@ module PacketGen
        # Compute checksum and set +sum+ field
       # @return [Integer]
       def calc_sum
-        checksum = (self.version << 12) | (self.ihl << 8) | self.tos
+        checksum = (self[:u8].to_i << 8) | self.tos
         checksum += self.length
         checksum += self.id
         checksum += self.frag
-        checksum += (self.ttl << 8) | self.proto
+        checksum += (self.ttl << 8) | self.protocol
         checksum += (self[:src].to_i >> 16)
         checksum += (self[:src].to_i & 0xffff)
         checksum += self[:dst].to_i >> 16
@@ -215,17 +281,17 @@ module PacketGen
         self[:ttl].value = ttl
       end
 
-      # Getter for proto attribute
+      # Getter for protocol attribute
       # @return [Integer]
-      def proto
-        self[:proto].to_i
+      def protocol
+        self[:protocol].to_i
       end
 
-      # Setter for  proto attribute
-      # @param [Integer] proto
+      # Setter for  protocol attribute
+      # @param [Integer] protocol
       # @return [Integer]
-      def proto=(proto)
-        self[:proto].value = proto
+      def protocol=(protocol)
+        self[:protocol].value = protocol
       end
 
       # Getter for sum attribute
@@ -271,13 +337,6 @@ module PacketGen
       end
       alias :destination= :dst=
 
-      # Get binary string
-      # @return [String]
-      def to_s
-        first_byte = [(version << 4) | ihl].pack('C')
-        first_byte << to_a[2..-1].map { |field| field.to_s }.join
-      end
-
       # Get IP part of pseudo header sum.
       # @return [Integer]
       def pseudo_header_sum
@@ -299,6 +358,6 @@ module PacketGen
     end
 
     Eth.bind_header IP, ethertype: 0x800
-    IP.bind_header IP, proto: 4
+    IP.bind_header IP, protocol: 4
   end
 end

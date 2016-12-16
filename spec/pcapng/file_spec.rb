@@ -114,28 +114,26 @@ module PacketGen
       end
 
       context '#read_packets' do
-        #before(:all) do
-        #  @expected = [UDPPacket] * 2 + [ICMPPacket] * 3 + [ARPPacket] * 2 +
-        #    [TCPPacket] * 3 + [ICMPPacket]
-        #end
+        before(:all) do
+          @expected = [Header::UDP] * 2 + [Header::ICMP] * 3 + [Header::ARP] * 2 +
+                      [Header::TCP] * 3 + [Header::ICMP]
+        end
 
         it 'returns an array of Packets' do
-          pending 'need UPD, TCP, ICMP and ARP'
           packets = @pcapng.read_packets(@file)
-          expect(packets.map(&:class)).to eq(@expected)
+          expect(packets.map { |p| p.headers.last.class }).to eq(@expected)
 
-          icmp = packets[2]
-          expect(icmp.ip_saddr).to eq('192.168.1.105')
-          expect(icmp.ip_daddr).to eq('216.75.1.230')
-          expect(icmp.icmp_type).to eq(8)
-          expect(icmp.icmp_code).to eq(0)
+          pkt = packets[2]
+          expect(pkt.ip.src).to eq('192.168.1.105')
+          expect(pkt.ip.dst).to eq('216.75.1.230')
+          expect(pkt.icmp.type).to eq(8)
+          expect(pkt.icmp.code).to eq(0)
         end
 
         it 'yields Packet object per read packet' do
-          pending 'need UPD, TCP, ICMP and ARP'
           idx = 0
           @pcapng.read_packets(@file) do |pkt|
-            expect(pkt).to be_a(@expected[idx])
+            expect(pkt.headers.last).to be_a(@expected[idx])
             idx += 1
           end
           expect(idx).to eq(11)

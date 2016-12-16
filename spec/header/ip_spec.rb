@@ -31,7 +31,7 @@ module PacketGen
           expect(Eth.known_headers[IP].to_h).to eq({key: :ethertype, value: 0x800})
         end
         it 'in IP packets' do
-          expect(IP.known_headers[IP].to_h).to eq({key: :proto, value: 4})
+          expect(IP.known_headers[IP].to_h).to eq({key: :protocol, value: 4})
         end
       end
 
@@ -45,7 +45,7 @@ module PacketGen
           expect(ip.id).to be < 65536
           expect(ip.frag).to eq(0)
           expect(ip.ttl).to eq(64)
-          expect(ip.proto).to eq(0)
+          expect(ip.protocol).to eq(0)
           expect(ip.sum).to eq(0)
           expect(ip.src).to eq('127.0.0.1')
           expect(ip.dst).to eq('127.0.0.1')
@@ -61,7 +61,7 @@ module PacketGen
             id: 153,
             frag: 0x4000,
             ttl: 2,
-            proto: 250,
+            protocol: 250,
             sum: 1,
             src: '1.1.1.1',
             dst: '2.2.2.2',
@@ -73,35 +73,35 @@ module PacketGen
           end
         end
 
-      describe '#read' do
-        let(:ip) { IP.new}
+        describe '#read' do
+          let(:ip) { IP.new}
 
-        it 'sets header from a string' do
-          str = (1..ip.sz).to_a.pack('C*') + 'body'
-          ip.read str
-          expect(ip.version).to eq(0)
-          expect(ip.ihl).to eq(1)
-          expect(ip.tos).to eq(2)
-          expect(ip.length).to eq(0x0304)
-          expect(ip.id).to eq(0x0506)
-          expect(ip.frag).to eq(0x0708)
-          expect(ip.ttl).to eq(9)
-          expect(ip.proto).to eq(10)
-          expect(ip.sum).to eq(0x0b0c)
-          expect(ip.src).to eq('13.14.15.16')
-          expect(ip.dst).to eq('17.18.19.20')
-          expect(ip.body).to eq('body')
-        end
+          it 'sets header from a string' do
+            str = (1..ip.sz).to_a.pack('C*') + 'body'
+            ip.read str
+            expect(ip.version).to eq(0)
+            expect(ip.ihl).to eq(1)
+            expect(ip.tos).to eq(2)
+            expect(ip.length).to eq(0x0304)
+            expect(ip.id).to eq(0x0506)
+            expect(ip.frag).to eq(0x0708)
+            expect(ip.ttl).to eq(9)
+            expect(ip.protocol).to eq(10)
+            expect(ip.sum).to eq(0x0b0c)
+            expect(ip.src).to eq('13.14.15.16')
+            expect(ip.dst).to eq('17.18.19.20')
+            expect(ip.body).to eq('body')
+          end
 
-        it 'raises when str is too short' do
-          expect { ip.read 'abcd' }.to raise_error(ParseError, /too short/)
-          expect { ip.read('a' * 18) }.to raise_error(ParseError, /too short/)
+          it 'raises when str is too short' do
+            expect { ip.read 'abcd' }.to raise_error(ParseError, /too short/)
+            expect { ip.read('a' * 18) }.to raise_error(ParseError, /too short/)
+          end
         end
-      end
 
         describe '#calc_sum' do
           it 'compute IP header checksum' do
-            ip = IP.new(length: 60, id: 0x1c46, frag: 0x4000, ttl: 64, proto: 6,
+            ip = IP.new(length: 60, id: 0x1c46, frag: 0x4000, ttl: 64, protocol: 6,
                         src: '172.16.10.99', dst: '172.16.10.12')
             ip.calc_sum
             expect(ip.sum).to eq(0xb1e6)
@@ -138,9 +138,9 @@ module PacketGen
             expect(@ip[:ttl].to_i).to eq(255)
           end
 
-          it '#proto= accepts integers' do
-            @ip.proto = 255
-            expect(@ip[:proto].to_i).to eq(255)
+          it '#protocol= accepts integers' do
+            @ip.protocol = 255
+            expect(@ip[:protocol].to_i).to eq(255)
           end
 
           it '#sum= accepts integers' do
@@ -182,19 +182,59 @@ module PacketGen
             expect(packet.is? 'IP').to be(true)
             expect(packet.ip.dst).to eq('127.0.0.1')
             expect(packet.ip.src).to eq('127.0.0.1')
-            expect(packet.ip.proto).to eq(UDP::IP_PROTOCOL)
+            expect(packet.ip.protocol).to eq(UDP::IP_PROTOCOL)
             expect(packet.udp.sport).to eq(35535)
             expect(packet.udp.dport).to eq(65535)
             expect(packet.body).to eq(body)
           end
         end
+      end
 
-        it '#to_s returns a binary string' do
+      describe '#to_s' do
+        it 'returns a binary string' do
           ip = IP.new
           idx = [ip.id].pack('n')
           expect(ip.to_s).to eq("\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
                                 "\x7f\x00\x00\x01\x7f\x00\x00\x01")
         end
+      end
+
+      context 'frag field' do
+        let(:ip) { IP.new }
+
+        it 'may be accessed through flag_rsv' do
+          expect(ip.flag_rsv?).to be(false)
+          ip.frag = 0x8000
+          expect(ip.flag_rsv?).to be(true)
+          ip.flag_rsv = false
+          expect(ip.frag).to eq(0)
+        end
+
+        it 'may be accessed through flag_df' do
+          expect(ip.flag_df?).to be(false)
+          ip.frag = 0x4000
+          expect(ip.flag_df?).to be(true)
+          ip.flag_df = false
+          expect(ip.frag).to eq(0)
+        end
+
+        it 'may be accessed through flag_mf' do
+          expect(ip.flag_mf?).to be(false)
+          ip.frag = 0x2000
+          expect(ip.flag_mf?).to be(true)
+          ip.flag_mf = false
+          expect(ip.frag).to eq(0)
+        end
+
+        it 'may be accessed through fragment_offset' do
+          expect(ip.fragment_offset).to eq(0)
+          ip.frag = 0x1025
+          expect(ip.fragment_offset).to eq(0x1025)
+          ip.fragment_offset = 0x1001
+          ip.flag_rsv = true
+          expect(ip.frag).to eq(0x9001)
+        end
+
       end
     end
   end
