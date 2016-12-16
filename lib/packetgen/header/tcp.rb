@@ -1,7 +1,20 @@
 module PacketGen
   module Header
 
-    # TCP header class
+    # A TCP header consists of:
+    # * a source port ({#sport}, {Int16} type),
+    # * a destination port ({#dport}, +Int16+ type),
+    # * a sequence number ({#seqnum}, {Int32} type),
+    # * an acknownledge number ({#acknum}, +Int32+ type),
+    # * a 16-bit field ({#u16}, +Int16+ type) composed of:
+    #   * a 4-bit {#data_offset} value,
+    #   * a 3-bit {#reserved} field,
+    #   * a 9-bit {#flags} field,
+    # * a {#window} field (+Int16+ type),
+    # * a checksum field ({#sum}, +Int16+ type),
+    # * a urgent pointer ({#urg_pointer}, +Int16+ type),
+    # * an optional {#options} field ({Options} type),
+    # * and a {#body} ({String} type).
     #
     # == Create a TCP header
     #  # standalone
@@ -14,12 +27,18 @@ module PacketGen
     # == TCP attributes
     #  tcph.sport = 4500
     #  tcph.dport = 80
-    #  tcph.seq = 43
-    #  tcph.ack = 0x45678925
+    #  tcph.seqnum = 43
+    #  tcph.acknum = 0x45678925
     #  tcph.wsize = 0x240
+    #  tcph.urg_pointer = 0x40
+    #  tcph.body.read 'this is a body'
     #
     # == Flags
-    # TODO
+    # TCP flags may be accesed as a 9-bit integer:
+    #  tcph.flags = 0x1002
+    # Each flag may be accessed independently:
+    #  tcph.flag_syn?    # => Boolean
+    #  tcph.flag_rst = true
     #
     # == Options
     # {#options} TCP attribute is a {Options}. {Option} may added to it:
@@ -27,12 +46,22 @@ module PacketGen
     # Another way is to use {Options#add}:
     #  tcph.options.add 'MSS', 1250
     # @author Sylvain Daubert
-    class TCP < Struct.new(:sport, :dport, :seqnum, :acknum, :data_offset, :reserved,
-                           :flags, :window, :sum, :urg_pointer, :options, :body)
+    class TCP < Struct.new(:sport, :dport, :seqnum, :acknum, :u16,
+                           :window, :sum, :urg_pointer, :options, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
+    end
+  end
+end
 
+# Need to load Options now, as this is used through define_bit_fields_on,
+# which make a call to TCP.new, which needs Options
+require_relative 'tcp/options'
+
+module PacketGen
+  module Header
+    class TCP
       # IP protocol number for TCP
       IP_PROTOCOL = 6
 
@@ -53,16 +82,49 @@ module PacketGen
               Int16.new(options[:dport]),
               Int32.new(options[:seqnum] || rand(2**32)),
               Int32.new(options[:acknum]),
-              options[:data_offset] || options[:hlen] || 5,
-              options[:reserved] || 0,
-              options[:flags] || 0,
+              Int16.new,
               Int16.new(options[:window] || options[:wsize]),
               Int16.new(options[:sum]),
               Int16.new(options[:urg_pointer]),
-              TCP::Options.new,
+              Options.new,
               StructFu::String.new.read(options[:body])
+
+        doff = options[:data_offset] || options[:hlen] || 5
+        rsv = options[:reserved] || 0
+        flgs = options[:flags] || 0
+        self.u16.read (((doff << 3) | rsv) << 9) | flgs
       end
 
+      # @!attribute data_offset
+      #  @return [Integer] 4-bit data offsetfrom {#u16}
+      # @!attribute reserved
+      #  @return [Integer] 3-bit reserved from {#u16}
+      # @!attribute flags
+      #  @return [Integer] 9-bit flags from {#u16}
+      define_bit_fields_on :u16, :data_offset, 4, :reserved, 3, :flags, 9
+      alias :hlen :data_offset
+      alias :hlen= :data_offset=
+
+      # @!attribute flag_ns
+      #  @return [Boolean] 1-bit NS flag
+      # @!attribute flag_cwr
+      #  @return [Boolean] 1-bit CWR flag
+      # @!attribute flag_ece
+      #  @return [Boolean] 1-bit ECE flag
+      # @!attribute flag_urg
+      #  @return [Boolean] 1-bit URG flag
+      # @!attribute flag_ack
+      #  @return [Boolean] 1-bit ACK flag
+      # @!attribute flag_psh
+      #  @return [Boolean] 1-bit PSH flag
+      # @!attribute flag_rst
+      #  @return [Boolean] 1-bit RST flag
+      # @!attribute flag_syn
+      #  @return [Boolean] 1-bit SYN flag
+      # @!attribute flag_fin
+      #  @return [Boolean] 1-bit FIN flag
+      define_bit_fields_on :u16, :_, 7, :flag_ns, :flag_cwr, :flag_ece, :flag_urg,
+                           :flag_ack, :flag_psh, :flag_rst, :flas_syn, :flag_fin
       # Read a TCP header from a string
       # @param [String] str binary string
       # @return [self]
@@ -74,15 +136,12 @@ module PacketGen
         self[:dport].read str[2, 2]
         self[:seqnum].read str[4, 4]
         self[:acknum].read str[8, 4]
-        u16 = str[12, 2].unpack('n').first
-        self[:data_offset] = u16 >> 12
-        self[:reserved] =  (u16 >> 9) & 0x7
-        self[:flags] = u16 & 0x1ff
+        self[:u16].read str[12, 2]
         self[:window].read str[14, 2]
         self[:sum].read str[16, 2]
         self[:urg_pointer].read str[18, 2]
-        self[:options].read str[20, (self[:data_offset] - 5) * 4] if self[:data_offset] > 5
-        self[:body].read str[self[:data_offset] * 4..-1]
+        self[:options].read str[20, (self.data_offset - 5) * 4] if self.data_offset > 5
+        self[:body].read str[self.data_offset * 4..-1]
       end
 
       # Compute checksum and set +sum+ field
@@ -211,22 +270,9 @@ module PacketGen
       def urg_pointer=(urg)
         self[:urg_pointer].read urg
       end
-
-      # Get binary string
-      # @return [String]
-      def to_s
-        ary1 = to_a[0..3]
-        ary2 = to_a[7..10]
-        u16 = ((self[:data_offset] & 0xf) << 12) |
-              ((self[:reserved] & 0x7) << 9) |
-              (self[:flags] & 0x1ff)
-        ary1.map(&:to_s).join << [u16].pack('n') << ary2.map(&:to_s).join
-      end
     end
 
     IP.bind_header TCP, protocol: TCP::IP_PROTOCOL
     IPv6.bind_header TCP, next: TCP::IP_PROTOCOL
   end
 end
-
-require_relative 'tcp/options'
