@@ -6,7 +6,25 @@
 module PacketGen
   module Header
 
-    # ICMP header class
+    # A ICMP header consists of:
+    # * a {#type} field ({Int8} type),
+    # * a {#code} field ({Int8} type),
+    # * a {#checksum} field ({Int16} type),
+    # * and a {#body}.
+    #
+    # == Create a ICMP header
+    #  # standalone
+    #  icmp = PacketGen::Header::ICMP.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IP').add('ICMP')
+    #  # access to ICMP header
+    #  pkt.icmp     # => PacketGen::Header::ICMP
+    #
+    # == ICMP attributes
+    #  icmp.code = 0
+    #  icmp.type = 200
+    #  icmp.checksum = 0x248a
+    #  icmp.body.read 'this is a body'
     # @author Sylvain Daubert
     class ICMP < Struct.new(:type, :code, :checksum, :body)
       include StructFu
