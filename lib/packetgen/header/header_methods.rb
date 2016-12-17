@@ -51,6 +51,17 @@ module PacketGen
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
         iph
       end
+
+      # Common inspect method for headers
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+        end
+        str
+      end
     end
   end
 end
