@@ -9,7 +9,7 @@ module PacketGen
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
     # * a source MAC address (MacAddr),
-    # * a Ethertype (named +proto+ here) ({Int16}),
+    # * a {#ethertype} ({Int16}),
     # * and a body (a {String} or another Header class).
     #
     # == Create a Ethernet header
@@ -107,7 +107,7 @@ module PacketGen
       # @param [Hash] options
       # @option options [String] :dst MAC destination address
       # @option options [String] :src MAC source address
-      # @option options [Integer] :proto
+      # @option options [Integer] :ethertype
       def initialize(options={})
         super MacAddr.new.parse(options[:dst] || '00:00:00:00:00:00'),
               MacAddr.new.parse(options[:src] || '00:00:00:00:00:00'),
@@ -155,14 +155,14 @@ module PacketGen
         self[:src].parse addr
       end
 
-      # Get protocol field
+      # Get ethertype field
       # @return [Integer]
       def ethertype
         self[:ethertype].to_i
       end
 
-      # Set protocol field
-      # @param [Integer] proto
+      # Set ethertype field
+      # @param [Integer] type
       # @return [Integer]
       def ethertype=(type)
         self[:ethertype].value = type
