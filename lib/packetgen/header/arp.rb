@@ -6,7 +6,26 @@
 module PacketGen
   module Header
 
-    # ARP header class
+    # An ARP header consists of:
+    # * a hardware type ({#hrd} or {#htype}) field ({Int16}),
+    # * a protocol type ({#pro} or {#ptype}) field (+Int16+),
+    # * a hardware address length ({#hln} or {#hlen}) field ({Int8}),
+    # * a protocol address length ({#pln} or {#plen}) field (+Int8+),
+    # * a {#opcode} (or {#op}) field (+Int16+),
+    # * a source hardware address ({#sha} or {#src_mac}) field ({Eth::MacAddr}),
+    # * a source protocol address ({#spa} or {#src_ip}) field ({IP::Addr}),
+    # * a target hardware address ({#tha} or {#dst_mac}) field (+Eth::MacAddr+),
+    # * a target protocol address ({#tpa} or {#dst_ip}) field (+IP::Addr+),
+    # * and a {#body}.
+    #
+    # == Create a ARP header
+    #  # standalone
+    #  arp = PacketGen::Header::ARP.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('Eth').add('ARP')
+    #  # access to ARP header
+    #  pkt.arp   # => PacketGen::Header::ARP
+    #
     # @author Sylvain Daubert
     class ARP < Struct.new(:hrd, :pro, :hln, :pln, :op,
                            :sha, :spa, :tha, :tpa, :body)

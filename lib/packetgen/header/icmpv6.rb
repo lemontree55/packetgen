@@ -6,7 +6,25 @@
 module PacketGen
   module Header
 
-    # ICMPv6 header class
+    # A ICMPv6 header consists of:
+    # * a +type+ field ({Int8} type),
+    # * a +code+ field ({Int8} type),
+    # * a +checksum+ field ({Int16} type),
+    # * and a +body+.
+    #
+    # == Create a ICMPv6 header
+    #  # standalone
+    #  icmpv6 = PacketGen::Header::ICMPv6.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IPv6').add('ICMPv6')
+    #  # access to ICMPv6 header
+    #  pkt.icmpv6     # => PacketGen::Header::ICMPv6
+    #
+    # == ICMPv6 attributes
+    #  icmpv6.code = 0
+    #  icmpv6.type = 200
+    #  icmpv6.checksum = 0x248a
+    #  icmpv6.body.read 'this is a body'
     # @author Sylvain Daubert
     class ICMPv6 < ICMP
 

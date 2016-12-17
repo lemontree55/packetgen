@@ -8,7 +8,40 @@ require 'ipaddr'
 module PacketGen
   module Header
 
-    # IPv6 header class
+    # A IPv6 header consists of:
+    # * a first 32-bit word ({#u32}, of {Int32} type) composoed of:
+    #   * a 4-bit {#version} field,
+    #   * a 8-bit {#traffic_class} field,
+    #   * a 20-bit {#flow_label} field,
+    # * a payload length field ({#length}, {Int16} type}),
+    # * a next header field ({#next}, {Int8} type),
+    # * a hop-limit field ({#hop}, +Int8+ type),
+    # * a source address field ({#src}, {IPv6::Addr} type),
+    # * a destination address field ({#dst}, +IPv6::Addr+ type),
+    #
+    # == Create a IPv6 header
+    #  # standalone
+    #  ipv6 = PacketGen::Header::IPv6.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IPv6')
+    #  # access to IPv6 header
+    #  pkt.ipv6   # => PacketGen::Header::IPv6
+    #
+    # == IPv6 attributes
+    #  ipv6.u32 = 0x60280001
+    #  # the same as
+    #  ipv6.version = 6
+    #  ipv6.traffic_class = 2
+    #  ipv6.flow_label = 0x80001
+    #
+    #  ipv6.length = 0x43
+    #  ipv6.hop = 0x40
+    #  ipv6.next = 6
+    #  ipv6.src = '::1'
+    #  ipv6.src                # => "::1"
+    #  ipv6[:src]              # => PacketGen::Header::IPv6::Addr
+    #  ipv6.dst = '2001:1234:5678:abcd::123'
+    #  ipv6.body.read 'this is a body'
     # @author Sylvain Daubert
     class IPv6 < Struct.new(:u32, :length, :next, :hop, :src, :dst, :body)
       include StructFu

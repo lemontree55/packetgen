@@ -6,7 +6,28 @@
 module PacketGen
   module Header
 
-    # UDP header class
+    # A UDP header consists of:
+    # * a source port field ({#sport}, {Int16} type),
+    # * a destination port field ({#dport}, +Int16+ type),
+    # * a UDP length field ({#lengt}, +Int16+ type),
+    # * a {#checksum} field (+Int16+ type),
+    # * and a {#body}.
+    #
+    # == Create a UDP header
+    #  # standalone
+    #  udp = PacketGen::Header::UDP.new
+    #  # in a packet
+    #  pkt = PAcketGen.gen('IP').eadd('UDP')
+    #  # access to IP header
+    #  pkt.udp    # => PacketGen::Header::UDP
+    #
+    # == UDP attributes
+    #  udp.sport = 65432
+    #  udp.dport = 53
+    #  udp.length = 43
+    #  udp.checksum = 0xffff
+    #  udp.body.read 'this is a UDP body'
+    #
     # @author Sylvain Daubert
     class UDP < Struct.new(:sport, :dport, :length, :checksum, :body)
       include StructFu
@@ -110,7 +131,7 @@ module PacketGen
       end
 
       # Setter for length attribuute
-      # @param [Integer] port
+      # @param [Integer] len
       # @return [Integer]
       def length=(len)
         self[:length].read len
