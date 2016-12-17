@@ -23,7 +23,7 @@ module PacketGen
           expect(tcp.reserved).to eq(0)
           expect(tcp.flags).to eq(0)
           expect(tcp.window).to eq(0)
-          expect(tcp.sum).to eq(0)
+          expect(tcp.checksum).to eq(0)
           expect(tcp.urg_pointer).to eq(0)
           expect(tcp.options).to be_empty
           expect(tcp.body).to be_empty
@@ -39,7 +39,7 @@ module PacketGen
             reserved: 5,
             flags: 0x11,
             window: 0x5342,
-            sum: 0xfedc,
+            checksum: 0xfedc,
             urg_pointer: 0x1234,
             body: 'abcdef'
           }
@@ -67,7 +67,7 @@ module PacketGen
           expect(tcp.reserved).to eq(6)
           expect(tcp.flags).to eq(0x0d)
           expect(tcp.window).to eq(0x0e0f)
-          expect(tcp.sum).to eq(0x1011)
+          expect(tcp.checksum).to eq(0x1011)
           expect(tcp.urg_pointer).to eq(0x1213)
           expect(tcp.options).to be_empty
           expect(tcp.body).to eq('body')
@@ -78,26 +78,26 @@ module PacketGen
         end
       end
 
-      describe '#calc_sum' do
+      describe '#calc_checksum' do
         it 'computes TCP over IP header checksum' do
           packets = Packet.read(File.join(__dir__, '..', 'pcapng', 'sample.pcapng'))[7, 3]
           packets.each do |pkt|
-            sum = pkt.tcp.sum
-            pkt.tcp.sum = 0
-            expect(pkt.tcp.sum).to_not eq(sum)
-            pkt.tcp.calc_sum
-            expect(pkt.tcp.sum).to eq(sum)
+            checksum = pkt.tcp.checksum
+            pkt.tcp.checksum = 0
+            expect(pkt.tcp.checksum).to_not eq(checksum)
+            pkt.tcp.calc_checksum
+            expect(pkt.tcp.checksum).to eq(checksum)
           end
         end
 
         it 'computes TCP over IPv6 header checksum' do
           pkt = Packet.read(File.join(__dir__, '..', 'pcapng', 'ipv6_tcp.pcapng'))[1]
           expect(pkt.is? 'IPv6').to be(true)
-          sum = pkt.tcp.sum
-          pkt.tcp.sum = 0
-          expect(pkt.tcp.sum).to_not eq(sum)
-          pkt.tcp.calc_sum
-          expect(pkt.tcp.sum).to eq(sum)
+          checksum = pkt.tcp.checksum
+          pkt.tcp.checksum = 0
+          expect(pkt.tcp.checksum).to_not eq(checksum)
+          pkt.tcp.calc_checksum
+          expect(pkt.tcp.checksum).to eq(checksum)
         end
       end
 
@@ -129,9 +129,9 @@ module PacketGen
           expect(tcp[:window].value).to eq(60000)
         end
 
-        it '#sum= accepts integers' do
-          tcp.sum = 65500
-          expect(tcp[:sum].value).to eq(65500)
+        it '#checksum= accepts integers' do
+          tcp.checksum = 65500
+          expect(tcp[:checksum].value).to eq(65500)
         end
 
         it '#urg_pointer= accepts integers' do

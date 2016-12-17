@@ -198,9 +198,9 @@ module PacketGen
 
     # Recalculate all packet checksums
     # @return [void]
-    def calc_sum
+    def calc_checksum
       @headers.reverse.each do |header|
-        header.calc_sum if header.respond_to? :calc_sum
+        header.calc_checksum if header.respond_to? :calc_checksum
       end
     end
 
@@ -212,11 +212,11 @@ module PacketGen
       end
     end
 
-    # Recalculate all calculatable fields (for now: length and sum)
+    # Recalculate all calculatable fields (for now: length and checksum)
     # @return [void]
     def calc
       calc_length
-      calc_sum
+      calc_checksum
     end
 
     # Get packet body

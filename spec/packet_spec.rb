@@ -68,7 +68,7 @@ module PacketGen
         expect(pkt.udp.sport).to eq(55261)
         expect(pkt.udp.dport).to eq(53)
         expect(pkt.udp.length).to eq(44)
-        expect(pkt.udp.sum).to eq(0x8bf8)
+        expect(pkt.udp.checksum).to eq(0x8bf8)
       end
 
       it 'parses a string, guess first header and get a packet (IPv6)' do
@@ -189,17 +189,17 @@ module PacketGen
       end
     end
 
-    describe '#calc_sum' do
+    describe '#calc_checksum' do
       it 'recalculates packet checksums' do
         pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
               add('UDP', sport: 45768, dport: 80)
         pkt.body = 'abcdef'
-        expect(pkt.ip.sum).to eq(0)
-        expect(pkt.udp.sum).to eq(0)
+        expect(pkt.ip.checksum).to eq(0)
+        expect(pkt.udp.checksum).to eq(0)
         pkt.calc_length
-        pkt.calc_sum
-        expect(pkt.ip.sum).to eq(0x74c6)
-        expect(pkt.udp.sum).to eq(0x1c87)
+        pkt.calc_checksum
+        expect(pkt.ip.checksum).to eq(0x74c6)
+        expect(pkt.udp.checksum).to eq(0x1c87)
       end
     end
 

@@ -11,7 +11,7 @@ module PacketGen
     #   * a 3-bit {#reserved} field,
     #   * a 9-bit {#flags} field,
     # * a {#window} field (+Int16+ type),
-    # * a checksum field ({#sum}, +Int16+ type),
+    # * a {#checksum} field (+Int16+ type),
     # * a urgent pointer ({#urg_pointer}, +Int16+ type),
     # * an optional {#options} field ({Options} type),
     # * and a {#body} ({String} type).
@@ -47,7 +47,7 @@ module PacketGen
     #  tcph.options.add 'MSS', 1250
     # @author Sylvain Daubert
     class TCP < Struct.new(:sport, :dport, :seqnum, :acknum, :u16,
-                           :window, :sum, :urg_pointer, :options, :body)
+                           :window, :checksum, :urg_pointer, :options, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -74,7 +74,7 @@ module PacketGen
       # @option options [Integer] :reserved
       # @option options [Integer] :flags
       # @option options [Integer] :window
-      # @option options [Integer] :sum
+      # @option options [Integer] :checksum
       # @option options [Integer] :urg_pointer
       # @option options [String] :body
       def initialize(options={})
@@ -84,7 +84,7 @@ module PacketGen
               Int32.new(options[:acknum]),
               Int16.new,
               Int16.new(options[:window] || options[:wsize]),
-              Int16.new(options[:sum]),
+              Int16.new(options[:checksum]),
               Int16.new(options[:urg_pointer]),
               Options.new,
               StructFu::String.new.read(options[:body])
@@ -138,16 +138,16 @@ module PacketGen
         self[:acknum].read str[8, 4]
         self[:u16].read str[12, 2]
         self[:window].read str[14, 2]
-        self[:sum].read str[16, 2]
+        self[:checksum].read str[16, 2]
         self[:urg_pointer].read str[18, 2]
         self[:options].read str[20, (self.data_offset - 5) * 4] if self.data_offset > 5
         self[:body].read str[self.data_offset * 4..-1]
       end
 
-      # Compute checksum and set +sum+ field
+      # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
-        sum = ip_header(self).pseudo_header_sum
+      def calc_checksum
+        sum = ip_header(self).pseudo_header_checksum
         sum += IP_PROTOCOL
         sum += self.sz
         str = self.to_s
@@ -158,7 +158,7 @@ module PacketGen
           sum = (sum & 0xffff) + (sum >> 16)
         end
         sum = ~sum & 0xffff
-        self[:sum].value = (sum == 0) ? 0xffff : sum
+        self[:checksum].value = (sum == 0) ? 0xffff : sum
       end
 
       # Compute header length and set +data_offset+ field
@@ -245,17 +245,17 @@ module PacketGen
       end
       alias :wsize= :window=
 
-      # Getter for sum attribuute
+      # Getter for checksum attribuute
       # @return [Integer]
-      def sum
-        self[:sum].to_i
+      def checksum
+        self[:checksum].to_i
       end
 
-      # Setter for sum attribuute
+      # Setter for checksum attribuute
       # @param [Integer] sum
       # @return [Integer]
-      def sum=(sum)
-        self[:sum].read sum
+      def checksum=(sum)
+        self[:checksum].read sum
       end
 
       # Getter for urg_pointer attribuute

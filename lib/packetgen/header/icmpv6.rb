@@ -13,10 +13,10 @@ module PacketGen
       # ICMPv6 internet protocol number
       IP_PROTOCOL = 58
 
-      # Compute checksum and set +sum+ field
+      # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
-        sum = ip_header(self).pseudo_header_sum
+      def calc_checksum
+        sum = ip_header(self).pseudo_header_checksum
         sum += self.sz
         sum += IP_PROTOCOL
         sum +=(type << 8) | code
@@ -29,7 +29,7 @@ module PacketGen
           sum = (sum & 0xffff) + (sum >> 16)
         end
         sum = ~sum & 0xffff
-        self[:sum].value = (sum == 0) ? 0xffff : sum
+        self[:checksum].value = (sum == 0) ? 0xffff : sum
       end
     end
 
