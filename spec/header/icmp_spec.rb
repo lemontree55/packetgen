@@ -15,15 +15,15 @@ module PacketGen
             expect(icmp).to be_a(ICMP)
             expect(icmp.type).to eq(0)
             expect(icmp.code).to eq(0)
-            expect(icmp.sum).to eq(0)
+            expect(icmp.checksum).to eq(0)
             expect(icmp.body).to eq('')
           end
 
           it 'accepts options' do
-            icmp = ICMP.new(type: 255, code: 254, sum: 0x1234, body: 'abcd')
+            icmp = ICMP.new(type: 255, code: 254, checksum: 0x1234, body: 'abcd')
             expect(icmp.type).to eq(255)
             expect(icmp.code).to eq(254)
-            expect(icmp.sum).to eq(0x1234)
+            expect(icmp.checksum).to eq(0x1234)
             expect(icmp.body).to eq('abcd')
           end
         end
@@ -36,7 +36,7 @@ module PacketGen
             icmp.read str
             expect(icmp.type).to eq(1)
             expect(icmp.code).to eq(2)
-            expect(icmp.sum).to eq(0x0304)
+            expect(icmp.checksum).to eq(0x0304)
             expect(icmp.body).to eq('body')
           end
 
@@ -46,11 +46,11 @@ module PacketGen
           end
         end
 
-        describe '#calc_sum' do
+        describe '#calc_checksum' do
           it 'computes ICMP header checksum' do
             icmp = ICMP.new(type: 1, code: 8, body: (0..15).to_a.pack('C*'))
-            icmp.calc_sum
-            expect(icmp.calc_sum).to eq(0xc6b7)
+            icmp.calc_checksum
+            expect(icmp.calc_checksum).to eq(0xc6b7)
           end
         end
 
@@ -67,16 +67,16 @@ module PacketGen
             expect(icmp[:code].to_i).to eq(0xea)
           end
 
-          it '#sum= accepts integers' do
-            icmp.sum = 0xffff
-            expect(icmp[:sum].to_i).to eq(65535)
+          it '#checksum= accepts integers' do
+            icmp.checksum = 0xffff
+            expect(icmp[:checksum].to_i).to eq(65535)
           end
         end
 
         describe '#to_s' do
           it 'returns a binary string' do
             icmp = ICMP.new(type: 1, code: 8, body: (0..15).to_a.pack('C*'))
-            icmp.calc_sum
+            icmp.calc_checksum
             expect(icmp.to_s).to eq(([1, 8, 0xc6, 0xb7] + (0..15).to_a).pack('C*'))
           end
         end

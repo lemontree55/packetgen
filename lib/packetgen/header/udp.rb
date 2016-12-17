@@ -8,7 +8,7 @@ module PacketGen
 
     # UDP header class
     # @author Sylvain Daubert
-    class UDP < Struct.new(:sport, :dport, :length, :sum, :body)
+    class UDP < Struct.new(:sport, :dport, :length, :checksum, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -20,12 +20,12 @@ module PacketGen
       # @option options [Integer] :sport source port
       # @option options [Integer] :dport destination port
       # @option options [Integer] :length UDP length. Default: calculated
-      # @option options [Integer] :sum. UDP checksum. Default: 0
+      # @option options [Integer] :checksum. UDP checksum. Default: 0
       def initialize(options={})
         super Int16.new(options[:sport]),
               Int16.new(options[:dport]),
               Int16.new(options[:length]),
-              Int16.new(options[:sum]),
+              Int16.new(options[:checksum]),
               StructFu::String.new.read(options[:body])
         unless options[:length]
           calc_length
@@ -42,15 +42,15 @@ module PacketGen
         self[:sport].read str[0, 2]
         self[:dport].read str[2, 2]
         self[:length].read str[4, 2]
-        self[:sum].read str[6, 2]
+        self[:checksum].read str[6, 2]
         self[:body].read str[8..-1]
       end
 
-      # Compute checksum and set +sum+ field
+      # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
+      def calc_checksum
         ip = ip_header(self)
-        sum = ip.pseudo_header_sum
+        sum = ip.pseudo_header_checksum
         sum += IP_PROTOCOL
         sum += length
         sum += sport
@@ -64,7 +64,7 @@ module PacketGen
           sum = (sum & 0xffff) + (sum >> 16)
         end
         sum = ~sum & 0xffff
-        self[:sum].value = (sum == 0) ? 0xffff : sum
+        self[:checksum].value = (sum == 0) ? 0xffff : sum
       end
 
       # Compute length and set +length+ field
@@ -116,17 +116,17 @@ module PacketGen
         self[:length].read len
       end
 
-      # Getter for sum attribuute
+      # Getter for checksum attribuute
       # @return [Integer]
-      def sum
-        self[:sum].to_i
+      def checksum
+        self[:checksum].to_i
       end
 
-      # Setter for sum attribuute
-      # @param [Integer] sum
+      # Setter for checksum attribuute
+      # @param [Integer] checksum
       # @return [Integer]
-      def sum=(sum)
-        self[:sum].read sum
+      def checksum=(checksum)
+        self[:checksum].read checksum
       end
     end
 

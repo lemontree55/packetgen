@@ -46,7 +46,7 @@ module PacketGen
           expect(ip.frag).to eq(0)
           expect(ip.ttl).to eq(64)
           expect(ip.protocol).to eq(0)
-          expect(ip.sum).to eq(0)
+          expect(ip.checksum).to eq(0)
           expect(ip.src).to eq('127.0.0.1')
           expect(ip.dst).to eq('127.0.0.1')
           expect(ip.body).to eq('')
@@ -62,7 +62,7 @@ module PacketGen
             frag: 0x4000,
             ttl: 2,
             protocol: 250,
-            sum: 1,
+            checksum: 1,
             src: '1.1.1.1',
             dst: '2.2.2.2',
             body: 'this is a body'
@@ -87,7 +87,7 @@ module PacketGen
             expect(ip.frag).to eq(0x0708)
             expect(ip.ttl).to eq(9)
             expect(ip.protocol).to eq(10)
-            expect(ip.sum).to eq(0x0b0c)
+            expect(ip.checksum).to eq(0x0b0c)
             expect(ip.src).to eq('13.14.15.16')
             expect(ip.dst).to eq('17.18.19.20')
             expect(ip.body).to eq('body')
@@ -99,12 +99,12 @@ module PacketGen
           end
         end
 
-        describe '#calc_sum' do
+        describe '#calc_checksum' do
           it 'compute IP header checksum' do
             ip = IP.new(length: 60, id: 0x1c46, frag: 0x4000, ttl: 64, protocol: 6,
                         src: '172.16.10.99', dst: '172.16.10.12')
-            ip.calc_sum
-            expect(ip.sum).to eq(0xb1e6)
+            ip.calc_checksum
+            expect(ip.checksum).to eq(0xb1e6)
           end
         end
 
@@ -143,9 +143,9 @@ module PacketGen
             expect(@ip[:protocol].to_i).to eq(255)
           end
 
-          it '#sum= accepts integers' do
-            @ip.sum = 0xf00f
-            expect(@ip[:sum].to_i).to eq(0xf00f)
+          it '#checksum= accepts integers' do
+            @ip.checksum = 0xf00f
+            expect(@ip[:checksum].to_i).to eq(0xf00f)
           end
 
           it '#src= accepts dotted addresses' do

@@ -18,7 +18,7 @@ module PacketGen
     #   * a 13-bit {#fragment_offset} field,
     # * a Time-to-Live ({#ttl}) field (+Int8+),
     # * a {#protocol} field (+Int8+),
-    # * a checksum ({#sum}) field (+Int16+),
+    # * a {#checksum} field (+Int16+),
     # * a source IP address ({#src}, {Addr} type),
     # * a destination IP ddress ({#dst}, +Addr+ type),
     # * and a {#body} ({String} type).
@@ -51,7 +51,7 @@ module PacketGen
     #
     #  ip.ttl = 0x40
     #  ip.protocol = 6
-    #  ip.sum = 0xffff
+    #  ip.checksum = 0xffff
     #  ip.src = '127.0.0.1'
     #  ip.src                # => "127.0.0.1"
     #  ip[:src]              # => PacketGen::Header::IP::Addr
@@ -59,7 +59,7 @@ module PacketGen
     #  ip.body.read 'this is a body'
     # @author Sylvain Daubert
     class IP < Struct.new(:u8, :tos, :length, :id, :frag, :ttl,
-                          :protocol, :sum, :src, :dst, :body)
+                          :protocol, :checksum, :src, :dst, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -139,7 +139,7 @@ module PacketGen
       # @option options [Integer] :frag
       # @option options [Integer] :ttl
       # @option options [Integer] :protocol
-      # @option options [Integer] :sum IP header checksum
+      # @option options [Integer] :checksum IP header checksum
       # @option options [String] :src IP source dotted address
       # @option options [String] :dst IP destination dotted address
       def initialize(options={})
@@ -150,7 +150,7 @@ module PacketGen
               Int16.new(options[:frag] || 0),
               Int8.new(options[:ttl] || 64),
               Int8.new(options[:protocol]),
-              Int16.new(options[:sum] || 0),
+              Int16.new(options[:checksum] || 0),
               Addr.new.parse(options[:src] || '127.0.0.1'),
               Addr.new.parse(options[:dst] || '127.0.0.1'),
               StructFu::String.new.read(options[:body])
@@ -186,16 +186,16 @@ module PacketGen
         self[:frag].read str[6, 2]
         self[:ttl].read str[8, 1]
         self[:protocol].read str[9, 1]
-        self[:sum].read str[10, 2]
+        self[:checksum].read str[10, 2]
         self[:src].read str[12, 4]
         self[:dst].read str[16, 4]
         self[:body].read str[20..-1]
         self
       end
 
-       # Compute checksum and set +sum+ field
+       # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
+      def calc_checksum
         checksum = (self[:u8].to_i << 8) | self.tos
         checksum += self.length
         checksum += self.id
@@ -207,7 +207,7 @@ module PacketGen
         checksum += self[:dst].to_i & 0xffff
         checksum = (checksum & 0xffff) + (checksum >> 16)
         checksum = ~(checksum % 0xffff ) & 0xffff
-        self[:sum].value = (checksum == 0) ? 0xffff : checksum
+        self[:checksum].value = (checksum == 0) ? 0xffff : checksum
       end
 
       # Compute length and set +length+ field
@@ -294,17 +294,17 @@ module PacketGen
         self[:protocol].value = protocol
       end
 
-      # Getter for sum attribute
+      # Getter for checksum attribute
       # @return [Integer]
-      def sum
-        self[:sum].to_i
+      def checksum
+        self[:checksum].to_i
       end
 
-      # Setter for  sum attribute
-      # @param [Integer] sum
+      # Setter for  checksum attribute
+      # @param [Integer] checksum
       # @return [Integer]
-      def sum=(sum)
-        self[:sum].value = sum
+      def checksum=(checksum)
+        self[:checksum].value = checksum
       end
 
       # Get IP source address
@@ -337,16 +337,16 @@ module PacketGen
       end
       alias :destination= :dst=
 
-      # Get IP part of pseudo header sum.
+      # Get IP part of pseudo header checksum.
       # @return [Integer]
-      def pseudo_header_sum
-        sum = self[:src].to_i + self[:dst].to_i
-        (sum >> 16) + (sum & 0xffff)
+      def pseudo_header_checksum
+        checksum = self[:src].to_i + self[:dst].to_i
+        (checksum >> 16) + (checksum & 0xffff)
       end
 
       # Send IP packet on wire.
       #
-      # When sending packet at IP level, +sum+ and +length+ fields are set by
+      # When sending packet at IP level, +checksum+ and +length+ fields are set by
       # kernel, so bad IP packets cannot be sent this way. To do so, use {Eth#to_w}.
       # @param [String,nil] iface interface name. Not used
       # @return [void]

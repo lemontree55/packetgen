@@ -8,7 +8,7 @@ module PacketGen
 
     # ICMP header class
     # @author Sylvain Daubert
-    class ICMP < Struct.new(:type, :code, :sum, :body)
+    class ICMP < Struct.new(:type, :code, :checksum, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -19,12 +19,12 @@ module PacketGen
       # @param [Hash] options
       # @option options [Integer] :type
       # @option options [Integer] :code
-      # @option options [Integer] :sum
+      # @option options [Integer] :checksum
       # @option options [String] :body
       def initialize(options={})
         super Int8.new(options[:type]),
               Int8.new(options[:code]),
-              Int16.new(options[:sum]),
+              Int16.new(options[:checksum]),
               StructFu::String.new.read(options[:body])
       end
 
@@ -37,13 +37,13 @@ module PacketGen
         force_binary str
         self[:type].read str[0, 1]
         self[:code].read str[1, 1]
-        self[:sum].read str[2, 2]
+        self[:checksum].read str[2, 2]
         self[:body].read str[4..-1]
       end
 
-      # Compute checksum and set +sum+ field
+      # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
+      def calc_checksum
         sum = (type << 8) | code
 
         payload = body.to_s
@@ -54,7 +54,7 @@ module PacketGen
           sum = (sum & 0xffff) + (sum >> 16)
         end
         sum = ~sum & 0xffff
-        self[:sum].value = (sum == 0) ? 0xffff : sum
+        self[:checksum].value = (sum == 0) ? 0xffff : sum
       end
 
       # Getter for type attribute
@@ -83,17 +83,17 @@ module PacketGen
         self[:code].value = code
       end
 
-      # Getter for sum attribute
+      # Getter for checksum attribute
       # @return [Integer]
-      def sum
-        self[:sum].to_i
+      def checksum
+        self[:checksum].to_i
       end
 
-      # Setter for sum attribute
+      # Setter for checksum attribute
       # @param [Integer] sum
       # @return [Integer]
-      def sum=(sum)
-        self[:sum].value = sum
+      def checksum=(sum)
+        self[:checksum].value = sum
       end
     end
 

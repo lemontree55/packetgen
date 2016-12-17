@@ -214,9 +214,9 @@ module PacketGen
       end
       alias :destination= :dst=
 
-      # Get IPv6 part of pseudo header sum.
+      # Get IPv6 part of pseudo header checksum.
       # @return [Integer]
-      def pseudo_header_sum
+      def pseudo_header_checksum
         sum = 0
         self[:src].each { |word| sum += word.to_i }
         self[:dst].each { |word| sum += word.to_i }
