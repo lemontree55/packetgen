@@ -5,7 +5,7 @@ module PacketGen
 
     describe IP::Addr do
       before(:each) do
-        @ipaddr = IP::Addr.new.parse('192.168.25.43')
+        @ipaddr = IP::Addr.new.from_human('192.168.25.43')
       end
 
       it '#parse a string containing a dotted address' do
@@ -19,8 +19,8 @@ module PacketGen
         expect(@ipaddr.to_i).to eq(0xc0a8192b)
       end
 
-      it '#to_x returns a dotted address as String' do
-        expect(@ipaddr.to_x).to eq('192.168.25.43')
+      it '#to_human returns a dotted address as String' do
+        expect(@ipaddr.to_human).to eq('192.168.25.43')
       end
     end
 

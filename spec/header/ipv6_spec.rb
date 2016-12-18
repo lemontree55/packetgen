@@ -5,7 +5,7 @@ module PacketGen
 
     describe IPv6::Addr do
       before(:each) do
-        @ipv6addr = IPv6::Addr.new.parse('fe80::21a:c5ff:fe00:152')
+        @ipv6addr = IPv6::Addr.new.from_human('fe80::21a:c5ff:fe00:152')
       end
 
       it '#parse a string containing a dotted address' do
@@ -19,14 +19,14 @@ module PacketGen
         expect(@ipv6addr.a8).to eq(0x0152)
       end
 
-      it '#to_x returns a dotted address as String' do
-        expect(@ipv6addr.to_x).to eq('fe80::21a:c5ff:fe00:152')
+      it '#to_human returns a dotted address as String' do
+        expect(@ipv6addr.to_human).to eq('fe80::21a:c5ff:fe00:152')
       end
 
       it '#read gets a IPv6 address from a binary string' do
         bin_str = "\xfe\x80" << "\x00" * 6 << "\x02\x1a\xc5\xff\xfe\x00\x01\x52"
         ipv6addr = IPv6::Addr.new.read(bin_str)
-        expect(ipv6addr.to_x).to eq('fe80::21a:c5ff:fe00:152')
+        expect(ipv6addr.to_human).to eq('fe80::21a:c5ff:fe00:152')
       end
     end
 

@@ -120,7 +120,7 @@ module PacketGen
 
         # Get option as a human readable string
         # @return [String]
-        def to_x
+        def to_human
           str = self.class == Option ? "unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
           if length > 2 and self[:value].to_s.size > 0
             str << ":#{self[:value].to_s.inspect}"
@@ -164,7 +164,7 @@ module PacketGen
         end
 
         # @return [String]
-        def to_x
+        def to_human
           "MSS:#{value}"
         end
       end
@@ -179,7 +179,7 @@ module PacketGen
         end
 
         # @return [String]
-        def to_x
+        def to_human
           "WS:#{value}"
         end
       end
@@ -213,7 +213,7 @@ module PacketGen
         end
 
         # @return [String]
-        def to_x
+        def to_human
           "WS:#{value}"
         end
       end
@@ -228,7 +228,7 @@ module PacketGen
         end
 
         # @return [String]
-        def to_x
+        def to_human
           "WS:#{value}"
         end
       end
@@ -243,7 +243,7 @@ module PacketGen
         end
 
         # @return [String]
-        def to_x
+        def to_human
           value, echo_reply = self[:value].unpack('NN')
           "WS:#{value};#{echo_reply}"
         end

@@ -21,6 +21,12 @@ module PacketGen
     end
 
 
+    # Format an attribute for +#inspect+.
+    # 3 cases are handled:
+    # * attribute value is a {Int}: show value as integer and in hexdecimal
+    #   format,
+    # * attribute value responds to +#to_human+: call it,
+    # * else, +#to_s+ is used to format attribute value.
     # @param [Symbol] attr attribute name
     # @param [Object] value attribute value
     # @param [Integer] level
@@ -30,8 +36,8 @@ module PacketGen
       val = if value.is_a? StructFu::Int
               sz = value.to_s.size
               "%-10s (0x%0#{2*sz}x)" % [value.to_i, value.to_i]
-            elsif value.respond_to? :to_x
-              value.to_x
+            elsif value.respond_to? :to_human
+              value.to_human
             else
               value.to_s
             end

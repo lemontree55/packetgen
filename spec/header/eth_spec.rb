@@ -5,7 +5,7 @@ module PacketGen
 
     describe Eth::MacAddr do
       before(:each) do
-        @mac = Eth::MacAddr.new.parse('00:01:02:03:04:05')
+        @mac = Eth::MacAddr.new.from_human('00:01:02:03:04:05')
       end
 
       it '#parse a MAC address string' do
@@ -17,8 +17,8 @@ module PacketGen
         expect(@mac.a5).to eq(5)
       end
 
-      it '#to_x returns a MAC address string' do
-        expect(@mac.to_x).to eq('00:01:02:03:04:05')
+      it '#to_human returns a MAC address string' do
+        expect(@mac.to_human).to eq('00:01:02:03:04:05')
       end
     end
 

@@ -84,10 +84,10 @@ module PacketGen
 
         end
 
-        # Parse a dotted address
+        # Read a dotted address
         # @param [String] str
         # @return [self]
-        def parse(str)
+        def from_human(str)
           return self if str.nil?
           m = str.match(IPV4_ADDR_REGEX)
           if m
@@ -118,7 +118,7 @@ module PacketGen
 
         # Addr in human readable form (dotted format)
         # @return [String]
-        def to_x
+        def to_human
           members.map { |m| "#{self[m].to_i}" }.join('.')
         end
 
@@ -151,8 +151,8 @@ module PacketGen
               Int8.new(options[:ttl] || 64),
               Int8.new(options[:protocol]),
               Int16.new(options[:checksum] || 0),
-              Addr.new.parse(options[:src] || '127.0.0.1'),
-              Addr.new.parse(options[:dst] || '127.0.0.1'),
+              Addr.new.from_human(options[:src] || '127.0.0.1'),
+              Addr.new.from_human(options[:dst] || '127.0.0.1'),
               StructFu::String.new.read(options[:body])
       end
 
@@ -310,7 +310,7 @@ module PacketGen
       # Get IP source address
       # @return [String] dotted address
       def src
-        self[:src].to_x
+        self[:src].to_human
       end
       alias :source :src
 
@@ -318,14 +318,14 @@ module PacketGen
       # @param [String] addr dotted IP address
       # @return [String]
       def src=(addr)
-        self[:src].parse addr
+        self[:src].from_human addr
       end
       alias :source= :src=
 
       # Get IP destination address
       # @return [String] dotted address
       def dst
-        self[:dst].to_x
+        self[:dst].to_human
       end
       alias :destination :dst
 
@@ -333,7 +333,7 @@ module PacketGen
       # @param [String] addr dotted IP address
       # @return [String]
       def dst=(addr)
-        self[:dst].parse addr
+        self[:dst].from_human addr
       end
       alias :destination= :dst=
 
