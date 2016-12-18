@@ -9,7 +9,7 @@ module PacketGen
     INSPECT_MAX_WIDTH = 70
 
     # Format to inspect attribute
-    INSPECT_FMT_ATTR = "%7s %12s: %s"
+    INSPECT_FMT_ATTR = "%7s %12s: %s\n"
 
     # Create a dashed line with +obj+ class writing in it
     # @param [String] name
@@ -20,6 +20,17 @@ module PacketGen
       str << '-' * (INSPECT_MAX_WIDTH - str.length) << "\n"
     end
 
+    # @return [String]
+    def self.shift_level(level=1)
+      '  ' + '  ' * level
+    end
+
+    # @param [#to_i] value
+    # @param [Integer] hex_size
+    # @return [String]
+    def self.int_dec_hex(value, hexsize)
+      "%-10s (0x%0#{hexsize}x)" % [value.to_i, value.to_i]
+    end
 
     # Format an attribute for +#inspect+.
     # 3 cases are handled:
@@ -32,17 +43,15 @@ module PacketGen
     # @param [Integer] level
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
-      str = '  ' + '  ' * level
+      str = shift_level(level)
       val = if value.is_a? StructFu::Int
-              sz = value.to_s.size
-              "%-10s (0x%0#{2*sz}x)" % [value.to_i, value.to_i]
+              int_dec_hex(value, value.to_s.size * 2)
             elsif value.respond_to? :to_human
               value.to_human
             else
               value.to_s
             end
       str << INSPECT_FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
-      str << "\n"
     end
 
     # @param [#to_s] body
