@@ -33,7 +33,7 @@ module PacketGen
   # @param [String] first_header First protocol header
   # @return [Packet]
   def self.parse(binary_str, first_header: nil)
-    Packet.parse binary_str, first_header
+    Packet.parse binary_str, first_header: first_header
   end
 
   # Shortcut for {Packet.capture}

@@ -111,6 +111,19 @@ module PacketGen
         expect(pkt.ip.id).to eq(0x74de)
         expect(pkt.ip.protocol).to eq(0x51)
       end
+
+      it 'is called through PacketGen.parse' do
+        pkt = nil
+        expect { pkt = PacketGen.parse(@raw_pkts.first) }.not_to raise_error
+        expect(pkt).to respond_to :eth
+        expect(pkt).to respond_to :ip
+        expect(pkt).to respond_to :udp
+        expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
+        expect(pkt.udp.checksum).to eq(0x8bf8)
+
+        expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }.
+          not_to raise_error
+      end
     end
 
     context '.read/.write' do
