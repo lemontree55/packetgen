@@ -12,7 +12,7 @@ module PacketGen
     INSPECT_FMT_ATTR = "%7s %12s: %s"
 
     # Create a dashed line with +obj+ class writing in it
-    # @param [Object] obj
+    # @param [String] name
     # @param [Integer] level
     # @return [String]
     def self.dashed_line(name, level=1)
@@ -23,8 +23,8 @@ module PacketGen
 
     # Format an attribute for +#inspect+.
     # 3 cases are handled:
-    # * attribute value is a {Int}: show value as integer and in hexdecimal
-    #   format,
+    # * attribute value is a {StructFu::Int}: show value as integer and in
+    #   hexdecimal format,
     # * attribute value responds to +#to_human+: call it,
     # * else, +#to_s+ is used to format attribute value.
     # @param [Symbol] attr attribute name
