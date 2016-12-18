@@ -1,5 +1,10 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
 require 'packetgen/version'
 
+# PacketGen is a network packet generator and analyzor.
 # @author Sylvain Daubert
 module PacketGen
 
@@ -28,7 +33,7 @@ module PacketGen
   # @param [String] first_header First protocol header
   # @return [Packet]
   def self.parse(binary_str, first_header: nil)
-    Packet.parse binary_str, first_header
+    Packet.parse binary_str, first_header: first_header
   end
 
   # Shortcut for {Packet.capture}
@@ -78,6 +83,7 @@ module PacketGen
 end
 
 require 'packetgen/structfu'
+require 'packetgen/inspect'
 require 'packetgen/packet'
 require 'packetgen/capture'
 require 'packetgen/pcapng'

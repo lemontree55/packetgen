@@ -1,9 +1,32 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
 
-    # ICMP header class
+    # A ICMP header consists of:
+    # * a {#type} field ({Int8} type),
+    # * a {#code} field ({Int8} type),
+    # * a {#checksum} field ({Int16} type),
+    # * and a {#body}.
+    #
+    # == Create a ICMP header
+    #  # standalone
+    #  icmp = PacketGen::Header::ICMP.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IP').add('ICMP')
+    #  # access to ICMP header
+    #  pkt.icmp     # => PacketGen::Header::ICMP
+    #
+    # == ICMP attributes
+    #  icmp.code = 0
+    #  icmp.type = 200
+    #  icmp.checksum = 0x248a
+    #  icmp.body.read 'this is a body'
     # @author Sylvain Daubert
-    class ICMP < Struct.new(:type, :code, :sum, :body)
+    class ICMP < Struct.new(:type, :code, :checksum, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -14,12 +37,12 @@ module PacketGen
       # @param [Hash] options
       # @option options [Integer] :type
       # @option options [Integer] :code
-      # @option options [Integer] :sum
+      # @option options [Integer] :checksum
       # @option options [String] :body
       def initialize(options={})
         super Int8.new(options[:type]),
               Int8.new(options[:code]),
-              Int16.new(options[:sum]),
+              Int16.new(options[:checksum]),
               StructFu::String.new.read(options[:body])
       end
 
@@ -32,13 +55,13 @@ module PacketGen
         force_binary str
         self[:type].read str[0, 1]
         self[:code].read str[1, 1]
-        self[:sum].read str[2, 2]
+        self[:checksum].read str[2, 2]
         self[:body].read str[4..-1]
       end
 
-      # Compute checksum and set +sum+ field
+      # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
+      def calc_checksum
         sum = (type << 8) | code
 
         payload = body.to_s
@@ -49,7 +72,7 @@ module PacketGen
           sum = (sum & 0xffff) + (sum >> 16)
         end
         sum = ~sum & 0xffff
-        self[:sum].value = (sum == 0) ? 0xffff : sum
+        self[:checksum].value = (sum == 0) ? 0xffff : sum
       end
 
       # Getter for type attribute
@@ -78,20 +101,20 @@ module PacketGen
         self[:code].value = code
       end
 
-      # Getter for sum attribute
+      # Getter for checksum attribute
       # @return [Integer]
-      def sum
-        self[:sum].to_i
+      def checksum
+        self[:checksum].to_i
       end
 
-      # Setter for sum attribute
+      # Setter for checksum attribute
       # @param [Integer] sum
       # @return [Integer]
-      def sum=(sum)
-        self[:sum].value = sum
+      def checksum=(sum)
+        self[:checksum].value = sum
       end
     end
 
-    IP.bind_header ICMP, proto: ICMP::IP_PROTOCOL
+    IP.bind_header ICMP, protocol: ICMP::IP_PROTOCOL
   end
 end

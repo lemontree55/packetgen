@@ -7,7 +7,7 @@ module PacketGen
 
       describe 'binding' do
         it 'in IP packets' do
-          expect(IP.known_headers[UDP].to_h).to eq({key: :proto, value: 17})
+          expect(IP.known_headers[UDP].to_h).to eq({key: :protocol, value: 17})
           expect(IPv6.known_headers[UDP].to_h).to eq({key: :next, value: 17})
         end
       end
@@ -19,7 +19,7 @@ module PacketGen
           expect(udp.sport).to eq(0)
           expect(udp.dport).to eq(0)
           expect(udp.length).to eq(8)
-          expect(udp.sum).to eq(0)
+          expect(udp.checksum).to eq(0)
         end
 
         it 'accepts options' do
@@ -27,7 +27,7 @@ module PacketGen
             sport: 1234,
             dport: 4567,
             length: 48,
-            sum: 0xfedc
+            checksum: 0xfedc
           }
           udp = UDP.new(options)
 
@@ -51,7 +51,7 @@ module PacketGen
           expect(udp.sport).to eq(0x0001)
           expect(udp.dport).to eq(0x0203)
           expect(udp.length).to eq(0x0405)
-          expect(udp.sum).to eq(0x0607)
+          expect(udp.checksum).to eq(0x0607)
           expect(udp.body).to eq('body')
         end
 
@@ -60,12 +60,12 @@ module PacketGen
         end
       end
 
-      describe '#calc_sum' do
+      describe '#calc_checksum' do
         it 'computes UDP over IP header checksum' do
           pkt = Packet.gen('IP').add('UDP', sport: 1, dport: 65000)
           pkt.body = 'abcd'
           pkt.calc
-          expect(pkt.udp.sum).to eq(0x3f23)
+          expect(pkt.udp.checksum).to eq(0x3f23)
         end
 
         it 'computes UDP over IPv6 header checksum' do
@@ -73,7 +73,7 @@ module PacketGen
                 add('UDP', sport: 41000, dport: 42000)
           pkt.body = 'abcd'
           pkt.calc
-          expect(pkt.udp.sum).to eq(0xcd6b)
+          expect(pkt.udp.checksum).to eq(0xcd6b)
         end
       end
 
@@ -97,17 +97,30 @@ module PacketGen
           expect(@udp[:length].value).to eq(0xff0f)
         end
 
-        it '#sum= accepts integers' do
-          @udp.sum = 0x8001
-          expect(@udp[:sum].value).to eq(0x8001)
+        it '#checksum= accepts integers' do
+          @udp.checksum = 0x8001
+          expect(@udp[:checksum].value).to eq(0x8001)
         end
       end
 
-      it '#to_s returns a binary string' do
-        udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
-        udp.calc_length
-        expected_str = "\x00" * 4 + "\x00\x0c\x00\x00\x00\x01\x02\x03"
-        expect(udp.to_s).to eq(PacketGen.force_binary expected_str)
+      describe '#to_s' do
+        it 'returns a binary string' do
+          udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
+          udp.calc_length
+          expected_str = "\x00" * 4 + "\x00\x0c\x00\x00\x00\x01\x02\x03"
+          expect(udp.to_s).to eq(PacketGen.force_binary expected_str)
+        end
+      end
+      
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          udp = UDP.new
+          str = udp.inspect
+          expect(str).to be_a(String)
+          (udp.members - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
       end
     end
   end

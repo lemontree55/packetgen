@@ -1,13 +1,49 @@
 # coding: utf-8
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
 require 'ipaddr'
 
 module PacketGen
   module Header
 
-    # IPv6 header class
+    # A IPv6 header consists of:
+    # * a first 32-bit word ({#u32}, of {Int32} type) composoed of:
+    #   * a 4-bit {#version} field,
+    #   * a 8-bit {#traffic_class} field,
+    #   * a 20-bit {#flow_label} field,
+    # * a payload length field ({#length}, {Int16} type}),
+    # * a next header field ({#next}, {Int8} type),
+    # * a hop-limit field ({#hop}, +Int8+ type),
+    # * a source address field ({#src}, {IPv6::Addr} type),
+    # * a destination address field ({#dst}, +IPv6::Addr+ type),
+    #
+    # == Create a IPv6 header
+    #  # standalone
+    #  ipv6 = PacketGen::Header::IPv6.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IPv6')
+    #  # access to IPv6 header
+    #  pkt.ipv6   # => PacketGen::Header::IPv6
+    #
+    # == IPv6 attributes
+    #  ipv6.u32 = 0x60280001
+    #  # the same as
+    #  ipv6.version = 6
+    #  ipv6.traffic_class = 2
+    #  ipv6.flow_label = 0x80001
+    #
+    #  ipv6.length = 0x43
+    #  ipv6.hop = 0x40
+    #  ipv6.next = 6
+    #  ipv6.src = '::1'
+    #  ipv6.src                # => "::1"
+    #  ipv6[:src]              # => PacketGen::Header::IPv6::Addr
+    #  ipv6.dst = '2001:1234:5678:abcd::123'
+    #  ipv6.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IPv6 < Struct.new(:version, :traffic_class, :flow_label, :length,
-                            :next, :hop, :src, :dst, :body)
+    class IPv6 < Struct.new(:u32, :length, :next, :hop, :src, :dst, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -37,10 +73,10 @@ module PacketGen
                 Int16.new(options[:a8])
         end
 
-        # Parse a colon-delimited address
+        # Read a colon-delimited address
         # @param [String] str
         # @return [self]
-        def parse(str)
+        def from_human(str)
           return self if str.nil?
           addr = IPAddr.new(str)
           raise ArgumentError, 'string is not a IPv6 address' unless addr.ipv6?
@@ -79,14 +115,14 @@ module PacketGen
 
         # Addr6 in human readable form (colon-delimited hex string)
         # @return [String]
-        def to_x
+        def to_human
           IPAddr.new(to_a.map { |a| a.to_i.to_s(16) }.join(':')).to_s
         end
       end
 
       # @param [Hash] options
       # @option options [Integer] :version
-      # @option options [Integer] :traffic_length
+      # @option options [Integer] :traffic_class
       # @option options [Integer] :flow_label
       # @option options [Integer] :length payload length
       # @option options [Integer] :next
@@ -95,16 +131,25 @@ module PacketGen
       # @option options [String] :dst colon-delimited destination address
       # @option options [String] :body binary string
       def initialize(options={})
-        super options[:version] || 6,
-              options[:traffic_class] || 0,
-              options[:flow_label] || 0,
+        super Int32.new(0x60000000),
               Int16.new(options[:length]),
               Int8.new(options[:next]),
               Int8.new(options[:hop] || 64),
-              Addr.new.parse(options[:src] || '::1'),
-              Addr.new.parse(options[:dst] || '::1'),
+              Addr.new.from_human(options[:src] || '::1'),
+              Addr.new.from_human(options[:dst] || '::1'),
               StructFu::String.new.read(options[:body])
+        self.version = options[:version] if options[:version]
+        self.traffic_class = options[:traffic_class] if options[:traffic_class]
+        self.flow_label = options[:flow_label] if options[:flow_label]
       end
+
+      # @!attribute version
+      #   @return [Integer] 4-bit version attribute
+      # @!attribute traffic_class
+      #   @return [Integer] 8-bit traffic_class attribute
+      # @!attribute flow_label
+      #   @return [Integer] 20-bit flow_label attribute
+      define_bit_fields_on :u32, :version, 4, :traffic_class, 8, :flow_label, 20
 
       # Read a IP header from a string
       # @param [String] str binary string
@@ -133,13 +178,13 @@ module PacketGen
         self.length = body.sz
       end
 
-      # Getter for length attribute
-      # @return [Integer]
+      # @!attribute length
+      #   16-bit payload length attribute
+      #   @return [Integer]
       def length
         self[:length].to_i
       end
 
-      # Setter for length attribute
       # @param [Integer] i
       # @return [Integer]
       def length=(i)
@@ -175,7 +220,7 @@ module PacketGen
       # Getter for src attribute
       # @return [String]
       def src
-        self[:src].to_x
+        self[:src].to_human
       end
       alias :source :src
 
@@ -183,14 +228,14 @@ module PacketGen
       # @param [String] addr
       # @return [Integer]
       def src=(addr)
-        self[:src].parse addr
+        self[:src].from_human addr
       end
       alias :source= :src=
 
       # Getter for dst attribute
       # @return [String]
       def dst
-        self[:dst].to_x
+        self[:dst].to_human
       end
       alias :destination :dst
 
@@ -198,20 +243,13 @@ module PacketGen
       # @param [String] addr
       # @return [Integer]
       def dst=(addr)
-        self[:dst].parse addr
+        self[:dst].from_human addr
       end
       alias :destination= :dst=
 
-      # Get binary string
-      # @return [String]
-      def to_s
-        first32 = (version << 28) | (traffic_class << 20) | flow_label
-        [first32].pack('N') << to_a[3..-1].map { |field| field.to_s }.join
-      end
-
-      # Get IPv6 part of pseudo header sum.
+      # Get IPv6 part of pseudo header checksum.
       # @return [Integer]
-      def pseudo_header_sum
+      def pseudo_header_checksum
         sum = 0
         self[:src].each { |word| sum += word.to_i }
         self[:dst].each { |word| sum += word.to_i }
@@ -247,9 +285,27 @@ module PacketGen
 
         sock.sendmsg body.to_s, 0, sockaddrin, hop_limit, tc, pkt_info
       end
+
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+          if attr == :u32
+            shift = Inspect.shift_level(2)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'version', version]
+            tclass = Inspect.int_dec_hex(traffic_class, 2)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'tclass', tclass]
+            fl_value = Inspect.int_dec_hex(flow_label, 5)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flow_label', fl_value]
+          end
+        end
+        str
+      end
     end
 
-    Eth.bind_header IPv6, proto: 0x86DD
-    IP.bind_header IPv6, proto: 41    # 6to4
+    Eth.bind_header IPv6, ethertype: 0x86DD
+    IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end

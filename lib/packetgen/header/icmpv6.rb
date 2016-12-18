@@ -1,17 +1,40 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
 
-    # ICMPv6 header class
+    # A ICMPv6 header consists of:
+    # * a +type+ field ({Int8} type),
+    # * a +code+ field ({Int8} type),
+    # * a +checksum+ field ({Int16} type),
+    # * and a +body+.
+    #
+    # == Create a ICMPv6 header
+    #  # standalone
+    #  icmpv6 = PacketGen::Header::ICMPv6.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IPv6').add('ICMPv6')
+    #  # access to ICMPv6 header
+    #  pkt.icmpv6     # => PacketGen::Header::ICMPv6
+    #
+    # == ICMPv6 attributes
+    #  icmpv6.code = 0
+    #  icmpv6.type = 200
+    #  icmpv6.checksum = 0x248a
+    #  icmpv6.body.read 'this is a body'
     # @author Sylvain Daubert
     class ICMPv6 < ICMP
 
       # ICMPv6 internet protocol number
       IP_PROTOCOL = 58
 
-      # Compute checksum and set +sum+ field
+      # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
-        sum = ip_header(self).pseudo_header_sum
+      def calc_checksum
+        sum = ip_header(self).pseudo_header_checksum
         sum += self.sz
         sum += IP_PROTOCOL
         sum +=(type << 8) | code
@@ -24,7 +47,7 @@ module PacketGen
           sum = (sum & 0xffff) + (sum >> 16)
         end
         sum = ~sum & 0xffff
-        self[:sum].value = (sum == 0) ? 0xffff : sum
+        self[:checksum].value = (sum == 0) ? 0xffff : sum
       end
     end
 

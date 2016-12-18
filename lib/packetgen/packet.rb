@@ -1,3 +1,7 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
 require 'pcaprub'
 
 module PacketGen
@@ -41,9 +45,6 @@ module PacketGen
   class Packet
     # @return [Array<Header::Base]
     attr_reader :headers
-
-    # @private maximum number of characters on a line for INSPECT
-    INSPECT_MAX_WIDTH = 70
 
     # Create a new Packet
     # @param [String] protocol base protocol for packet
@@ -194,9 +195,9 @@ module PacketGen
 
     # Recalculate all packet checksums
     # @return [void]
-    def calc_sum
+    def calc_checksum
       @headers.reverse.each do |header|
-        header.calc_sum if header.respond_to? :calc_sum
+        header.calc_checksum if header.respond_to? :calc_checksum
       end
     end
 
@@ -208,11 +209,11 @@ module PacketGen
       end
     end
 
-    # Recalculate all calculatable fields (for now: length and sum)
+    # Recalculate all calculatable fields (for now: length and checksum)
     # @return [void]
     def calc
       calc_length
-      calc_sum
+      calc_checksum
     end
 
     # Get packet body
@@ -222,7 +223,7 @@ module PacketGen
     end
 
     # Set packet body
-    # @param [String]
+    # @param [String] str
     # @return [void]
     def body=(str)
       @headers.last.body = str
@@ -258,15 +259,11 @@ module PacketGen
 
     # @return [String]
     def inspect
-      str = dashed_line(self.class)
+      str = Inspect.dashed_line(self.class)
       @headers.each do |header|
-        str << dashed_line(header.class, 2)
-        header.to_h.each do |attr, value|
-          next if attr == :body
-          str << inspect_line(attr, value, 2)
-        end
+        str << header.inspect
       end
-      str << inspect_body
+      str << Inspect.inspect_body(body)
     end
 
     # @param [Packet] other
@@ -314,42 +311,6 @@ module PacketGen
       klass = Header.const_get(protocol)
       raise ArgumentError, "unknown #{protocol} protocol" unless klass.is_a? Class
       klass
-    end
-
-    def dashed_line(name, level=1)
-      str = '--' * level << " #{name} "
-      str << '-' * (INSPECT_MAX_WIDTH - str.length) << "\n"
-    end
-
-    def inspect_line(attr, value, level=1)
-      str = '  ' + '  ' * level
-      val = if value.is_a? StructFu::Int
-              sz = value.to_s.size
-              "%-10s (0x%0#{2*sz}x)" % [value.to_i, value.to_i]
-            elsif value.respond_to? :to_x
-              value.to_x
-            else
-              value.to_s
-            end
-      str << "%7s %10s: %s" % [value.class.to_s.sub(/.*::/, ''), attr, val]
-      str << "\n"
-    end
-
-    def inspect_body
-      str = dashed_line('Body', 2)
-      str << (0..15).to_a.map { |v| " %02d" % v}.join << "\n"
-      str << '-' * INSPECT_MAX_WIDTH << "\n"
-      if body.size > 0
-        (body.size / 16 + 1).times do |i|
-          octets = body.to_s[i*16, 16].unpack('C*')
-          o_str = octets.map { |v| " %02x" % v}.join
-          str << o_str
-          str << ' ' * (3*16 - o_str.size) unless o_str.size >= 3*16
-          str << '  ' << octets.map { |v| v < 128 && v > 13 ? v.chr : '.' }.join
-          str << "\n"
-        end
-      end
-      str << '-' * INSPECT_MAX_WIDTH << "\n"
     end
   end
 end

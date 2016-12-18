@@ -1,3 +1,8 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
 
@@ -45,6 +50,17 @@ module PacketGen
         iph = packet.headers[0...hid].reverse.find { |h| h.is_a? IP or h.is_a? IPv6 }
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
         iph
+      end
+
+      # Common inspect method for headers
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+        end
+        str
       end
     end
   end

@@ -68,7 +68,7 @@ module PacketGen
         expect(pkt.udp.sport).to eq(55261)
         expect(pkt.udp.dport).to eq(53)
         expect(pkt.udp.length).to eq(44)
-        expect(pkt.udp.sum).to eq(0x8bf8)
+        expect(pkt.udp.checksum).to eq(0x8bf8)
       end
 
       it 'parses a string, guess first header and get a packet (IPv6)' do
@@ -109,7 +109,20 @@ module PacketGen
         expect(pkt.ip.ihl).to eq(0)
         expect(pkt.ip.tos).to eq(3)
         expect(pkt.ip.id).to eq(0x74de)
-        expect(pkt.ip.proto).to eq(0x51)
+        expect(pkt.ip.protocol).to eq(0x51)
+      end
+
+      it 'is called through PacketGen.parse' do
+        pkt = nil
+        expect { pkt = PacketGen.parse(@raw_pkts.first) }.not_to raise_error
+        expect(pkt).to respond_to :eth
+        expect(pkt).to respond_to :ip
+        expect(pkt).to respond_to :udp
+        expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
+        expect(pkt.udp.checksum).to eq(0x8bf8)
+
+        expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }.
+          not_to raise_error
       end
     end
 
@@ -154,10 +167,10 @@ module PacketGen
       end
 
       it 'sets protocol information in previous header' do
-        expect(@pkt.ip.proto).to eq(0)
+        expect(@pkt.ip.protocol).to eq(0)
         @pkt.add 'IP'
-        expect(@pkt.ip.proto).to eq(Header::IP.known_headers[Header::IP].value)
-        expect(@pkt.ip(2).proto).to eq(0)
+        expect(@pkt.ip.protocol).to eq(Header::IP.known_headers[Header::IP].value)
+        expect(@pkt.ip(2).protocol).to eq(0)
       end
 
       it 'raises on unknown protocol' do
@@ -189,17 +202,17 @@ module PacketGen
       end
     end
 
-    describe '#calc_sum' do
+    describe '#calc_checksum' do
       it 'recalculates packet checksums' do
         pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
               add('UDP', sport: 45768, dport: 80)
         pkt.body = 'abcdef'
-        expect(pkt.ip.sum).to eq(0)
-        expect(pkt.udp.sum).to eq(0)
+        expect(pkt.ip.checksum).to eq(0)
+        expect(pkt.udp.checksum).to eq(0)
         pkt.calc_length
-        pkt.calc_sum
-        expect(pkt.ip.sum).to eq(0x74c6)
-        expect(pkt.udp.sum).to eq(0x1c87)
+        pkt.calc_checksum
+        expect(pkt.ip.checksum).to eq(0x74c6)
+        expect(pkt.udp.checksum).to eq(0x1c87)
       end
     end
 

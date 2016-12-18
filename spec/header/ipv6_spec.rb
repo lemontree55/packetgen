@@ -5,7 +5,7 @@ module PacketGen
 
     describe IPv6::Addr do
       before(:each) do
-        @ipv6addr = IPv6::Addr.new.parse('fe80::21a:c5ff:fe00:152')
+        @ipv6addr = IPv6::Addr.new.from_human('fe80::21a:c5ff:fe00:152')
       end
 
       it '#parse a string containing a dotted address' do
@@ -19,14 +19,14 @@ module PacketGen
         expect(@ipv6addr.a8).to eq(0x0152)
       end
 
-      it '#to_x returns a dotted address as String' do
-        expect(@ipv6addr.to_x).to eq('fe80::21a:c5ff:fe00:152')
+      it '#to_human returns a dotted address as String' do
+        expect(@ipv6addr.to_human).to eq('fe80::21a:c5ff:fe00:152')
       end
 
       it '#read gets a IPv6 address from a binary string' do
         bin_str = "\xfe\x80" << "\x00" * 6 << "\x02\x1a\xc5\xff\xfe\x00\x01\x52"
         ipv6addr = IPv6::Addr.new.read(bin_str)
-        expect(ipv6addr.to_x).to eq('fe80::21a:c5ff:fe00:152')
+        expect(ipv6addr.to_human).to eq('fe80::21a:c5ff:fe00:152')
       end
     end
 
@@ -34,10 +34,10 @@ module PacketGen
 
       describe 'binding' do
         it 'in Eth packets' do
-          expect(Eth.known_headers[IPv6].to_h).to eq({key: :proto, value: 0x86dd})
+          expect(Eth.known_headers[IPv6].to_h).to eq({key: :ethertype, value: 0x86dd})
         end
         it 'in IP packets' do
-          expect(IP.known_headers[IPv6].to_h).to eq({key: :proto, value: 41})
+          expect(IP.known_headers[IPv6].to_h).to eq({key: :protocol, value: 41})
         end
       end
 
@@ -60,7 +60,7 @@ module PacketGen
           options = {
             version: 15,
             traffic_class: 128,
-            flow_label: 0xf851ec,
+            flow_label: 0x851ec,
             length: 10_000,
             next: 250,
             hop: 129,
@@ -98,87 +98,88 @@ module PacketGen
         end
       end
 
-        describe '#calc_length' do
-          it 'computes IPv6 length field' do
-            ipv6 = IPv6.new
-            body = (0...rand(60_000)).to_a.pack('C*')
-            ipv6.body = body
-            ipv6.calc_length
-            expect(ipv6.length).to eq(body.size)
-          end
+      describe '#calc_length' do
+        it 'computes IPv6 length field' do
+          ipv6 = IPv6.new
+          body = (0...rand(60_000)).to_a.pack('C*')
+          ipv6.body = body
+          ipv6.calc_length
+          expect(ipv6.length).to eq(body.size)
+        end
 
-          it 'computes IPv6 length field when IPv6 body is another protocol' do
-            pkt = Packet.gen('IPv6').add('UDP')
-            body = (0...rand(60_000)).to_a.pack('C*')
-            pkt.body = body
-            pkt.ipv6.calc_length
-            expect(pkt.ipv6.length).to eq(body.size + UDP.new.sz)
+        it 'computes IPv6 length field when IPv6 body is another protocol' do
+          pkt = Packet.gen('IPv6').add('UDP')
+          body = (0...rand(60_000)).to_a.pack('C*')
+          pkt.body = body
+          pkt.ipv6.calc_length
+          expect(pkt.ipv6.length).to eq(body.size + UDP.new.sz)
+        end
+      end
+
+      describe 'setters' do
+        before(:each) do
+          @ipv6 = IPv6.new
+        end
+
+        it '#length= accepts integers' do
+          @ipv6.length = 65530
+          expect(@ipv6[:length].to_i).to eq(65530)
+        end
+
+        it '#next= accepts integers' do
+          @ipv6.next = 65530
+          expect(@ipv6[:next].to_i).to eq(65530)
+        end
+
+        it '#hop= accepts integers' do
+          @ipv6.hop = 65530
+          expect(@ipv6[:hop].to_i).to eq(65530)
+        end
+
+        it '#src= accepts integers' do
+          @ipv6.src = '1:2:3:4:5:6:7:8'
+          1.upto(8) do |i|
+            expect(@ipv6[:src]["a#{i}".to_sym].to_i).to eq(i)
           end
         end
 
-        describe 'setters' do
-          before(:each) do
-            @ipv6 = IPv6.new
-          end
-
-          it '#length= accepts integers' do
-            @ipv6.length = 65530
-            expect(@ipv6[:length].to_i).to eq(65530)
-          end
-
-          it '#next= accepts integers' do
-            @ipv6.next = 65530
-            expect(@ipv6[:next].to_i).to eq(65530)
-          end
-
-          it '#hop= accepts integers' do
-            @ipv6.hop = 65530
-            expect(@ipv6[:hop].to_i).to eq(65530)
-          end
-
-          it '#src= accepts integers' do
-            @ipv6.src = '1:2:3:4:5:6:7:8'
-            1.upto(8) do |i|
-              expect(@ipv6[:src]["a#{i}".to_sym].to_i).to eq(i)
-            end
-          end
-
-          it '#dst= accepts integers' do
-            @ipv6.dst = '1:2:3:4:5:6:7:8'
-            1.upto(8) do |i|
-              expect(@ipv6[:dst]["a#{i}".to_sym].to_i).to eq(i)
-            end
+        it '#dst= accepts integers' do
+          @ipv6.dst = '1:2:3:4:5:6:7:8'
+          1.upto(8) do |i|
+            expect(@ipv6[:dst]["a#{i}".to_sym].to_i).to eq(i)
           end
         end
+      end
 
-        describe '#to_w' do
-          it 'responds to #to_w' do
-            expect(IPv6.new).to respond_to(:to_w)
-          end
-
-          it 'sends a IPv6 header on wire', :sudo, :notravis do
-            body = PacketGen.force_binary("\x00" * 64)
-            pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
-                  add('UDP', sport: 35535, dport: 65535, body: body)
-            pkt.calc
-            Thread.new { sleep 1; pkt.ipv6.to_w('lo') }
-            packets = Packet.capture('lo', max: 1,
-                                     filter: 'ip6 dst ::1',
-                                     timeout: 4)
-            packet = packets.first
-            expect(packet.is? 'IPv6').to be(true)
-            expect(packet.ipv6.dst).to eq('::1')
-            expect(packet.ipv6.src).to eq('::1')
-            expect(packet.ipv6.next).to eq(UDP::IP_PROTOCOL)
-            expect(packet.ipv6.traffic_class).to eq(0x40)
-            expect(packet.ipv6.hop).to eq(0x22)
-            expect(packet.udp.sport).to eq(35535)
-            expect(packet.udp.dport).to eq(65535)
-            expect(packet.body).to eq(body)
-          end
+      describe '#to_w' do
+        it 'responds to #to_w' do
+          expect(IPv6.new).to respond_to(:to_w)
         end
 
-       it '#to_s returns a binary string' do
+        it 'sends a IPv6 header on wire', :sudo, :notravis do
+          body = PacketGen.force_binary("\x00" * 64)
+          pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
+                add('UDP', sport: 35535, dport: 65535, body: body)
+          pkt.calc
+          Thread.new { sleep 1; pkt.ipv6.to_w('lo') }
+          packets = Packet.capture('lo', max: 1,
+                                   filter: 'ip6 dst ::1',
+                                   timeout: 4)
+          packet = packets.first
+          expect(packet.is? 'IPv6').to be(true)
+          expect(packet.ipv6.dst).to eq('::1')
+          expect(packet.ipv6.src).to eq('::1')
+          expect(packet.ipv6.next).to eq(UDP::IP_PROTOCOL)
+          expect(packet.ipv6.traffic_class).to eq(0x40)
+          expect(packet.ipv6.hop).to eq(0x22)
+          expect(packet.udp.sport).to eq(35535)
+          expect(packet.udp.dport).to eq(65535)
+          expect(packet.body).to eq(body)
+        end
+      end
+
+      describe '#to_s' do
+        it 'returns a binary string' do
           ipv6 = IPv6.new
           ipv6.body = 'body'
           ipv6.calc_length
@@ -187,6 +188,18 @@ module PacketGen
           PacketGen.force_binary expected
           expect(ipv6.to_s).to eq(expected)
         end
-     end
+      end
+
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          ip = IPv6.new
+          str = ip.inspect
+          expect(str).to be_a(String)
+          (ip.members - %i(body) + %i(version tclass flow_label)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
+      end
+    end
   end
 end

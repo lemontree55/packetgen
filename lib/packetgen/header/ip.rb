@@ -1,12 +1,65 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
 require 'socket'
 
 module PacketGen
   module Header
 
-    # IP header class
+    # A IP header consists of:
+    # * a first byte ({#u8} of {Int8} type) composed of:
+    #   * a 4-bit {#version} field,
+    #   * a 4-bit IP header length ({#ihl}) field,
+    # * a total length ({#length}, {Int16} type),
+    # * a ID ({#id}, +Int16+ type),
+    # * a {#frag} worg (+Int16+) composed of:
+    #   * 3 1-bit flags ({#flag_rsv}, {#flag_df} and {#flag_mf}),
+    #   * a 13-bit {#fragment_offset} field,
+    # * a Time-to-Live ({#ttl}) field (+Int8+),
+    # * a {#protocol} field (+Int8+),
+    # * a {#checksum} field (+Int16+),
+    # * a source IP address ({#src}, {Addr} type),
+    # * a destination IP ddress ({#dst}, +Addr+ type),
+    # * and a {#body} ({String} type).
+    #
+    # == Create a IP header
+    #  # standalone
+    #  ip = PacketGen::Header::IP.new
+    #  # in a packet
+    #  pkt = PacketGen.gen('IP')
+    #  # access to IP header
+    #  pkt.ip   # => PacketGen::Header::IP
+    #
+    # == IP attributes
+    #  ip.u8 = 0x45
+    #  # the same as
+    #  ip.version = 4
+    #  ip.ihl = 5
+    #
+    #  ip.length = 0x43
+    #  ip.id = 0x1234
+    #
+    #  ip.frag = 0x2031
+    #  # the same as:
+    #  ip.flag_mf = true
+    #  ip.fragment_offset = 0x31
+    #
+    #  ip.flag_rsv?  # => Boolean
+    #  ip.flag_df?   # => Boolean
+    #  ip.flag_mf?   # => Boolean
+    #
+    #  ip.ttl = 0x40
+    #  ip.protocol = 6
+    #  ip.checksum = 0xffff
+    #  ip.src = '127.0.0.1'
+    #  ip.src                # => "127.0.0.1"
+    #  ip[:src]              # => PacketGen::Header::IP::Addr
+    #  ip.dst = '127.0.0.2'
+    #  ip.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IP < Struct.new(:version, :ihl, :tos, :length, :id, :frag, :ttl,
-                          :proto,:sum, :src, :dst, :body)
+    class IP < Struct.new(:u8, :tos, :length, :id, :frag, :ttl,
+                          :protocol, :checksum, :src, :dst, :body)
       include StructFu
       include HeaderMethods
       extend HeaderClassMethods
@@ -31,10 +84,10 @@ module PacketGen
 
         end
 
-        # Parse a dotted address
+        # Read a dotted address
         # @param [String] str
         # @return [self]
-        def parse(str)
+        def from_human(str)
           return self if str.nil?
           m = str.match(IPV4_ADDR_REGEX)
           if m
@@ -65,7 +118,7 @@ module PacketGen
 
         # Addr in human readable form (dotted format)
         # @return [String]
-        def to_x
+        def to_human
           members.map { |m| "#{self[m].to_i}" }.join('.')
         end
 
@@ -85,24 +138,39 @@ module PacketGen
       # @option options [Integer] :id
       # @option options [Integer] :frag
       # @option options [Integer] :ttl
-      # @option options [Integer] :proto
-      # @option options [Integer] :sum IP header checksum
+      # @option options [Integer] :protocol
+      # @option options [Integer] :checksum IP header checksum
       # @option options [String] :src IP source dotted address
       # @option options [String] :dst IP destination dotted address
       def initialize(options={})
-        super options[:version] || 4,
-              options[:ihl] || 5,
+        super Int8.new(((options[:version] || 4) << 4) | (options[:ihl] || 5)),
               Int8.new(options[:tos] || 0),
               Int16.new(options[:length] || 20),
               Int16.new(options[:id] || rand(65535)),
               Int16.new(options[:frag] || 0),
               Int8.new(options[:ttl] || 64),
-              Int8.new(options[:proto]),
-              Int16.new(options[:sum] || 0),
-              Addr.new.parse(options[:src] || '127.0.0.1'),
-              Addr.new.parse(options[:dst] || '127.0.0.1'),
+              Int8.new(options[:protocol]),
+              Int16.new(options[:checksum] || 0),
+              Addr.new.from_human(options[:src] || '127.0.0.1'),
+              Addr.new.from_human(options[:dst] || '127.0.0.1'),
               StructFu::String.new.read(options[:body])
       end
+
+      # @!attribute version
+      #   @return [Integer] 4-bit version attribute
+      # @!attribute ihl
+      #   @return [Integer] 4-bit IP header length attribute
+      define_bit_fields_on :u8, :version, 4, :ihl, 4
+
+      # @!attribute flag_rsv
+      #   @return [Boolean] reserved bit from flags
+      # @!attribute flag_df
+      #   @return [Boolean] Don't Fragment flag 
+      # @!attribute flag_mf
+      #   @return [Boolena] More Fragment flags
+      # @!attribute fragment_offset
+      #   @return [Integer] 13-bit fragment offset
+      define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
 
       # Read a IP header from a string
       # @param [String] str binary string
@@ -111,37 +179,35 @@ module PacketGen
         return self if str.nil?
         raise ParseError, 'string too short for IP' if str.size < self.sz
         force_binary str
-        vihl = str[0, 1].unpack('C').first
-        self[:version] = vihl >> 4
-        self[:ihl] = vihl & 0x0f
+        self[:u8].read str[0, 1]
         self[:tos].read str[1, 1]
         self[:length].read str[2, 2]
         self[:id].read str[4, 2]
         self[:frag].read str[6, 2]
         self[:ttl].read str[8, 1]
-        self[:proto].read str[9, 1]
-        self[:sum].read str[10, 2]
+        self[:protocol].read str[9, 1]
+        self[:checksum].read str[10, 2]
         self[:src].read str[12, 4]
         self[:dst].read str[16, 4]
         self[:body].read str[20..-1]
         self
       end
 
-       # Compute checksum and set +sum+ field
+       # Compute checksum and set +checksum+ field
       # @return [Integer]
-      def calc_sum
-        checksum = (self.version << 12) | (self.ihl << 8) | self.tos
+      def calc_checksum
+        checksum = (self[:u8].to_i << 8) | self.tos
         checksum += self.length
         checksum += self.id
         checksum += self.frag
-        checksum += (self.ttl << 8) | self.proto
+        checksum += (self.ttl << 8) | self.protocol
         checksum += (self[:src].to_i >> 16)
         checksum += (self[:src].to_i & 0xffff)
         checksum += self[:dst].to_i >> 16
         checksum += self[:dst].to_i & 0xffff
         checksum = (checksum & 0xffff) + (checksum >> 16)
         checksum = ~(checksum % 0xffff ) & 0xffff
-        self[:sum].value = (checksum == 0) ? 0xffff : checksum
+        self[:checksum].value = (checksum == 0) ? 0xffff : checksum
       end
 
       # Compute length and set +length+ field
@@ -215,36 +281,36 @@ module PacketGen
         self[:ttl].value = ttl
       end
 
-      # Getter for proto attribute
+      # Getter for protocol attribute
       # @return [Integer]
-      def proto
-        self[:proto].to_i
+      def protocol
+        self[:protocol].to_i
       end
 
-      # Setter for  proto attribute
-      # @param [Integer] proto
+      # Setter for  protocol attribute
+      # @param [Integer] protocol
       # @return [Integer]
-      def proto=(proto)
-        self[:proto].value = proto
+      def protocol=(protocol)
+        self[:protocol].value = protocol
       end
 
-      # Getter for sum attribute
+      # Getter for checksum attribute
       # @return [Integer]
-      def sum
-        self[:sum].to_i
+      def checksum
+        self[:checksum].to_i
       end
 
-      # Setter for  sum attribute
-      # @param [Integer] sum
+      # Setter for  checksum attribute
+      # @param [Integer] checksum
       # @return [Integer]
-      def sum=(sum)
-        self[:sum].value = sum
+      def checksum=(checksum)
+        self[:checksum].value = checksum
       end
 
       # Get IP source address
       # @return [String] dotted address
       def src
-        self[:src].to_x
+        self[:src].to_human
       end
       alias :source :src
 
@@ -252,14 +318,14 @@ module PacketGen
       # @param [String] addr dotted IP address
       # @return [String]
       def src=(addr)
-        self[:src].parse addr
+        self[:src].from_human addr
       end
       alias :source= :src=
 
       # Get IP destination address
       # @return [String] dotted address
       def dst
-        self[:dst].to_x
+        self[:dst].to_human
       end
       alias :destination :dst
 
@@ -267,27 +333,20 @@ module PacketGen
       # @param [String] addr dotted IP address
       # @return [String]
       def dst=(addr)
-        self[:dst].parse addr
+        self[:dst].from_human addr
       end
       alias :destination= :dst=
 
-      # Get binary string
-      # @return [String]
-      def to_s
-        first_byte = [(version << 4) | ihl].pack('C')
-        first_byte << to_a[2..-1].map { |field| field.to_s }.join
-      end
-
-      # Get IP part of pseudo header sum.
+      # Get IP part of pseudo header checksum.
       # @return [Integer]
-      def pseudo_header_sum
-        sum = self[:src].to_i + self[:dst].to_i
-        (sum >> 16) + (sum & 0xffff)
+      def pseudo_header_checksum
+        checksum = self[:src].to_i + self[:dst].to_i
+        (checksum >> 16) + (checksum & 0xffff)
       end
 
       # Send IP packet on wire.
       #
-      # When sending packet at IP level, +sum+ and +length+ fields are set by
+      # When sending packet at IP level, +checksum+ and +length+ fields are set by
       # kernel, so bad IP packets cannot be sent this way. To do so, use {Eth#to_w}.
       # @param [String,nil] iface interface name. Not used
       # @return [void]
@@ -296,9 +355,32 @@ module PacketGen
         sockaddrin = Socket.sockaddr_in(0, dst)
         sock.send to_s, 0, sockaddrin
       end
+
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        shift = Inspect.shift_level(2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+          if attr == :u8
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'version', version]
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'ihl', ihl]
+          elsif attr == :frag
+            flags = flag_rsv? ? %w(RSV) : []
+            flags << 'DF' if flag_df?
+            flags << 'MF' if flag_mf?
+            flags_str = flags.empty? ? 'none' : flags.join(',')
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flags', flags_str]
+            foff = Inspect.int_dec_hex(fragment_offset, 4)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'frag_offset', foff]
+          end
+        end
+        str
+      end
     end
 
-    Eth.bind_header IP, proto: 0x800
-    IP.bind_header IP, proto: 4
+    Eth.bind_header IP, ethertype: 0x800
+    IP.bind_header IP, protocol: 4
   end
 end

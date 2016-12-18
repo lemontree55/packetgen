@@ -5,7 +5,7 @@ module PacketGen
 
     describe Eth::MacAddr do
       before(:each) do
-        @mac = Eth::MacAddr.new.parse('00:01:02:03:04:05')
+        @mac = Eth::MacAddr.new.from_human('00:01:02:03:04:05')
       end
 
       it '#parse a MAC address string' do
@@ -17,8 +17,8 @@ module PacketGen
         expect(@mac.a5).to eq(5)
       end
 
-      it '#to_x returns a MAC address string' do
-        expect(@mac.to_x).to eq('00:01:02:03:04:05')
+      it '#to_human returns a MAC address string' do
+        expect(@mac.to_human).to eq('00:01:02:03:04:05')
       end
     end
 
@@ -30,14 +30,14 @@ module PacketGen
           expect(eth).to be_a(Eth)
           expect(eth.dst).to eq('00:00:00:00:00:00')
           expect(eth.src).to eq('00:00:00:00:00:00')
-          expect(eth.proto).to eq(0)
+          expect(eth.ethertype).to eq(0)
         end
 
         it 'accepts options' do
           options = {
             dst: '00:01:02:03:04:05',
             src: '00:ff:ff:ff:ff:4c',
-            proto: 0x800,
+            ethertype: 0x800,
             body: 'this is a body'
           }
           eth = Eth.new(options)
@@ -55,7 +55,7 @@ module PacketGen
           eth.read str
           expect(eth.dst).to eq('00:01:02:03:04:05')
           expect(eth.src).to eq('06:07:08:09:0a:0b')
-          expect(eth.proto).to eq(0x0c0d)
+          expect(eth.ethertype).to eq(0x0c0d)
           expect(eth.body).to eq('body')
         end
 
@@ -85,8 +85,8 @@ module PacketGen
         end
 
         it '#proto= accepts an integer' do
-          @eth.proto = 0xabcd
-          expect(@eth[:proto].value).to eq(0xabcd)
+          @eth.ethertype = 0xabcd
+          expect(@eth[:ethertype].value).to eq(0xabcd)
         end
       end
 
@@ -107,16 +107,29 @@ module PacketGen
           expect(packet.is? 'Eth').to be(true)
           expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
           expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
-          expect(packet.eth.proto).to eq(0x0800)
+          expect(packet.eth.ethertype).to eq(0x0800)
           expect(packet.ip.body).to eq(body)
         end
       end
 
-      it '#to_s returns a binary string' do
-        ethx = Eth.new(dst: '00:01:02:03:04:05', proto: 0x800).to_s
-        expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
-                                          "\x00\x00\x00\x00\x00\x00\x08\x00")
-        expect(ethx).to eq(expected)
+      describe '#to_s' do
+        it 'returns a binary string' do
+          ethx = Eth.new(dst: '00:01:02:03:04:05', ethertype: 0x800).to_s
+          expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
+                                            "\x00\x00\x00\x00\x00\x00\x08\x00")
+          expect(ethx).to eq(expected)
+        end
+      end
+
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          eth = Eth.new
+          str = eth.inspect
+          expect(str).to be_a(String)
+          (eth.members - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
       end
     end
   end
