@@ -245,7 +245,7 @@ module PacketGen
         # @return [String]
         def to_human
           value, echo_reply = self[:value].unpack('NN')
-          "WS:#{value};#{echo_reply}"
+          "TS:#{value};#{echo_reply}"
         end
       end
     end
