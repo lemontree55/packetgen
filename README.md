@@ -16,7 +16,15 @@ Yes. But PacketFu is limited:
 * parse packets top-down, and sometimes bad parse down layers
 * cannot send packet on wire at IP/IPv6 level (Ethernet header is mandatory)
 
-## use cases
+## Installation
+Via RubyGems:
+    $ gem install packetgen
+
+Or add it to a Gemfile:
+```ruby
+gem 'packetgen'
+```
+## Use cases
 
 These use cases are the roadmap for PacketGen.
 
