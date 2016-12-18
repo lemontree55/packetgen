@@ -91,6 +91,17 @@ module PacketGen
             expect(icmp.to_s).to eq(str)
         end
       end
+      
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          icmpv6 = ICMPv6.new
+          str = icmpv6.inspect
+          expect(str).to be_a(String)
+          (icmpv6.members - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
+      end
     end
   end
 end

@@ -199,6 +199,17 @@ module PacketGen
         end
       end
 
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          ip = IP.new
+          str = ip.inspect
+          expect(str).to be_a(String)
+          (ip.members - %i(body) + %i(version ihl flags frag_offset)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
+      end
+
       context 'frag field' do
         let(:ip) { IP.new }
 
@@ -234,7 +245,6 @@ module PacketGen
           ip.flag_rsv = true
           expect(ip.frag).to eq(0x9001)
         end
-
       end
     end
   end

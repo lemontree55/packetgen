@@ -156,6 +156,17 @@ module PacketGen
           end
         end
       end
+      
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          tcp = TCP.new
+          str = tcp.inspect
+          expect(str).to be_a(String)
+          (tcp.members - %i(body) + %i(data_offset reserved flags)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
+      end
 
       context 'flags field' do
         let(:tcp) { TCP.new }

@@ -112,11 +112,24 @@ module PacketGen
         end
       end
 
-      it '#to_s returns a binary string' do
-        ethx = Eth.new(dst: '00:01:02:03:04:05', ethertype: 0x800).to_s
-        expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
-                                          "\x00\x00\x00\x00\x00\x00\x08\x00")
-        expect(ethx).to eq(expected)
+      describe '#to_s' do
+        it 'returns a binary string' do
+          ethx = Eth.new(dst: '00:01:02:03:04:05', ethertype: 0x800).to_s
+          expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
+                                            "\x00\x00\x00\x00\x00\x00\x08\x00")
+          expect(ethx).to eq(expected)
+        end
+      end
+
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          eth = Eth.new
+          str = eth.inspect
+          expect(str).to be_a(String)
+          (eth.members - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
       end
     end
   end

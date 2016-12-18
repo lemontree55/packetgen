@@ -121,14 +121,29 @@ module PacketGen
         end
       end
 
-      it '#to_s returns a binary string' do
-        arp = ARP.new(src_mac: '00:1b:11:51:b7:ce', dst_mac: '00:00:00:00:00:00',
-                      src_ip: '192.168.1.105', dst_ip: '192.168.1.2')
-        expected = "\x00\x01\x08\x00\x06\x04\x00\x01\x00\x1b\x11\x51\xb7\xce" \
-          "\xc0\xa8\x01\x69\x00\x00\x00\x00\x00\x00\xc0\xa8\x01\x02"
-        PacketGen.force_binary(expected)
-        expect(arp.to_s).to eq(expected)
+      describe '#to_s' do
+        it 'returns a binary string' do
+          arp = ARP.new(src_mac: '00:1b:11:51:b7:ce',
+                        dst_mac: '00:00:00:00:00:00',
+                        src_ip: '192.168.1.105',
+                        dst_ip: '192.168.1.2')
+          expected = "\x00\x01\x08\x00\x06\x04\x00\x01\x00\x1b\x11\x51\xb7\xce" \
+                     "\xc0\xa8\x01\x69\x00\x00\x00\x00\x00\x00\xc0\xa8\x01\x02"
+          PacketGen.force_binary(expected)
+          expect(arp.to_s).to eq(expected)
+        end
       end
-     end
+
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          arp = ARP.new
+          str = arp.inspect
+          expect(str).to be_a(String)
+          (arp.members - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
+      end
+    end
   end
 end

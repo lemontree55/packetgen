@@ -103,11 +103,24 @@ module PacketGen
         end
       end
 
-      it '#to_s returns a binary string' do
-        udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
-        udp.calc_length
-        expected_str = "\x00" * 4 + "\x00\x0c\x00\x00\x00\x01\x02\x03"
-        expect(udp.to_s).to eq(PacketGen.force_binary expected_str)
+      describe '#to_s' do
+        it 'returns a binary string' do
+          udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
+          udp.calc_length
+          expected_str = "\x00" * 4 + "\x00\x0c\x00\x00\x00\x01\x02\x03"
+          expect(udp.to_s).to eq(PacketGen.force_binary expected_str)
+        end
+      end
+      
+      describe '#inspect' do
+        it 'returns a String with all attributes' do
+          udp = UDP.new
+          str = udp.inspect
+          expect(str).to be_a(String)
+          (udp.members - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
       end
     end
   end
