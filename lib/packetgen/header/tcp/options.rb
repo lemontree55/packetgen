@@ -69,8 +69,8 @@ module PacketGen
 
         # Get a human readable string
         # @return [String]
-        def to_x
-          map(&:to_x).join(', ')
+        def to_human
+          map(&:to_human).join(', ')
         end
 
         # Get options size in bytes

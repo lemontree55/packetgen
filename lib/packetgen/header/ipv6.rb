@@ -73,10 +73,10 @@ module PacketGen
                 Int16.new(options[:a8])
         end
 
-        # Parse a colon-delimited address
+        # Read a colon-delimited address
         # @param [String] str
         # @return [self]
-        def parse(str)
+        def from_human(str)
           return self if str.nil?
           addr = IPAddr.new(str)
           raise ArgumentError, 'string is not a IPv6 address' unless addr.ipv6?
@@ -115,7 +115,7 @@ module PacketGen
 
         # Addr6 in human readable form (colon-delimited hex string)
         # @return [String]
-        def to_x
+        def to_human
           IPAddr.new(to_a.map { |a| a.to_i.to_s(16) }.join(':')).to_s
         end
       end
@@ -135,8 +135,8 @@ module PacketGen
               Int16.new(options[:length]),
               Int8.new(options[:next]),
               Int8.new(options[:hop] || 64),
-              Addr.new.parse(options[:src] || '::1'),
-              Addr.new.parse(options[:dst] || '::1'),
+              Addr.new.from_human(options[:src] || '::1'),
+              Addr.new.from_human(options[:dst] || '::1'),
               StructFu::String.new.read(options[:body])
         self.version = options[:version] if options[:version]
         self.traffic_class = options[:traffic_class] if options[:traffic_class]
@@ -220,7 +220,7 @@ module PacketGen
       # Getter for src attribute
       # @return [String]
       def src
-        self[:src].to_x
+        self[:src].to_human
       end
       alias :source :src
 
@@ -228,14 +228,14 @@ module PacketGen
       # @param [String] addr
       # @return [Integer]
       def src=(addr)
-        self[:src].parse addr
+        self[:src].from_human addr
       end
       alias :source= :src=
 
       # Getter for dst attribute
       # @return [String]
       def dst
-        self[:dst].to_x
+        self[:dst].to_human
       end
       alias :destination :dst
 
@@ -243,7 +243,7 @@ module PacketGen
       # @param [String] addr
       # @return [Integer]
       def dst=(addr)
-        self[:dst].parse addr
+        self[:dst].from_human addr
       end
       alias :destination= :dst=
 
@@ -284,6 +284,24 @@ module PacketGen
         pkt_info = Socket::AncillaryData.ipv6_pktinfo(Addrinfo.ip(src), ifaddr.ifindex)
 
         sock.sendmsg body.to_s, 0, sockaddrin, hop_limit, tc, pkt_info
+      end
+
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+          if attr == :u32
+            shift = Inspect.shift_level(2)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'version', version]
+            tclass = Inspect.int_dec_hex(traffic_class, 2)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'tclass', tclass]
+            fl_value = Inspect.int_dec_hex(flow_label, 5)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flow_label', fl_value]
+          end
+        end
+        str
       end
     end
 

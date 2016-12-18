@@ -50,10 +50,10 @@ module PacketGen
               Int8.new(options[:hln] || options[:hlen] || 6),
               Int8.new(options[:pln] || options[:plen] || 4),
               Int16.new(options[:op] || options[:opcode] || 1),
-              Eth::MacAddr.new.parse(options[:sha] || options[:src_mac]),
-              IP::Addr.new.parse(options[:spa] || options[:src_ip]),
-              Eth::MacAddr.new.parse(options[:tha] || options[:dst_mac]),
-              IP::Addr.new.parse(options[:tpa] || options[:dst_ip]),
+              Eth::MacAddr.new.from_human(options[:sha] || options[:src_mac]),
+              IP::Addr.new.from_human(options[:spa] || options[:src_ip]),
+              Eth::MacAddr.new.from_human(options[:tha] || options[:dst_mac]),
+              IP::Addr.new.from_human(options[:tpa] || options[:dst_ip]),
               StructFu::String.new.read(options[:body])
       end
 
@@ -138,48 +138,48 @@ module PacketGen
       # @!attribute [rw] sha
       # @return [String]
       def sha
-        self[:sha].to_x
+        self[:sha].to_human
       end
       alias :src_mac :sha
       
       def sha=(addr)
-        self[:sha].parse addr
+        self[:sha].from_human addr
       end
       alias :src_mac= :sha=
 
       # @!attribute [rw] spa
       # @return [String]
       def spa
-        self[:spa].to_x
+        self[:spa].to_human
       end
       alias :src_ip :spa
       
       def spa=(addr)
-        self[:spa].parse addr
+        self[:spa].from_human addr
       end
       alias :src_ip= :spa=
 
       # @!attribute [rw] tha
       # @return [String]
       def tha
-        self[:tha].to_x
+        self[:tha].to_human
       end
       alias :dst_mac :tha
       
       def tha=(addr)
-        self[:tha].parse addr
+        self[:tha].from_human addr
       end
       alias :dst_mac= :tha=
 
       # @!attribute [rw] tpa
       # @return [String]
       def tpa
-        self[:tpa].to_x
+        self[:tpa].to_human
       end
       alias :dst_ip :tpa
       
       def tpa=(addr)
-        self[:tpa].parse addr
+        self[:tpa].from_human addr
       end
       alias :dst_ip= :tpa=
     end

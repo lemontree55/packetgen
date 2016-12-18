@@ -113,6 +113,19 @@ module PacketGen
             end
           end
         end
+
+        describe '#to_human' do
+          it 'returns a human-readable string' do
+            expected = ['MSS:1420, SACKOK, TS:36978029;0, NOP, WS:7',
+                        'MSS:1410, SACKOK, TS:2583455884;36978029, NOP, WS:7',
+                        'NOP, NOP, TS:36978033;2583455884']
+            @packets.each_with_index do |pkt, i|
+              str_opts = pkt[0x4a..-1]
+              opts.read str_opts
+              expect(opts.to_human).to eq(expected[i])
+            end
+          end
+        end
       end
     end
   end

@@ -55,10 +55,10 @@ module PacketGen
 
         end
 
-        # Parse a string to populate +MacAddr+
+        # Read a human-readable string to populate +MacAddr+
         # @param [String] str
         # @return [self]
-        def parse(str)
+        def from_human(str)
           return self if str.nil?
           bytes = str.split(/:/)
           unless bytes.size == 6
@@ -92,7 +92,7 @@ module PacketGen
 
         # +MacAddr+ in human readable form (colon format)
         # @return [String]
-        def to_x
+        def to_human
           members.map { |m| "#{'%02x' % self[m]}" }.join(':')
         end
       end
@@ -109,8 +109,8 @@ module PacketGen
       # @option options [String] :src MAC source address
       # @option options [Integer] :ethertype
       def initialize(options={})
-        super MacAddr.new.parse(options[:dst] || '00:00:00:00:00:00'),
-              MacAddr.new.parse(options[:src] || '00:00:00:00:00:00'),
+        super MacAddr.new.from_human(options[:dst] || '00:00:00:00:00:00'),
+              MacAddr.new.from_human(options[:src] || '00:00:00:00:00:00'),
               Int16.new(options[:ethertype] || 0),
               StructFu::String.new.read(options[:body])
       end
@@ -132,27 +132,27 @@ module PacketGen
       # Get MAC destination address
       # @return [String]
       def dst
-        self[:dst].to_x
+        self[:dst].to_human
       end
 
       # Set MAC destination address
       # @param [String] addr
       # @return [String]
       def dst=(addr)
-        self[:dst].parse addr
+        self[:dst].from_human addr
       end
 
       # Get MAC source address
       # @return [String]
       def src
-        self[:src].to_x
+        self[:src].to_human
       end
 
       # Set MAC source address
       # @param [String] addr
       # @return [String]
       def src=(addr)
-        self[:src].parse addr
+        self[:src].from_human addr
       end
 
       # Get ethertype field
