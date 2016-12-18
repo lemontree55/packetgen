@@ -8,6 +8,9 @@ module PacketGen
     # Maximum number of characters on a line for INSPECT
     INSPECT_MAX_WIDTH = 70
 
+    # Format to inspect attribute
+    INSPECT_FMT_ATTR = "%7s %12s: %s"
+
     # Create a dashed line with +obj+ class writing in it
     # @param [Object] obj
     # @param [Integer] level
@@ -32,7 +35,7 @@ module PacketGen
             else
               value.to_s
             end
-      str << "%7s %12s: %s" % [value.class.to_s.sub(/.*::/, ''), attr, val]
+      str << INSPECT_FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
       str << "\n"
     end
 
