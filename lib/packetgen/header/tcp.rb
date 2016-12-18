@@ -124,7 +124,7 @@ module PacketGen
       # @!attribute flag_fin
       #  @return [Boolean] 1-bit FIN flag
       define_bit_fields_on :u16, :_, 7, :flag_ns, :flag_cwr, :flag_ece, :flag_urg,
-                           :flag_ack, :flag_psh, :flag_rst, :flas_syn, :flag_fin
+                           :flag_ack, :flag_psh, :flag_rst, :flag_syn, :flag_fin
       # Read a TCP header from a string
       # @param [String] str binary string
       # @return [self]

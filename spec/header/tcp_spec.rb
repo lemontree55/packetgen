@@ -162,7 +162,7 @@ module PacketGen
 
         it 'may be accessed through all flag_* methods' do
           all_flags = (%i(flag_ns flag_cwr flag_ece flag_urg flag_ack flag_psh) +
-                       %i(flag_rst flas_syn flag_fin)).reverse
+                       %i(flag_rst flag_syn flag_fin)).reverse
           8.downto(0) do |i|
             expect(tcp.send "#{all_flags[i]}?").to eq(false)
             tcp.flags = 1 << i
