@@ -18,6 +18,7 @@ Yes. But PacketFu is limited:
 
 ## Installation
 Via RubyGems:
+
     $ gem install packetgen
 
 Or add it to a Gemfile:
