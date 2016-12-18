@@ -9,7 +9,7 @@ module PacketGen
     # A UDP header consists of:
     # * a source port field ({#sport}, {Int16} type),
     # * a destination port field ({#dport}, +Int16+ type),
-    # * a UDP length field ({#lengt}, +Int16+ type),
+    # * a UDP length field ({#length}, +Int16+ type),
     # * a {#checksum} field (+Int16+ type),
     # * and a {#body}.
     #
