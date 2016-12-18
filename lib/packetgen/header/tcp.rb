@@ -270,6 +270,27 @@ module PacketGen
       def urg_pointer=(urg)
         self[:urg_pointer].read urg
       end
+
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        shift = Inspect.shift_level(2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+          if attr == :u16
+            doff = Inspect.int_dec_hex(data_offset, 1)
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'data_offset', doff]
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'reserved', reserved]
+            flags = ''
+            %w(ns cwr ece urg ack psh rst syn fin).each do |fl|
+              flags << (send("flag_#{fl}?") ? fl[0].upcase : '.')
+            end
+            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flags', flags]
+          end
+        end
+        str
+      end
     end
 
     IP.bind_header TCP, protocol: TCP::IP_PROTOCOL
