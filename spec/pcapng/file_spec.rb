@@ -53,7 +53,7 @@ module PacketGen
           [:little, :big].each do |endian|
             base_dir = ::File.join(__dir__, endian == :little ? 'output_le' : 'output_be')
             PCAPNG_TEST_FILES.each do |file, sections|
-              next if file == 'difficult/test202.pcapng'
+              next if file == 'difficult/test202.pcapng'  # specific spec below
               @pcapng.clear
               @pcapng.readfile ::File.join(base_dir, file)
               expect(@pcapng.sections[0].endian).to eq(endian)
