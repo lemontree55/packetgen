@@ -174,10 +174,10 @@ module PacketGen
             body = PacketGen.force_binary("\x00" * 64)
             pkt = Packet.gen('IP').add('UDP', sport: 35535, dport: 65535, body: body)
             pkt.calc
-            Thread.new { sleep 1; pkt.ip.to_w('lo') }
+            Thread.new { sleep 0.1; pkt.ip.to_w('lo') }
             packets = Packet.capture('lo', max: 1,
-                                     filter: 'ip dst 127.0.0.1',
-                                     timeout: 4)
+                                     filter: 'ip dst 127.0.0.1 and ip proto 17',
+                                     timeout: 2)
             packet = packets.first
             expect(packet.is? 'IP').to be(true)
             expect(packet.ip.dst).to eq('127.0.0.1')
