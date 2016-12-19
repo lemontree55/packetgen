@@ -65,7 +65,7 @@ module PacketGen
       @cap_thread.join(@timeout)
     end
 
-    # Stop capture. Should be used from another thread, as {#start} blocs.
+    # Stop capture. Should be used from another thread, as {#start} blocks.
     #
     # BEWARE: multiple capture should not be started in different threads. No effort
     # has been made to make Capture nor PacketGen thread-safe.
@@ -79,11 +79,7 @@ module PacketGen
     def set_options(options)
       @max = options[:max] if options[:max]
       @filter = options[:filter] if options[:filter]
-      if options[:timeout]
-        @timeout = options[:timeout]
-      else
-        @timeout ||= 0
-      end
+      @timeout = options[:timeout] if options[:timeout]
       if options[:promisc]
         @promisc = options[:promisc]
       else

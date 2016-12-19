@@ -51,6 +51,11 @@ module PacketGen
         expect { @pkt.ip(attr => nil) }.to raise_error(ArgumentError).
                                             with_message(/unknown #{attr} attribute/)
       end
+
+      it 'is called through PacketGen.gen' do
+        pkt = PacketGen.gen('IP', src: '192.168.1.1')
+        expect(pkt.ip.src).to eq('192.168.1.1')
+      end
     end
 
     describe '.parse' do
@@ -130,7 +135,7 @@ module PacketGen
       end
     end
 
-    context '.read/.write' do
+    describe '.read' do
       let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
 
       it '.read reads a PcapNG file and returns a Array of Packet' do
@@ -138,6 +143,16 @@ module PacketGen
         expect(ary).to be_a(Array)
         expect(ary.all? { |el| el.is_a? Packet }).to be(true)
       end
+
+      it 'is called through PacketGen.read' do
+        ary = PacketGen.read(file)
+        expect(ary).to be_a(Array)
+        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+      end
+    end
+
+    describe '.write' do
+      let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
 
       it '.write writes a Array of Packet to a file' do
         ary = Packet.read(file)
@@ -149,6 +164,40 @@ module PacketGen
           write_file.close
           write_file.unlink
         end
+      end
+
+      it 'is called through PacketGen.write' do
+        ary = Packet.read(file)
+        write_file = Tempfile.new('pcapng')
+        begin
+          PacketGen.write(write_file.path, ary)
+          expect(Packet.read(write_file.path)).to eq(ary)
+        ensure
+          write_file.close
+          write_file.unlink
+        end
+      end
+    end
+
+    describe '.capture', :sudo  do
+      it 'captures packets using options' do
+        before = Time.now
+        Packet.capture('lo', timeout: 1)
+        after = Time.now
+        expect(after - before).to be < 2
+      end
+
+      it 'yields captures packets' do
+        yielded_packets = []
+        packets = nil
+        cap_thread = Thread.new do
+          packets = Packet.capture('lo', timeout: 1) { |pkt| yielded_packets << pkt }
+        end
+        sleep 0.1
+        system 'ping -c 2 127.0.0.1 > /dev/null'
+        cap_thread.join(0.5)
+        expect(yielded_packets.size).to eq(packets.size)
+        expect(yielded_packets).to eq(packets)
       end
     end
 

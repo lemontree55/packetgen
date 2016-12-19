@@ -73,22 +73,24 @@ module PacketGen
 
       it 'yields captured packets' do
         yielded_packets = []
-        cap = Capture.new('lo')
+        cap = Capture.new('lo', timeout: 3)
         cap_thread = Thread.new { cap.start { |pkt| yielded_packets << pkt } }
         sleep 0.1
         system 'ping -c 2 127.0.0.1 > /dev/null'
         cap_thread.join(0.5)
+        expect(cap.packets.size).to be >= 4
         expect(yielded_packets.size).to eq(cap.packets.size)
         expect(yielded_packets).to eq(cap.packets)
       end
 
       it 'yields captured raw packets' do
         yielded_packets = []
-        cap = Capture.new('lo', parse: false)
+        cap = Capture.new('lo', parse: false, timeout: 3)
         cap_thread = Thread.new { cap.start { |pkt| yielded_packets << pkt } }
         sleep 0.1
         system 'ping -c 2 127.0.0.1 > /dev/null'
         cap_thread.join(0.5)
+        expect(cap.raw_packets.size).to be >= 4
         expect(yielded_packets.size).to eq(cap.raw_packets.size)
         expect(yielded_packets).to eq(cap.raw_packets)
       end

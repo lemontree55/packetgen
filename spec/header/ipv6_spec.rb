@@ -161,10 +161,10 @@ module PacketGen
           pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
                 add('UDP', sport: 35535, dport: 65535, body: body)
           pkt.calc
-          Thread.new { sleep 1; pkt.ipv6.to_w('lo') }
-          packets = Packet.capture('lo', max: 1,
-                                   filter: 'ip6 dst ::1',
-                                   timeout: 4)
+          Thread.new { sleep 0.1; pkt.ipv6.to_w('lo') }
+          packets = PacketGen.capture('lo', max: 1,
+                                      filter: 'ip6 dst ::1 and ip6 proto 17',
+                                      timeout: 2)
           packet = packets.first
           expect(packet.is? 'IPv6').to be(true)
           expect(packet.ipv6.dst).to eq('::1')
