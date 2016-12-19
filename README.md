@@ -25,13 +25,7 @@ Or add it to a Gemfile:
 ```ruby
 gem 'packetgen'
 ```
-## Use cases
-
-These use cases are the roadmap for PacketGen.
-
-Not yet implemented:
-- encapsulation/decapsulation
-- some protocols...
+## Usage
 
 ### Easily create packets
 ```
@@ -100,7 +94,7 @@ pkt.is? 'TCP'   # => true
 pkt.is? 'IP'    # => true
 pkt.is? 'UDP'   # => false
 
-# encapulsate/decapsulate packets
+# encapulsate/decapsulate packets (TODO)
 pkt2 = PacketGen.gen('IP').add('ESP', spi: 1234)
 pkt.encap pkt2                         # pkt is now a IP/ESP/IP/TCP packet
                                        # eq. to pkt.encap('IP', 'ESP', esp_spi: 1234)
@@ -117,6 +111,10 @@ pkt.write('one_packet.pcapng')
 # write multiple packets to a PcapNG file
 PacketGen.write('more_packets.pcapng', packets)
 ```
+
+## Pull requests?
+
+yes
 
 ## License
 MIT License (see [LICENSE](https://github.com/sdaubert/packetgen/LICENSE))
