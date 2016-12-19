@@ -201,28 +201,6 @@ module PacketGen
       end
     end
 
-    describe '.capture', :sudo  do
-      it 'captures packets using options' do
-        before = Time.now
-        Packet.capture('lo')
-        after = Time.now
-        expect(after - before).to be < 2
-      end
-
-      it 'yields captures packets' do
-        yielded_packets = []
-        packets = nil
-        cap_thread = Thread.new do
-          packets = Packet.capture('lo') { |pkt| yielded_packets << pkt }
-        end
-        sleep 0.1
-        system 'ping -c 2 127.0.0.1 > /dev/null'
-        cap_thread.join(0.5)
-        expect(yielded_packets.size).to eq(packets.size)
-        expect(yielded_packets).to eq(packets)
-      end
-    end
-
     describe '#add' do
       before(:each) do
         @pkt = Packet.gen('IP')
