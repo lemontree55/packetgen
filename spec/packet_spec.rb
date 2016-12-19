@@ -3,7 +3,11 @@ require_relative 'spec_helper'
 module PacketGen
   # Define fake header class for tests
   module Header
-    class FakeHeader < Struct.new(:field); extend Header::HeaderClassMethods; end
+    class FakeHeader < Struct.new(:field)
+      extend Header::HeaderClassMethods
+      include Header::HeaderMethods
+      def read(str) self; end
+    end
   end
 
   describe Packet do
@@ -180,7 +184,6 @@ module PacketGen
       it 'raises on unknown association' do
         expect { @pkt.add 'FakeHeader' }.to raise_error(ArgumentError,
                                                         /IP\.bind_layer\(.*FakeHeader/)
-
       end
     end
 
@@ -223,14 +226,32 @@ module PacketGen
       end
     end
 
-    it '#to_s returns a binary string from complete packet' do
-      pkt = Packet.gen('Eth', dst: '00:01:02:03:04:05').add('IP')
-      idx = [pkt.ip.id].pack('n')
-      expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
-                                        "\x00\x00\x00\x00\x00\x00\x08\x00" \
-                                        "\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
-                                        "\x7f\x00\x00\x01\x7f\x00\x00\x01")
-      expect(pkt.to_s).to eq(expected)
+    describe '#to_s' do
+      it 'returns a binary string from complete packet' do
+        pkt = Packet.gen('Eth', dst: '00:01:02:03:04:05').add('IP')
+        idx = [pkt.ip.id].pack('n')
+        expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
+                                          "\x00\x00\x00\x00\x00\x00\x08\x00" \
+                                          "\x45\x00\x00\x14#{idx}\x00\x00" \
+                                          "\x40\x00\x00\x00" \
+                                          "\x7f\x00\x00\x01\x7f\x00\x00\x01")
+        expect(pkt.to_s).to eq(expected)
+      end
+    end
+
+    describe '#encapsulate' do
+      it 'encapsulates a packet in another one' do
+        inner_pkt = Packet.gen('IP', src: '10.0.0.1', dst: '10.1.0.1').
+                    add('UDP', sport: 45321, dport: 53, body: 'abcd')
+        inner_pkt.calc
+
+        outer_pkt = Packet.gen('IP', src: '45.216.4.3', dsy: '201.123.200.147')
+        outer_pkt.encapsulate inner_pkt
+        outer_pkt.calc
+        expect(outer_pkt.ip(2)).to eq(inner_pkt.ip)
+        expect(outer_pkt.udp).to eq(inner_pkt.udp)
+        expect(outer_pkt.body).to eq('abcd')
+      end
     end
   end
 end
