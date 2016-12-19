@@ -47,6 +47,11 @@ module PacketGen
         expect { @pkt.ip(attr => nil) }.to raise_error(ArgumentError).
                                             with_message(/unknown #{attr} attribute/)
       end
+
+      it 'is called through PacketGen.gen' do
+        pkt = PacketGen.gen('IP', src: '192.168.1.1')
+        expect(pkt.ip.src).to eq('192.168.1.1')
+      end
     end
 
     describe '.parse' do
