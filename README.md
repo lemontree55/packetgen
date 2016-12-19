@@ -116,7 +116,7 @@ PacketGen.write('more_packets.pcapng', packets)
 yes
 
 ## License
-MIT License (see [LICENSE](https://github.com/sdaubert/packetgen/LICENSE))
+MIT License (see [LICENSE](https://github.com/sdaubert/packetgen/blob/master/LICENSE))
 
 Copyright © 2016 Sylvain Daubert
 
