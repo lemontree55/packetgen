@@ -163,25 +163,7 @@ module PacketGen
       klass = check_protocol(protocol)
 
       header = klass.new(options)
-      prev_header = @headers.last
-      if prev_header
-        binding = prev_header.class.known_headers[klass]
-        if binding.nil?
-          msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
-          msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
-          msg << "#{prev_header.protocol_name.downcase}_proto_field: "
-          msg << "value_for_#{protocol.downcase})"
-          raise ArgumentError, msg
-        end
-        prev_header[binding.key].read binding.value
-        prev_header.body = header
-      end
-      header.packet = self
-      @headers << header
-      unless respond_to? protocol.downcase
-        self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
-                              "header('#{protocol}', arg); end"
-      end
+      add_header header
       self
     end
 
@@ -257,6 +239,32 @@ module PacketGen
       end
     end
 
+    # Encapulate another packet in +self+
+    # @param [Packet] other
+    # @return [self] +self+ with new headers from +other+
+    def encapsulate(other)
+      other.headers.each { |h| add_header h }
+    end
+
+    # Remove headers from +self+
+    # @param [Array<Header>] *headers
+    # @return [self] +self+ with some headers removed
+    # @raise [FormatError] any headers not in +self+
+    # @raise [FormatError] removed headers result in an unknown binding
+    def decapsulate(*headers)
+      headers.each do |header|
+        idx = @headers.index(header)
+        raise FormatError, 'header not in packet!' if idx.nil?
+
+        prev_header = idx > 0 ? @headers[idx - 1] : nil
+        next_header = (idx+1) < @headers.size ? @headers[idx + 1] : nil
+        @headers.delete_at(idx)
+        add_header(next_header, prev_header) if prev_header and next_header
+      end
+    rescue ArgumentError => ex
+      raise FormatError, ex.message
+    end
+
     # @return [String]
     def inspect
       str = Inspect.dashed_line(self.class)
@@ -311,6 +319,33 @@ module PacketGen
       klass = Header.const_get(protocol)
       raise ArgumentError, "unknown #{protocol} protocol" unless klass.is_a? Class
       klass
+    end
+
+    # Add a header to packet
+    # @param [Header::HeaderMethods] header
+    # @param [Header::HeaderMethods] prev_header
+    # @return [void]
+    def add_header(header, previous_header=nil)
+      protocol = header.protocol_name
+      prev_header = previous_header || @headers.last
+      if prev_header
+        binding = prev_header.class.known_headers[header.class]
+        if binding.nil?
+          msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
+          msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
+          msg << "#{prev_header.protocol_name.downcase}_proto_field: "
+          msg << "value_for_#{protocol.downcase})"
+          raise ArgumentError, msg
+        end
+        prev_header[binding.key].read binding.value
+        prev_header.body = header
+      end
+      header.packet = self
+      @headers << header unless previous_header
+      unless respond_to? protocol.downcase
+        self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
+                              "header('#{protocol}', arg); end"
+      end
     end
   end
 end

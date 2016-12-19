@@ -94,11 +94,10 @@ pkt.is? 'TCP'   # => true
 pkt.is? 'IP'    # => true
 pkt.is? 'UDP'   # => false
 
-# encapulsate/decapsulate packets (TODO)
-pkt2 = PacketGen.gen('IP').add('ESP', spi: 1234)
-pkt.encap pkt2                         # pkt is now a IP/ESP/IP/TCP packet
-                                       # eq. to pkt.encap('IP', 'ESP', esp_spi: 1234)
-pkt.decap('IP', 'ESP')                 # pkt is now inner IP/TCP packet
+# encapulsate/decapsulate packets
+pkt2 = PacketGen.gen('IP')
+pkt2.encapsulate pkt                   # pkt2 is now a IP/IP/TCP packet
+pkt2.decapsulate(pkt2.ip)              # pkt2 is now inner IP/TCP packet
 ```
 
 ### Read/write PcapNG files
