@@ -253,5 +253,50 @@ module PacketGen
         expect(outer_pkt.body).to eq('abcd')
       end
     end
+
+    describe '#decapsulate' do
+      it 'removes first header from packet' do
+        pkt = PacketGen.gen('IP', src: '1.0.0.1', dst: '1.0.0.2').
+              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
+              add('ICMP', type: 8, code: 0)
+        pkt.decapsulate(pkt.ip)
+        expect(pkt.headers.size).to eq(2)
+        expect(pkt.is? 'IP').to be(true)
+        expect(pkt.is? 'ICMP').to be(true)
+        expect(pkt.ip.src).to eq('10.0.0.1')
+      end
+
+      it 'removes a header from packet' do
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05').
+              add('IP', src: '1.0.0.1', dst: '1.0.0.2').
+              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
+              add('ICMP', type: 8, code: 0)
+        pkt.decapsulate(pkt.ip)
+        expect(pkt.headers.size).to eq(3)
+        expect(pkt.is? 'Eth').to be(true)
+        expect(pkt.is? 'IP').to be(true)
+        expect(pkt.is? 'ICMP').to be(true)
+        expect(pkt.ip.src).to eq('10.0.0.1')
+      end
+
+      it 'removes multiple headers' do
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05').
+              add('IP', src: '1.0.0.1', dst: '1.0.0.2').
+              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
+              add('ICMP', type: 8, code: 0)
+        pkt.decapsulate(pkt. eth, pkt.ip)
+        expect(pkt.headers.size).to eq(2)
+        expect(pkt.is? 'IP').to be(true)
+        expect(pkt.is? 'ICMP').to be(true)
+        expect(pkt.ip.src).to eq('10.0.0.1')
+      end
+
+      it 'raises if removed header results to an unknown binding' do
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05').
+              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
+              add('ICMP', type: 8, code: 0)
+        expect { pkt.decapsulate pkt.ip }.to raise_error(FormatError)
+      end
+    end
   end
 end

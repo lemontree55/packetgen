@@ -246,6 +246,25 @@ module PacketGen
       other.headers.each { |h| add_header h }
     end
 
+    # Remove headers from +self+
+    # @param [Array<Header>] *headers
+    # @return [self] +self+ with some headers removed
+    # @raise [FormatError] any headers not in +self+
+    # @raise [FormatError] removed headers result in an unknown binding
+    def decapsulate(*headers)
+      headers.each do |header|
+        idx = @headers.index(header)
+        raise FormatError, 'header not in packet!' if idx.nil?
+
+        prev_header = idx > 0 ? @headers[idx - 1] : nil
+        next_header = (idx+1) < @headers.size ? @headers[idx + 1] : nil
+        @headers.delete_at(idx)
+        add_header(next_header, prev_header) if prev_header and next_header
+      end
+    rescue ArgumentError => ex
+      raise FormatError, ex.message
+    end
+
     # @return [String]
     def inspect
       str = Inspect.dashed_line(self.class)
@@ -304,10 +323,11 @@ module PacketGen
 
     # Add a header to packet
     # @param [Header::HeaderMethods] header
+    # @param [Header::HeaderMethods] prev_header
     # @return [void]
-    def add_header(header)
+    def add_header(header, previous_header=nil)
       protocol = header.protocol_name
-      prev_header = @headers.last
+      prev_header = previous_header || @headers.last
       if prev_header
         binding = prev_header.class.known_headers[header.class]
         if binding.nil?
@@ -321,7 +341,7 @@ module PacketGen
         prev_header.body = header
       end
       header.packet = self
-      @headers << header
+      @headers << header unless previous_header
       unless respond_to? protocol.downcase
         self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
                               "header('#{protocol}', arg); end"
