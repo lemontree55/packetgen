@@ -52,6 +52,12 @@ module PacketGen
         iph
       end
 
+      # Return header protocol name
+      # @return [String]
+      def protocol_name
+        self.class.to_s.sub(/.*::/, '')
+      end
+
       # Common inspect method for headers
       # @return [String]
       def inspect

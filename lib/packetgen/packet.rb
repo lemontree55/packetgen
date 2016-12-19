@@ -169,7 +169,7 @@ module PacketGen
         if binding.nil?
           msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
           msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
-          msg << "#{prev_header.class.to_s.gsub(/(.*)::/, '').downcase}_proto_field: "
+          msg << "#{prev_header.protocol_name.downcase}_proto_field: "
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
@@ -252,7 +252,7 @@ module PacketGen
       if @headers.first.respond_to? :to_w
         @headers.first.to_w(iface)
       else
-        type = @headers.first.class.to_s.gsub(/.*::/, '')
+        type = @headers.first.protocol_name
         raise WireError, "don't known how to send a #{type} packet on wire"
       end
     end
