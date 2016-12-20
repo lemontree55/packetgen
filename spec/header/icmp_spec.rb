@@ -6,7 +6,7 @@ module PacketGen
     describe ICMP do
       describe 'bindings' do
         it 'in IP packets' do
-          expect(IP.known_headers[ICMP].to_h).to eq({ key: :protocol, value: 1 })
+          expect(IP).to know_header(ICMP).with(protocol: 1)
         end
       end
 

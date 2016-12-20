@@ -5,9 +5,18 @@ module PacketGen
 
     describe ESP do
       describe 'bindings' do
-        it 'in IP packets'
-        it 'in IPv6 packets'
-        it 'in UDP packets'
+        it 'in IP packets' do
+          expect(IP).to know_header(ESP).with(protocol: 50)
+        end
+
+        it 'in IPv6 packets' do
+          expect(IPv6).to know_header(ESP).with(next: 50)
+        end
+
+        it 'in UDP packets' do
+          expect(UDP).to know_header(ESP).with(dport: 4500)
+          expect(UDP).to know_header(ESP).with(sport: 4500)
+        end
       end
 
       describe '#initialize' do
@@ -52,6 +61,7 @@ module PacketGen
         it 'decrypts and authenticates a payload with GCM mode'
         it 'decrypts a payload with TFC'
         it 'decrypts a payload with Extended SN'
+        it 'decrypts a payload without parsing it'
       end
     end
   end

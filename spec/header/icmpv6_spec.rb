@@ -8,7 +8,7 @@ module PacketGen
 
       describe 'bindings' do
         it 'in IP packets' do
-          expect(IPv6.known_headers[ICMPv6].to_h).to eq({ key: :next, value: 58 })
+          expect(IPv6).to know_header(ICMPv6).with(next: 58)
         end
       end
 

@@ -6,8 +6,8 @@ module PacketGen
     describe TCP do
       describe 'binding' do
         it 'in IP packets' do
-          expect(IP.known_headers[TCP].to_h).to eq({key: :protocol, value: 6})
-          expect(IPv6.known_headers[TCP].to_h).to eq({key: :next, value: 6})
+          expect(IP).to know_header(TCP).with(protocol: 6)
+          expect(IPv6).to know_header(TCP).with(next: 6)
         end
       end
 

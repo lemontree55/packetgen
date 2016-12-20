@@ -25,6 +25,12 @@ module PacketGen
       include HeaderMethods
       extend HeaderClassMethods
 
+      # IP protocol number for ESP
+      IP_PROTOCOL = 50
+
+      # Well-known port for ESP
+      UDP_PORT = 4500
+
       # ICV (Integrity Check Value) length
       # @return [Integer]
       attr_accessor :icv_length
@@ -162,8 +168,8 @@ module PacketGen
       end
     end
 
-    IP.bind_header ESP, protocol: 50
-    IPv6.bind_header ESP, next: 50
-    UDP.bind_header ESP, sport: 4500, sport: 4500
+    IP.bind_header ESP, protocol: ESP::IP_PROTOCOL
+    IPv6.bind_header ESP, next: ESP::IP_PROTOCOL
+    UDP.bind_header ESP, dport: ESP::UDP_PORT, sport: ESP::UDP_PORT
   end
 end

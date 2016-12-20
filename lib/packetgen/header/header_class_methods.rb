@@ -8,22 +8,26 @@ module PacketGen
 
     module HeaderClassMethods
 
+      # @api private
       # Simple class to handle header association
       Binding = Struct.new(:key, :value)
 
       # Bind a upper header to current class
       # @param [Class] header_klass header class to bind to current class
-      # @param [Hash] args current class field and its value when +header_klass+
+      # @param [Hash] args current class fields and their value when +header_klass+
       #  is embedded in current class
       # @return [void]
       def bind_header(header_klass, args={})
         @known_headers ||= {}
-        key = args.keys.first
-        @known_headers[header_klass] = Binding.new(key, args[key])
+        @known_headers[header_klass] ||= []
+        args.each do |key, value|
+          @known_headers[header_klass] << Binding.new(key, value)
+        end
       end
 
+      # @api private
       # Get knwon headers
-      # @return [Hash] keys: header classes, values: struct with methods #key and #value
+      # @return [Hash] keys: header classes, values: array of {Binding}
       def known_headers
         @known_headers ||= {}
       end
