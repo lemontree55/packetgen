@@ -28,7 +28,7 @@ module PacketGen
       # IP protocol number for ESP
       IP_PROTOCOL = 50
 
-      # Well-known port for ESP
+      # Well-known UDP port for ESP
       UDP_PORT = 4500
 
       # ICV (Integrity Check Value) length
@@ -72,7 +72,7 @@ module PacketGen
         force_binary str
         self[:spi].read str[0, 4]
         self[:sn].read str[4, 4]
-        self[:body].read str[8, -@icv_length-2]
+        self[:body].read str[8...-@icv_length-2]
         self[:tfc].read ''
         self[:padding].read ''
         self[:pad_length].read str[-@icv_length-2, 1]
