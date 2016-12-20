@@ -74,10 +74,13 @@ module PacketGen
           # First header is found when:
           # * for one known header,
           # * it exists a known binding with a upper header
-          hklass.known_headers.each do |nh, binding|
-            if hdr.send(binding.key) == binding.value
-              first_header = hklass.to_s.gsub(/.*::/, '')
-              break
+          hklass.known_headers.each do |nh, bindings|
+            bindings.each do |binding|
+              if hdr.send(binding.key) == binding.value
+                first_header = hklass.to_s.gsub(/.*::/, '')
+                break
+              end
+              break unless first_header.nil?
             end
           end
           break unless first_header.nil?
@@ -94,13 +97,16 @@ module PacketGen
       decode_packet_bottom_up = true
       while decode_packet_bottom_up do
         last_known_hdr = pkt.headers.last
-        last_known_hdr.class.known_headers.each do |nh, binding|
-          if last_known_hdr.send(binding.key) == binding.value
-            str = last_known_hdr.body
-            pkt.add nh.to_s.gsub(/.*::/, '')
-            pkt.headers.last.read str
-            break
+        last_known_hdr.class.known_headers.each do |nh, bindings|
+          bindings.each do |binding|
+            if last_known_hdr.send(binding.key) == binding.value
+              str = last_known_hdr.body
+              pkt.add nh.to_s.gsub(/.*::/, '')
+              pkt.headers.last.read str
+              break
+            end
           end
+          break unless last_known_hdr == pkt.headers.last
         end
         decode_packet_bottom_up = (pkt.headers.last != last_known_hdr)
       end
@@ -329,15 +335,15 @@ module PacketGen
       protocol = header.protocol_name
       prev_header = previous_header || @headers.last
       if prev_header
-        binding = prev_header.class.known_headers[header.class]
-        if binding.nil?
+        bindings = prev_header.class.known_headers[header.class]
+        if bindings.nil? or bindings.empty?
           msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
           msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
           msg << "#{prev_header.protocol_name.downcase}_proto_field: "
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
-        prev_header[binding.key].read binding.value
+        prev_header[bindings.first.key].read bindings.first.value
         prev_header.body = header
       end
       header.packet = self
