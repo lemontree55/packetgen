@@ -41,6 +41,17 @@ module PacketGen
       @added_header_classes.delete protocol_name
       @header_classes = nil
     end
+
+    # Get header class from its name
+    # @param [String] name
+    # @return [Class,nil]
+    def self.get_header_class_by_name(name)
+      if Header.const_defined? name
+        Header.const_get name
+      else
+        @added_header_classes[name]
+      end
+    end
   end
 end
 
