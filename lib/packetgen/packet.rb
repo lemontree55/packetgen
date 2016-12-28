@@ -1,3 +1,4 @@
+# coding: utf-8
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
@@ -247,7 +248,7 @@ module PacketGen
     end
 
     # Remove headers from +self+
-    # @param [Array<Header>] *headers
+    # @param [Array<Header>] headers
     # @return [self] +self+ with some headers removed
     # @raise [FormatError] any headers not in +self+
     # @raise [FormatError] removed headers result in an unknown binding
@@ -282,17 +283,15 @@ module PacketGen
 
     private
 
-    # @overload header(protocol, layer=1)
-    #  @param [String] protocol
+    # @overload header(klass, layer=1)
+    #  @param [Class] klass
     #  @param [Integer] layer
-    # @overload header(protocol, options)
-    #  @param [String] protocol
+    # @overload header(klass, options={})
+    #  @param [String] klass
     #  @param [Hash] options
+    #  @raise [ArgumentError] unknown option
     # @return [Header::Base]
-    # @raise [ArgumentError] unknown protocol
-    def header(protocol, arg)
-      klass = check_protocol protocol
-
+    def header(klass, arg)
       headers = @headers.select { |h| h.is_a? klass }
       layer = arg.is_a?(Integer) ? arg : 1
       header = headers[layer - 1]
@@ -300,7 +299,7 @@ module PacketGen
       if arg.is_a? Hash
         arg.each do |key, value|
           unless header.respond_to? "#{key}="
-            raise ArgumentError, "unknown #{key} attribute for #{header.class}"
+            raise ArgumentError, "unknown #{key} attribute for #{klass}"
           end
           header.send "#{key}=", value
         end
@@ -313,17 +312,14 @@ module PacketGen
     # @param [String] protocol
     # @raise [ArgumentError] unknown protocol
     def check_protocol(protocol)
-      unless Header.const_defined? protocol
-        raise ArgumentError, "unknown #{protocol} protocol"
-      end
-      klass = Header.const_get(protocol)
-      raise ArgumentError, "unknown #{protocol} protocol" unless klass.is_a? Class
+      klass = Header.get_header_class_by_name(protocol)
+      raise ArgumentError, "unknown #{protocol} protocol" if klass.nil?
       klass
     end
 
     # Add a header to packet
     # @param [Header::HeaderMethods] header
-    # @param [Header::HeaderMethods] prev_header
+    # @param [Header::HeaderMethods] previous_header
     # @return [void]
     def add_header(header, previous_header=nil)
       protocol = header.protocol_name
@@ -344,7 +340,7 @@ module PacketGen
       @headers << header unless previous_header
       unless respond_to? protocol.downcase
         self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
-                              "header('#{protocol}', arg); end"
+                              "header(#{header.class}, arg); end"
       end
     end
   end
