@@ -55,7 +55,13 @@ module PacketGen
   end
 
   context 'foreign headers' do
-    PacketGen::Header::IP.bind_header PGTestModule::TestHeader, protocol: 254
+    before(:all) do
+      PacketGen::Header.add_class PGTestModule::TestHeader
+      PacketGen::Header::IP.bind_header PGTestModule::TestHeader, protocol: 254
+    end
+    after(:all) do
+      PacketGen::Header.remove_class PGTestModule::TestHeader
+    end
 
     it 'may be used by Packet.gen' do
       pkt = nil
@@ -64,7 +70,7 @@ module PacketGen
       expect(pkt.headers.size).to eq(1)
       expect(pkt.headers.first).to be_a(PGTestModule::TestHeader)
       expect(pkt.testheader).to be_a(PGTestModule::TestHeader)
-      expect(pkt.testheader.field1).to eq(1)
+      expect(pkt.testheader.field1.to_i).to eq(1)
     end
 
     it 'may be used by Packet#add' do
@@ -74,7 +80,7 @@ module PacketGen
       expect(pkt.headers.first).to be_a(Header::IP)
       expect(pkt.headers.last).to be_a(PGTestModule::TestHeader)
       expect(pkt.testheader).to be_a(PGTestModule::TestHeader)
-      expect(pkt.testheader.field2).to eq(2)
+      expect(pkt.testheader.field2.to_i).to eq(2)
     end
 
     it 'may be used while parsing' do
@@ -86,8 +92,8 @@ module PacketGen
       expect(new_pkt.is? 'IP').to be(true)
       expect(new_pkt.is? 'TestHeader').to be(true)
       expect(new_pkt.testheader).to be_a(PGTestModule::TestHeader)
-      expect(new_pkt.testheader.field1).to eq(field1)
-      expect(new_pkt.testheader.field2).to eq(field2)
+      expect(new_pkt.testheader.field1.to_i).to eq(field1)
+      expect(new_pkt.testheader.field2.to_i).to eq(field2)
     end
   end
 end
