@@ -53,6 +53,7 @@ module PacketGen
     # @param [Class] klass a header class, which should include
     #   {Header::HeaderMethods} and {Header::HeaderClassMethods}
     # @return [void]
+    # @since 1.1.0
     def self.add_class(klass)
       protocol_name = klass.to_s.sub(/.*::/, '')
       @added_header_classes[protocol_name] = klass
@@ -63,6 +64,7 @@ module PacketGen
     # from known header classes.
     # @param [Class] klass
     # @return [void]
+    # @since 1.1.0
     def self.remove_class(klass)
       protocol_name = klass.to_s.sub(/.*::/, '')
       @added_header_classes.delete protocol_name
@@ -72,6 +74,7 @@ module PacketGen
     # Get header class from its name
     # @param [String] name
     # @return [Class,nil]
+    # @since 1.1.0
     def self.get_header_class_by_name(name)
       if Header.const_defined? name
         Header.const_get name

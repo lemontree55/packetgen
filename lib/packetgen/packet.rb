@@ -243,6 +243,7 @@ module PacketGen
     # Encapulate another packet in +self+
     # @param [Packet] other
     # @return [self] +self+ with new headers from +other+
+    # @since 1.1.0
     def encapsulate(other)
       other.headers.each { |h| add_header h }
     end
@@ -252,6 +253,7 @@ module PacketGen
     # @return [self] +self+ with some headers removed
     # @raise [FormatError] any headers not in +self+
     # @raise [FormatError] removed headers result in an unknown binding
+    # @since 1.1.0
     def decapsulate(*headers)
       headers.each do |header|
         idx = @headers.index(header)
