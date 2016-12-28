@@ -248,7 +248,7 @@ module PacketGen
     end
 
     # Remove headers from +self+
-    # @param [Array<Header>] *headers
+    # @param [Array<Header>] headers
     # @return [self] +self+ with some headers removed
     # @raise [FormatError] any headers not in +self+
     # @raise [FormatError] removed headers result in an unknown binding
@@ -319,7 +319,7 @@ module PacketGen
 
     # Add a header to packet
     # @param [Header::HeaderMethods] header
-    # @param [Header::HeaderMethods] prev_header
+    # @param [Header::HeaderMethods] previous_header
     # @return [void]
     def add_header(header, previous_header=nil)
       protocol = header.protocol_name
