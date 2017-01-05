@@ -135,24 +135,67 @@ module PacketGen
         end
       end
 
-      describe '#encrypt!' do
-        it 'encrypts a payload with CBC mode'
-        it 'encryts a payload with CTR mode and authenticates it with HMAC-SHA256'
-        it 'encrypts and authenticates a payload with GCM mode'
-        it 'encrypts a payload with TFC'
-        it 'encrypts a payload with Extended SN'
-        it 'encrypts a payload with given padding'
-        it 'encrypts a payload with given padding length'
-        it 'encrypts a payload with given padding and padding length'
-      end
+      context 'crypto' do
+        let(:key) { (0..15).to_a.pack('C*') }
+        let(:salt) { [0x80818283].pack('N') }
 
-      describe '#decrypt!' do
-        it 'decrypts a payload with CBC mode'
-        it 'decryts a payload with CTR mode and authenticates it with HMAC-SHA256'
-        it 'decrypts and authenticates a payload with GCM mode'
-        it 'decrypts a payload with TFC'
-        it 'decrypts a payload with Extended SN'
-        it 'decrypts a payload without parsing it'
+        describe '#encrypt!' do
+
+          it 'encrypts a payload with CBC mode'
+          it 'encryts a payload with CTR mode and authenticates it with HMAC-SHA256'
+
+          it 'encrypts and authenticates a payload with GCM mode' do
+            esp_pkt, red_pkt, = PacketGen.read(File.join(__dir__, 'esp4-gcm.pcapng'))
+
+            red_pkt.decapsulate red_pkt.eth
+            esp_pkt.decapsulate esp_pkt.eth
+            esp_pkt.esp.icv_length = 16
+            # Re-read ESP header to get actual ICV
+            esp_pkt.esp.read esp_pkt.esp.to_s
+
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2, icv_length: 16)
+            black_pkt.encapsulate red_pkt
+            esp = black_pkt.esp
+
+            cipher = OpenSSL::Cipher.new('aes-128-gcm')
+            cipher.encrypt
+            cipher.key = key
+            iv = [0x4d, 0xb4, 0xb2, 0x00, 0xe7, 0x72, 0x5e, 0x57].pack('C*')
+            esp.encrypt! cipher, iv, salt: salt
+            expect(esp.to_s).to eq(esp_pkt.esp.to_s)
+          end
+
+          it 'encrypts a payload with TFC'
+          it 'encrypts a payload with Extended SN'
+          it 'encrypts a payload with given padding'
+          it 'encrypts a payload with given padding length'
+          it 'encrypts a payload with given padding and padding length'
+        end
+
+        describe '#decrypt!' do
+          it 'decrypts a payload with CBC mode'
+          it 'decryts a payload with CTR mode and authenticates it with HMAC-SHA256'
+          it 'decrypts and authenticates a payload with GCM mode' do
+            pkt, red_pkt, = PacketGen.read(File.join(__dir__, 'esp4-gcm.pcapng'))
+
+            red_pkt.decapsulate red_pkt.eth
+            pkt.decapsulate pkt.eth
+            pkt.esp.icv_length = 16
+            # Re-read ESP header to get actual ICV
+            pkt.esp.read pkt.esp.to_s
+
+            cipher = OpenSSL::Cipher.new('aes-128-gcm')
+            cipher.decrypt
+            cipher.key = key
+            pkt.esp.decrypt! cipher, salt: salt
+            pkt.decapsulate pkt.ip, pkt.esp
+            expect(pkt.to_s).to eq(red_pkt.to_s)
+          end
+
+          it 'decrypts a payload with TFC'
+          it 'decrypts a payload with Extended SN'
+          it 'decrypts a payload without parsing it'
+        end
       end
     end
   end
