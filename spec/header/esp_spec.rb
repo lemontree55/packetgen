@@ -145,15 +145,11 @@ module PacketGen
           it 'encryts a payload with CTR mode and authenticates it with HMAC-SHA256'
 
           it 'encrypts and authenticates a payload with GCM mode' do
-            esp_pkt, red_pkt, = PacketGen.read(File.join(__dir__, 'esp4-gcm.pcapng'))
+            esp_pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
+                                                icv_length: 16)
 
-            red_pkt.decapsulate red_pkt.eth
-            esp_pkt.decapsulate esp_pkt.eth
-            esp_pkt.esp.icv_length = 16
-            # Re-read ESP header to get actual ICV
-            esp_pkt.esp.read esp_pkt.esp.to_s
-
-            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2, icv_length: 16)
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2,
+                                             icv_length: 16)
             black_pkt.encapsulate red_pkt
             esp = black_pkt.esp
 
@@ -176,13 +172,8 @@ module PacketGen
           it 'decrypts a payload with CBC mode'
           it 'decryts a payload with CTR mode and authenticates it with HMAC-SHA256'
           it 'decrypts and authenticates a payload with GCM mode' do
-            pkt, red_pkt, = PacketGen.read(File.join(__dir__, 'esp4-gcm.pcapng'))
-
-            red_pkt.decapsulate red_pkt.eth
-            pkt.decapsulate pkt.eth
-            pkt.esp.icv_length = 16
-            # Re-read ESP header to get actual ICV
-            pkt.esp.read pkt.esp.to_s
+            pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
+                                            icv_length: 16)
 
             cipher = OpenSSL::Cipher.new('aes-128-gcm')
             cipher.decrypt

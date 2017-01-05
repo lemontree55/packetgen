@@ -20,4 +20,5 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 RSpec.configure do |c|
   c.include CaptureHelper
   c.include BindingHelper
+  c.include EspHelper
 end
