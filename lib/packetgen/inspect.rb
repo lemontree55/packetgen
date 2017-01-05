@@ -49,7 +49,7 @@ module PacketGen
             elsif value.respond_to? :to_human
               value.to_human
             else
-              value.to_s
+              value.to_s.inspect
             end
       str << INSPECT_FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
     end
