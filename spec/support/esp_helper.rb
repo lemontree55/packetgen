@@ -13,4 +13,11 @@ module EspHelper
 
     [black_pkt, red_pkt]
   end
+
+  def get_cipher(mode, ed, key)
+    cipher = OpenSSL::Cipher.new("aes-128-#{mode}")
+    cipher.send ed
+    cipher.key = key
+    cipher
+  end
 end

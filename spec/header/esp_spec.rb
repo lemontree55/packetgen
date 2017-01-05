@@ -153,9 +153,7 @@ module PacketGen
             black_pkt.encapsulate red_pkt
             esp = black_pkt.esp
 
-            cipher = OpenSSL::Cipher.new('aes-128-gcm')
-            cipher.encrypt
-            cipher.key = key
+            cipher = get_cipher('gcm', :encrypt, key)
             iv = [0x4d, 0xb4, 0xb2, 0x00, 0xe7, 0x72, 0x5e, 0x57].pack('C*')
             esp.encrypt! cipher, iv, salt: salt
             expect(esp.to_s).to eq(esp_pkt.esp.to_s)
@@ -175,9 +173,7 @@ module PacketGen
             pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
                                             icv_length: 16)
 
-            cipher = OpenSSL::Cipher.new('aes-128-gcm')
-            cipher.decrypt
-            cipher.key = key
+            cipher = get_cipher('gcm', :decrypt, key)
             pkt.esp.decrypt! cipher, salt: salt
             pkt.decapsulate pkt.ip, pkt.esp
             expect(pkt.to_s).to eq(red_pkt.to_s)
