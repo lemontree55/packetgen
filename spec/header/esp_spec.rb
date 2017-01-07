@@ -137,6 +137,7 @@ module PacketGen
 
       context 'crypto' do
         let(:key) { (0..15).to_a.pack('C*') }
+        let(:hmac_key) { (16..31).to_a.pack('C*') }
         let(:salt) { [0x80818283].pack('N') }
 
         describe '#encrypt!' do
@@ -155,7 +156,22 @@ module PacketGen
             expect(esp.to_s).to eq(esp_pkt.esp.to_s)
           end
 
-          it 'encryts a payload with CTR mode and authenticates it with HMAC-SHA256'
+          it 'encryts a payload with CTR mode and authenticates it with HMAC-SHA256' do
+            esp_pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-ctr-hmac.pcapng'),
+                                                icv_length: 12)
+
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 4,
+                                             icv_length: 12)
+            black_pkt.encapsulate red_pkt
+            esp = black_pkt.esp
+
+            cipher = get_cipher('ctr', :encrypt, key)
+            hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
+
+            iv = [0x2d, 0x28, 0x32, 0xfb, 0xb2, 0x7c, 0x95, 0x30].pack('C*')
+            esp.encrypt! cipher, iv, salt: salt, intmode: hmac
+            expect(esp.to_s).to eq(esp_pkt.esp.to_s)
+          end
 
           it 'encrypts and authenticates a payload with GCM mode' do
             esp_pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
@@ -190,7 +206,18 @@ module PacketGen
             expect(pkt.to_s).to eq(red_pkt.to_s)
           end
 
-          it 'decryts a payload with CTR mode and authenticates it with HMAC-SHA256'
+          it 'decryts a payload with CTR mode and authenticates it with HMAC-SHA256' do
+            pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-ctr-hmac.pcapng'),
+                                            icv_length: 12)
+
+            cipher = get_cipher('ctr', :decrypt, key)
+            hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
+
+            expect(pkt.esp.decrypt!(cipher, salt: salt, intmode: hmac)).to be(true)
+            pkt.decapsulate pkt.ip, pkt.esp
+            expect(pkt.to_s).to eq(red_pkt.to_s)
+          end
+
           it 'decrypts and authenticates a payload with GCM mode' do
             pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
                                             icv_length: 16)

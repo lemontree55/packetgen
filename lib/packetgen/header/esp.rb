@@ -165,10 +165,13 @@ module PacketGen
       def encrypt!(cipher, iv, options={})
         opt = { :salt => '' }.merge(options)
 
-        cipher.iv = opt[:salt] + iv
         set_crypto cipher, opt[:intmode]
 
-        authenticate_esp_header_if_needed options
+        real_iv = opt[:salt] + iv
+        real_iv += [1].pack('N') if confidentiality_mode == 'ctr'
+        cipher.iv = real_iv
+
+        authenticate_esp_header_if_needed options, iv
 
         case confidentiality_mode
         when 'cbc'
@@ -200,11 +203,7 @@ module PacketGen
         # reset padding field as it has no sense in encrypted ESP
         self[:padding].read ''
 
-        if authenticated?
-          self[:icv].read cipher.auth_tag[0, self.icv_length]
-        elsif opt[:intmode]
-          self[:icv].read opt[:intmode].digest[0, self.icv_length]
-        end
+        set_esp_icv_if_needed
 
         # Remove enciphered headers from packet
         id = header_id(self)
@@ -238,17 +237,22 @@ module PacketGen
 
         case confidentiality_mode
         when 'gcm'
-          cipher.iv = opt[:salt] + self.body.slice!(0, 8)
+          iv = self.body.slice!(0, 8)
+          real_iv = opt[:salt] + iv
         when 'cbc'
           cipher.padding = 0
-          cipher.iv = self.body.slice!(0, 16)
+          real_iv = iv = self.body.slice!(0, 16)
+        when 'ctr'
+          iv = self.body.slice!(0, 8)
+          real_iv = opt[:salt] + iv + [1].pack('N')
         else
-          cipher.iv = self.body.slice!(0, 16)
+          real_iv = iv = self.body.slice!(0, 16)
         end
+        cipher.iv = real_iv
 
-        if authenticated? and (@icv_length == 0 or opt[:icv_len])
-          raise ParseError, 'unknown ICV size' unless opt[:icv_len]
-          @icv_length = opt[:icv_len].to_i
+        if authenticated? and (@icv_length == 0 or opt[:icv_length])
+          raise ParseError, 'unknown ICV size' unless opt[:icv_length]
+          @icv_length = opt[:icv_length].to_i
           # reread ESP to handle new ICV size
           msg = self.body.to_s + self[:pad_length].to_s
           msg += self[:next].to_s
@@ -258,7 +262,7 @@ module PacketGen
           self[:next].read msg[-1]
         end
 
-        authenticate_esp_header_if_needed options, self[:icv]
+        authenticate_esp_header_if_needed options, iv, self[:icv]
         private_decrypt cipher, opt
       end
 
@@ -281,7 +285,8 @@ module PacketGen
       def authenticate!
         @conf.final
         if @intg
-          false unless @intg.digest == @icv
+          @intg.update @esn if @esn
+          @intg.digest[0, @icv_length] == @icv
         else
           true
         end
@@ -302,20 +307,31 @@ module PacketGen
 
       def get_auth_data(opt)
         ad = self[:spi].to_s
-        ad << StructFu::Int32.new(opt[:esn]).to_s if opt[:esn]
+        @esn = opt[:esn]
+        ad << StructFu::Int32.new(opt[:esn]).to_s if @esn and @conf.authenticated?
         ad << self[:sn].to_s
       end
 
-      def authenticate_esp_header_if_needed(opt, icv=nil)
+      def authenticate_esp_header_if_needed(opt, iv, icv=nil)
         if @conf.authenticated?
           @conf.auth_data = get_auth_data(opt)
           @conf.auth_tag = icv if icv
         elsif @intg
           @intg.reset
           @intg.update get_auth_data(opt)
+          @intg.update iv
           @icv = icv
         else
           @icv = nil
+        end
+      end
+
+      def set_esp_icv_if_needed
+        return unless authenticated?
+        if @conf.authenticated?
+          self[:icv].read @conf.auth_tag[0, @icv_length]
+        else
+          self[:icv].read @intg.digest[0, @icv_length]
         end
       end
 
@@ -323,7 +339,6 @@ module PacketGen
         # decrypt
         msg = self.body.to_s
         msg += self[:padding].to_s + self[:pad_length].to_s + self[:next].to_s
-        options[:intmode].update msg if options[:intmode]
         plain_msg = decipher(msg)
 
         # check authentication tag
