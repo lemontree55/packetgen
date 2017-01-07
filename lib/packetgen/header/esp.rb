@@ -1,6 +1,9 @@
 module PacketGen
   module Header
 
+    # Error about enciphering/deciphering was encountered
+    class CipherError < Error;end
+
     # A ESP header consists of:
     # * a Security Parameters Index (#{spi}, {Int32} type),
     # * a Sequence Number ({#sn}, +Int32+ type),
@@ -243,13 +246,13 @@ module PacketGen
           cipher.iv = self.body.slice!(0, 16)
         end
 
-        if @icv_len == 0 or opt[:icv_len]
-          raise 'unknown ICV size' unless opt[:icv_len]
-          @icv_len = opt[:icv_len].to_i
+        if authenticated? and (@icv_length == 0 or opt[:icv_len])
+          raise ParseError, 'unknown ICV size' unless opt[:icv_len]
+          @icv_length = opt[:icv_len].to_i
           # reread ESP to handle new ICV size
           msg = self.body.to_s + self[:pad_length].to_s
           msg += self[:next].to_s
-          self[:icv].read msg.slice!(-@icv_len, @icv_len)
+          self[:icv].read msg.slice!(-@icv_length, @icv_length)
           self[:body].read msg[0..-3]
           self[:pad_length].read msg[-2]
           self[:next].read msg[-1]
@@ -267,7 +270,7 @@ module PacketGen
 
       def confidentiality_mode
         mode = @conf.name.match(/-([^-]*)$/)[1]
-        raise 'unknown cipher mode' if mode.nil?
+        raise CipherError, 'unknown cipher mode' if mode.nil?
         mode.downcase
       end
 
@@ -358,7 +361,7 @@ module PacketGen
           pkt = Packet.parse(body, first_header: 'TCP')
           encap_length = pkt.sz
         else
-          raise "Unmanaged encapsulated protocol #{self.next}"
+          raise ParseError, "Unmanaged encapsulated protocol #{self.next}"
         end
 
         if encap_length < body.length
