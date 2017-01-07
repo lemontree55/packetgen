@@ -171,20 +171,16 @@ module PacketGen
           opt[:intmode].update get_auth_data(opt)
         end
 
-        opt[:intmode].update self.body.to_s if opt[:intmode]
-        self[:body] = StructFu::String.new(iv + cipher.update(self.body.to_s))
-        cipher_len = self.body.size
-
         mode = get_mode(cipher)
         case mode
         when 'cbc'
+          cipher_len = self.body.sz + 2
           self.pad_length = (16 - (cipher_len % 16)) % 16
         else
-          self.pad_length = 0
+          mod4 = to_s.size % 4
+          self.pad_length = 4 - mod4 if mod4 > 0
         end
 
-        mod4 = to_s.size % 4
-        self.pad_length += 4 - mod4 if mod4 > 0
         if opt[:pad_length]
           self.pad_length = opt[:pad_length]
           self[:padding].read(opt[:padding] || (1..self.pad_length).to_a.pack("C*"))
@@ -193,17 +189,19 @@ module PacketGen
           self[:padding].read padding[0...self.pad_length]
         end
 
-        unless self.pad_length == 0
-          opt[:intmode].update self[:padding] if opt[:intmode]
-          self.body += cipher.update(self[:padding])
-          self[:padding].read ''
-        end
-        opt[:intmode].update self[:pad_length].to_s if opt[:intmode]
-        self[:pad_length].read cipher.update(self[:pad_length].to_s)
-        opt[:intmode].update self[:next].to_s if opt[:intmode]
-        self[:next].read cipher.update(self[:next].to_s)
+        msg = self.body.to_s
+        msg += self[:padding].to_s + self[:pad_length].to_s + self[:next].to_s
+        opt[:intmode].update msg if opt[:intmode]
+        enc_msg = cipher.update(msg)
         # as padding is used to pad for CBC mode, this is unused
         cipher.final
+
+        self[:body] = StructFu::String.new(iv) << enc_msg[0..-3]
+        self[:pad_length].read enc_msg[-2]
+        self[:next].read enc_msg[-1]
+
+        # reset padding field as it has no sense in encrypted ESP
+        self[:padding].read ''
 
         if cipher.authenticated?
           self[:icv].read cipher.auth_tag[0, self.icv_length]
@@ -242,11 +240,20 @@ module PacketGen
         mode = get_mode(cipher)
         case mode
         when 'gcm'
-          iv_size = 8
           cipher.iv = opt[:salt] + self.body.slice!(0, 8)
-        else
-          iv_size = 16
+        when 'cbc'
+          cipher.padding = 0
           cipher.iv = self.body.slice!(0, 16)
+        else
+          cipher.iv = self.body.slice!(0, 16)
+        end
+
+        if cipher.authenticated?
+          cipher.auth_tag = self[:icv]
+          cipher.auth_data = get_auth_data(opt)
+        elsif opt[:intmode]
+          opt[:intmode].reset
+          opt[:intmode].update get_auth_data(opt)
         end
 
         if @icv_len == 0 or opt[:icv_len]
@@ -261,14 +268,7 @@ module PacketGen
           self[:next].read msg[-1]
         end
 
-        if cipher.authenticated?
-          cipher.auth_tag = self[:icv]
-          cipher.auth_data = get_auth_data(opt)
-        elsif opt[:intmode]
-          opt[:intmode].reset
-          opt[:intmode].update get_auth_data(opt)
-        end
-        private_decrypt cipher, iv_size, opt
+        private_decrypt cipher, opt
       end
 
       private
@@ -285,25 +285,27 @@ module PacketGen
         ad << self[:sn].to_s
       end
 
-      def private_decrypt(cipher, iv_size, options)
+      def private_decrypt(cipher, options)
         # decrypt
-        self.body = cipher.update(self.body.to_s)
-        options[:intmode].update self.body.to_s if options[:intmode]
-        self[:pad_length].read cipher.update(self[:pad_length].to_s)
-        options[:intmode].update self[:pad_length].to_s if options[:intmode]
-        self[:next].read cipher.update(self[:next].to_s)
-        options[:intmode].update self[:next].to_s if options[:intmode]
+        msg = self.body.to_s
+        msg += self[:padding].to_s + self[:pad_length].to_s + self[:next].to_s
+        options[:intmode].update msg if options[:intmode]
+        clear_msg = cipher.update(msg)
 
         # check authentication tag
         begin
-          if cipher.authenticated?
-            cipher.final
-          elsif options[:intmode]
+          cipher.final
+          if options[:intmode]
             return false unless options[:intmode].digest == self[:icv]
           end
-        rescue OpenSSL::Cipher::CipherError
+        rescue OpenSSL::Cipher::CipherError => ex
           return false
         end
+
+        # Set ESP fields
+        self[:body].read clear_msg[0..-3]
+        self[:pad_length].read clear_msg[-2]
+        self[:next].read clear_msg[-1]
 
         # Set padding
         if self.pad_length > 0
@@ -329,7 +331,7 @@ module PacketGen
           pkt = Packet.parse(body, first_header: 'TCP')
           encap_length = pkt.sz
         else
-          raise "Unmanaged encapsulated protocol #{esp_next}"
+          raise "Unmanaged encapsulated protocol #{self.next}"
         end
 
         if encap_length < body.length

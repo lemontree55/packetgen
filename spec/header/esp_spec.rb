@@ -141,7 +141,20 @@ module PacketGen
 
         describe '#encrypt!' do
 
-          it 'encrypts a payload with CBC mode'
+          it 'encrypts a payload with CBC mode' do
+            esp_pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-cbc.pcapng'))
+
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2)
+            black_pkt.encapsulate red_pkt
+            esp = black_pkt.esp
+
+            cipher = get_cipher('cbc', :encrypt, key)
+            iv = [0xbc, 0x4d, 0x73, 0x4b, 0x8d, 0x84, 0xa0, 0x3b,
+                  0x12, 0xa7, 0xf7, 0xdf, 0xee, 0xaa, 0x82, 0x27].pack('C*')
+            esp.encrypt! cipher, iv
+            expect(esp.to_s).to eq(esp_pkt.esp.to_s)
+          end
+
           it 'encryts a payload with CTR mode and authenticates it with HMAC-SHA256'
 
           it 'encrypts and authenticates a payload with GCM mode' do
@@ -167,14 +180,23 @@ module PacketGen
         end
 
         describe '#decrypt!' do
-          it 'decrypts a payload with CBC mode'
+          it 'decrypts a payload with CBC mode' do
+            pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-cbc.pcapng'))
+
+            
+            cipher = get_cipher('cbc', :decrypt, key)
+            expect(pkt.esp.decrypt!(cipher)).to be(true)
+            pkt.decapsulate pkt.ip, pkt.esp
+            expect(pkt.to_s).to eq(red_pkt.to_s)
+          end
+
           it 'decryts a payload with CTR mode and authenticates it with HMAC-SHA256'
           it 'decrypts and authenticates a payload with GCM mode' do
             pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
                                             icv_length: 16)
 
             cipher = get_cipher('gcm', :decrypt, key)
-            pkt.esp.decrypt! cipher, salt: salt
+            expect(pkt.esp.decrypt!(cipher, salt: salt)).to be(true)
             pkt.decapsulate pkt.ip, pkt.esp
             expect(pkt.to_s).to eq(red_pkt.to_s)
           end
