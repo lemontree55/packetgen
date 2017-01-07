@@ -231,6 +231,21 @@ module PacketGen
           it 'decrypts a payload with TFC'
           it 'decrypts a payload with Extended SN'
           it 'decrypts a payload without parsing it'
+
+          it 'returns false when ICV check failed' do
+            pkt, = get_packets_from(File.join(__dir__, 'esp4-ctr-hmac.pcapng'),
+                                    icv_length: 12)
+            cipher = get_cipher('ctr', :decrypt, key)
+            hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
+            pkt.esp.icv[-1] = "\x00"
+            expect(pkt.esp.decrypt!(cipher, salt: salt, intmode: hmac)).to be(false)
+
+            pkt, = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
+                                    icv_length: 16)
+            pkt.esp.body[16] = "\x00"
+            cipher = get_cipher('gcm', :decrypt, key)
+            expect(pkt.esp.decrypt!(cipher, salt: salt)).to be(false)
+          end
         end
       end
     end
