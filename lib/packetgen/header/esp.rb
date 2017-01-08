@@ -314,8 +314,8 @@ module PacketGen
 
       def authenticate_esp_header_if_needed(opt, iv, icv=nil)
         if @conf.authenticated?
-          @conf.auth_data = get_auth_data(opt)
           @conf.auth_tag = icv if icv
+          @conf.auth_data = get_auth_data(opt)
         elsif @intg
           @intg.reset
           @intg.update get_auth_data(opt)
