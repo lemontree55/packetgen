@@ -307,6 +307,31 @@ module PacketGen
             cipher = get_cipher('gcm', :decrypt, key)
             expect(pkt.esp.decrypt!(cipher, salt: salt)).to be(false)
           end
+
+          it 'raises for authenticated packet without ICV length information' do
+            pkt = PcapNG::File.new.read_packets(File.join(__dir__,
+                                                          'esp4-ctr-hmac.pcapng')).first
+            cipher = get_cipher('ctr', :decrypt, key)
+            hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
+            expect { pkt.esp.decrypt! cipher, salt: salt, intmode: hmac }.
+              to raise_error(ParseError, 'unknown ICV size')
+          end
+
+          it 'uses icv_length option to get ICV' do
+            packets = PcapNG::File.new.read_packets(File.join(__dir__,
+                                                              'esp4-ctr-hmac.pcapng'))
+            pkt, red_pkt, = packets
+            red_pkt.decapsulate red_pkt.eth
+
+            cipher = get_cipher('ctr', :decrypt, key)
+            hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
+            expect(pkt.esp.decrypt! cipher, salt: salt, intmode: hmac, icv_length: 12).
+              to be(true)
+            expect(pkt.esp.pad_length).to eq(2)
+            expect(pkt.esp.next).to eq(4)
+            pkt.decapsulate pkt.eth, pkt.ip, pkt.esp
+            expect(pkt.to_s).to eq(red_pkt.to_s)
+          end
         end
       end
     end
