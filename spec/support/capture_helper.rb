@@ -1,15 +1,16 @@
 module CaptureHelper
   # capture(iface, options) { 'ping -c 125 127.0.0.1 }
-  def capture(iface, options={}, &blk)
+  def capture(options={}, &blk)
+    iface   = options[:iface]   || Pcap.lookupdev
     timeout = options[:timeout] || 0
-
-    cap = PacketGen::Capture.new(iface, options)
+    filter  = options[:filter]  || false
+    opts = { iface: iface, timeout: timeout, filter: filter} 
+    cap = PacketGen::Capture.new(opts)
     cap_thread = Thread.new { cap.start }
     sleep 0.1
     blk.call
     sleep timeout + 2
     cap.stop
-
     cap
   end
 end
