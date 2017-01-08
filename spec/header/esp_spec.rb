@@ -230,7 +230,15 @@ module PacketGen
 
           it 'decrypts a payload with TFC'
           it 'decrypts a payload with Extended SN'
-          it 'decrypts a payload without parsing it'
+
+          it 'decrypts a payload without parsing it' do
+            pkt, = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),
+                                    icv_length: 16)
+
+            cipher = get_cipher('gcm', :decrypt, key)
+            expect(pkt.esp.decrypt!(cipher, salt: salt, parse: false)).to be(true)
+            expect(pkt.esp.body).to be_a(StructFu::String)
+          end
 
           it 'returns false when ICV check failed' do
             pkt, = get_packets_from(File.join(__dir__, 'esp4-ctr-hmac.pcapng'),

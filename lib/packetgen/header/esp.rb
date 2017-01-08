@@ -231,7 +231,7 @@ module PacketGen
       #   confidentiality-only cipher. Only HMAC are supported.
       # @return [Boolean] +true+ if ESP packet is authenticated
       def decrypt!(cipher, options={})
-        opt = { :salt => '' }.merge(options)
+        opt = { :salt => '', parse: true }.merge(options)
 
         set_crypto cipher, opt[:intmode]
 
@@ -384,7 +384,10 @@ module PacketGen
           self[:esp_tfc].read self.body.slice!(encap_length, tfc_len)
         end
 
-        packet.encapsulate pkt
+        if options[:parse]
+          packet.encapsulate pkt unless pkt.nil?
+        end
+
         true
       end
     end
