@@ -190,9 +190,62 @@ module PacketGen
 
           it 'encrypts a payload with TFC'
           it 'encrypts a payload with Extended SN'
-          it 'encrypts a payload with given padding'
-          it 'encrypts a payload with given padding length'
-          it 'encrypts a payload with given padding and padding length'
+
+          it 'encrypts a payload with given padding' do
+            red_pkt = PcapNG::File.new.read_packets(File.join(__dir__, '..', 'pcapng',
+                                                              'ipv6_tcp.pcapng')).first
+            red_pkt.decapsulate red_pkt.eth
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2,
+                                             icv_length: 16)
+            black_pkt.encapsulate red_pkt
+
+            cipher = get_cipher('gcm', :encrypt, key)
+            iv = "\x00" * 8
+            black_pkt.esp.encrypt! cipher, iv, salt: salt, padding: "\xff" * 124
+            expect(black_pkt.esp.sz).to eq(8+8+80+4+16)
+
+            black_pkt.esp.decrypt! get_cipher('gcm', :decrypt, key), salt: salt
+            expect(black_pkt.esp.pad_length).to eq(2)
+            expect(black_pkt.esp.padding).to eq(PacketGen.force_binary("\xff\xff"))
+          end
+
+          it 'encrypts a payload with given padding length' do
+            red_pkt = PcapNG::File.new.read_packets(File.join(__dir__, '..', 'pcapng',
+                                                              'ipv6_tcp.pcapng')).first
+            red_pkt.decapsulate red_pkt.eth
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2,
+                                             icv_length: 16)
+            black_pkt.encapsulate red_pkt
+
+            cipher = get_cipher('gcm', :encrypt, key)
+            iv = "\x00" * 8
+            black_pkt.esp.encrypt! cipher, iv, salt: salt, pad_length: 128
+            expect(black_pkt.esp.sz).to eq(8+8+80+128+2+16)
+
+            black_pkt.esp.decrypt! get_cipher('gcm', :decrypt, key), salt: salt
+            expected_padding = (1..128).to_a.pack('C*')
+            expect(black_pkt.esp.padding).to eq(expected_padding)
+          end
+
+          it 'encrypts a payload with given padding and padding length' do
+            red_pkt = PcapNG::File.new.read_packets(File.join(__dir__, '..', 'pcapng',
+                                                              'ipv6_tcp.pcapng')).first
+            red_pkt.decapsulate red_pkt.eth
+            black_pkt = Packet.gen('IP').add('ESP', spi: 0x87654321, sn: 2,
+                                             icv_length: 16)
+            black_pkt.encapsulate red_pkt
+
+            cipher = get_cipher('gcm', :encrypt, key)
+            iv = "\x00" * 8
+            black_pkt.esp.encrypt! cipher, iv, salt: salt, pad_length: 15,
+                                   padding: "\xff" * 24
+            expect(black_pkt.esp.sz).to eq(8+8+80+24+2+16)
+
+            black_pkt.esp.decrypt! get_cipher('gcm', :decrypt, key), salt: salt
+            expect(black_pkt.esp.pad_length).to eq(15)
+            expect(black_pkt.esp.padding).to eq(PacketGen.force_binary("\xff" * 15))
+            expect(black_pkt.body[-9..-1]).to eq(PacketGen.force_binary("\xff" * 9))
+          end
         end
 
         describe '#decrypt!' do

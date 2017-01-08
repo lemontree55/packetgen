@@ -184,9 +184,10 @@ module PacketGen
 
         if opt[:pad_length]
           self.pad_length = opt[:pad_length]
-          self[:padding].read(opt[:padding] || (1..self.pad_length).to_a.pack("C*"))
+          padding = force_binary(opt[:padding] || (1..self.pad_length).to_a.pack("C*"))
+          self[:padding].read padding
         else
-          padding = opt[:padding] || (1..self.pad_length).to_a.pack("C*")
+          padding = force_binary(opt[:padding] || (1..self.pad_length).to_a.pack("C*"))
           self[:padding].read padding[0...self.pad_length]
         end
 
@@ -366,7 +367,7 @@ module PacketGen
         encap_length = pkt.ip.length
         when 41  # IPv6
           pkt = Packet.parse(body, first_header: 'IPv6')
-          encap_length = pkt.ip6.length + ip6.sz
+          encap_length = pkt.ipv6.length + pkt.ipv6.sz
         when UDP::IP_PROTOCOL
           pkt = Packet.parse(body, first_header: 'UDP')
           encap_length = pkt.udp.length
