@@ -1,15 +1,6 @@
 require_relative 'spec_helper'
 
 module PacketGen
-  # Define fake header class for tests
-  module Header
-    class FakeHeader < Struct.new(:field)
-      extend Header::HeaderClassMethods
-      include Header::HeaderMethods
-      def read(str) self; end
-    end
-  end
-
   describe Packet do
 
     describe '.gen' do
@@ -231,8 +222,7 @@ module PacketGen
       end
 
       it 'raises on unknown association' do
-        expect { @pkt.add 'FakeHeader' }.to raise_error(ArgumentError,
-                                                        /IP\.bind_layer\(.*FakeHeader/)
+        expect { @pkt.add 'Eth' }.to raise_error(ArgumentError, /IP\.bind_layer\(.*Eth/)
       end
     end
 

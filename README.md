@@ -111,6 +111,49 @@ pkt.write('one_packet.pcapng')
 PacketGen.write('more_packets.pcapng', packets)
 ```
 
+### Add custom header/protocol
+Since v1.1.0, PacketGen permits adding you own header classes.
+First, define the new header class. By example:
+
+```ruby
+module MyModule
+ class MyHeader < Struct.new(:field1, :field2)
+   include PacketGen::StructFu
+   include PacketGen::Header::HeaderMethods
+   extend PacketGen::Header::HeaderClassMethods
+   
+   def initialize(options={})
+     super Int32.new(options[:field1]), Int32.new(options[:field2])
+   end
+   
+   def read(str)
+     self[:field1].read str[0, 4]
+     self[:field2].read str[4, 4]
+   end
+ end
+end
+```
+
+Then, class must be declared to PacketGen:
+
+```
+PacketGen::Header.add_class MyModule::MyHeader
+```
+
+Finally, bindings must be declared:
+
+```
+# bind MyHeader as IP protocol number 254 (needed by Packet#parse)
+PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
+```
+
+And use it:
+
+```
+pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)
+pkt.myheader.field2.read 0x01
+```
+
 ## Pull requests?
 
 yes
