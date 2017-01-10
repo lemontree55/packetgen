@@ -288,6 +288,12 @@ module PacketGen
 
     private
 
+    # Dup +@headers+ instance variable. Internally used by +#dup+ and +#clone+
+    # @return [void]
+    def initialize_copy(other)
+      @headers = @headers.dup
+    end
+
     # @overload header(protocol, layer=1)
     #  @param [String] protocol
     #  @param [Integer] layer
