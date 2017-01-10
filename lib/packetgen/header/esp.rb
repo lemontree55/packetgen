@@ -22,6 +22,46 @@ module PacketGen
     #  # access to ESP header
     #  pkt.esp   # => PacketGen::Header::ESP
     #
+    # == Examples
+    # === Create an enciphered UDP packet (ESP transport mode), using CBC mode
+    #  icmp = PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.2.1').
+    #                   add('ESP', spi: 0xff456e01, sn: 12345678).
+    #                   add('UDP', dport: 4567, sport: 45362, body 'abcdef')
+    #  cipher = OpenSSL::Cipher.new('aes-128-cbc')
+    #  cipher.encrypt
+    #  cipher.key = 16bytes_key
+    #  iv = 16bytes_iv
+    #  esp.esp.encrypt! cipher, iv
+    #
+    # === Create a ESP packet tunneling a UDP one, using GCM combined mode
+    #  # create inner UDP packet
+    #  icmp = PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.2.1').
+    #                   add('UDP', dport: 4567, sport: 45362, body 'abcdef')
+    #
+    #  # create outer ESP packet
+    #  esp = PacketGen.gen('IP', src '198.76.54.32', dst: '1.2.3.4').add('ESP')
+    #  esp.esp.spi = 0x87654321
+    #  esp.esp.sn  = 0x123
+    #  esp.esp.icv_length = 16
+    #  # encapsulate ICMP packet in ESP one
+    #  esp.encapsulate icmp
+    #  
+    #  # encrypt ESP payload
+    #  cipher = OpenSSL::Cipher.new('aes-128-gcm')
+    #  cipher.encrypt
+    #  cipher.key = 16bytes_key
+    #  iv = 8bytes_iv
+    #  esp.esp.encrypt! cipher, iv, salt: 4bytes_gcm_salt
+    #
+    # === Decrypt a ESP packet using CBC mode and HMAC-SHA-256
+    #  cipher = OpenSSL::Cipher.new('aes-128-cbc')
+    #  cipher.decrypt
+    #  cipher.key = 16bytes_key
+    #  
+    #  hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
+    #
+    #  pkt.esp.decrypt! cipher, intmode: hmac    # => true if ICV check OK
+    # @author Sylvain Daubert
     class ESP < Struct.new(:spi, :sn, :body, :tfc, :padding,
                            :pad_length, :next, :icv)
       include StructFu
