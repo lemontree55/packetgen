@@ -188,7 +188,24 @@ module PacketGen
             expect(esp.to_s).to eq(esp_pkt.esp.to_s)
           end
 
-          it 'encrypts a payload with TFC'
+          it 'encrypts a payload with TFC' do
+            esp_pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp-tfc.pcapng'),
+                                                icv_length: 16)
+
+            black_pkt = PacketGen.gen('IP').add('ESP', sn: 2, spi: 0xc1e69148,
+                                                icv_length: 16)
+            red_pkt.icmp.body.slice!(60..-1)
+            black_pkt.encapsulate red_pkt
+
+            key = 0xd5a4eee309983f2da6f52fe84353ab16
+            key = [key.to_s(16)].pack('H*')
+            salt = [0xe6971987.to_s(16)].pack('H*')
+            cipher = get_cipher('gcm', :encrypt, key)
+            iv = "\xD9\xD2\x1F\xCE\xDA\xE0Uj"
+            black_pkt.esp.encrypt! cipher, iv, salt: salt, tfc: true, tfc_size: 1000
+            expect(black_pkt.esp.to_s).to eq(esp_pkt.esp.to_s)
+          end
+
           it 'encrypts a payload with Extended SN'
 
           it 'encrypts a payload with given padding' do
@@ -281,7 +298,22 @@ module PacketGen
             expect(pkt.to_s).to eq(red_pkt.to_s)
           end
 
-          it 'decrypts a payload with TFC'
+          it 'decrypts a payload with TFC' do
+            pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp-tfc.pcapng'),
+                                    icv_length: 16)
+
+            key = 0xd5a4eee309983f2da6f52fe84353ab16
+            key = [key.to_s(16)].pack('H*')
+            salt = [0xe6971987.to_s(16)].pack('H*')
+
+            cipher = get_cipher('gcm', :decrypt, key)
+            expect(pkt.esp.decrypt!(cipher, salt: salt)).to be(true)
+            expect(pkt.esp.tfc.length).to eq(916)
+            expect(pkt.esp.tfc).to eq(PacketGen.force_binary("\x00" * 916))
+            expect(pkt.esp.padding).to eq(PacketGen.force_binary("\x01\x02"))
+            expect(pkt.esp.body.to_s).to eq(red_pkt.ip.to_s)
+          end
+
           it 'decrypts a payload with Extended SN'
 
           it 'decrypts a payload without parsing it' do

@@ -149,9 +149,10 @@ module PacketGen
       # @param [String] iv full IV for encryption
       #  * CTR and GCM modes: +iv+ is 8-bytes long.
       # @param [Hash] options
-      # @option options [Boolean] :tfc
       # @option options [String] :salt salt value for CTR and GCM modes
-      # @option options [Fixnum] :mtu MTU used for TFC (default 1480).
+      # @option options [Boolean] :tfc
+      # @option options [Fixnum] :tfc_size ESP body size used for TFC
+      #   (default 1444, max size for a tunneled IPv4/ESP packet).
       #   This is the maximum size for ESP packet (without IP header
       #   nor Eth one).
       # @option options [Fixnum] :esn 32 high-orber bits of ESN
@@ -163,11 +164,11 @@ module PacketGen
       #   confidentiality-only cipher. Only HMAC are supported.
       # @return [self]
       def encrypt!(cipher, iv, options={})
-        opt = { :salt => '' }.merge(options)
+        opt = { salt: '', tfc_size: 1444 }.merge(options)
 
         set_crypto cipher, opt[:intmode]
 
-        real_iv = opt[:salt] + iv
+        real_iv = force_binary(opt[:salt]) + force_binary(iv)
         real_iv += [1].pack('N') if confidentiality_mode == 'ctr'
         cipher.iv = real_iv
 
@@ -191,7 +192,21 @@ module PacketGen
           self[:padding].read padding[0...self.pad_length]
         end
 
-        msg = self.body.to_s
+        tfc = ''
+        if opt[:tfc]
+          tfc_size = opt[:tfc_size] - body.sz
+          if tfc_size > 0
+            case confidentiality_mode
+            when 'cbc'
+              tfc_size = (tfc_size / 16) * 16
+            else
+              tfc_size = (tfc_size / 4) * 4
+            end
+            tfc = force_binary("\0" * tfc_size)
+          end
+        end
+
+        msg = self.body.to_s + tfc
         msg += self[:padding].to_s + self[:pad_length].to_s + self[:next].to_s
         enc_msg = encipher(msg)
         # as padding is used to pad for CBC mode, this is unused
@@ -377,12 +392,13 @@ module PacketGen
           pkt = Packet.parse(body, first_header: 'TCP')
           encap_length = pkt.sz
         else
-          raise ParseError, "Unmanaged encapsulated protocol #{self.next}"
+          # Unmanaged encapsulated protocol
+          encap_length = body.sz
         end
 
-        if encap_length < body.length
-          tfc_len = body.length - encap_length
-          self[:esp_tfc].read self.body.slice!(encap_length, tfc_len)
+        if encap_length < body.sz
+          tfc_len = body.sz - encap_length
+          self[:tfc].read self.body.slice!(encap_length, tfc_len)
         end
 
         if options[:parse]

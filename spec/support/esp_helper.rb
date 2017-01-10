@@ -15,7 +15,7 @@ module EspHelper
   end
 
   def get_cipher(mode, ed, key)
-    cipher = OpenSSL::Cipher.new("aes-128-#{mode}")
+    cipher = OpenSSL::Cipher.new("aes-#{key.size*8}-#{mode}")
     cipher.send ed
     cipher.key = key
     cipher
