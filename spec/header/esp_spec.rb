@@ -206,7 +206,26 @@ module PacketGen
             expect(black_pkt.esp.to_s).to eq(esp_pkt.esp.to_s)
           end
 
-          it 'encrypts a payload with Extended SN'
+          it 'encrypts a payload with Extended SN' do
+            pcapfile = PcapNG::File.new
+            pkt = pcapfile.read_packets(File.join(__dir__, 'esp-transport-esn.pcapng')).
+                  last
+            pkt.esp.icv_length = 16
+            pkt.esp.read pkt.esp.to_s
+            expected_pkt = pkt.dup
+
+            key = '70b20243dbeb17a81078db80f14adf5e098b32445e0e5529b903e5140ba5883d'
+            key = [key].pack('H*')
+            salt = ['bc6b7c64'].pack('H*')
+
+            cipher = get_cipher('gcm', :decrypt, key)
+            pkt.esp.decrypt!(cipher, salt: salt, esn: 0)
+
+            cipher = get_cipher('gcm', :encrypt, key)
+            iv = "\xAB\r\xE6M\x84E\xF7V"
+            pkt.esp.encrypt! cipher, iv, salt: salt, esn: 0
+            expect(pkt.to_s).to eq(expected_pkt.to_s)
+          end
 
           it 'encrypts a payload with given padding' do
             red_pkt = PcapNG::File.new.read_packets(File.join(__dir__, '..', 'pcapng',
@@ -314,7 +333,23 @@ module PacketGen
             expect(pkt.esp.body.to_s).to eq(red_pkt.ip.to_s)
           end
 
-          it 'decrypts a payload with Extended SN'
+          it 'decrypts a payload with Extended SN' do
+            pcapfile = PcapNG::File.new
+            pkt = pcapfile.read_packets(File.join(__dir__, 'esp-transport-esn.pcapng')).
+                  last
+            pkt.esp.icv_length = 16
+            pkt.esp.read pkt.esp.to_s
+
+            key = '70b20243dbeb17a81078db80f14adf5e098b32445e0e5529b903e5140ba5883d'
+            key = [key].pack('H*')
+            salt = ['bc6b7c64'].pack('H*')
+
+            cipher = get_cipher('gcm', :decrypt, key)
+            expect(pkt.esp.decrypt!(cipher, salt: salt, esn: 0)).to be(true)
+            expect(pkt.esp.next).to eq(1)
+            # check transport mode
+            expect(pkt.esp.body).to be_a(Header::ICMP)
+          end
 
           it 'decrypts a payload without parsing it' do
             pkt, = get_packets_from(File.join(__dir__, 'esp4-gcm.pcapng'),

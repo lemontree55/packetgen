@@ -301,12 +301,12 @@ module PacketGen
       def authenticate!
         @conf.final
         if @intg
-          @intg.update @esn if @esn
+          @intg.update @esn.to_s if @esn
           @intg.digest[0, @icv_length] == @icv
         else
           true
         end
-      rescue OpenSSL::Cipher::CipherError => ex
+      rescue OpenSSL::Cipher::CipherError
         false
       end
 
@@ -323,8 +323,10 @@ module PacketGen
 
       def get_auth_data(opt)
         ad = self[:spi].to_s
-        @esn = opt[:esn]
-        ad << StructFu::Int32.new(opt[:esn]).to_s if @esn and @conf.authenticated?
+        if opt[:esn]
+          @esn = StructFu::Int32.new(opt[:esn])
+          ad << @esn.to_s if @conf.authenticated?
+        end
         ad << self[:sn].to_s
       end
 
