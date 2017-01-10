@@ -96,7 +96,7 @@ module PacketGen
       end
 
       # @!attribute data_offset
-      #  @return [Integer] 4-bit data offsetfrom {#u16}
+      #  @return [Integer] 4-bit data offset from {#u16}
       # @!attribute reserved
       #  @return [Integer] 3-bit reserved from {#u16}
       # @!attribute flags
