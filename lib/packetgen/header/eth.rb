@@ -176,5 +176,7 @@ module PacketGen
         pcap.inject self.to_s
       end
     end
+
+    self.add_class Eth
   end
 end

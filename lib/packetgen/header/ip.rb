@@ -380,6 +380,8 @@ module PacketGen
       end
     end
 
+    self.add_class IP
+
     Eth.bind_header IP, ethertype: 0x800
     IP.bind_header IP, protocol: 4
   end

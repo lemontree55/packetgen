@@ -459,6 +459,8 @@ module PacketGen
       end
     end
 
+    self.add_class ESP
+
     IP.bind_header ESP, protocol: ESP::IP_PROTOCOL
     IPv6.bind_header ESP, next: ESP::IP_PROTOCOL
     UDP.bind_header ESP, dport: ESP::UDP_PORT, sport: ESP::UDP_PORT
