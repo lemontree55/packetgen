@@ -347,7 +347,11 @@ module PacketGen
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
-        prev_header[bindings.first.key].read bindings.first.value
+        # Set prev_header key to value, unless this is already done for at least
+        # one key
+        unless bindings.any? { |b| prev_header.send(b.key) == b.value }
+          prev_header[bindings.first.key].read bindings.first.value
+        end
         prev_header.body = header
       end
       header.packet = self
