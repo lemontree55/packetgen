@@ -208,7 +208,7 @@ module PacketGen
     # Get packet body
     # @return [StructFu]
     def body
-      @headers.last.body
+      @headers.last.body if @headers.last.respond_to? :body
     end
 
     # Set packet body

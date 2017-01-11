@@ -9,7 +9,7 @@ module PacketGen
     INSPECT_MAX_WIDTH = 70
 
     # Format to inspect attribute
-    INSPECT_FMT_ATTR = "%7s %12s: %s\n"
+    INSPECT_FMT_ATTR = "%10s %12s: %s\n"
 
     # Create a dashed line with +obj+ class writing in it
     # @param [String] name
@@ -57,6 +57,7 @@ module PacketGen
     # @param [#to_s] body
     # @return [String]
     def self.inspect_body(body)
+      return '' if body.nil?
       str = dashed_line('Body', 2)
       str << (0..15).to_a.map { |v| " %02d" % v}.join << "\n"
       str << '-' * INSPECT_MAX_WIDTH << "\n"
