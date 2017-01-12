@@ -231,7 +231,7 @@ module PacketGen
                else
                  OPCODES[value.to_s]
                end
-        raise ArgumentError, "unknwon opcode #{value.inspect}" unless intg
+        raise ArgumentError, "unknown opcode #{value.inspect}" unless intg
         self.old_opcode = intg
       end
 
@@ -246,7 +246,7 @@ module PacketGen
                else
                  RCODES[value]
                end
-        raise ArgumentError, "unknwon rcode #{value.inspect}" unless intg
+        raise ArgumentError, "unknown rcode #{value.inspect}" unless intg
         self.old_rcode = intg
       end
 

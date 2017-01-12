@@ -22,6 +22,7 @@ module PacketGen
               else
                 val
               end
+          raise ArgumentError, "unknown type #{val.inspect}" unless v
           self[:type].read v
         end
 
@@ -48,19 +49,20 @@ module PacketGen
                   else
                     val
                   end
+          raise ArgumentError, "unknown class #{val.inspect}" unless v
           self[:rrclass].read v
         end
           
         # Get human readable type
         # @return [String]
           def human_type
-          self.class::TYPES.key(type) || "%04x" % type
+          self.class::TYPES.key(type) || "0x%04x" % type
         end
 
         # Get human readable class
         # @return [String]
         def human_rrclass
-          self.class::CLASSES.key(self.rrclass) || "%04x" % self.rrclass
+          self.class::CLASSES.key(self.rrclass) || "0x%04x" % self.rrclass
         end
 
       end
