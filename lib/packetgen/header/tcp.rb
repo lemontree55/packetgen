@@ -142,6 +142,7 @@ module PacketGen
         self[:urg_pointer].read str[18, 2]
         self[:options].read str[20, (self.data_offset - 5) * 4] if self.data_offset > 5
         self[:body].read str[self.data_offset * 4..-1]
+        self
       end
 
       # Compute checksum and set +checksum+ field
