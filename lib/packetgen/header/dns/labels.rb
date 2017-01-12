@@ -23,7 +23,12 @@ module PacketGen
         # @return [Labels] self
         def parse(str)
           clear
-          self
+          return self if str.nil?
+
+          str.split('.').each do |label|
+            self << Label.new(label)
+          end
+          self << Label.new('')
         end
 
         # Read a sequence of label from a string
