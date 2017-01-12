@@ -37,7 +37,9 @@ module PacketGen
         def read(str)
           @pointer = nil
           @pointer_name = nil
+          clear
           return self if str.nil?
+
           PacketGen.force_binary str
           start = 0
           while true

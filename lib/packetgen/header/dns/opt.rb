@@ -14,9 +14,29 @@ module PacketGen
         # @return [Array<Option>]
         attr_reader :options
 
+        # @param [DNS] dns
+        # @param [Hash] options
+        # @option options [String] :name domain as a dotted string. Default to +"."+
+        # @option options [Integer,String] :type see {TYPES}. Default to +'OPT'+
+        # @option options [Integer] :udp_size UDP maximum size. Also +:rrclass+.
+        #  Default to 512.
+        # @option options [Integer] :ext_rcode
+        # @option options [Integer] :version
+        # @option options [Boolean] :do DO bit
+        # @option options [Integer] :ttl set +ext_rcode+, +version+, +do+ and
+        #   +z+ at once
+        # @option options [Integer] :rdlength if not provided, automatically set
+        #   from +:rdata+ length
+        # @option options [String] :rdata
         def initialize(dns, options={})
-          super
+          opts = { name: '.', rrclass: 512, type: 41 }.merge!(options)
+          super dns, opts
           @options = []
+
+          self.udp_size = options[:udp_size] if options[:udp_size]
+          self.ext_rcode = options[:ext_rcode] if options[:ext_rcode]
+          self.version = options[:version] if options[:version]
+          self.do = options[:do] unless options[:do].nil?
         end
 
         # @overload ext_rcode=(v)
@@ -62,10 +82,10 @@ module PacketGen
         #  @return [Boolean]
         # @return [Boolean]
         def do=(v=nil)
-          v = v ? 1 : 0
-          if v
+          b = v ? 1 : 0
+          unless v.nil?
             self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~(1 << 15))
-            self[:ttl].value |= (v & 1) << 16
+            self[:ttl].value |= (b & 1) << 15
           end
           ((self[:ttl].to_i >> 15) & 1) == 1 ? true : false
         end
@@ -79,10 +99,10 @@ module PacketGen
         # @return [Integer]
         def z=(v=nil)
           if v
-            self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~0x7f)
-            self[:ttl].value |= v & 0x7f
+            self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~0x7fff)
+            self[:ttl].value |= v & 0x7fff
           end
-          self[:ttl].to_i & 0x7f
+          self[:ttl].to_i & 0x7fff
         end
         alias z z=
 
@@ -104,7 +124,7 @@ module PacketGen
 
         # @return [String]
         def to_human
-          "#{name.to_human} #{human_type} UDP size:#{udp_size} " \
+          "#{name.to_human} #{human_type} UDPsize:#{udp_size} " \
           "extRCODE:#{ext_rcode} EDNSversion:#{version} flags:#{human_flags} " \
           "options:#{human_options}"
         end

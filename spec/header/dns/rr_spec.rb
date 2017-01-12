@@ -13,13 +13,19 @@ module PacketGen
             expect(rr.name.to_s).to eq('')
             expect(rr.type).to eq(1)
             expect(rr.rrclass).to eq(1)
+            expect(rr.ttl).to eq(0)
+            expect(rr.rdlength).to eq(0)
+            expect(rr.rdata).to eq('')
           end
 
           it 'accepts options' do
             options = {
               name: 'www.example.net.',
               type: 253,
-              rrclass: 65000
+              rrclass: 65000,
+              ttl: 0xffff_8765,
+              rdlength: 0xf000,
+              rdata: 'azertyuiop'
             }
             rr = RR.new(dns, options)
 
@@ -40,7 +46,7 @@ module PacketGen
 
             str = [7, 'example', 3, 'org', 0, 1, 1, 0x3_0000,
                    4, 192, 168, 1, 1].pack('CA7CA3CnnNnC4')
-            rr = RR.new(dns).read(str)
+            rr.read(str)
             expect(rr.name.to_human).to eq('example.org.')
             expect(rr.type).to eq(1)
             expect(rr.rrclass).to eq(1)
