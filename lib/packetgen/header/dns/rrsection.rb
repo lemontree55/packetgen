@@ -7,7 +7,6 @@ module PacketGen
       class RRSection < Array
 
         # @api private
-        # @param [String,nil] str
         # @param [DNS] dns
         # @param [StructFu::Int] counter
         def initialize(dns, counter)
@@ -24,6 +23,7 @@ module PacketGen
           PacketGen.force_binary str
           while str.length > 0 and self.size < @counter.to_i
             rr = RR.new(@dns).read(str)
+            rr = OPT.new(@dns).read(str) if rr.has_type?('OPT')
             str.slice!(0, rr.sz)
             self.push rr
           end

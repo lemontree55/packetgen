@@ -40,6 +40,7 @@ require_relative 'dns/labels'
 require_relative 'dns/base_rr'
 require_relative 'dns/rr'
 require_relative 'dns/question'
+require_relative 'dns/opt'
 
 module PacketGen
   module Header

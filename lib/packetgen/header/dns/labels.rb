@@ -60,7 +60,8 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          map(&:to_human).join('.') + name_from_pointer
+          str = map(&:to_human).join('.') + name_from_pointer
+          str.empty? ? '.' : str
         end
 
         # Get options size in bytes

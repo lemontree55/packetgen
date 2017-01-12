@@ -109,7 +109,8 @@ module PacketGen
           expect(dns.an.to_human).to eq('A IN www.google.com. TTL 189 216.58.212.132,' \
                                         'AAAA IN www.google.com. TTL 204 ' \
                                         '2a00:1450:400e:800::2004')
-          expect(dns.ar.to_human).to_not be_empty  # TEMP
+          expect(dns.ar.to_human).to eq('. OPT UDP size:4096 extRCODE:0 ' \
+                                        'EDNSversion:0 flags:none options:none')
         end
       end
 
@@ -194,6 +195,11 @@ module PacketGen
             expect(str).to include(attr.to_s)
           end
         end
+      end
+
+      context 'sections' do
+        it 'may add a Question to question section'
+        it 'may add a RR to answer section'
       end
     end
   end
