@@ -25,6 +25,13 @@ module PacketGen
           self[:type].read v
         end
 
+        # Check type
+        # @param [String] type name
+        # @return [Boolean]
+        def has_type?(type)
+          self.class::TYPES[type] == self.type
+        end
+
         # Getter for class
         # @return [Integer]
         def rrclass
