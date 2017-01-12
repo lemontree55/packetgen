@@ -8,6 +8,7 @@ module PacketGen
         include StructFu
         include BaseRR
 
+        # Ressource Record types
         TYPES = {
           'A'        => 1,
           'NS'       => 2,
@@ -38,6 +39,7 @@ module PacketGen
           'TSIG'     => 250
         }
 
+        # Ressource Record classes
         CLASSES = {
           'IN' => 1,
           'CH' => 3,
@@ -47,8 +49,8 @@ module PacketGen
         # @param [DNS] dns
         # @param [Hash] options
         # @option options [String] :name domain as a dotted string
-        # @option options [Integer,String] :type
-        # @option options [Integer,String] :rrclass
+        # @option options [Integer,String] :type see {TYPES}. Default to +'A'+
+        # @option options [Integer,String] :rrclass see {CLASSES}. Default to +'IN'+
         # @option options [Integer] :ttl
         # @option options [Integer] :rdlength if not provided, automatically set
         #   from +:rdata+ length
@@ -63,8 +65,8 @@ module PacketGen
           if options[:rdata] and options[:rdlength].nil?
             self[:rdlength].read self[:rdata].size
           end
-          self.type = options[:type] if options[:type]
-          self.rrclass = options[:rrclass] if options[:rrclass]
+          self.type = options[:type] || 'A'
+          self.rrclass = options[:rrclass] || 'IN'
         end
 
         # Read DNS Ressource Record from a string

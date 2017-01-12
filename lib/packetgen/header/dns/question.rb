@@ -8,21 +8,23 @@ module PacketGen
         include StructFu
         include BaseRR
 
+        # Question types
         TYPES = RR::TYPES.merge({ '*' => 255 })
 
+        # Question classes
         CLASSES = RR::CLASSES.merge({ 'NONE' => 254, '*' => 255 })
 
         # @param [DNS] dns
         # @param [Hash] options
         # @option options [String] :name domain as a dotted string
-        # @option options [Integer,String] :type
-        # @option options [Integer,String] :rrclass
+        # @option options [Integer,String] :type see {TYPES}. Default to +'A'+
+        # @option options [Integer,String] :rrclass see {CLASSES}. Default to +'IN'+
         def initialize(dns, options={})
           super Labels.new(dns).parse(options[:name]),
                 Int16.new,
                 Int16.new
-          self.type = options[:type] if options[:type]
-          self.rrclass = options[:rrclass] if options[:rrclass]
+          self.type = options[:type] || 'A'
+          self.rrclass = options[:rrclass] || 'IN'
         end
 
         # Read DNS question from a string
@@ -44,6 +46,7 @@ module PacketGen
         alias qclass rrclass
         alias qclass= rrclass=
 
+        # @return [String]
         def to_human
           "#{human_type} #{human_rrclass} #{name.to_human}"
         end
