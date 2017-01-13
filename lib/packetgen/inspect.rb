@@ -26,7 +26,7 @@ module PacketGen
     end
 
     # @param [#to_i] value
-    # @param [Integer] hex_size
+    # @param [Integer] hexsize
     # @return [String]
     def self.int_dec_hex(value, hexsize)
       "%-10s (0x%0#{hexsize}x)" % [value.to_i, value.to_i]
