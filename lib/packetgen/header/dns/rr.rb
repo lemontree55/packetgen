@@ -121,6 +121,26 @@ module PacketGen
               str = IPAddr.new_ntoh(self[:rdata]).to_s
             end
           end
+
+          case type
+          when TYPES['NS'], TYPES['PTR'], TYPES['CNAME']
+            str = Labels.new(@dns).read(self[:rdata]).to_human
+          when TYPES['SOA']
+            mname = Labels.new(@dns).read(self[:rdata])
+            rname = Labels.new(@dns).read(self[:rdata][mname.sz..-1])
+            serial = Int32.new.read(self[:rdata][mname.sz+rname.sz, 4])
+            refresh = Int32.new.read(self[:rdata][mname.sz+rname.sz+4, 4])
+            retryi = Int32.new.read(self[:rdata][mname.sz+rname.sz+8, 4])
+            expire = Int32.new.read(self[:rdata][mname.sz+rname.sz+12, 4])
+            minimum = Int32.new.read(self[:rdata][mname.sz+rname.sz+16, 4])
+            str = "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
+                  "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
+          when TYPES['MX']
+            pref = Int16.new.read(self[:rdata][0, 2])
+            exchange = Labels.new(@dns).read(self[:rdata][2..-1]).to_human
+            str = '%u %s' % [pref.to_i, exchange]
+          end
+
           str
         end
 

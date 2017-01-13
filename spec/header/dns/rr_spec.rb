@@ -136,11 +136,43 @@ module PacketGen
         end
 
         describe '#to_human' do
-          it 'returns a human readable string' do
-            rr = RR.new(dns, name: 'example.net', rdata: IPAddr.new('10.0.0.1').hton)
-            expect(rr.to_human).to eq('A IN example.net. TTL 0 10.0.0.1')
-            rr = RR.new(dns, name: 'example.net', type: 12, rrclass: 3, ttl: 0x10000)
-            expect(rr.to_human).to eq('PTR CH example.net. TTL 65536 ""')
+          it 'returns a human readable string (IN class, A type)' do
+            ipaddr = '10.0.0.1'
+            rr = RR.new(dns, name: 'example.net', rdata: IPAddr.new(ipaddr).hton)
+            expect(rr.to_human).to eq("A IN example.net. TTL 0 #{ipaddr}")
+          end
+
+          it 'returns a human readable string (IN class, AAAA type)' do
+            ip6addr = '2a00:1:2:3:4::12e'
+            rr = RR.new(dns, name: 'example.net', type: 'AAAA',
+                        ttl: 3600, rdata: IPAddr.new(ip6addr).hton)
+            expect(rr.to_human).to eq("AAAA IN example.net. TTL 3600 #{ip6addr}")
+          end
+
+          %w(PTR NS CNAME).each do |type|
+            it "returns a human readable string (#{type} type)" do
+              rr = RR.new(dns, name: 'example.net', type: type, rrclass: 3,
+                          ttl: 0x10000, rdata: generate_label_str([]))
+              expect(rr.to_human).to eq("#{type} CH example.net. TTL 65536 .")
+            end
+          end
+
+          it 'returns a human readable string (MX type)' do
+            rr = RR.new(dns, name: 'example.net', type: 'MX', rrclass: 4,
+                        rdata: "\x00\x20" + generate_label_str(%w(mail example net)))
+            expect(rr.to_human).to eq('MX HS example.net. TTL 0 32 mail.example.net.')
+          end
+
+          it 'returns a human readable string (SOA type)' do
+            rdata = generate_label_str(%w(dns example net))
+            rdata << generate_label_str(%w(mailbox example.net))
+            rdata << [0xf_0000, 15000, 14999, 14998, 13210].pack('N*')
+            rr = RR.new(dns, name: 'example.net', type: 6, rrclass: 3,
+                        rdata: rdata)
+
+            expected_str = 'SOA CH example.net. TTL 0 dns.example.net. ' \
+                           'mailbox.example.net. 983040 15000 14999 14998 13210'
+            expect(rr.to_human).to eq(expected_str)
           end
         end
       end

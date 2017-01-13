@@ -52,7 +52,7 @@ module PacketGen
               label = Label.new.read(str[start..-1])
               start += label.sz
               self << label
-              break if label.length == 0 or str.length == 0
+              break if label.length == 0 or str[start..-1].length == 0
             end
           end
           self
@@ -80,6 +80,7 @@ module PacketGen
         private
 
         def pointer?(index)
+          return false if index.nil?
           index & POINTER_MASK == POINTER_MASK
         end
 
