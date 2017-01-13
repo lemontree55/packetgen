@@ -38,7 +38,7 @@ module PacketGen
             expect(q.type).to eq(2)
             expect(q.rrclass).to eq(3)
 
-            str = [7, 'example', 3, 'org', 0, 1, 1].pack('CA7CA3Cnn')
+            str = generate_label_str(%w(example org)) << [1, 1].pack('nn')
             q = Question.new(dns).read(str)
             expect(q.name.to_human).to eq('example.org.')
             expect(q.type).to eq(1)
@@ -85,7 +85,7 @@ module PacketGen
         describe '#to_s' do
           it 'returns a binary string' do
             q = Question.new(dns, name: 'example.net')
-            expected_str = [7, 'example', 3, 'net', 0, 1, 1].pack('CA7CA3Cnn')
+            expected_str = generate_label_str(%w(example net)) << [1, 1].pack('nn')
             expect(q.to_s).to eq(PacketGen.force_binary expected_str)
           end
         end

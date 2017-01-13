@@ -21,4 +21,5 @@ RSpec.configure do |c|
   c.include CaptureHelper
   c.include BindingHelper
   c.include EspHelper
+  c.include LabelHelper
 end

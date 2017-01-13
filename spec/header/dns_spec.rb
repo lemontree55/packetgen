@@ -204,7 +204,8 @@ module PacketGen
           q = DNS::Question.new(dns, name: 'www.example.org')
           expect { dns.qd << q }.to change { dns.qdcount }.by(1)
           expected_str = "\x00" * 5 + "\x01" + "\x00" * 6 +
-                         "\x03www\x07example\x03org\x00\x00\x01\x00\x01"
+                         generate_label_str(%w(www example org)) +
+                         "\x00\x01\x00\x01"
           expect(dns.to_s).to eq(PacketGen.force_binary expected_str)
         end
 
@@ -213,8 +214,9 @@ module PacketGen
                            rdata: IPAddr.new('2000::1').hton)
           expect { dns.an << an }.to change { dns.ancount }.by(1)
           expected_str = "\x00" * 7 + "\x01" + "\x00" * 4 +
-                         "\x03www\x07example\x03org\x00\x00\x1c\x00\x01" +
-                         "\x00\x00\x0e\x10\x00\x10\x20" + "\x00" * 14 + "\x01"
+                         generate_label_str(%w(www example org)) +
+                         "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" +
+                         "\x00" * 14 + "\x01"
           expect(dns.to_s).to eq(PacketGen.force_binary expected_str)
         end
       end
