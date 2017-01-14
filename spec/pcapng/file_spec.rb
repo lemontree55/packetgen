@@ -115,7 +115,7 @@ module PacketGen
 
       context '#read_packets' do
         before(:all) do
-          @expected = [Header::UDP] * 2 + [Header::ICMP] * 3 + [Header::ARP] * 2 +
+          @expected = [Header::DNS] * 2 + [Header::ICMP] * 3 + [Header::ARP] * 2 +
                       [Header::TCP] * 3 + [Header::ICMP]
         end
 
