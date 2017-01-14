@@ -12,11 +12,52 @@ module PacketGen
           @section = RRSection.new(@dns, @counter)
         end
 
+        describe '#push' do
+          it 'adds an object to section' do
+            obj = Object.new
+            @section.push obj
+            expect(@section).to include(obj)
+          end
+
+          it 'supports special hash with rtype key' do
+            name = 'example.net'
+            ipaddr = '1.2.3.4'
+            @section.push(rtype: 'Question', name: name)
+            @section.push(rtype: 'RR', name: name, rdata: IPAddr.new(ipaddr).hton)
+
+            expect(@section[0]).to be_a(Question)
+            expect(@section[0].to_human).to eq("A IN #{name}.")
+            expect(@section[1]).to be_a(RR)
+            expect(@section[1].to_human).to eq("A IN #{name}. TTL 0 #{ipaddr}")
+          end
+
+          it 'does not increment counter associated to section' do
+            obj = Object.new
+            expect { @section.push obj }.to_not change { @counter.value }
+          end
+        end
+
         describe '#<<' do
           it 'adds an object to section' do
             obj = Object.new
             @section << obj
             expect(@section).to include(obj)
+          end
+
+          it 'supports special hash with rtype key' do
+            name = 'example.net'
+            ipaddr = '1.2.3.4'
+            @section << { rtype: 'Question', name: name }
+            @section << { rtype: 'RR', name: name, rdata: IPAddr.new(ipaddr).hton }
+            @section << { rtype: 'OPT', udp_size: 4096 }
+
+            expect(@section[0]).to be_a(Question)
+            expect(@section[0].to_human).to eq("A IN #{name}.")
+            expect(@section[1]).to be_a(RR)
+            expect(@section[1].to_human).to eq("A IN #{name}. TTL 0 #{ipaddr}")
+            expect(@section[2]).to be_a(OPT)
+            expect(@section[2].to_human).to eq('. OPT UDPsize:4096 extRCODE:0 ' \
+                                               'EDNSversion:0 flags:none options:none')
           end
 
           it 'increments counter associated to section' do

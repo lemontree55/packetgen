@@ -30,12 +30,26 @@ module PacketGen
           self
         end
 
-        # Add a ressource record to this section
-        # @param [RR] rr
+        # Add a ressource to this section without incrementing associated counter
+        # @param [RR,Hash] rr
+        # @return [RRSectrion] self
+        def push(rr)
+          rr = case rr
+               when Hash
+                 record_from_hash rr
+               else
+                 rr
+               end
+          super(rr)
+        end
+
+        # Add a ressource record to this section. Increment associated counter
+        # @param [RR,Hash] rr
         # @return [RRSectrion] self
         def <<(rr)
-          super
+          push rr
           @counter.read(@counter.to_i + 1)
+          self
         end
 
         # Delete a ressource
@@ -63,6 +77,25 @@ module PacketGen
         # @return [Integer]
         def sz
           to_s.size
+        end
+
+        private
+
+        def record_from_hash(hsh)
+          if hsh.has_key? :rtype
+            case hsh.delete(:rtype)
+            when 'Question'
+              Question.new(@dns, hsh)
+            when 'OPT'
+              OPT.new(@dns, hsh)
+            when 'RR'
+              RR.new(@dns, hsh)
+            else
+              raise TypeError, 'rtype should be a Question, OPT or RR'
+            end
+          else
+            hsh
+          end
         end
       end
     end

@@ -5,9 +5,13 @@ module PacketGen
       # Define a DNS Question Section
       # @author Sylvain Daubert
       class QDSection < RRSection
+        # @!method push(q)
+        #  Add a question to this section without incrementing associated counter
+        #  @param [Question,Hash] q
+        #  @return [QDSection] self
         # @!method <<(q)
-        #  Add a question to this section
-        #  @param [Question] q
+        #  Add a question to this section. Increment associated counter
+        #  @param [Question,Hash] q
         #  @return [QDSection] self
         # @!method delete(q)
         #  Delete a question
