@@ -71,7 +71,7 @@ module PacketGen
     #  # or
     #  dns.an << { rtype: 'RR', name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton }
     #  # add a RR to NS section. Dot not modify nscount
-    #  rdata = PacketGen::Header::DNS::Labels.new(dns).parse('dns.net')
+    #  rdata = PacketGen::Header::DNS::Name.new(dns).parse('dns.net')
     #  dns.ns.push PacketGen::Header::DNS::RR.new(dns, name: 'example.net', type: 'NS', rdata: rdata)
     #  # or
     #  dns.ns.push(rtype: 'RR', name: 'example.net', type: 'NS', rdata: rdata)
@@ -95,7 +95,7 @@ end
 
 require_relative 'dns/rrsection'
 require_relative 'dns/qdsection'
-require_relative 'dns/labels'
+require_relative 'dns/name'
 require_relative 'dns/base_rr'
 require_relative 'dns/rr'
 require_relative 'dns/question'

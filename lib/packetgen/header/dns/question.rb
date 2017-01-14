@@ -20,7 +20,7 @@ module PacketGen
         # @option options [Integer,String] :type see {TYPES}. Default to +'A'+
         # @option options [Integer,String] :rrclass see {CLASSES}. Default to +'IN'+
         def initialize(dns, options={})
-          super Labels.new(dns).parse(options[:name]),
+          super Name.new(dns).parse(options[:name]),
                 Int16.new,
                 Int16.new
           self.type = options[:type] || 'A'

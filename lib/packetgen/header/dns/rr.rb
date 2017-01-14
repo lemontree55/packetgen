@@ -56,7 +56,7 @@ module PacketGen
         #   from +:rdata+ length
         # @option options [String] :rdata
         def initialize(dns, options={})
-          super Labels.new(dns).parse(options[:name]),
+          super Name.new(dns).parse(options[:name]),
                 Int16.new,
                 Int16.new,
                 Int32.new(options[:ttl]),
@@ -124,10 +124,10 @@ module PacketGen
 
           case type
           when TYPES['NS'], TYPES['PTR'], TYPES['CNAME']
-            str = Labels.new(@dns).read(self[:rdata]).to_human
+            str = Name.new(@dns).read(self[:rdata]).to_human
           when TYPES['SOA']
-            mname = Labels.new(@dns).read(self[:rdata])
-            rname = Labels.new(@dns).read(self[:rdata][mname.sz..-1])
+            mname = Name.new(@dns).read(self[:rdata])
+            rname = Name.new(@dns).read(self[:rdata][mname.sz..-1])
             serial = Int32.new.read(self[:rdata][mname.sz+rname.sz, 4])
             refresh = Int32.new.read(self[:rdata][mname.sz+rname.sz+4, 4])
             retryi = Int32.new.read(self[:rdata][mname.sz+rname.sz+8, 4])
@@ -137,7 +137,7 @@ module PacketGen
                   "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
           when TYPES['MX']
             pref = Int16.new.read(self[:rdata][0, 2])
-            exchange = Labels.new(@dns).read(self[:rdata][2..-1]).to_human
+            exchange = Name.new(@dns).read(self[:rdata][2..-1]).to_human
             str = '%u %s' % [pref.to_i, exchange]
           end
 
