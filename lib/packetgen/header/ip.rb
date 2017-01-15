@@ -3,6 +3,7 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 require 'socket'
+require_relative 'base'
 
 module PacketGen
   module Header
@@ -66,23 +67,13 @@ module PacketGen
 
       # IP address, as a group of 4 bytes
       # @author Sylvain Daubert
-      class Addr < Struct.new(:a1, :a2, :a3, :a4)
-        include StructFu
+      class Addr < Base
+        define_field :a1, StructFu::Int8
+        define_field :a2, StructFu::Int8
+        define_field :a3, StructFu::Int8
+        define_field :a4, StructFu::Int8
 
         IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
-
-        # @param [Hash] options
-        # @option options [Integer] :a1
-        # @option options [Integer] :a2
-        # @option options [Integer] :a3
-        # @option options [Integer] :a4
-        def initialize(options={})
-          super Int8.new(options[:a1]),
-                Int8.new(options[:a2]),
-                Int8.new(options[:a3]),
-                Int8.new(options[:a4])
-
-        end
 
         # Read a dotted address
         # @param [String] str
@@ -111,15 +102,10 @@ module PacketGen
           end
         end
 
-        [:a1, :a2, :a3, :a4].each do |sym|
-          class_eval "def #{sym}; self[:#{sym}].to_i; end\n" \
-                     "def #{sym}=(v); self[:#{sym}].read v; end" 
-        end
-
         # Addr in human readable form (dotted format)
         # @return [String]
         def to_human
-          members.map { |m| "#{self[m].to_i}" }.join('.')
+          fields.map { |f| "#{self[f].to_i}" }.join('.')
         end
 
         # Addr as an integer
