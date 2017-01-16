@@ -84,6 +84,7 @@ module PacketGen
 end
 
 require 'packetgen/structfu'
+require 'packetgen/types'
 require 'packetgen/inspect'
 require 'packetgen/packet'
 require 'packetgen/capture'
