@@ -352,7 +352,7 @@ module PacketGen
         unless bindings.any? { |b| prev_header.send(b.key) == b.value }
           prev_header[bindings.first.key].read bindings.first.value
         end
-        prev_header.body = header
+        prev_header[:body] = header
       end
       header.packet = self
       @headers << header unless previous_header

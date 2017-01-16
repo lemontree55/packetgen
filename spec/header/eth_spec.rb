@@ -58,11 +58,6 @@ module PacketGen
           expect(eth.ethertype).to eq(0x0c0d)
           expect(eth.body).to eq('body')
         end
-
-        it 'raises when str is too short' do
-          expect { eth.read 'abcd' }.to raise_error(ParseError, /too short/)
-          expect { eth.read('abcdef' * 2) }.to raise_error(ParseError, /too short/)
-        end
       end
 
       describe 'setters' do
@@ -126,7 +121,7 @@ module PacketGen
           eth = Eth.new
           str = eth.inspect
           expect(str).to be_a(String)
-          (eth.members - %i(body)).each do |attr|
+          (eth.fields - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

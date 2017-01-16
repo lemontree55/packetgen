@@ -54,7 +54,7 @@ module PacketGen
     def body=(i)
       if i.kind_of? ::String
         typecast(i)
-      elsif i.kind_of? StructFu
+      elsif i.kind_of? StructFu or i.is_a?(PacketGen::Header::Base)
         self[:body] = i
       elsif i.nil?
         self[:body] = StructFu::String.new.read("")

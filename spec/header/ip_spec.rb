@@ -54,8 +54,7 @@ module PacketGen
 
         it 'accepts options' do
           options = {
-            version: 15,
-            ihl: 15,
+            u8: 0xff,
             tos: 255,
             length: 1000,
             id: 153,
@@ -91,11 +90,6 @@ module PacketGen
             expect(ip.src).to eq('13.14.15.16')
             expect(ip.dst).to eq('17.18.19.20')
             expect(ip.body).to eq('body')
-          end
-
-          it 'raises when str is too short' do
-            expect { ip.read 'abcd' }.to raise_error(ParseError, /too short/)
-            expect { ip.read('a' * 18) }.to raise_error(ParseError, /too short/)
           end
         end
 
@@ -194,8 +188,9 @@ module PacketGen
         it 'returns a binary string' do
           ip = IP.new
           idx = [ip.id].pack('n')
-          expect(ip.to_s).to eq("\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
-                                "\x7f\x00\x00\x01\x7f\x00\x00\x01")
+          expected = "\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
+                     "\x7f\x00\x00\x01\x7f\x00\x00\x01"
+          expect(ip.to_s).to eq(PacketGen.force_binary expected)
         end
       end
 
@@ -204,7 +199,7 @@ module PacketGen
           ip = IP.new
           str = ip.inspect
           expect(str).to be_a(String)
-          (ip.members - %i(body) + %i(version ihl flags frag_offset)).each do |attr|
+          (ip.to_h.keys - %i(body) + %i(version ihl flags frag_offset)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

@@ -4,33 +4,51 @@ module PacketGen
 
       # Base class to describe a TCP option
       # @author Sylvain Daubert
-      class Option < Struct.new(:kind, :length, :value)
-        include StructFu
+      class Option < Base
 
+        # EOL option value
         EOL_KIND       = 0
+        # NOP option value
         NOP_KIND       = 1
+        # MSS option value
         MSS_KIND       = 2
+        # WS option value
         WS_KIND        = 3
+        # SACKOK option value
         SACKOK_KIND    = 4
+        # SACK option value
         SACK_KIND      = 5
+        # ECHO option value
         ECHO_KIND      = 6
+        # ECHOREPLY option value
         ECHOREPLY_KIND = 7
+        # TS option value
         TS_KIND        = 8
+
+        # @!attribute kind
+        #  Option kind
+        #  @return [Integer] 8-bit option kind
+        define_field :kind, StructFu::Int8
+        # @!attribute length
+        #  Option length
+        #  @return [Integer] 8-bit option length
+        define_field :length, StructFu::Int8
+        # @!attribute value
+        #  @return [Integer,String] option value
+        define_field :value, StructFu::String
 
         # @param [hash] options
         # @option options [Integer] :kind
         # @option options [Integer] :length
         # @option options [Integer,String] :value
         def initialize(options={})
-          super Int8.new(options[:kind]),
-                Int8.new(options[:length])
-
+          super
           case options[:value]
           when Integer
             klass = case self[:length].to_i
-                    when 3; Int8
-                    when 4; Int16
-                    when 6; Int32
+                    when 3; StructFu::Int8
+                    when 4; StructFu::Int16
+                    when 6; StructFu::Int32
                     else
                       raise ArgumentError, 'impossible length'
                     end
@@ -59,33 +77,6 @@ module PacketGen
           self
         end
 
-        # Getter for kind attribute
-        # @return [Integer]
-        def kind
-          self[:kind].to_i
-        end
-
-        # Setter for kind attribute
-        # @param [Integer] i
-        # @return [Integer]
-        def kind=(i)
-          self[:kind].read i
-        end
-
-        # Getter for length attribute
-        # @return [Integer]
-        def length
-          self[:length].to_i
-        end
-
-        # Setter for length attribute
-        # @param [Integer] i
-        # @return [Integer]
-        def length=(i)
-          self[:length].read i
-        end
-
-        # Say if option has a length
         # @return [Boolean]
         def has_length?
           self[:kind].value && kind >= 2
@@ -100,13 +91,6 @@ module PacketGen
           else
             self[:value].to_s
           end
-        end
-
-        # Setter for value attribute
-        # @param [String, Integer] v
-        # @return [String, Integer]
-        def value=(v)
-          self[:value].read v
         end
 
         # Get binary string
@@ -160,7 +144,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: MSS_KIND, length: 4)
-          self[:value] = Int16.new(options[:value])
+          self[:value] = StructFu::Int16.new(options[:value])
         end
 
         # @return [String]
@@ -175,7 +159,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: WS_KIND, length: 3)
-          self[:value] = Int8.new(options[:value])
+          self[:value] = StructFu::Int8.new(options[:value])
         end
 
         # @return [String]
@@ -209,7 +193,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: ECHO_KIND, length: 6)
-          self[:value] = Int32.new(options[:value])
+          self[:value] = StructFu::Int32.new(options[:value])
         end
 
         # @return [String]
@@ -224,7 +208,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: ECHOREPLY_KIND, length: 6)
-          self[:value] = Int32.new(options[:value])
+          self[:value] = StructFu::Int32.new(options[:value])
         end
 
         # @return [String]

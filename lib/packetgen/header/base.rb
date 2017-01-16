@@ -6,11 +6,19 @@ module PacketGen
     class Base
 
       # @api private
+      # Simple class to handle header association
+      Binding = Struct.new(:key, :value)
+
+      # @api private
       # Reference on packet which owns this header
       attr_accessor :packet
 
+      # @private
+      @field_defs = {}
+
       def self.inherited(klass)
-        klass.instance_eval { @fields = {}; @known_headers = {} }
+        field_defs = @field_defs.clone
+        klass.class_eval { @field_defs = field_defs; @known_headers = {} }
       end
 
       # Bind a upper header to current class
@@ -35,19 +43,29 @@ module PacketGen
 
       # Define a field in a Struct subclass
       # @param [Symbol] name field name
-      # @param [StructFu] type type from StructFu module
+      # @param [Object] type class or instance
       # @param [Object] default default value
       # @return [void]
       def self.define_field(name, type, default=nil)
-        if type < StructFu::Int
-          class_eval "def #{name}; self[:#{name}].to_i; end\n" \
-                     "def #{name}=(val) self[:#{name}].read val; end"
+        type_inst = type.is_a?(Class) ? type.new : type
+
+        define = []
+        if type_inst.is_a?(StructFu::Int)
+          define << "def #{name}; self[:#{name}].to_i; end"
+          define << "def #{name}=(val) self[:#{name}].read val; end"
+        elsif type_inst.respond_to? :to_human
+          define << "def #{name}; self[:#{name}].to_human; end"
+          define << "def #{name}=(val) self[:#{name}].from_human val; end"
         else
-          class_eval "def #{name}; self[:#{name}]; end\n" \
-                          "def #{name}=(val) self[:#{name}].read val; end"
+          define << "def #{name}; self[:#{name}]; end\n"
+          define << "def #{name}=(val) self[:#{name}].read val; end"
         end
 
-        @fields[name] = [type, default]
+        define.delete(1) if type_inst.respond_to? "#{name}="
+        define.delete(0) if type_inst.respond_to? name
+        class_eval define.join("\n")
+
+        @field_defs[name] = [type, default]
       end
 
       # Define a bitfield on given attribute
@@ -124,8 +142,31 @@ module PacketGen
       # @param [Hash] options
       def initialize(options={})
         @fields = {}
-        self.class.class_eval { @fields }.each do |field, ary|
-          @fields[field] = ary[0].new(options[field] || ary[1])
+        self.class.class_eval { @field_defs }.each do |field, ary|
+          default = ary[1].is_a?(Proc) ? ary[1].call : ary[1]
+          if ary[0].is_a?(Class)
+            if ary[0] < StructFu::Int
+              @fields[field] = ary[0].new(options[field] || default)
+            elsif ary[0] <= StructFu::String
+              @fields[field] = ary[0].new
+              @fields[field].read(options[field] || default)
+            else
+              f = ary[0].new
+              f.from_human(options[field] || default) if f.respond_to? :from_human
+              @fields[field] = f
+            end
+          else
+            case ary[0]
+            when StructFu::Int
+              @fields[field] = ary[0].read(options[field] || default)
+            when StructFu::String
+              @fields[field] = ary[0].read(options[field] || default)
+            else
+              f = ary[0]
+              f.from_human(options[field] || default) if f.respond_to? :from_human
+              @fields[field] = f
+            end
+          end
         end
       end
 
@@ -144,8 +185,80 @@ module PacketGen
         @fields[field] = obj
       end
 
+      # Get all field names
+      # @return [Array<Symbol>]
       def fields
         @fields.keys
+      end
+
+      # Return header protocol name
+      # @return [String]
+      def protocol_name
+        self.class.to_s.sub(/.*::/, '')
+      end
+
+      def read(str)
+        return self if str.nil?
+        force_binary str
+        start = 0
+        fields.each do |field|
+          if self[field].respond_to? :width
+            width = self[field].width
+            self[field].read str[start, width]
+            start += width
+          elsif self[field].respond_to? :sz
+            self[field].read str[start..-1]
+            size = self[field].sz
+            start += size
+          else
+            self[field].read str[start..-1]
+            start = str.size
+          end
+        end
+
+        self
+      end
+
+      # Common inspect method for headers
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        @fields.each do |attr, value|
+          next if attr == :body
+          str << Inspect.inspect_attribute(attr, value, 2)
+        end
+        str
+      end
+
+      def to_s
+        @fields.values.map { |v| force_binary v.to_s }.join
+      end
+
+      def sz
+        to_s.size
+      end
+
+      def to_h
+        @fields
+      end
+
+      # Used to set body as balue of body object.
+      # @param [Object] value
+      # @return [void]
+      # @raise [BodyError] no body on given object
+      # @raise [ArgumentError] cannot cram +body+ in +:body+ field
+      def body=(value)
+        raise BodyError, 'no body field'  unless @fields.has_key? :body
+        case body
+        when ::String
+          self[:body].read value
+        when StructFu::Int, Base
+          self[:body] = value
+        when NilClass
+          self[:body] = StructFu::String.new.read('')
+        else
+          raise ArgumentError, "Can't cram a #{body.class} in a :body field"
+        end
       end
 
       # @api private
@@ -175,31 +288,9 @@ module PacketGen
         iph
       end
 
-      # Return header protocol name
+      # Force str to binary encoding
+      # @param [String] str
       # @return [String]
-      def protocol_name
-        self.class.to_s.sub(/.*::/, '')
-      end
-
-      # Common inspect method for headers
-      # @return [String]
-      def inspect
-        str = Inspect.dashed_line(self.class, 2)
-        @fields.each do |attr, value|
-          next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
-        end
-        str
-      end
-
-      def to_s
-        @fields.values.map { |v| v.to_s }.join
-      end
-
-      def sz
-        to_s.size
-      end
-
       def force_binary(str)
         PacketGen.force_binary(str)
       end

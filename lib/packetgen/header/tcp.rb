@@ -2,9 +2,9 @@ module PacketGen
   module Header
 
     # A TCP header consists of:
-    # * a source port ({#sport}, {Int16} type),
+    # * a source port ({#sport}, {StructFu::Int16} type),
     # * a destination port ({#dport}, +Int16+ type),
-    # * a sequence number ({#seqnum}, {Int32} type),
+    # * a sequence number ({#seqnum}, {StructFu::Int32} type),
     # * an acknownledge number ({#acknum}, +Int32+ type),
     # * a 16-bit field ({#u16}, +Int16+ type) composed of:
     #   * a 4-bit {#data_offset} value,
@@ -14,7 +14,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+ type),
     # * a urgent pointer ({#urg_pointer}, +Int16+ type),
     # * an optional {#options} field ({Options} type),
-    # * and a {#body} ({String} type).
+    # * and a {#body} ({StructFu::String} type).
     #
     # == Create a TCP header
     #  # standalone
@@ -46,11 +46,7 @@ module PacketGen
     # Another way is to use {Options#add}:
     #  tcph.options.add 'MSS', 1250
     # @author Sylvain Daubert
-    class TCP < Struct.new(:sport, :dport, :seqnum, :acknum, :u16,
-                           :window, :checksum, :urg_pointer, :options, :body)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class TCP < Base
     end
   end
 end
@@ -65,6 +61,61 @@ module PacketGen
       # IP protocol number for TCP
       IP_PROTOCOL = 6
 
+      # @!attribute sport
+      #  16-bit TCP source port
+      #  @return [Integer]
+      define_field :sport, StructFu::Int16
+      # @!attribute dport
+      #  16-bit TCP destination port
+      #  @return [Integer]
+      define_field :dport, StructFu::Int16
+      # @!attribute seqnum
+      #  32-bit TCP sequence number
+      #  @return [Integer]
+      define_field :seqnum, StructFu::Int32, -> { rand(2**32) }
+      # @!attribute acknum
+      #  32-bit TCP acknowledgement number
+      #  @return [Integer]
+      define_field :acknum, StructFu::Int32
+      # @!attribute u16
+      #  @return [Integer] 16-bit word used by flags and bit fields
+      define_field :u16, StructFu::Int16
+      # @!attribute window
+      #  16-bit TCP window size
+      #  @return [Integer]
+      define_field :window, StructFu::Int16
+      # @!attribute checksum
+      #  16-bit TCP checksum
+      #  @return [Integer]
+      define_field :checksum, StructFu::Int16
+      # @!attribute urg_pointer
+      #  16-bit TCP urgent data pointer
+      #  @return [Integer]
+      define_field :urg_pointer, StructFu::Int16
+      # @!attribute options
+      #  TCP options
+      #  @return [Options]
+      define_field :options, TCP::Options
+      # @!attribute body
+      #  @return [StructFu::String,Header::Base]
+      define_field :body, StructFu::String
+
+      alias source_port sport
+      alias source_port= sport=
+      alias destination_port dport
+      alias destination_port= dport=
+      alias sequence_number seqnum
+      alias sequence_number= seqnum=
+      alias acknowledgement_number acknum
+      alias acknowledgement_number= acknum=
+      alias wsize window
+      alias wsize= window=
+
+      # Call {Base#initialize), then handle specific options to set +u16+ by part:
+      # * +:data_offset+
+      # * +:hlen+
+      # * +:reserved+
+      # * +:flags+
       # @param [Hash] options
       # @option options [Integer] :sport
       # @option options [Integer] :dport
@@ -78,21 +129,12 @@ module PacketGen
       # @option options [Integer] :urg_pointer
       # @option options [String] :body
       def initialize(options={})
-        super Int16.new(options[:sport]),
-              Int16.new(options[:dport]),
-              Int32.new(options[:seqnum] || rand(2**32)),
-              Int32.new(options[:acknum]),
-              Int16.new,
-              Int16.new(options[:window] || options[:wsize]),
-              Int16.new(options[:checksum]),
-              Int16.new(options[:urg_pointer]),
-              Options.new,
-              StructFu::String.new.read(options[:body])
+        super
 
         doff = options[:data_offset] || options[:hlen] || 5
         rsv = options[:reserved] || 0
         flgs = options[:flags] || 0
-        self.u16.read (((doff << 3) | rsv) << 9) | flgs
+        self[:u16].read (((doff << 3) | rsv) << 9) | flgs
       end
 
       # @!attribute data_offset
@@ -130,7 +172,6 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
-        raise ParseError, 'string too short for TCP' if str.size < self.sz
         force_binary str
         self[:sport].read str[0, 2]
         self[:dport].read str[2, 2]
@@ -168,109 +209,8 @@ module PacketGen
         self[:data_offset] = 5 + self[:options].sz / 4
       end
 
-      # Getter for source port
-      # @return [Integer]
-      def sport
-        self[:sport].to_i
-      end
-      alias :source_port :sport
-
-      # Setter for source port
-      # @param [Integer] port
-      # @return [Integer]
-      def sport=(port)
-        self[:sport].read port
-      end
-      alias :source_port= :sport=
-
-      # Getter for destination port
-      # @return [Integer]
-      def dport
-        self[:dport].to_i
-      end
-      alias :destination_port :dport
-
-      # Setter for destination port
-      # @param [Integer] port
-      # @return [Integer]
-      def dport=(port)
-        self[:dport].read port
-      end
-      alias :destination_port= :dport=
-
-      # Getter for seqnum attribuute
-      # @return [Integer]
-      def seqnum
-        self[:seqnum].to_i
-      end
-      alias :sequence_number :seqnum
-
-      # Setter for seqnum attribuute
-      # @param [Integer] seq
-      # @return [Integer]
-      def seqnum=(seq)
-        self[:seqnum].read seq
-      end
-      alias :sequence_number= :seqnum=
-
-      # Getter for acknum attribuute
-      # @return [Integer]
-      def acknum
-        self[:acknum].to_i
-      end
-      alias :acknowledgment_number :acknum
-
-      # Setter for acknum attribuute
-      # @param [Integer] ack
-      # @return [Integer]
-      def acknum=(ack)
-        self[:acknum].read ack
-      end
-      alias :acknowledgment_number= :acknum=
-
-      alias :hlen :data_offset
-      alias :hlen= :data_offset=
-
-      # Getter for window attribuute
-      # @return [Integer]
-      def window
-        self[:window].to_i
-      end
-      alias :wsize :window
-
-      # Setter for window attribuute
-      # @param [Integer] window
-      # @return [Integer]
-      def window=(window)
-        self[:window].read window
-      end
-      alias :wsize= :window=
-
-      # Getter for checksum attribuute
-      # @return [Integer]
-      def checksum
-        self[:checksum].to_i
-      end
-
-      # Setter for checksum attribuute
-      # @param [Integer] sum
-      # @return [Integer]
-      def checksum=(sum)
-        self[:checksum].read sum
-      end
-
-      # Getter for urg_pointer attribuute
-      # @return [Integer]
-      def urg_pointer
-        self[:urg_pointer].to_i
-      end
-
-      # Setter for urg_pointer attribuute
-      # @param [Integer] urg
-      # @return [Integer]
-      def urg_pointer=(urg)
-        self[:urg_pointer].read urg
-      end
+      alias hlen data_offset
+      alias hlen= data_offset=
 
       # @return [String]
       def inspect

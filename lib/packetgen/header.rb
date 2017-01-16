@@ -82,6 +82,7 @@ module PacketGen
   end
 end
 
+require_relative 'header/base'
 require_relative 'header/header_class_methods'
 require_relative 'header/header_methods'
 require_relative 'header/eth'

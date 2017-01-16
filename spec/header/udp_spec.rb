@@ -54,10 +54,6 @@ module PacketGen
           expect(udp.checksum).to eq(0x0607)
           expect(udp.body).to eq('body')
         end
-
-        it 'raises when str is too short' do
-          expect { udp.read 'abcd' }.to raise_error(ParseError, /too short/)
-        end
       end
 
       describe '#calc_checksum' do
@@ -117,7 +113,7 @@ module PacketGen
           udp = UDP.new
           str = udp.inspect
           expect(str).to be_a(String)
-          (udp.members - %i(body)).each do |attr|
+          (udp.fields - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
