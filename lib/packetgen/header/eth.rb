@@ -86,13 +86,13 @@ module PacketGen
 
       # @!attribute dst
       #  @return [MacAddr] Destination MAC address
-      define_field :dst, MacAddr, '00:00:00:00:00:00'
+      define_field :dst, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute src
       #  @return [MacAddr] Source MAC address
-      define_field :src, MacAddr, '00:00:00:00:00:00'
+      define_field :src, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute ethertype
       #  @return [Integer] 16-bit integer to determine payload type
-      define_field :ethertype, StructFu::Int16, 0
+      define_field :ethertype, StructFu::Int16, default: 0
       # @!attribute body
       #  @return [StructFu::String,Header::Base]
       define_field :body, StructFu::String

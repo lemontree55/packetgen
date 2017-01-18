@@ -110,34 +110,34 @@ module PacketGen
       # @!attribute u8
       #  First byte of IP header. May be accessed through {#version} and {#ihl}.
       #  @return [Integer] first byte of IP header.
-      define_field :u8, StructFu::Int8, 0x45
+      define_field :u8, StructFu::Int8, default: 0x45
       # @!attribute tos
       #   @return [Integer] 8-bit Type of Service value
-      define_field :tos, StructFu::Int8, 0
+      define_field :tos, StructFu::Int8, default: 0
       # @!attribute length
       #   @return [Integer] 16-bit IP total length
-      define_field :length, StructFu::Int16, 20
+      define_field :length, StructFu::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
-      define_field :id, StructFu::Int16, -> { rand(65535) }
+      define_field :id, StructFu::Int16, default: -> { rand(65535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
-      define_field :frag, StructFu::Int16, 0
+      define_field :frag, StructFu::Int16, default: 0
       # @!attribute ttl
       #   @return [Integer] 8-bit Time To Live value
-      define_field :ttl, StructFu::Int8, 64
+      define_field :ttl, StructFu::Int8, default: 64
       # @!attribute protocol
       #   @return [Integer] 8-bit upper protocol value
       define_field :protocol, StructFu::Int8
       # @!attribute checksum
       #   @return [Integer] 16-bit IP header checksum
-      define_field :checksum, StructFu::Int16, 0
+      define_field :checksum, StructFu::Int16, default: 0
       # @!attribute src
       #   @return [Addr] source IP address
-      define_field :src, Addr, '127.0.0.1'
+      define_field :src, Addr, default: '127.0.0.1'
       # @!attribute dst
       #   @return [Addr] destination IP address
-      define_field :dst, Addr, '127.0.0.1'
+      define_field :dst, Addr, default: '127.0.0.1'
       # @!attribute body
       #  @return [StructFu::String,Header::Base]
       define_field :body, StructFu::String

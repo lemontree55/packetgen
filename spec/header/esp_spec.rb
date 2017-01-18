@@ -81,11 +81,6 @@ module PacketGen
           expect(esp.next).to eq(22)
           expect(esp.icv).to eq("\x17\x18\x19\x1a")
         end
-
-        it 'raises when str is too short' do
-          str = (1..(esp.sz-1))
-          expect { esp.read str }.to raise_error(ParseError, 'string too short for ESP')
-        end
       end
 
       describe 'setters' do
@@ -129,7 +124,7 @@ module PacketGen
           esp = ESP.new
           str = esp.inspect
           expect(str).to be_a(String)
-          (esp.members - %i(body)).each do |attr|
+          (esp.fields - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

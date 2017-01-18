@@ -1,19 +1,9 @@
 require_relative 'spec_helper'
 
 module PGTestModule
-  class TestHeader < Struct.new(:field1, :field2)
-    include PacketGen::StructFu
-    include PacketGen::Header::HeaderMethods
-    extend PacketGen::Header::HeaderClassMethods
-
-    def initialize(options={})
-      super Int32.new(options[:field1]), Int32.new(options[:field2])
-    end
-
-    def read(str)
-      self[:field1].read str[0, 4]
-      self[:field2].read str[4, 4]
-    end
+  class TestHeader < PacketGen::Header::Base
+    define_field :field1, PacketGen::StructFu::Int32
+    define_field :field2, PacketGen::StructFu::Int32
   end
 end
 

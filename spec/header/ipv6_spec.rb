@@ -8,7 +8,7 @@ module PacketGen
         @ipv6addr = IPv6::Addr.new.from_human('fe80::21a:c5ff:fe00:152')
       end
 
-      it '#parse a string containing a dotted address' do
+      it '#parse a string containing a colon-delimited address' do
         expect(@ipv6addr.a1).to eq(0xfe80)
         expect(@ipv6addr.a2).to eq(0)
         expect(@ipv6addr.a3).to eq(0)
@@ -19,7 +19,7 @@ module PacketGen
         expect(@ipv6addr.a8).to eq(0x0152)
       end
 
-      it '#to_human returns a dotted address as String' do
+      it '#to_human returns a colon-delimited address as String' do
         expect(@ipv6addr.to_human).to eq('fe80::21a:c5ff:fe00:152')
       end
 
@@ -90,11 +90,6 @@ module PacketGen
           expect(ipv6.src).to eq('90a:b0c:d0e:f10:1112:1314:1516:1718')
           expect(ipv6.dst).to eq('191a:1b1c:1d1e:1f20:2122:2324:2526:2728')
           expect(ipv6.body).to eq('body')
-        end
-
-        it 'raises when str is too short' do
-          expect { ipv6.read 'abcd' }.to raise_error(ParseError, /too short/)
-          expect { ipv6.read('a' * 39) }.to raise_error(ParseError, /too short/)
         end
       end
 
@@ -195,7 +190,7 @@ module PacketGen
           ip = IPv6.new
           str = ip.inspect
           expect(str).to be_a(String)
-          (ip.members - %i(body) + %i(version tclass flow_label)).each do |attr|
+          (ip.fields - %i(body) + %i(version tclass flow_label)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

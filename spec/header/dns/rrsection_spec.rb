@@ -8,7 +8,7 @@ module PacketGen
 
         before(:each) do
           @dns = DNS.new
-          @counter = Int32.new(0)
+          @counter = StructFu::Int32.new(0)
           @section = RRSection.new(@dns, @counter)
         end
 

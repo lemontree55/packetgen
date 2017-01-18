@@ -10,12 +10,11 @@ module PacketGen
         POINTER_MASK = 0xc000
 
         # @return [DNS]
-        attr_reader :dns
+        attr_accessor :dns
 
         # @param [DNS] dns
-        def initialize(dns)
-          super()
-          @dns = dns
+        def initialize
+          super
           @pointer = nil
           @pointer_name = nil
         end
@@ -23,7 +22,7 @@ module PacketGen
         # Read a set of labels form a dotted string
         # @param [String] str
         # @return [Name] self
-        def parse(str)
+        def from_human(str)
           clear
           return self if str.nil?
 
@@ -94,7 +93,9 @@ module PacketGen
           index = @pointer.unpack('n').first
           mask = ~POINTER_MASK & 0xffff
           ptr = index & mask
-          @pointer_name = Name.new(@dns).read(self.dns.to_s[ptr..-1]).to_human
+          name = Name.new
+          name.dns = @dns
+          @pointer_name = name.read(self.dns.to_s[ptr..-1]).to_human
         end
       end
     end

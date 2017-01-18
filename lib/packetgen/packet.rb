@@ -332,8 +332,8 @@ module PacketGen
     end
 
     # Add a header to packet
-    # @param [Header::HeaderMethods] header
-    # @param [Header::HeaderMethods] previous_header
+    # @param [Header::Base] header
+    # @param [Header::Base] previous_header
     # @return [void]
     def add_header(header, previous_header=nil)
       protocol = header.protocol_name

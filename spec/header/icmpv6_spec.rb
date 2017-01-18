@@ -45,11 +45,6 @@ module PacketGen
                      "\xcc\xb2"
           expect(icmp.body).to eq(PacketGen.force_binary expected)
         end
-
-        it 'raises when str is too short' do
-          expect { icmp.read 'aa' }.to raise_error(ParseError, /too short/)
-          expect { icmp.read('aaa') }.to raise_error(ParseError, /too short/)
-        end
       end
 
       describe '#calc_checksum' do
@@ -97,7 +92,7 @@ module PacketGen
           icmpv6 = ICMPv6.new
           str = icmpv6.inspect
           expect(str).to be_a(String)
-          (icmpv6.members - %i(body)).each do |attr|
+          (icmpv6.fields - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

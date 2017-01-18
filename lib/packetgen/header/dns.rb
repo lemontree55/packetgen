@@ -84,11 +84,7 @@ module PacketGen
     #  # add an option to OPT record
     #  dns.ar.last.options << PacketGen::Header::DNS::Option.new(code: 48, length: 2, data: "12")
     # @author Sylvain Daubert
-    class DNS < Struct.new(:id, :u16, :qdcount, :ancount, :nscount, :arcount,
-                           :qd, :an, :ns, :ar)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class DNS < Base
     end
   end
 end
@@ -96,9 +92,8 @@ end
 require_relative 'dns/rrsection'
 require_relative 'dns/qdsection'
 require_relative 'dns/name'
-require_relative 'dns/base_rr'
-require_relative 'dns/rr'
 require_relative 'dns/question'
+require_relative 'dns/rr'
 require_relative 'dns/opt'
 
 module PacketGen
@@ -129,21 +124,24 @@ module PacketGen
         'refused'         => 5
       }
 
-      # @private onlu useful for define_bit_fields_on
-      def initialize(options={})
-        super Int16.new(options[:id]),
-              Int16.new,
-              Int16.new(options[:qdcount]),
-              Int16.new(options[:ancount]),
-              Int16.new(options[:nscount]),
-              Int16.new(options[:arcount])
-        
-        self[:qd] = QDSection.new(self, self[:qdcount])
-        self[:an] = RRSection.new(self, self[:ancount])
-        self[:ns] = RRSection.new(self, self[:nscount])
-        self[:ar] = RRSection.new(self, self[:arcount])
-      end
-      alias old_initialize initialize
+      define_field :id, StructFu::Int16
+      define_field :u16, StructFu::Int16
+      define_field :qdcount, StructFu::Int16
+      define_field :ancount, StructFu::Int16
+      define_field :nscount, StructFu::Int16
+      define_field :arcount, StructFu::Int16
+      # @!attribute qd
+      #  @return [QDSection]
+      define_field :qd, QDSection, builder: ->(dns) { QDSection.new(dns, dns[:qdcount]) }
+      # @!attribute an
+      #  @return [RRSection]
+      define_field :an, RRSection, builder: ->(dns) { RRSection.new(dns, dns[:ancount]) }
+      # @!attribute ns
+      #  @return [RRSection]
+      define_field :ns, RRSection, builder: ->(dns) { RRSection.new(dns, dns[:nscount]) }
+      # @!attribute ar
+      #  @return [RRSection]
+      define_field :ar, RRSection, builder: ->(dns) { RRSection.new(dns, dns[:arcount]) }
 
       # @!attribute qr
       #   @return [Boolean] query (+false+) or response (+true+)
@@ -180,14 +178,14 @@ module PacketGen
       # @option optons [Boolean] :ra
       # @option optons [Integer,String] :rcode
       def initialize(options={})
-        old_initialize(options)
+        super
 
         qr = boolean2integer(options[:qr])
         aa = boolean2integer(options[:aa])
         tc = boolean2integer(options[:tc])
         rd = boolean2integer(options[:rd])
         ra = boolean2integer(options[:ra])
-        self.u16.read (qr << 15) | (aa << 10) | (tc << 9) | (rd << 8) | (ra << 7)
+        self.u16 = (qr << 15) | (aa << 10) | (tc << 9) | (rd << 8) | (ra << 7)
         self.opcode = options[:opcode] || OPCODES['query']
         self.rcode = options[:rcode] || RCODES['ok']
       end
@@ -205,81 +203,15 @@ module PacketGen
         self[:nscount].read str[8, 2]
         self[:arcount].read str[10, 2]
         self[:qd].read str[12..-1] if self.qdcount > 0
-        start = 12 + self.qd.sz
+        start = 12 + self[:qd].sz
         self[:an].read str[start..-1] if self.ancount > 0
-        start += self.an.sz
+        start += self[:an].sz
         self[:ns].read str[start..-1] if self.nscount > 0
-        start += self.ns.sz
+        start += self[:ns].sz
         self[:ar].read str[start..-1] if self.arcount > 0
         self
       end
 
-      # Getter for id
-      # @return [Integer]
-      def id
-        self[:id].to_i
-      end
-
-      # Setter for id
-      # @param [Integer] id
-      # @return [Integer]
-      def id=(id)
-        self[:id].read id
-      end
-
-      # Getter for qdcount
-      # @return [Integer]
-      def qdcount
-        self[:qdcount].to_i
-      end
-
-      # Setter for qdcount
-      # @param [Integer] qdcount
-      # @return [Integer]
-      def qdcount=(qdcount)
-        self[:qdcount].read qdcount
-      end
-
-      # Getter for ancount
-      # @return [Integer]
-      def ancount
-        self[:ancount].to_i
-      end
-
-      # Setter for ancount
-      # @param [Integer] ancount
-      # @return [Integer]
-      def ancount=(ancount)
-        self[:ancount].read ancount
-      end
-
-      # Getter for nscount
-      # @return [Integer]
-      def nscount
-        self[:nscount].to_i
-      end
-
-      # Setter for nscount
-      # @param [Integer] nscount
-      # @return [Integer]
-      def nscount=(nscount)
-        self[:nscount].read nscount
-      end
-
-      # Getter for arcount
-      # @return [Integer]
-      def arcount
-        self[:arcount].to_i
-      end
-
-      # Setter for arcount
-      # @param [Integer] arcount
-      # @return [Integer]
-      def arcount=(arcount)
-        self[:arcount].read arcount
-      end
-
-      alias old_opcode= opcode=
       # Set opcode
       # @param [Integer,String] value
       # @return [Integer]
@@ -291,10 +223,10 @@ module PacketGen
                  OPCODES[value.to_s]
                end
         raise ArgumentError, "unknown opcode #{value.inspect}" unless intg
-        self.old_opcode = intg
+        self.u16 &= 0x87ff
+        self.u16 |= (intg & 0xf) << 11
       end
 
-      alias old_rcode= rcode=
       # Set rcode
       # @param [Integer,String] value
       # @return [Integer]
@@ -306,7 +238,8 @@ module PacketGen
                  RCODES[value]
                end
         raise ArgumentError, "unknown rcode #{value.inspect}" unless intg
-        self.old_rcode = intg
+        self.u16 &= 0xfff0
+        self.u16 |= intg & 0xf
       end
 
       # Is message a response

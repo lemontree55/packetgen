@@ -45,7 +45,7 @@ module PacketGen
       # @!attribute length
       #  16-bit UDP length
       #  @return [Integer]
-      define_field :length, StructFu::Int16, 8
+      define_field :length, StructFu::Int16, default: 8
       # @!attribute checksum
       #  16-bit UDP checksum
       #  @return [Integer]

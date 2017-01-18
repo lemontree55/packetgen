@@ -10,7 +10,7 @@ module PacketGen
         describe '#initialize' do
           it 'creates a OPT with default values' do
             opt = OPT.new(dns)
-            expect(opt.name.to_human).to eq('.')
+            expect(opt.name).to eq('.')
             expect(opt.type).to eq(41)
             expect(opt.udp_size).to eq(512)
             expect(opt.ttl).to eq(0)
@@ -34,7 +34,7 @@ module PacketGen
             }
             opt = OPT.new(dns, options)
 
-            expect(opt.name.to_human).to eq(options.delete :name)
+            expect(opt.name).to eq(options.delete :name)
             options.each do |key, value|
               meth = key.to_s
               meth << '?' if  value.is_a?(TrueClass) or value.is_a?(FalseClass)
@@ -47,7 +47,7 @@ module PacketGen
           it 'sets OPT from a string' do
             str = [0, 2, 1024, 0x10, 1, 0xc1ac, 0].pack('CnnCCnn')
             opt = OPT.new(dns).read(str)
-            expect(opt.name.to_human).to eq('.')
+            expect(opt.name).to eq('.')
             expect(opt.type).to eq(2)
             expect(opt.udp_size).to eq(1024)
             expect(opt.ext_rcode).to eq(0x10)

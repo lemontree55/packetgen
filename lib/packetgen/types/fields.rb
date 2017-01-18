@@ -41,7 +41,8 @@ module PacketGen
         if type < StructFu::Int
           define << "def #{name}; self[:#{name}].to_i; end"
           define << "def #{name}=(val) self[:#{name}].read val; end"
-        elsif type.instance_methods.include? :to_human
+        elsif type.instance_methods.include? :to_human and
+             type.instance_methods.include? :from_human
           define << "def #{name}; self[:#{name}].to_human; end"
           define << "def #{name}=(val) self[:#{name}].from_human val; end"
         else

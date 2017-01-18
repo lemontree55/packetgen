@@ -10,7 +10,7 @@ module PacketGen
         describe '#initialize' do
           it 'creates a Question with default values' do
             q = Question.new(dns)
-            expect(q.name.to_s).to eq('')
+            expect(q.name.to_s).to eq('.')
             expect(q.type).to eq(1)
             expect(q.rrclass).to eq(1)
           end
@@ -23,7 +23,7 @@ module PacketGen
             }
             q = Question.new(dns, options)
 
-            expect(q.name.to_human).to eq(options.delete :name)
+            expect(q.name).to eq(options.delete :name)
             options.each do |key, value|
               expect(q.send(key)).to eq(value)
             end
@@ -34,13 +34,13 @@ module PacketGen
           it 'sets question from a string' do
             str = [0, 2, 3].pack('Cnn')
             q = Question.new(dns).read(str)
-            expect(q.name.to_human).to eq('.')
+            expect(q.name).to eq('.')
             expect(q.type).to eq(2)
             expect(q.rrclass).to eq(3)
 
             str = generate_label_str(%w(example org)) << [1, 1].pack('nn')
             q = Question.new(dns).read(str)
-            expect(q.name.to_human).to eq('example.org.')
+            expect(q.name).to eq('example.org.')
             expect(q.type).to eq(1)
             expect(q.rrclass).to eq(1)
           end

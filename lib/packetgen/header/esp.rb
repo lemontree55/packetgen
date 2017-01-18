@@ -62,17 +62,45 @@ module PacketGen
     #
     #  pkt.esp.decrypt! cipher, intmode: hmac    # => true if ICV check OK
     # @author Sylvain Daubert
-    class ESP < Struct.new(:spi, :sn, :body, :tfc, :padding,
-                           :pad_length, :next, :icv)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class ESP < Base
 
       # IP protocol number for ESP
       IP_PROTOCOL = 50
 
       # Well-known UDP port for ESP
       UDP_PORT = 4500
+
+      # @!attribute spi
+      #  32-bit Security Parameter Index
+      #  @return [Integer]
+      define_field :spi, StructFu::Int32
+      # @!attribute sn
+      #  32-bit Sequence Number
+      #  @return [Integer]
+      define_field :sn, StructFu::Int32
+      # @!attribute body
+      #  @return [StructFu::String,Header::Base]
+      define_field :body, StructFu::String
+      # @!attribute tfc
+      #  Traffic Flow Confidentiality padding
+      #  @return [StructFu::String,Header::Base]
+      define_field :tfc, StructFu::String
+      # @!attribute padding
+      #  ESP padding
+      #  @return [StructFu::String,Header::Base]
+      define_field :padding, StructFu::String
+      # @!attribute pad_length
+      #  8-bit padding length
+      #  @return [Integer]
+      define_field :pad_length, StructFu::Int8
+      # @!attribute next
+      #  8-bit next protocol value
+      #  @return [Integer]
+      define_field :next, StructFu::Int8
+      # @!attribute icv
+      #  Integrity Check Value
+      #  @return [StructFu::String,Header::Base]
+      define_field :icv, StructFu::String
 
       # ICV (Integrity Check Value) length
       # @return [Integer]
@@ -92,14 +120,7 @@ module PacketGen
       # @option options [::String] :icv Integrity Check Value
       def initialize(options={})
         @icv_length = options[:icv_length] || 0
-        super Int32.new(options[:spi]),
-              Int32.new(options[:sn]),
-              StructFu::String.new.read(options[:body]),
-              StructFu::String.new.read(options[:tfc]),
-              StructFu::String.new.read(options[:padding]),
-              Int8.new(options[:pad_length]),
-              Int8.new(options[:next]),
-              StructFu::String.new.read(options[:icv])
+        super
       end
 
       # Read a ESP packet from string.
@@ -111,7 +132,6 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
-        raise ParseError, 'string too short for ESP' if str.size < self.sz
         force_binary str
         self[:spi].read str[0, 4]
         self[:sn].read str[4, 4]
@@ -122,58 +142,6 @@ module PacketGen
         self[:next].read str[-@icv_length-1, 1]
         self[:icv].read str[-@icv_length, @icv_length] if @icv_length
         self
-      end
-
-      # Getter for SPI attribute
-      # @return [Integer]
-      def spi
-        self[:spi].to_i
-      end
-
-      # Setter for SPI attribute
-      # @param [Integer] val
-      # @return [Integer]
-      def spi=(val)
-        typecast val
-      end
-
-      # Getter for SN attribute
-      # @return [Integer]
-      def sn
-        self[:sn].to_i
-      end
-
-      # Setter for SN attribute
-      # @param [Integer] val
-      # @return [Integer]
-      def sn=(val)
-        typecast val
-      end
-
-      # Getter for +pad_length+ attribute
-      # @return [Integer]
-      def pad_length
-        self[:pad_length].to_i
-      end
-
-      # Setter for +pad_length+ attribute
-      # @param [Integer] val
-      # @return [Integer]
-      def pad_length=(val)
-        typecast val
-      end
-
-      # Getter for +next+ attribute
-      # @return [Integer]
-      def next
-        self[:next].to_i
-      end
-
-      # Setter for +next+ attribute
-      # @param [Integer] val
-      # @return [Integer]
-      def next=(val)
-        typecast val
       end
 
       # Encrypt in-place ESP payload and trailer.
