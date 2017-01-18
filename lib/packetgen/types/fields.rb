@@ -23,6 +23,8 @@ module PacketGen
       #     define_field :value1, StructFu::Int8
       #     # 16-bit value
       #     define_field :value2, StructFu::Int16
+      #     # specific class, may use a specific constructor
+      #     define_field :value3, MyClass, constructor: ->(obj) { Myclass.new(obj) }
       #   end
       #
       #   bs = BinaryStruct.new
@@ -31,15 +33,15 @@ module PacketGen
       # @param [Symbol] name field name
       # @param [Object] type class or instance
       # @param [Object] default default value
+      # @param [Lambda] builder lambda to construct this field. Parameter to this
+      #   lambda is the caller object.
       # @return [void]
-      def self.define_field(name, type, default=nil)
-        type_inst = type.new
-
+      def self.define_field(name, type, default: nil, builder: nil)
         define = []
-        if type_inst.is_a?(StructFu::Int)
+        if type < StructFu::Int
           define << "def #{name}; self[:#{name}].to_i; end"
           define << "def #{name}=(val) self[:#{name}].read val; end"
-        elsif type_inst.respond_to? :to_human
+        elsif type.instance_methods.include? :to_human
           define << "def #{name}; self[:#{name}].to_human; end"
           define << "def #{name}=(val) self[:#{name}].from_human val; end"
         else
@@ -47,11 +49,11 @@ module PacketGen
           define << "def #{name}=(val) self[:#{name}].read val; end"
         end
 
-        define.delete(1) if type_inst.respond_to? "#{name}="
-        define.delete(0) if type_inst.respond_to? name
+        define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
+        define.delete(0) if type.instance_methods.include? name
         class_eval define.join("\n")
 
-        @field_defs[name] = [type, default]
+        @field_defs[name] = [type, default, builder]
       end
 
       # Define a bitfield on given attribute
@@ -127,15 +129,15 @@ module PacketGen
         @fields = {}
         self.class.class_eval { @field_defs }.each do |field, ary|
           default = ary[1].is_a?(Proc) ? ary[1].call : ary[1]
+          @fields[field] = ary[2] ? ary[2].call(self) : ary[0].new
+
+          value = options[field] || default
           if ary[0] < StructFu::Int
-            @fields[field] = ary[0].new(options[field] || default)
+            @fields[field].read(value)
           elsif ary[0] <= StructFu::String
-            @fields[field] = ary[0].new
-            @fields[field].read(options[field] || default)
+            @fields[field].read(value)
           else
-            f = ary[0].new
-              f.from_human(options[field] || default) if f.respond_to? :from_human
-              @fields[field] = f
+            @fields[field].from_human(value) if @fields[field].respond_to? :from_human
           end
         end
       end
