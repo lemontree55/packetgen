@@ -7,22 +7,25 @@ module PacketGen
 
   # Capture packets from wire
   # @author Sylvain Daubert
+  # @author Kent 'picat' Gruber
   class Capture
 
-    # Default snaplen to use if :snaplen option not defined
+    # Default snaplen to use if :snaplen option not defined.
     DEFAULT_SNAPLEN = 0xffff
 
-    # Get captured packets
+    # Get captured packets.
     # @return [Array<Packets>]
     attr_reader :packets
 
-    # Get captured packet raw data
+    # Get captured packet raw data.
     # @return [Array<String>]
     attr_reader :raw_packets
 
     # @param [String] iface interface on which capture packets
     # @param [Hash] options
-    # @option options [Integer] :max maximum number of packets to capture
+    # @option options [String]  :iface interface on which capture
+    #    packets on. Default: Use default interface lookup. 
+    # @option options [Integer] :max maximum number of packets to capture.
     # @option options [Integer] :timeout maximum number of seconds before end
     #    of capture. Default: +nil+ (no timeout)
     # @option options [String] :filter bpf filter
@@ -30,11 +33,10 @@ module PacketGen
     # @option options [Boolean] :parse parse raw data to generate packets before
     #    yielding.  Default: +true+
     # @option options [Integer] :snaplen maximum number of bytes to capture for
-    #    each packet
-    def initialize(iface, options={})
-      @packets = []
+    #    each packet.
+    def initialize(options={})
+      @packets     = []
       @raw_packets = []
-      @iface = iface
       set_options options
     end
 
@@ -46,7 +48,6 @@ module PacketGen
       set_options options
       @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, 1)
       set_filter
-
       @cap_thread = Thread.new do
         @pcap.each do |packet_data|
           @raw_packets << packet_data
@@ -94,6 +95,11 @@ module PacketGen
         @parse = true if @parse.nil?
       else
         @parse = options[:parse]
+      end
+      if options[:iface]
+        @iface = options[:iface] 
+      else
+        @iface = Pcap.lookupdev
       end
     end
 
