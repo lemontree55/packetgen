@@ -6,20 +6,37 @@
 module PacketGen
   module PcapNG
 
-    # Mixin module to declare some common methods for block classes.
-    module Block
+    # @abstract Base class for all block types
+    # @author Sylvain Daubert
+    class Block < Types::Fields
+
+      # @return [:little, :big]
+      attr_accessor :endian
+
+      # @!attribute type
+      #  32-bit block type
+      #  @return [Integer]
+      define_field :type, StructFu::Int32
+      # @!attribute block_len
+      #  32-bit block length
+      #  @return [Integer]
+      define_field :block_len, StructFu::Int32
+
+      def initialize(options={})
+        super
+      end
 
       # Has this block option?
       # @return [Boolean]
       def has_options?
-        self[:options].size > 0
+        @fields.has_key?(:options) && @fields[:options].sz > 0
       end
 
       # Calculate block length and update :block_len and block_len2 fields
       # @return [void]
       def recalc_block_len
-        len = to_a.map(&:to_s).join.size
-        self[:block_len].value = self[:block_len2].value = len
+        len = @fields.values.map(&:to_s).join.size
+        self.block_len = self.block_len2 = len
       end
 
       # Pad given field to 32 bit boundary, if needed
@@ -27,9 +44,30 @@ module PacketGen
       # @return [void]
       def pad_field(*fields)
         fields.each do |field|
-          unless self[field].size % 4 == 0
-            self[field] << "\x00" * (4 - (self[field].size % 4))
+          unless @fields[field].size % 4 == 0
+            @fields[field] << "\x00" * (4 - (@fields[field].size % 4))
           end
+        end
+      end
+
+      private
+
+      # Set the endianness for the various Int classes handled by self.
+      # Must be called by all subclass #initialize method.
+      # @param [:little, :big] e
+      # @return [:little, :big] returns e
+      def set_endianness(e)
+        unless [:little, :big].include? e
+          raise ArgumentError, "unknown endianness for #{self.class}"
+        end
+        @endian = e
+        @fields.each { |f_, v| v.endian = e if v.is_a?(StructFu::Int) }
+        e
+      end
+
+      def check_len_coherency
+        unless self[:block_len].to_i == self[:block_len2].to_i
+          raise InvalidFileError, 'Incoherency in Extended Packet Block'
         end
       end
     end

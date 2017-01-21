@@ -16,10 +16,13 @@ module PacketGen
     #   Int64   :snaplen        Default: 0 (no limit)
     #   String  :options
     #   Int32   :block_len2
-    class IDB < Struct.new(:type, :block_len, :link_type, :reserved,
-                           :snaplen, :options, :block_len2)
-      include StructFu
-      include Block
+    class IDB < Block
+
+      # Minimum IDB size
+      MIN_SIZE     = 5*4
+
+      # Option code for if_tsresol option
+      OPTION_IF_TSRESOL = 9
 
       # @return [:little, :big]
       attr_accessor :endian
@@ -28,11 +31,25 @@ module PacketGen
       # @return [Array<EPB,SPB>]
       attr_accessor :packets
 
-      # Minimum IDB size
-      MIN_SIZE     = 5*4
-
-      # Option code for if_tsresol option
-      OPTION_IF_TSRESOL = 9
+      # @!attribute link_type
+      #  16-bit link type
+      #  @return [Integer]
+      define_field :link_type, StructFu::Int16, default: 1
+      # @!attribute reserved
+      #  16-bit reserved field
+      #  @return [Integer]
+      define_field :reserved, StructFu::Int16, default: 0
+      # @!attribute snaplen
+      #  32-bit snap length
+      #  @return [Integer]
+      define_field :snaplen, StructFu::Int32, default: 0
+      # @!attribute options
+      #  @return [StructFu::String]
+      define_field :options, StructFu::String
+      # @!attribute block_len2
+      #  32-bit block length
+      #  @return [Integer]
+      define_field :block_len2, StructFu::Int32
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -45,27 +62,12 @@ module PacketGen
       # @option options [::String] :options
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
-        @endian = set_endianness(options[:endian] || :little)
+        super
+        set_endianness(options[:endian] || :little)
         @packets = []
         @options_decoded = false
-        init_fields(options)
-        super(options[:type], options[:block_len], options[:link_type], options[:reserved],
-              options[:snaplen], options[:options], options[:block_len2])
-      end
-
-      # Used by {#initialize} to set the initial fields
-      # @see #initialize possible options
-      # @param [Hash] options
-      # @return [Hash] return +options+
-      def init_fields(options={})
-        options[:type]  = @int32.new(options[:type] || PcapNG::IDB_TYPE.to_i)
-        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
-        options[:link_type] = @int16.new(options[:link_type] || 1)
-        options[:reserved] = @int16.new(options[:reserved] || 0)
-        options[:snaplen] = @int32.new(options[:snaplen] || 0)
-        options[:options] = StructFu::String.new(options[:options] || '')
-        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
-        options
+        recalc_block_len
+        self.type = options[:type] || PcapNG::IDB_TYPE.to_i
       end
 
       # Reads a String or a IO to populate the object
@@ -87,10 +89,7 @@ module PacketGen
         self[:options].read io.read(self[:block_len].to_i - MIN_SIZE)
         self[:block_len2].read io.read(4)
 
-        unless self[:block_len].to_i == self[:block_len2].to_i
-          raise InvalidFileError, 'Incoherency in Interface Description Block'
-        end
-      
+        check_len_coherency
         self
       end
       
@@ -141,7 +140,7 @@ module PacketGen
       def to_s
         pad_field :options
         recalc_block_len
-        to_a.map(&:to_s).join + @packets.map(&:to_s).join
+        @fields.values.map(&:to_s).join + @packets.map(&:to_s).join
       end
 
     end
