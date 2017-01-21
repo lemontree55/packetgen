@@ -34,7 +34,7 @@ module PacketGen
 
     # Format an attribute for +#inspect+.
     # 3 cases are handled:
-    # * attribute value is a {StructFu::Int}: show value as integer and in
+    # * attribute value is a {Types::Int}: show value as integer and in
     #   hexdecimal format,
     # * attribute value responds to +#to_human+: call it,
     # * else, +#to_s+ is used to format attribute value.
@@ -44,7 +44,7 @@ module PacketGen
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
       str = shift_level(level)
-      val = if value.is_a? StructFu::Int
+      val = if value.is_a? Types::Int
               int_dec_hex(value, value.to_s.size * 2)
             elsif value.respond_to? :to_human
               value.to_human

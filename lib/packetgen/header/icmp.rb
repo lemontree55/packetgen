@@ -34,18 +34,18 @@ module PacketGen
       # @!attribute type
       #  8-bit ICMP type
       #  @return [Integer]
-      define_field :type, StructFu::Int8
+      define_field :type, Types::Int8
       # @!attribute code
       #  8-bit ICMP code
       #  @return [Integer]
-      define_field :code, StructFu::Int8
+      define_field :code, Types::Int8
       # @!attribute checksum
       #  16-bit ICMP checksum
       #  @return [Integer]
-      define_field :checksum, StructFu::Int16
+      define_field :checksum, Types::Int16
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]

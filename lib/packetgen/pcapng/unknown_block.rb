@@ -18,12 +18,12 @@ module PacketGen
       attr_accessor :section
 
       # @!attribute body
-      #  @return [StructFu::String]
-      define_field :body, StructFu::String
+      #  @return [Types::String]
+      define_field :body, Types::String
       # @!attribute block_len2
       #  32-bit block length
       #  @return [Integer]
-      define_field :block_len2, StructFu::Int32
+      define_field :block_len2, Types::Int32
 
       # @option options [:little, :big] :endian set block endianness
       # @option options [Integer] :type

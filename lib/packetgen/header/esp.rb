@@ -73,34 +73,34 @@ module PacketGen
       # @!attribute spi
       #  32-bit Security Parameter Index
       #  @return [Integer]
-      define_field :spi, StructFu::Int32
+      define_field :spi, Types::Int32
       # @!attribute sn
       #  32-bit Sequence Number
       #  @return [Integer]
-      define_field :sn, StructFu::Int32
+      define_field :sn, Types::Int32
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
       # @!attribute tfc
       #  Traffic Flow Confidentiality padding
-      #  @return [StructFu::String,Header::Base]
-      define_field :tfc, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :tfc, Types::String
       # @!attribute padding
       #  ESP padding
-      #  @return [StructFu::String,Header::Base]
-      define_field :padding, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :padding, Types::String
       # @!attribute pad_length
       #  8-bit padding length
       #  @return [Integer]
-      define_field :pad_length, StructFu::Int8
+      define_field :pad_length, Types::Int8
       # @!attribute next
       #  8-bit next protocol value
       #  @return [Integer]
-      define_field :next, StructFu::Int8
+      define_field :next, Types::Int8
       # @!attribute icv
       #  Integrity Check Value
-      #  @return [StructFu::String,Header::Base]
-      define_field :icv, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :icv, Types::String
 
       # ICV (Integrity Check Value) length
       # @return [Integer]
@@ -220,7 +220,7 @@ module PacketGen
         # as padding is used to pad for CBC mode, this is unused
         cipher.final
 
-        self[:body] = StructFu::String.new(iv) << enc_msg[0..-3]
+        self[:body] = Types::String.new(iv) << enc_msg[0..-3]
         self[:pad_length].read enc_msg[-2]
         self[:next].read enc_msg[-1]
 
@@ -332,7 +332,7 @@ module PacketGen
       def get_auth_data(opt)
         ad = self[:spi].to_s
         if opt[:esn]
-          @esn = StructFu::Int32.new(opt[:esn])
+          @esn = Types::Int32.new(opt[:esn])
           ad << @esn.to_s if @conf.authenticated?
         end
         ad << self[:sn].to_s

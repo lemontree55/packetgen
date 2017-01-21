@@ -6,9 +6,9 @@ module PacketGen
       # @author Sylvain Daubert
       class RR < Question
 
-        define_field :ttl, StructFu::Int32
-        define_field :rdlength, StructFu::Int16
-        define_field :rdata, StructFu::String
+        define_field :ttl, Types::Int32
+        define_field :rdlength, Types::Int16
+        define_field :rdata, Types::String
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -57,15 +57,15 @@ module PacketGen
           when TYPES['SOA']
             mname = name.read(self[:rdata]).dup
             rname = name.read(self[:rdata][mname.sz..-1])
-            serial = StructFu::Int32.new.read(self[:rdata][mname.sz+rname.sz, 4])
-            refresh = StructFu::Int32.new.read(self[:rdata][mname.sz+rname.sz+4, 4])
-            retryi = StructFu::Int32.new.read(self[:rdata][mname.sz+rname.sz+8, 4])
-            expire = StructFu::Int32.new.read(self[:rdata][mname.sz+rname.sz+12, 4])
-            minimum = StructFu::Int32.new.read(self[:rdata][mname.sz+rname.sz+16, 4])
+            serial = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz, 4])
+            refresh = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+4, 4])
+            retryi = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+8, 4])
+            expire = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+12, 4])
+            minimum = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+16, 4])
             str = "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
                   "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
           when TYPES['MX']
-            pref = StructFu::Int16.new.read(self[:rdata][0, 2])
+            pref = Types::Int16.new.read(self[:rdata][0, 2])
             exchange = name.read(self[:rdata][2..-1]).to_human
             str = '%u %s' % [pref.to_i, exchange]
           end

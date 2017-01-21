@@ -7,13 +7,13 @@ module PacketGen
 
         # @!attribute code
         #  @return [Integer]
-        define_field :code, StructFu::Int16
+        define_field :code, Types::Int16
         # @!attribute length
         #  @return [Integer]
-        define_field :length, StructFu::Int16
+        define_field :length, Types::Int16
         # @!attribute data
-        #  @return [StructFu::String]
-        define_field :data, StructFu::String
+        #  @return [Types::String]
+        define_field :data, Types::String
 
         # @return [String]
         def to_human

@@ -83,7 +83,6 @@ module PacketGen
   end
 end
 
-require 'packetgen/structfu'
 require 'packetgen/types'
 require 'packetgen/inspect'
 require 'packetgen/packet'

@@ -16,11 +16,11 @@ module PacketGen
       # @!attribute type
       #  32-bit block type
       #  @return [Integer]
-      define_field :type, StructFu::Int32
+      define_field :type, Types::Int32
       # @!attribute block_len
       #  32-bit block length
       #  @return [Integer]
-      define_field :block_len, StructFu::Int32
+      define_field :block_len, Types::Int32
 
       def initialize(options={})
         super
@@ -61,7 +61,7 @@ module PacketGen
           raise ArgumentError, "unknown endianness for #{self.class}"
         end
         @endian = e
-        @fields.each { |f_, v| v.endian = e if v.is_a?(StructFu::Int) }
+        @fields.each { |f_, v| v.endian = e if v.is_a?(Types::Int) }
         e
       end
 

@@ -32,33 +32,33 @@ module PacketGen
       # @!attribute interface_id
       #  32-bit interface ID
       #  @return [Integer]
-      define_field :interface_id, StructFu::Int32, default: 0
+      define_field :interface_id, Types::Int32, default: 0
       # @!attribute tsh
       #  high 32-bit timestamp value
       #  @return [Integer]
-      define_field :tsh, StructFu::Int32, default: 0
+      define_field :tsh, Types::Int32, default: 0
       # @!attribute tsl
       #  low 32-bit imestamp value
       #  @return [Integer]
-      define_field :tsl, StructFu::Int32, default: 0
+      define_field :tsl, Types::Int32, default: 0
       # @!attribute cap_len
       #  32-bit capture length
       #  @return [Integer]
-      define_field :cap_len, StructFu::Int32, default: 0
+      define_field :cap_len, Types::Int32, default: 0
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field :orig_len, StructFu::Int32, default: 0
+      define_field :orig_len, Types::Int32, default: 0
       # @!attribute data
-      #  @return [StructFu::String]
-      define_field :data, StructFu::String
+      #  @return [Types::String]
+      define_field :data, Types::String
       # @!attribute options
-      #  @return [StructFu::String]
-      define_field :options, StructFu::String
+      #  @return [Types::String]
+      define_field :options, Types::String
       # @!attribute block_len2
       #  32-bit block length
       #  @return [Integer]
-      define_field :block_len2, StructFu::Int32
+      define_field :block_len2, Types::Int32
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness

@@ -124,12 +124,12 @@ module PacketGen
         'refused'         => 5
       }
 
-      define_field :id, StructFu::Int16
-      define_field :u16, StructFu::Int16
-      define_field :qdcount, StructFu::Int16
-      define_field :ancount, StructFu::Int16
-      define_field :nscount, StructFu::Int16
-      define_field :arcount, StructFu::Int16
+      define_field :id, Types::Int16
+      define_field :u16, Types::Int16
+      define_field :qdcount, Types::Int16
+      define_field :ancount, Types::Int16
+      define_field :nscount, Types::Int16
+      define_field :arcount, Types::Int16
       # @!attribute qd
       #  @return [QDSection]
       define_field :qd, QDSection, builder: ->(dns) { QDSection.new(dns, dns[:qdcount]) }

@@ -52,35 +52,35 @@ module PacketGen
         # @!attribute a1
         #  1st 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a1, StructFu::Int16
+        define_field :a1, Types::Int16
         # @!attribute a2
         #  2nd 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a2, StructFu::Int16
+        define_field :a2, Types::Int16
         # @!attribute a3
         #  3rd 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a3, StructFu::Int16
+        define_field :a3, Types::Int16
         # @!attribute a4
         #  4th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a4, StructFu::Int16
+        define_field :a4, Types::Int16
         # @!attribute a5
         #  5th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a5, StructFu::Int16
+        define_field :a5, Types::Int16
         # @!attribute a6
         #  6th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a6, StructFu::Int16
+        define_field :a6, Types::Int16
         # @!attribute a7
         #  7th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a7, StructFu::Int16
+        define_field :a7, Types::Int16
         # @!attribute a8
         #  8th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a8, StructFu::Int16
+        define_field :a8, Types::Int16
 
         # Read a colon-delimited address
         # @param [String] str
@@ -117,19 +117,19 @@ module PacketGen
       # @!attribute u32
       #  First 32-bit word of IPv6 header
       #  @return [Integer]
-      define_field :u32, StructFu::Int32, default: 0x6000_0000
+      define_field :u32, Types::Int32, default: 0x6000_0000
       # @!attribute length
       #  16-bit word of IPv6 payload length
       #  @return [Integer]
-      define_field :length, StructFu::Int16
+      define_field :length, Types::Int16
       # @!attribute next
       #  8-bit IPv6 next payload value
       #  @return [Integer]
-      define_field :next, StructFu::Int8
+      define_field :next, Types::Int8
       # @!attribute hop
       #  8-bit IPv6 hop limit
       #  @return [Integer]
-      define_field :hop, StructFu::Int8, default: 64
+      define_field :hop, Types::Int8, default: 64
       # @!attribute src
       #  IPv6 source address
       #  @return [Addr]
@@ -139,8 +139,8 @@ module PacketGen
       #  @return [Addr]
       define_field :dst, Addr, default: '::1'
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # @param [Hash] options
       # @option options [Integer] :version

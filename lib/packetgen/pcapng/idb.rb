@@ -34,22 +34,22 @@ module PacketGen
       # @!attribute link_type
       #  16-bit link type
       #  @return [Integer]
-      define_field :link_type, StructFu::Int16, default: 1
+      define_field :link_type, Types::Int16, default: 1
       # @!attribute reserved
       #  16-bit reserved field
       #  @return [Integer]
-      define_field :reserved, StructFu::Int16, default: 0
+      define_field :reserved, Types::Int16, default: 0
       # @!attribute snaplen
       #  32-bit snap length
       #  @return [Integer]
-      define_field :snaplen, StructFu::Int32, default: 0
+      define_field :snaplen, Types::Int32, default: 0
       # @!attribute options
-      #  @return [StructFu::String]
-      define_field :options, StructFu::String
+      #  @return [Types::String]
+      define_field :options, Types::String
       # @!attribute block_len2
       #  32-bit block length
       #  @return [Integer]
-      define_field :block_len2, StructFu::Int32
+      define_field :block_len2, Types::Int32
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness

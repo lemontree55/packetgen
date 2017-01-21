@@ -2,9 +2,9 @@ module PacketGen
   module Header
 
     # A TCP header consists of:
-    # * a source port ({#sport}, {StructFu::Int16} type),
+    # * a source port ({#sport}, {Types::Int16} type),
     # * a destination port ({#dport}, +Int16+ type),
-    # * a sequence number ({#seqnum}, {StructFu::Int32} type),
+    # * a sequence number ({#seqnum}, {Types::Int32} type),
     # * an acknownledge number ({#acknum}, +Int32+ type),
     # * a 16-bit field ({#u16}, +Int16+ type) composed of:
     #   * a 4-bit {#data_offset} value,
@@ -14,7 +14,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+ type),
     # * a urgent pointer ({#urg_pointer}, +Int16+ type),
     # * an optional {#options} field ({Options} type),
-    # * and a {#body} ({StructFu::String} type).
+    # * and a {#body} ({Types::String} type).
     #
     # == Create a TCP header
     #  # standalone
@@ -64,41 +64,41 @@ module PacketGen
       # @!attribute sport
       #  16-bit TCP source port
       #  @return [Integer]
-      define_field :sport, StructFu::Int16
+      define_field :sport, Types::Int16
       # @!attribute dport
       #  16-bit TCP destination port
       #  @return [Integer]
-      define_field :dport, StructFu::Int16
+      define_field :dport, Types::Int16
       # @!attribute seqnum
       #  32-bit TCP sequence number
       #  @return [Integer]
-      define_field :seqnum, StructFu::Int32, default: -> { rand(2**32) }
+      define_field :seqnum, Types::Int32, default: -> { rand(2**32) }
       # @!attribute acknum
       #  32-bit TCP acknowledgement number
       #  @return [Integer]
-      define_field :acknum, StructFu::Int32
+      define_field :acknum, Types::Int32
       # @!attribute u16
       #  @return [Integer] 16-bit word used by flags and bit fields
-      define_field :u16, StructFu::Int16
+      define_field :u16, Types::Int16
       # @!attribute window
       #  16-bit TCP window size
       #  @return [Integer]
-      define_field :window, StructFu::Int16
+      define_field :window, Types::Int16
       # @!attribute checksum
       #  16-bit TCP checksum
       #  @return [Integer]
-      define_field :checksum, StructFu::Int16
+      define_field :checksum, Types::Int16
       # @!attribute urg_pointer
       #  16-bit TCP urgent data pointer
       #  @return [Integer]
-      define_field :urg_pointer, StructFu::Int16
+      define_field :urg_pointer, Types::Int16
       # @!attribute options
       #  TCP options
       #  @return [Options]
       define_field :options, TCP::Options
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       alias source_port sport
       alias source_port= sport=

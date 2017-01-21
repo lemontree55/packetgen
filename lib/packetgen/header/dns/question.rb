@@ -9,15 +9,15 @@ module PacketGen
         # @!attribute name
         #  Question domain name
         #  @return [String]
-        define_field :name, Name, default: ''
+        define_field :name, Name, default: '.'
         # @!attribute type
         #  16-bit question type
         #  @return [Integer]
-        define_field :type, StructFu::Int16, default: 1
+        define_field :type, Types::Int16, default: 1
         # @!attribute rrclass
         #  16-bit question class
         #  @return [Integer]
-        define_field :rrclass, StructFu::Int16, default: 1
+        define_field :rrclass, Types::Int16, default: 1
 
         # Ressource Record types
         TYPES = {

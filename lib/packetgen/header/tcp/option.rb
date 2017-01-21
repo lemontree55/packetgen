@@ -28,14 +28,14 @@ module PacketGen
         # @!attribute kind
         #  Option kind
         #  @return [Integer] 8-bit option kind
-        define_field :kind, StructFu::Int8
+        define_field :kind, Types::Int8
         # @!attribute length
         #  Option length
         #  @return [Integer] 8-bit option length
-        define_field :length, StructFu::Int8
+        define_field :length, Types::Int8
         # @!attribute value
         #  @return [Integer,String] option value
-        define_field :value, StructFu::String
+        define_field :value, Types::String
 
         # @param [hash] options
         # @option options [Integer] :kind
@@ -46,17 +46,17 @@ module PacketGen
           case options[:value]
           when Integer
             klass = case self[:length].to_i
-                    when 3; StructFu::Int8
-                    when 4; StructFu::Int16
-                    when 6; StructFu::Int32
+                    when 3; Types::Int8
+                    when 4; Types::Int16
+                    when 6; Types::Int32
                     else
                       raise ArgumentError, 'impossible length'
                     end
             self[:value] = klass.new(options[:value])
           when NilClass
-            self[:value] = StructFu::String.new
+            self[:value] = Types::String.new
           else
-            self[:value] = StructFu::String.new.read(options[:value])
+            self[:value] = Types::String.new.read(options[:value])
             self[:length].read(self[:value].sz + 2) unless options[:length]
           end
         end
@@ -86,7 +86,7 @@ module PacketGen
         # @return [String, Integer]
         def value
           case self[:value]
-          when StructFu::Int
+          when Types::Int
             self[:value].to_i
           else
             self[:value].to_s
@@ -144,7 +144,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: MSS_KIND, length: 4)
-          self[:value] = StructFu::Int16.new(options[:value])
+          self[:value] = Types::Int16.new(options[:value])
         end
 
         # @return [String]
@@ -159,7 +159,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: WS_KIND, length: 3)
-          self[:value] = StructFu::Int8.new(options[:value])
+          self[:value] = Types::Int8.new(options[:value])
         end
 
         # @return [String]
@@ -193,7 +193,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: ECHO_KIND, length: 6)
-          self[:value] = StructFu::Int32.new(options[:value])
+          self[:value] = Types::Int32.new(options[:value])
         end
 
         # @return [String]
@@ -208,7 +208,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: ECHOREPLY_KIND, length: 6)
-          self[:value] = StructFu::Int32.new(options[:value])
+          self[:value] = Types::Int32.new(options[:value])
         end
 
         # @return [String]
@@ -223,7 +223,7 @@ module PacketGen
         # @see Option#initialize
         def initialize(options={})
           super options.merge!(kind: TS_KIND, length: 10)
-          self[:value] = StructFu::String.new.read(options[:value] || "\0" * 8)
+          self[:value] = Types::String.new.read(options[:value] || "\0" * 8)
         end
 
         # @return [String]

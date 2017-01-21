@@ -29,18 +29,18 @@ module PacketGen
     # @author Sylvain Daubert
     class ARP < Base
 
-      define_field :hrd, StructFu::Int16, default: 1
-      define_field :pro, StructFu::Int16, default: 0x800
-      define_field :hln, StructFu::Int8, default: 6
-      define_field :pln, StructFu::Int8, default: 4
-      define_field :op, StructFu::Int16, default: 1
+      define_field :hrd, Types::Int16, default: 1
+      define_field :pro, Types::Int16, default: 0x800
+      define_field :hln, Types::Int8, default: 6
+      define_field :pln, Types::Int8, default: 4
+      define_field :op, Types::Int16, default: 1
       define_field :sha, Eth::MacAddr
       define_field :spa, IP::Addr
       define_field :tha, Eth::MacAddr
       define_field :tpa, IP::Addr
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # @param [Hash] options
       # @option options [Integer] :hrd network protocol type (default: 1)

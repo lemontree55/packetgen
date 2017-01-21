@@ -9,8 +9,8 @@ module PacketGen
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
     # * a source MAC address (MacAddr),
-    # * a {#ethertype} ({StructFu::Int16}),
-    # * and a body (a {StructFu::String} or another Header class).
+    # * a {#ethertype} ({Types::Int16}),
+    # * and a body (a {Types::String} or another Header class).
     #
     # == Create a Ethernet header
     #  # standalone
@@ -35,22 +35,22 @@ module PacketGen
       class MacAddr < Base
         # @!attribute a0
         #  @return [Integer] first byte from MacAddr
-        define_field :a0, StructFu::Int8
+        define_field :a0, Types::Int8
         # @!attribute a1
         #  @return [Integer] second byte from MacAddr
-        define_field :a1, StructFu::Int8
+        define_field :a1, Types::Int8
         # @!attribute a2
         #  @return [Integer] third byte from MacAddr
-        define_field :a2, StructFu::Int8
+        define_field :a2, Types::Int8
         # @!attribute a3
         #  @return [Integer] fourth byte from MacAddr
-        define_field :a3, StructFu::Int8
+        define_field :a3, Types::Int8
         # @!attribute a4
         #  @return [Integer] fifth byte from MacAddr
-        define_field :a4, StructFu::Int8
+        define_field :a4, Types::Int8
         # @!attribute a5
         #  @return [Integer] sixth byte from MacAddr
-        define_field :a5, StructFu::Int8
+        define_field :a5, Types::Int8
         
         # Read a human-readable string to populate +MacAddr+
         # @param [String] str
@@ -92,10 +92,10 @@ module PacketGen
       define_field :src, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute ethertype
       #  @return [Integer] 16-bit integer to determine payload type
-      define_field :ethertype, StructFu::Int16, default: 0
+      define_field :ethertype, Types::Int16, default: 0
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # send Eth packet on wire.
       # @param [String] iface interface name

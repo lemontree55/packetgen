@@ -8,7 +8,7 @@ module PacketGen
 
         # @api private
         # @param [DNS] dns
-        # @param [StructFu::Int] counter
+        # @param [Types::Int] counter
         def initialize(dns, counter)
           @dns = dns
           @counter = counter

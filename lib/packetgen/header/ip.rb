@@ -8,10 +8,10 @@ module PacketGen
   module Header
 
     # A IP header consists of:
-    # * a first byte ({#u8} of {StructFu::Int8} type) composed of:
+    # * a first byte ({#u8} of {Types::Int8} type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 4-bit IP header length ({#ihl}) field,
-    # * a total length ({#length}, {StructFu::Int16} type),
+    # * a total length ({#length}, {Types::Int16} type),
     # * a ID ({#id}, +Int16+ type),
     # * a {#frag} worg (+Int16+) composed of:
     #   * 3 1-bit flags ({#flag_rsv}, {#flag_df} and {#flag_mf}),
@@ -21,7 +21,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+),
     # * a source IP address ({#src}, {Addr} type),
     # * a destination IP ddress ({#dst}, +Addr+ type),
-    # * and a {#body} ({StructFu::String} type).
+    # * and a {#body} ({Types::String} type).
     #
     # == Create a IP header
     #  # standalone
@@ -65,16 +65,16 @@ module PacketGen
       class Addr < Base
         # @!attribute a1
         #  @return [Integer] IP address first byte 
-        define_field :a1, StructFu::Int8
+        define_field :a1, Types::Int8
         # @!attribute a2
         #  @return [Integer] IP address seconf byte 
-        define_field :a2, StructFu::Int8
+        define_field :a2, Types::Int8
         # @!attribute a3
         #  @return [Integer] IP address third byte 
-        define_field :a3, StructFu::Int8
+        define_field :a3, Types::Int8
         # @!attribute a4
         #  @return [Integer] IP address fourth byte 
-        define_field :a4, StructFu::Int8
+        define_field :a4, Types::Int8
 
         IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
 
@@ -110,28 +110,28 @@ module PacketGen
       # @!attribute u8
       #  First byte of IP header. May be accessed through {#version} and {#ihl}.
       #  @return [Integer] first byte of IP header.
-      define_field :u8, StructFu::Int8, default: 0x45
+      define_field :u8, Types::Int8, default: 0x45
       # @!attribute tos
       #   @return [Integer] 8-bit Type of Service value
-      define_field :tos, StructFu::Int8, default: 0
+      define_field :tos, Types::Int8, default: 0
       # @!attribute length
       #   @return [Integer] 16-bit IP total length
-      define_field :length, StructFu::Int16, default: 20
+      define_field :length, Types::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
-      define_field :id, StructFu::Int16, default: -> { rand(65535) }
+      define_field :id, Types::Int16, default: -> { rand(65535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
-      define_field :frag, StructFu::Int16, default: 0
+      define_field :frag, Types::Int16, default: 0
       # @!attribute ttl
       #   @return [Integer] 8-bit Time To Live value
-      define_field :ttl, StructFu::Int8, default: 64
+      define_field :ttl, Types::Int8, default: 64
       # @!attribute protocol
       #   @return [Integer] 8-bit upper protocol value
-      define_field :protocol, StructFu::Int8
+      define_field :protocol, Types::Int8
       # @!attribute checksum
       #   @return [Integer] 16-bit IP header checksum
-      define_field :checksum, StructFu::Int16, default: 0
+      define_field :checksum, Types::Int16, default: 0
       # @!attribute src
       #   @return [Addr] source IP address
       define_field :src, Addr, default: '127.0.0.1'
@@ -139,8 +139,8 @@ module PacketGen
       #   @return [Addr] destination IP address
       define_field :dst, Addr, default: '127.0.0.1'
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
       
       # @!attribute version
       #   @return [Integer] 4-bit version attribute

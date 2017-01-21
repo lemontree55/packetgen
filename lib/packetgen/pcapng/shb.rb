@@ -43,26 +43,26 @@ module PacketGen
       # @!attribute magic
       #  32-bit magic number
       #  @return [Integer]
-      define_field :magic, StructFu::Int32, default: MAGIC_INT32
+      define_field :magic, Types::Int32, default: MAGIC_INT32
       # @!attribute ver_major
       #  16-bit major version number
       #  @return [Integer]
-      define_field :ver_major, StructFu::Int16, default: 1
+      define_field :ver_major, Types::Int16, default: 1
       # @!attribute ver_major
       #  16-bit minor version number
       #  @return [Integer]
-      define_field :ver_minor, StructFu::Int16, default: 0
+      define_field :ver_minor, Types::Int16, default: 0
       # @!attribute section_len
       #  64-bit section length
       #  @return [Integer]
-      define_field :section_len, StructFu::Int64, default: SECTION_LEN_UNDEFINED
+      define_field :section_len, Types::Int64, default: SECTION_LEN_UNDEFINED
       # @!attribute options
-      #  @return [StructFu::String]
-      define_field :options, StructFu::String
+      #  @return [Types::String]
+      define_field :options, Types::String
       # @!attribute block_len2
       #  32-bit block length
       #  @return [Integer]
-      define_field :block_len2, StructFu::Int32
+      define_field :block_len2, Types::Int32
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -164,13 +164,13 @@ module PacketGen
 
       def force_endianness(endian)
         @endian = endian
-        self[:type]  = StructFu::Int32.new(self[:type].to_i, endian)
-        self[:block_len] = StructFu::Int32.new(self[:block_len].to_i, endian)
-        self[:magic] = StructFu::Int32.new(self[:magic].to_i, endian)
-        self[:ver_major] = StructFu::Int16.new(self[:ver_major].to_i, endian)
-        self[:ver_minor] = StructFu::Int16.new(self[:ver_minor].to_i, endian)
-        self[:section_len] = StructFu::Int64.new(self[:section_len].to_i, endian)
-        self[:block_len2] = StructFu::Int32.new(self[:block_len2].to_i, endian)
+        self[:type]  = Types::Int32.new(self[:type].to_i, endian)
+        self[:block_len] = Types::Int32.new(self[:block_len].to_i, endian)
+        self[:magic] = Types::Int32.new(self[:magic].to_i, endian)
+        self[:ver_major] = Types::Int16.new(self[:ver_major].to_i, endian)
+        self[:ver_minor] = Types::Int16.new(self[:ver_minor].to_i, endian)
+        self[:section_len] = Types::Int64.new(self[:section_len].to_i, endian)
+        self[:block_len2] = Types::Int32.new(self[:block_len2].to_i, endian)
       end
     end
   end

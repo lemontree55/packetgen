@@ -352,7 +352,7 @@ module PacketGen
 
             cipher = get_cipher('gcm', :decrypt, key)
             expect(pkt.esp.decrypt!(cipher, salt: salt, parse: false)).to be(true)
-            expect(pkt.esp.body).to be_a(StructFu::String)
+            expect(pkt.esp.body).to be_a(Types::String)
           end
 
           it 'returns false when ICV check failed' do

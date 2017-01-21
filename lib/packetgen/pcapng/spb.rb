@@ -27,14 +27,14 @@ module PacketGen
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field :orig_len, StructFu::Int32, default: 0
+      define_field :orig_len, Types::Int32, default: 0
       # @!attribute data
-      #  @return [StructFu::String]
-      define_field :data, StructFu::String
+      #  @return [Types::String]
+      define_field :data, Types::String
       # @!attribute block_len2
       #  32-bit block length
       #  @return [Integer]
-      define_field :block_len2, StructFu::Int32
+      define_field :block_len2, Types::Int32
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness

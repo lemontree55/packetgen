@@ -7,7 +7,7 @@ module PacketGen
   module Header
 
     # A UDP header consists of:
-    # * a source port field ({#sport}, {StructFu::Int16} type),
+    # * a source port field ({#sport}, {Types::Int16} type),
     # * a destination port field ({#dport}, +Int16+ type),
     # * a UDP length field ({#length}, +Int16+ type),
     # * a {#checksum} field (+Int16+ type),
@@ -37,22 +37,22 @@ module PacketGen
       # @!attribute sport
       #  16-bit UDP source port
       #  @return [Integer]
-      define_field :sport, StructFu::Int16
+      define_field :sport, Types::Int16
       # @!attribute dport
       #  16-bit UDP destination port
       #  @return [Integer]
-      define_field :dport, StructFu::Int16
+      define_field :dport, Types::Int16
       # @!attribute length
       #  16-bit UDP length
       #  @return [Integer]
-      define_field :length, StructFu::Int16, default: 8
+      define_field :length, Types::Int16, default: 8
       # @!attribute checksum
       #  16-bit UDP checksum
       #  @return [Integer]
-      define_field :checksum, StructFu::Int16
+      define_field :checksum, Types::Int16
       # @!attribute body
-      #  @return [StructFu::String,Header::Base]
-      define_field :body, StructFu::String
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       alias source_port sport
       alias source_port= sport=

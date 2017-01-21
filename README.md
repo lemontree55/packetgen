@@ -166,5 +166,5 @@ Copyright © 2016 Sylvain Daubert
 ### Other sources
 All original code maintains its copyright from its original authors and licensing.
 
-This is mainly for StrucFu (copied from [PacketFu](https://github.com/packetfu/packetfu))
-and PcapNG module (also copied from PacketFu, but I am the author).
+This is mainly for PcapNG (copied from [PacketFu](https://github.com/packetfu/packetfu),
+but i am the original author).

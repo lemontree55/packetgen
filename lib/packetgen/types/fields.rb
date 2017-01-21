@@ -25,15 +25,15 @@ module PacketGen
       # Define a field in
       #   class BinaryStruct < PacketGen::Types::Fields
       #     # 8-bit value
-      #     define_field :value1, StructFu::Int8
+      #     define_field :value1, Types::Int8
       #     # 16-bit value
-      #     define_field :value2, StructFu::Int16
+      #     define_field :value2, Types::Int16
       #     # specific class, may use a specific constructor
       #     define_field :value3, MyClass, constructor: ->(obj) { Myclass.new(obj) }
       #   end
       #
       #   bs = BinaryStruct.new
-      #   bs[value1]   # => StructFu::Int8
+      #   bs[value1]   # => Types::Int8
       #   bs.value1    # => Integer
       # @param [Symbol] name field name
       # @param [Object] type class or instance
@@ -43,7 +43,7 @@ module PacketGen
       # @return [void]
       def self.define_field(name, type, default: nil, builder: nil)
         define = []
-        if type < StructFu::Int
+        if type < Types::Int
           define << "def #{name}; self[:#{name}].to_i; end"
           define << "def #{name}=(val) self[:#{name}].read val; end"
         elsif type.instance_methods.include? :to_human and
@@ -64,7 +64,7 @@ module PacketGen
 
       # Define a bitfield on given attribute
       #   class MyHeader < PacketGen::Types::Fields
-      #     define_field :flags, StructFu::Int16
+      #     define_field :flags, Types::Int16
       #     # define a bit field on :flag attribute:
       #     # flag1, flag2 and flag3 are 1-bit fields
       #     # type and stype are 3-bit fields. reserved is a 6-bit field
@@ -76,7 +76,7 @@ module PacketGen
       # A bitfield of more bits defines 2 methods:
       # * +#field+ which returns an Integer,
       # * +#field=+ which takes and returns an Integer.
-      # @param [Symbol] attr attribute name (attribute should a {StructFu::Int}
+      # @param [Symbol] attr attribute name (attribute should a {Types::Int}
       #   subclass)
       # @param [Array] args list of bitfield names. Name may be followed
       #   by bitfield size. If no size is given, 1 bit is assumed.
@@ -138,9 +138,9 @@ module PacketGen
           @fields[field] = ary[2] ? ary[2].call(self) : ary[0].new
 
           value = options[field] || default
-          if ary[0] < StructFu::Int
+          if ary[0] < Types::Int
             @fields[field].read(value)
-          elsif ary[0] <= StructFu::String
+          elsif ary[0] <= Types::String
             @fields[field].read(value)
           else
             @fields[field].from_human(value) if @fields[field].respond_to? :from_human
@@ -239,10 +239,10 @@ module PacketGen
         case body
         when ::String
           self[:body].read value
-        when StructFu::Int, Base
+        when Types::Int, Base
           self[:body] = value
         when NilClass
-          self[:body] = StructFu::String.new.read('')
+          self[:body] = Types::String.new.read('')
         else
           raise ArgumentError, "Can't cram a #{body.class} in a :body field"
         end
