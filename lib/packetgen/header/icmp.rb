@@ -115,6 +115,8 @@ module PacketGen
       end
     end
 
+    self.add_class ICMP
+
     IP.bind_header ICMP, protocol: ICMP::IP_PROTOCOL
   end
 end

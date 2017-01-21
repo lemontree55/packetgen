@@ -253,6 +253,7 @@ module PacketGen
     #
     # Note that IntStrings aren't used for much, but it seemed like a good idea at the time.
     class IntString < Struct.new(:int, :string, :mode)
+      include StructFu
 
       def initialize(string='',int=Int8,mode=nil)
         if int < Int

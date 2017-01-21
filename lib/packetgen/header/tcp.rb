@@ -96,7 +96,7 @@ module PacketGen
       end
 
       # @!attribute data_offset
-      #  @return [Integer] 4-bit data offsetfrom {#u16}
+      #  @return [Integer] 4-bit data offset from {#u16}
       # @!attribute reserved
       #  @return [Integer] 3-bit reserved from {#u16}
       # @!attribute flags
@@ -142,6 +142,7 @@ module PacketGen
         self[:urg_pointer].read str[18, 2]
         self[:options].read str[20, (self.data_offset - 5) * 4] if self.data_offset > 5
         self[:body].read str[self.data_offset * 4..-1]
+        self
       end
 
       # Compute checksum and set +checksum+ field
@@ -292,6 +293,8 @@ module PacketGen
         str
       end
     end
+
+    self.add_class TCP
 
     IP.bind_header TCP, protocol: TCP::IP_PROTOCOL
     IPv6.bind_header TCP, next: TCP::IP_PROTOCOL

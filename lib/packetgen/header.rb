@@ -42,10 +42,7 @@ module PacketGen
     # @return [Array<Class>]
     def self.all
       return @header_classes if @header_classes
-
-      @builtin ||= constants.map { |sym| const_get sym }.
-                 select { |klass| klass < Struct && klass < HeaderMethods }
-      @header_classes = @builtin + @added_header_classes.values
+      @header_classes = @added_header_classes.values
     end
 
     # Add a foreign header class to known header classes. This is
@@ -95,3 +92,5 @@ require_relative 'header/ipv6'
 require_relative 'header/icmpv6'
 require_relative 'header/udp'
 require_relative 'header/tcp'
+require_relative 'header/esp'
+require_relative 'header/dns'

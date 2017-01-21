@@ -184,6 +184,8 @@ module PacketGen
       alias :dst_ip= :tpa=
     end
 
+    self.add_class ARP
+
     Eth.bind_header ARP, ethertype: 0x806
   end
 end
