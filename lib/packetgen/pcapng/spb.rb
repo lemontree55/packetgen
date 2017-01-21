@@ -14,17 +14,27 @@ module PacketGen
     #   Int32   :orig_len
     #   String  :data
     #   Int32   :block_len2
-    class SPB < Struct.new(:type, :block_len, :orig_len, :data, :block_len2)
-      include StructFu
-      include Block
+    class SPB < Block
+
+      # Minimum SPB size
+      MIN_SIZE     = 4*4
 
       # @return [:little, :big]
       attr_accessor :endian
       # @return [IPB]
       attr_accessor :interface
 
-      # Minimum SPB size
-      MIN_SIZE     = 4*4
+      # @!attribute orig_len
+      #  32-bit original length
+      #  @return [Integer]
+      define_field :orig_len, Types::Int32, default: 0
+      # @!attribute data
+      #  @return [Types::String]
+      define_field :data, Types::String
+      # @!attribute block_len2
+      #  32-bit block length
+      #  @return [Integer]
+      define_field :block_len2, Types::Int32
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -36,23 +46,10 @@ module PacketGen
       # @option options [::String] :options
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
-        @endian = set_endianness(options[:endian] || :little)
-        init_fields(options)
-        super(options[:type], options[:block_len], options[:orig_len], options[:data],
-              options[:block_len2])
-      end
-
-      # Used by {#initialize} to set the initial fields
-      # @param [Hash] options
-      # @see #initialize possible options
-      # @return [Hash] return +options+
-      def init_fields(options={})
-        options[:type]  = @int32.new(options[:type] || PcapNG::SPB_TYPE.to_i)
-        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
-        options[:orig_len] = @int32.new(options[:orig_len] || 0)
-        options[:data] = StructFu::String.new(options[:data] || '')
-        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
-        options
+        super
+        set_endianness(options[:endian] || :little)
+        recalc_block_len
+        self.type = options[:type] || PcapNG::SPB_TYPE.to_i
       end
 
       # Has this block option?
@@ -87,10 +84,8 @@ module PacketGen
         io.read data_pad_len
         self[:block_len2].read io.read(4)
 
-        unless self[:block_len].to_i == self[:block_len2].to_i
-          raise InvalidFileError, 'Incoherency in Simple Packet Block'
-        end
-
+        check_len_coherency
+        self.type = self[:type] || PcapNG::IDB_TYPE.to_i
         self
       end
 
@@ -99,7 +94,7 @@ module PacketGen
       def to_s
         pad_field :data
         recalc_block_len
-        to_a.map(&:to_s).join
+        @fields.values.map(&:to_s).join
       end
 
     end

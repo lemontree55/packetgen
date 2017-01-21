@@ -9,8 +9,8 @@ module PacketGen
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
     # * a source MAC address (MacAddr),
-    # * a {#ethertype} ({Int16}),
-    # * and a body (a {String} or another Header class).
+    # * a {#ethertype} ({Types::Int16}),
+    # * and a body (a {Types::String} or another Header class).
     #
     # == Create a Ethernet header
     #  # standalone
@@ -28,33 +28,30 @@ module PacketGen
     #  eth.body = "This is a body"
     #
     # @author Sylvain Daubert
-    class Eth < Struct.new(:dst, :src, :ethertype, :body)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class Eth < Base
 
       # Ethernet MAC address, as a group of 6 bytes
       # @author Sylvain Daubert
-      class MacAddr < Struct.new(:a0, :a1, :a2, :a3, :a4, :a5)
-        include StructFu
+      class MacAddr < Base
+        # @!attribute a0
+        #  @return [Integer] first byte from MacAddr
+        define_field :a0, Types::Int8
+        # @!attribute a1
+        #  @return [Integer] second byte from MacAddr
+        define_field :a1, Types::Int8
+        # @!attribute a2
+        #  @return [Integer] third byte from MacAddr
+        define_field :a2, Types::Int8
+        # @!attribute a3
+        #  @return [Integer] fourth byte from MacAddr
+        define_field :a3, Types::Int8
+        # @!attribute a4
+        #  @return [Integer] fifth byte from MacAddr
+        define_field :a4, Types::Int8
+        # @!attribute a5
+        #  @return [Integer] sixth byte from MacAddr
+        define_field :a5, Types::Int8
         
-        # @param [Hash] options
-        # @option options [Integer] :a0
-        # @option options [Integer] :a1
-        # @option options [Integer] :a2
-        # @option options [Integer] :a3
-        # @option options [Integer] :a4
-        # @option options [Integer] :a5
-        def initialize(options={})
-          super Int8.new(options[:a0]),
-                Int8.new(options[:a1]),
-                Int8.new(options[:a2]),
-                Int8.new(options[:a3]),
-                Int8.new(options[:a4]),
-                Int8.new(options[:a5])
-
-        end
-
         # Read a human-readable string to populate +MacAddr+
         # @param [String] str
         # @return [self]
@@ -73,27 +70,10 @@ module PacketGen
           self
         end
 
-        # Read a +MacAddr+ from a binary string
-        # @param [String] str binary string
-        # @return [self]
-        def read(str)
-          return self if str.nil?
-          raise ParseError, 'string too short for Eth' if str.size < self.sz
-          force_binary str
-          [:a0, :a1, :a2, :a3, :a4, :a5].each_with_index do |byte, i|
-            self[byte].read str[i, 1]
-          end
-        end
-
-        [:a0, :a1, :a2, :a3, :a4, :a5].each do |sym|
-          class_eval "def #{sym}; self[:#{sym}].to_i; end\n" \
-                     "def #{sym}=(v); self[:#{sym}].read v; end"
-        end
-
         # +MacAddr+ in human readable form (colon format)
         # @return [String]
         def to_human
-          members.map { |m| "#{'%02x' % self[m]}" }.join(':')
+          fields.map { |m| "#{'%02x' % self[m]}" }.join(':')
         end
       end
 
@@ -104,69 +84,18 @@ module PacketGen
       # @private timeout for PCAPRUB
       PCAP_TIMEOUT = 1
 
-      # @param [Hash] options
-      # @option options [String] :dst MAC destination address
-      # @option options [String] :src MAC source address
-      # @option options [Integer] :ethertype
-      def initialize(options={})
-        super MacAddr.new.from_human(options[:dst] || '00:00:00:00:00:00'),
-              MacAddr.new.from_human(options[:src] || '00:00:00:00:00:00'),
-              Int16.new(options[:ethertype] || 0),
-              StructFu::String.new.read(options[:body])
-      end
-
-      # Read a Eth header from a string
-      # @param [String] str binary string
-      # @return [self]
-      def read(str)
-        return self if str.nil?
-        raise ParseError, 'string too short for Eth' if str.size < self.sz
-        force_binary str
-        self[:dst].read str[0, 6]
-        self[:src].read str[6, 6]
-        self[:ethertype].read str[12, 2]
-        self[:body].read str[14..-1]
-        self
-      end
-
-      # Get MAC destination address
-      # @return [String]
-      def dst
-        self[:dst].to_human
-      end
-
-      # Set MAC destination address
-      # @param [String] addr
-      # @return [String]
-      def dst=(addr)
-        self[:dst].from_human addr
-      end
-
-      # Get MAC source address
-      # @return [String]
-      def src
-        self[:src].to_human
-      end
-
-      # Set MAC source address
-      # @param [String] addr
-      # @return [String]
-      def src=(addr)
-        self[:src].from_human addr
-      end
-
-      # Get ethertype field
-      # @return [Integer]
-      def ethertype
-        self[:ethertype].to_i
-      end
-
-      # Set ethertype field
-      # @param [Integer] type
-      # @return [Integer]
-      def ethertype=(type)
-        self[:ethertype].value = type
-      end
+      # @!attribute dst
+      #  @return [MacAddr] Destination MAC address
+      define_field :dst, MacAddr, default: '00:00:00:00:00:00'
+      # @!attribute src
+      #  @return [MacAddr] Source MAC address
+      define_field :src, MacAddr, default: '00:00:00:00:00:00'
+      # @!attribute ethertype
+      #  @return [Integer] 16-bit integer to determine payload type
+      define_field :ethertype, Types::Int16, default: 0
+      # @!attribute body
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # send Eth packet on wire.
       # @param [String] iface interface name

@@ -2,7 +2,7 @@ module PacketGen
   module Header
     class DNS
 
-      # DNS Name, defined as a suite of labels. A label is of type {StructFu::IntString}.
+      # DNS Name, defined as a suite of labels. A label is of type {Types::IntString}.
       # @author Sylvain Daubert
       class Name < Array
 
@@ -10,12 +10,11 @@ module PacketGen
         POINTER_MASK = 0xc000
 
         # @return [DNS]
-        attr_reader :dns
+        attr_accessor :dns
 
         # @param [DNS] dns
-        def initialize(dns)
-          super()
-          @dns = dns
+        def initialize
+          super
           @pointer = nil
           @pointer_name = nil
         end
@@ -23,14 +22,14 @@ module PacketGen
         # Read a set of labels form a dotted string
         # @param [String] str
         # @return [Name] self
-        def parse(str)
+        def from_human(str)
           clear
           return self if str.nil?
 
           str.split('.').each do |label|
-            self << StructFu::IntString.new(label)
+            self << Types::IntString.new(label)
           end
-          self << StructFu::IntString.new('')
+          self << Types::IntString.new('')
         end
 
         # Read a sequence of label from a string
@@ -51,11 +50,11 @@ module PacketGen
               @pointer = str[start, 2]
               break
             else
-              label = StructFu::IntString.new('', StructFu::Int8, :parse)
-              label.parse(str[start..-1])
+              label = Types::IntString.new
+              label.read(str[start..-1])
               start += label.sz
               self << label
-              break if label.len == 0 or str[start..-1].length == 0
+              break if label.length == 0 or str[start..-1].length == 0
             end
           end
           self
@@ -70,7 +69,10 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          str = map(&:string).join('.') + name_from_pointer
+          ary = map(&:string)
+          np = name_from_pointer
+          ary << np if np
+          str = ary.join('.')
           str.empty? ? '.' : str
         end
 
@@ -88,13 +90,15 @@ module PacketGen
         end
 
         def name_from_pointer
-          return '' unless @pointer
+          return nil unless @pointer
           return @pointer_name if @pointer_name
           
           index = @pointer.unpack('n').first
           mask = ~POINTER_MASK & 0xffff
           ptr = index & mask
-          @pointer_name = Name.new(@dns).read(self.dns.to_s[ptr..-1]).to_human
+          name = Name.new
+          name.dns = @dns
+          @pointer_name = name.read(self.dns.to_s[ptr..-1]).to_human
         end
       end
     end

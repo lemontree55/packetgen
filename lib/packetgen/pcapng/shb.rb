@@ -17,10 +17,7 @@ module PacketGen
     #   Int64   :section_len
     #   String  :options        Default: ''
     #   Int32   :block_len2
-    class SHB < Struct.new(:type, :block_len, :magic, :ver_major, :ver_minor,
-                           :section_len, :options, :block_len2)
-      include StructFu
-      include Block
+    class SHB < Block
 
       # @return [:little, :big]
       attr_accessor :endian
@@ -43,6 +40,30 @@ module PacketGen
       # +section_len+ value for undefined length
       SECTION_LEN_UNDEFINED = 0xffffffff_ffffffff
 
+      # @!attribute magic
+      #  32-bit magic number
+      #  @return [Integer]
+      define_field :magic, Types::Int32, default: MAGIC_INT32
+      # @!attribute ver_major
+      #  16-bit major version number
+      #  @return [Integer]
+      define_field :ver_major, Types::Int16, default: 1
+      # @!attribute ver_major
+      #  16-bit minor version number
+      #  @return [Integer]
+      define_field :ver_minor, Types::Int16, default: 0
+      # @!attribute section_len
+      #  64-bit section length
+      #  @return [Integer]
+      define_field :section_len, Types::Int64, default: SECTION_LEN_UNDEFINED
+      # @!attribute options
+      #  @return [Types::String]
+      define_field :options, Types::String
+      # @!attribute block_len2
+      #  32-bit block length
+      #  @return [Integer]
+      define_field :block_len2, Types::Int32
+
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
       # @option options [Integer] :type
@@ -58,28 +79,12 @@ module PacketGen
       # @option options [::String] :options
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
-        @endian = set_endianness(options[:endian] || :little)
+        super
         @interfaces = []
         @unknown_blocks = []
-        init_fields(options)
-        super(options[:type], options[:block_len], options[:magic], options[:ver_major],
-              options[:ver_minor], options[:section_len], options[:options], options[:block_len2])
-      end
-
-      # Used by {#initialize} to set the initial fields
-      # @see #initialize possible options
-      # @param [Hash] options
-      # @return [Hash] return +options+
-      def init_fields(options={})
-        options[:type]  = @int32.new(options[:type] || PcapNG::SHB_TYPE.to_i)
-        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
-        options[:magic] = @int32.new(options[:magic] || MAGIC_INT32)
-        options[:ver_major] = @int16.new(options[:ver_major] || 1)
-        options[:ver_minor] = @int16.new(options[:ver_minor] || 0)
-        options[:section_len] = @int64.new(options[:section_len] || SECTION_LEN_UNDEFINED)
-        options[:options] = StructFu::String.new(options[:options] || '')
-        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
-        options
+        set_endianness(options[:endian] || :little)
+        recalc_block_len
+        self.type = options[:type] || PcapNG::SHB_TYPE.to_i
       end
 
       # Reads a String or a IO to populate the object
@@ -130,10 +135,7 @@ module PacketGen
         self[:options].read io.read(self[:block_len].to_i - MIN_SIZE)
         self[:block_len2].read io.read(4)
 
-        unless self[:block_len].to_i == self[:block_len2].to_i
-          raise InvalidFileError, 'Incoherency in Section Header Block'
-        end
-
+        check_len_coherency
         self
       end
 
@@ -154,25 +156,22 @@ module PacketGen
         end
         pad_field :options
         recalc_block_len
-        to_a.map(&:to_s).join + body
+        @fields.values.map(&:to_s).join + body
       end
 
 
       private
 
       def force_endianness(endian)
-        set_endianness endian
         @endian = endian
-        self[:type]  = @int32.new(self[:type].to_i)
-        self[:block_len] = @int32.new(self[:block_len].to_i)
-        self[:magic] = @int32.new(self[:magic].to_i)
-        self[:ver_major] = @int16.new(self[:ver_major].to_i)
-        self[:ver_minor] = @int16.new(self[:ver_minor].to_i)
-        self[:section_len] = @int64.new(self[:section_len].to_i)
-        self[:block_len2] = @int32.new(self[:block_len2].to_i)
+        self[:type]  = Types::Int32.new(self[:type].to_i, endian)
+        self[:block_len] = Types::Int32.new(self[:block_len].to_i, endian)
+        self[:magic] = Types::Int32.new(self[:magic].to_i, endian)
+        self[:ver_major] = Types::Int16.new(self[:ver_major].to_i, endian)
+        self[:ver_minor] = Types::Int16.new(self[:ver_minor].to_i, endian)
+        self[:section_len] = Types::Int64.new(self[:section_len].to_i, endian)
+        self[:block_len2] = Types::Int32.new(self[:block_len2].to_i, endian)
       end
-
     end
-
   end
 end

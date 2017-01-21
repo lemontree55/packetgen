@@ -10,7 +10,7 @@ module PacketGen
         describe '#initialize' do
           it 'creates a RR with default values' do
             rr = RR.new(dns)
-            expect(rr.name.to_s).to eq('')
+            expect(rr.name.to_s).to eq('.')
             expect(rr.type).to eq(1)
             expect(rr.rrclass).to eq(1)
             expect(rr.ttl).to eq(0)
@@ -29,7 +29,7 @@ module PacketGen
             }
             rr = RR.new(dns, options)
 
-            expect(rr.name.to_human).to eq(options.delete :name)
+            expect(rr.name).to eq(options.delete :name)
             options.each do |key, value|
               expect(rr.send(key)).to eq(value)
             end
@@ -40,14 +40,14 @@ module PacketGen
           it 'sets RR from a string' do
             str = [0, 2, 3].pack('Cnn')
             rr = RR.new(dns).read(str)
-            expect(rr.name.to_human).to eq('.')
+            expect(rr.name).to eq('.')
             expect(rr.type).to eq(2)
             expect(rr.rrclass).to eq(3)
 
             str = generate_label_str(%w(example org))
             str << [1, 1, 0x3_0000, 4, 192, 168, 1, 1].pack('nnNnC4')
             rr.read(str)
-            expect(rr.name.to_human).to eq('example.org.')
+            expect(rr.name).to eq('example.org.')
             expect(rr.type).to eq(1)
             expect(rr.rrclass).to eq(1)
             expect(rr.ttl).to eq(0x3_0000)

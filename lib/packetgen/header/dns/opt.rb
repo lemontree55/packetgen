@@ -9,8 +9,6 @@ module PacketGen
       # a OPT record may contain zero or more {Option options} in its {rdata}.
       # @author Sylvain Daubert
       class OPT < RR
-        extend HeaderClassMethods
-
         # @return [Array<Option>]
         attr_reader :options
 
@@ -124,7 +122,7 @@ module PacketGen
 
         # @return [String]
         def to_human
-          "#{name.to_human} #{human_type} UDPsize:#{udp_size} " \
+          "#{name} #{human_type} UDPsize:#{udp_size} " \
           "extRCODE:#{ext_rcode} EDNSversion:#{version} flags:#{human_flags} " \
           "options:#{human_options}"
         end

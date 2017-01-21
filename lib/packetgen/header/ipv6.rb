@@ -43,35 +43,44 @@ module PacketGen
     #  ipv6.dst = '2001:1234:5678:abcd::123'
     #  ipv6.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IPv6 < Struct.new(:u32, :length, :next, :hop, :src, :dst, :body)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class IPv6 < Base
 
       # IPv6 address, as a group of 8 2-byte words
       # @author Sylvain Daubert
-      class Addr < Struct.new(:a1, :a2, :a3, :a4, :a5, :a6, :a7, :a8)
-        include StructFu
+      class Addr < Base
 
-        # @param [Hash] options
-        # @option options [Integer] :a1
-        # @option options [Integer] :a2
-        # @option options [Integer] :a3
-        # @option options [Integer] :a4
-        # @option options [Integer] :a5
-        # @option options [Integer] :a6
-        # @option options [Integer] :a7
-        # @option options [Integer] :a8
-        def initialize(options={})
-          super Int16.new(options[:a1]),
-                Int16.new(options[:a2]),
-                Int16.new(options[:a3]),
-                Int16.new(options[:a4]),
-                Int16.new(options[:a5]),
-                Int16.new(options[:a6]),
-                Int16.new(options[:a7]),
-                Int16.new(options[:a8])
-        end
+        # @!attribute a1
+        #  1st 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a1, Types::Int16
+        # @!attribute a2
+        #  2nd 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a2, Types::Int16
+        # @!attribute a3
+        #  3rd 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a3, Types::Int16
+        # @!attribute a4
+        #  4th 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a4, Types::Int16
+        # @!attribute a5
+        #  5th 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a5, Types::Int16
+        # @!attribute a6
+        #  6th 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a6, Types::Int16
+        # @!attribute a7
+        #  7th 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a7, Types::Int16
+        # @!attribute a8
+        #  8th 2-byte word of IPv6 address
+        #  @return [Integer]
+        define_field :a8, Types::Int16
 
         # Read a colon-delimited address
         # @param [String] str
@@ -92,33 +101,46 @@ module PacketGen
           self
         end
 
-        # Read a Addr6 from a binary string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          force_binary str
-          self[:a1].read str[0, 2]
-          self[:a2].read str[2, 2]
-          self[:a3].read str[4, 2]
-          self[:a4].read str[6, 2]
-          self[:a5].read str[8, 2]
-          self[:a6].read str[10, 2]
-          self[:a7].read str[12, 2]
-          self[:a8].read str[14, 2]
-          self
-        end
-
-        %i(a1 a2 a3 a4 a5 a6 a7 a8).each do |sym|
-          class_eval "def #{sym}; self[:#{sym}].to_i; end\n" \
-                     "def #{sym}=(v); self[:#{sym}].read v; end" 
-        end
-
         # Addr6 in human readable form (colon-delimited hex string)
         # @return [String]
         def to_human
           IPAddr.new(to_a.map { |a| a.to_i.to_s(16) }.join(':')).to_s
         end
+
+        # Return an array of address 16-bit words
+        # @return [Array<Integer>]
+        def to_a
+          @fields.values
+        end
       end
+
+      # @!attribute u32
+      #  First 32-bit word of IPv6 header
+      #  @return [Integer]
+      define_field :u32, Types::Int32, default: 0x6000_0000
+      # @!attribute length
+      #  16-bit word of IPv6 payload length
+      #  @return [Integer]
+      define_field :length, Types::Int16
+      # @!attribute next
+      #  8-bit IPv6 next payload value
+      #  @return [Integer]
+      define_field :next, Types::Int8
+      # @!attribute hop
+      #  8-bit IPv6 hop limit
+      #  @return [Integer]
+      define_field :hop, Types::Int8, default: 64
+      # @!attribute src
+      #  IPv6 source address
+      #  @return [Addr]
+      define_field :src, Addr, default: '::1'
+      # @!attribute dst
+      #  IPv6 destination address
+      #  @return [Addr]
+      define_field :dst, Addr, default: '::1'
+      # @!attribute body
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # @param [Hash] options
       # @option options [Integer] :version
@@ -131,13 +153,7 @@ module PacketGen
       # @option options [String] :dst colon-delimited destination address
       # @option options [String] :body binary string
       def initialize(options={})
-        super Int32.new(0x60000000),
-              Int16.new(options[:length]),
-              Int8.new(options[:next]),
-              Int8.new(options[:hop] || 64),
-              Addr.new.from_human(options[:src] || '::1'),
-              Addr.new.from_human(options[:dst] || '::1'),
-              StructFu::String.new.read(options[:body])
+        super
         self.version = options[:version] if options[:version]
         self.traffic_class = options[:traffic_class] if options[:traffic_class]
         self.flow_label = options[:flow_label] if options[:flow_label]
@@ -151,108 +167,18 @@ module PacketGen
       #   @return [Integer] 20-bit flow_label attribute
       define_bit_fields_on :u32, :version, 4, :traffic_class, 8, :flow_label, 20
 
-      # Read a IP header from a string
-      # @param [String] str binary string
-      # @return [self]
-      def read(str)
-        return self if str.nil?
-        raise ParseError, 'string too short for IPv6' if str.size < self.sz
-        force_binary str
-        first32 = str[0, 4].unpack('N').first
-        self.version = first32 >> 28
-        self.traffic_class = (first32 >> 20) & 0xff
-        self.flow_label = first32 & 0xfffff
-
-        self[:length].read str[4, 2]
-        self[:next].read str[6, 1]
-        self[:hop].read str[7, 1]
-        self[:src].read str[8, 16]
-        self[:dst].read str[24, 16]
-        self[:body].read str[40..-1]
-        self
-      end
-
       # Compute length and set +len+ field
       # @return [Integer]
       def calc_length
         self.length = body.sz
       end
 
-      # @!attribute length
-      #   16-bit payload length attribute
-      #   @return [Integer]
-      def length
-        self[:length].to_i
-      end
-
-      # @param [Integer] i
-      # @return [Integer]
-      def length=(i)
-        self[:length].read i
-      end
-
-      # Getter for next attribute
-      # @return [Integer]
-      def next
-        self[:next].to_i
-      end
-
-      # Setter for next attribute
-      # @param [Integer] i
-      # @return [Integer]
-      def next=(i)
-        self[:next].read i
-      end
-
-      # Getter for hop attribute
-      # @return [Integer]
-      def hop
-        self[:hop].to_i
-      end
-
-      # Setter for hop attribute
-      # @param [Integer] i
-      # @return [Integer]
-      def hop=(i)
-        self[:hop].read i
-      end
-
-      # Getter for src attribute
-      # @return [String]
-      def src
-        self[:src].to_human
-      end
-      alias :source :src
-
-      # Setter for src attribute
-      # @param [String] addr
-      # @return [Integer]
-      def src=(addr)
-        self[:src].from_human addr
-      end
-      alias :source= :src=
-
-      # Getter for dst attribute
-      # @return [String]
-      def dst
-        self[:dst].to_human
-      end
-      alias :destination :dst
-
-      # Setter for dst attribute
-      # @param [String] addr
-      # @return [Integer]
-      def dst=(addr)
-        self[:dst].from_human addr
-      end
-      alias :destination= :dst=
-
       # Get IPv6 part of pseudo header checksum.
       # @return [Integer]
       def pseudo_header_checksum
         sum = 0
-        self[:src].each { |word| sum += word.to_i }
-        self[:dst].each { |word| sum += word.to_i }
+        self[:src].to_a.each { |word| sum += word.to_i }
+        self[:dst].to_a.each { |word| sum += word.to_i }
         sum
       end
       

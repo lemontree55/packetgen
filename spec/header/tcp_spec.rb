@@ -72,10 +72,6 @@ module PacketGen
           expect(tcp.options).to be_empty
           expect(tcp.body).to eq('body')
         end
-
-        it 'raises when str is too short' do
-          expect { tcp.read 'abcd' }.to raise_error(ParseError, /too short/)
-        end
       end
 
       describe '#calc_checksum' do
@@ -162,7 +158,7 @@ module PacketGen
           tcp = TCP.new
           str = tcp.inspect
           expect(str).to be_a(String)
-          (tcp.members - %i(body) + %i(data_offset reserved flags)).each do |attr|
+          (tcp.fields - %i(body) + %i(data_offset reserved flags)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

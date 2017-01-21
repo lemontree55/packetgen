@@ -10,11 +10,7 @@ module PacketGen
   # Since v1.1.0, PacketGen permits adding you own header classes.
   # First, define the new header class. By example:
   #  module MyModule
-  #    class MyHeader < Struct.new(:field1, :field2)
-  #      include PacketGen::StructFu
-  #      include PacketGen::Header::HeaderMethods
-  #      extend PacketGen::Header::HeaderClassMethods
-  #      
+  #    class MyHeader < PacketGen::Header::Base
   #      def initialize(options={})
   #        super Int32.new(options[:field1]), Int32.new(options[:field2])
   #      end
@@ -47,8 +43,7 @@ module PacketGen
 
     # Add a foreign header class to known header classes. This is
     # needed by {Packet.gen} and {Packet#add}.
-    # @param [Class] klass a header class, which should include
-    #   {Header::HeaderMethods} and {Header::HeaderClassMethods}
+    # @param [Class] klass a header class
     # @return [void]
     # @since 1.1.0
     def self.add_class(klass)
@@ -57,7 +52,7 @@ module PacketGen
       @header_classes = nil
     end
 
-    # Remove a foreign header (previously added by {.add_header_class}à
+    # Remove a foreign header (previously added by {.add_header_class}
     # from known header classes.
     # @param [Class] klass
     # @return [void]
@@ -82,8 +77,7 @@ module PacketGen
   end
 end
 
-require_relative 'header/header_class_methods'
-require_relative 'header/header_methods'
+require_relative 'header/base'
 require_relative 'header/eth'
 require_relative 'header/ip'
 require_relative 'header/icmp'

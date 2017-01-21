@@ -7,7 +7,7 @@ module PacketGen
   module Header
 
     # A UDP header consists of:
-    # * a source port field ({#sport}, {Int16} type),
+    # * a source port field ({#sport}, {Types::Int16} type),
     # * a destination port field ({#dport}, +Int16+ type),
     # * a UDP length field ({#length}, +Int16+ type),
     # * a {#checksum} field (+Int16+ type),
@@ -29,42 +29,41 @@ module PacketGen
     #  udp.body.read 'this is a UDP body'
     #
     # @author Sylvain Daubert
-    class UDP < Struct.new(:sport, :dport, :length, :checksum, :body)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class UDP < Base
 
       # IP protocol number for UDP
       IP_PROTOCOL = 17
 
-      # @param [Hash] options
-      # @option options [Integer] :sport source port
-      # @option options [Integer] :dport destination port
-      # @option options [Integer] :length UDP length. Default: calculated
-      # @option options [Integer] :checksum. UDP checksum. Default: 0
-      def initialize(options={})
-        super Int16.new(options[:sport]),
-              Int16.new(options[:dport]),
-              Int16.new(options[:length]),
-              Int16.new(options[:checksum]),
-              StructFu::String.new.read(options[:body])
-        unless options[:length]
-          calc_length
-        end
-      end
+      # @!attribute sport
+      #  16-bit UDP source port
+      #  @return [Integer]
+      define_field :sport, Types::Int16
+      # @!attribute dport
+      #  16-bit UDP destination port
+      #  @return [Integer]
+      define_field :dport, Types::Int16
+      # @!attribute length
+      #  16-bit UDP length
+      #  @return [Integer]
+      define_field :length, Types::Int16, default: 8
+      # @!attribute checksum
+      #  16-bit UDP checksum
+      #  @return [Integer]
+      define_field :checksum, Types::Int16
+      # @!attribute body
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
-      # Read a IP header from a string
-      # @param [String] str binary string
-      # @return [self]
-      def read(str)
-        return self if str.nil?
-        raise ParseError, 'string too short for UDP' if str.size < self.sz
-        force_binary str
-        self[:sport].read str[0, 2]
-        self[:dport].read str[2, 2]
-        self[:length].read str[4, 2]
-        self[:checksum].read str[6, 2]
-        self[:body].read str[8..-1]
+      alias source_port sport
+      alias source_port= sport=
+      alias destination_port dport
+      alias destination_port= dport=
+
+      # Call {Base#initialize), and automagically compute +length+ if +:body+
+      # option is set.
+      def initialize(options={})
+        super
+        self.length += self[:body].sz if self[:body].sz > 0
       end
 
       # Compute checksum and set +checksum+ field
@@ -92,62 +91,6 @@ module PacketGen
       # @return [Integer]
       def calc_length
         self[:length].value = self.sz
-      end
-
-      # Getter for source port
-      # @return [Integer]
-      def sport
-        self[:sport].to_i
-      end
-      alias :source_port :sport
-
-      # Setter for source port
-      # @param [Integer] port
-      # @return [Integer]
-      def sport=(port)
-        self[:sport].read port
-      end
-      alias :source_port= :sport=
-
-      # Getter for destination port
-      # @return [Integer]
-      def dport
-        self[:dport].to_i
-      end
-      alias :destination_port :dport
-
-      # Setter for destination port
-      # @param [Integer] port
-      # @return [Integer]
-      def dport=(port)
-        self[:dport].read port
-      end
-      alias :destination_port= :dport=
-
-      # Getter for length attribuute
-      # @return [Integer]
-      def length
-        self[:length].to_i
-      end
-
-      # Setter for length attribuute
-      # @param [Integer] len
-      # @return [Integer]
-      def length=(len)
-        self[:length].read len
-      end
-
-      # Getter for checksum attribuute
-      # @return [Integer]
-      def checksum
-        self[:checksum].to_i
-      end
-
-      # Setter for checksum attribuute
-      # @param [Integer] checksum
-      # @return [Integer]
-      def checksum=(checksum)
-        self[:checksum].read checksum
       end
     end
 

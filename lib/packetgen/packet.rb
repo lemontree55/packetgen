@@ -206,7 +206,7 @@ module PacketGen
     end
 
     # Get packet body
-    # @return [StructFu]
+    # @return [Types]
     def body
       @headers.last.body if @headers.last.respond_to? :body
     end
@@ -332,8 +332,8 @@ module PacketGen
     end
 
     # Add a header to packet
-    # @param [Header::HeaderMethods] header
-    # @param [Header::HeaderMethods] previous_header
+    # @param [Header::Base] header
+    # @param [Header::Base] previous_header
     # @return [void]
     def add_header(header, previous_header=nil)
       protocol = header.protocol_name
@@ -352,7 +352,7 @@ module PacketGen
         unless bindings.any? { |b| prev_header.send(b.key) == b.value }
           prev_header[bindings.first.key].read bindings.first.value
         end
-        prev_header.body = header
+        prev_header[:body] = header
       end
       header.packet = self
       @headers << header unless previous_header

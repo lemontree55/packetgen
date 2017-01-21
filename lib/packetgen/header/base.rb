@@ -6,23 +6,44 @@
 module PacketGen
   module Header
 
-    # Mixin for various headers
+    # @abstract
+    # Base class for all header types
     # @author Sylvain Daubert
-    module HeaderMethods
+    class Base < Types::Fields
 
       # @api private
-      # Set reference of packet which owns this header
-      # @param [Packet] packet
+      # Simple class to handle header association
+      Binding = Struct.new(:key, :value)
+
+      # @api private
+      # Reference on packet which owns this header
+      attr_accessor :packet
+
+      # On inheritage, create +@known_headers+ class variable
+      # @param [Class] klass
       # @return [void]
-      def packet=(packet)
-        @packet = packet
+      def self.inherited(klass)
+        super
+        klass.class_eval { @known_headers = {} }
+      end
+
+      # Bind a upper header to current class
+      # @param [Class] header_klass header class to bind to current class
+      # @param [Hash] args current class fields and their value when +header_klass+
+      #  is embedded in current class
+      # @return [void]
+      def self.bind_header(header_klass, args={})
+        @known_headers[header_klass] ||= []
+        args.each do |key, value|
+          @known_headers[header_klass] << Binding.new(key, value)
+        end
       end
 
       # @api private
-      # Get rference on packet which owns this header
-      # @return [Packet]
-      def packet
-        @packet
+      # Get knwon headers
+      # @return [Hash] keys: header classes, values: array of {Binding}
+      def self.known_headers
+        @known_headers
       end
 
       # @api private
@@ -50,23 +71,6 @@ module PacketGen
         iph = packet.headers[0...hid].reverse.find { |h| h.is_a? IP or h.is_a? IPv6 }
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
         iph
-      end
-
-      # Return header protocol name
-      # @return [String]
-      def protocol_name
-        self.class.to_s.sub(/.*::/, '')
-      end
-
-      # Common inspect method for headers
-      # @return [String]
-      def inspect
-        str = Inspect.dashed_line(self.class, 2)
-        to_h.each do |attr, value|
-          next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
-        end
-        str
       end
     end
   end

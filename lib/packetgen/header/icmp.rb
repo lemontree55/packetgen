@@ -26,38 +26,26 @@ module PacketGen
     #  icmp.checksum = 0x248a
     #  icmp.body.read 'this is a body'
     # @author Sylvain Daubert
-    class ICMP < Struct.new(:type, :code, :checksum, :body)
-      include StructFu
-      include HeaderMethods
-      extend HeaderClassMethods
+    class ICMP < Base
 
       # ICMP internet protocol number
       IP_PROTOCOL = 1
 
-      # @param [Hash] options
-      # @option options [Integer] :type
-      # @option options [Integer] :code
-      # @option options [Integer] :checksum
-      # @option options [String] :body
-      def initialize(options={})
-        super Int8.new(options[:type]),
-              Int8.new(options[:code]),
-              Int16.new(options[:checksum]),
-              StructFu::String.new.read(options[:body])
-      end
-
-      # Read a ICMP header from a string
-      # @param [String] str binary string
-      # @return [self]
-      def read(str)
-        return self if str.nil?
-        raise ParseError, 'string too short for ICMP' if str.size < self.sz
-        force_binary str
-        self[:type].read str[0, 1]
-        self[:code].read str[1, 1]
-        self[:checksum].read str[2, 2]
-        self[:body].read str[4..-1]
-      end
+      # @!attribute type
+      #  8-bit ICMP type
+      #  @return [Integer]
+      define_field :type, Types::Int8
+      # @!attribute code
+      #  8-bit ICMP code
+      #  @return [Integer]
+      define_field :code, Types::Int8
+      # @!attribute checksum
+      #  16-bit ICMP checksum
+      #  @return [Integer]
+      define_field :checksum, Types::Int16
+      # @!attribute body
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]
@@ -73,45 +61,6 @@ module PacketGen
         end
         sum = ~sum & 0xffff
         self[:checksum].value = (sum == 0) ? 0xffff : sum
-      end
-
-      # Getter for type attribute
-      # @return [Integer]
-      def type
-        self[:type].to_i
-      end
-
-      # Setter for type attribute
-      # @param [Integer] type
-      # @return [Integer]
-      def type=(type)
-        self[:type].value = type
-      end
-
-      # Getter for code attribute
-      # @return [Integer]
-      def code
-        self[:code].to_i
-      end
-
-      # Setter for code attribute
-      # @param [Integer] code
-      # @return [Integer]
-      def code=(code)
-        self[:code].value = code
-      end
-
-      # Getter for checksum attribute
-      # @return [Integer]
-      def checksum
-        self[:checksum].to_i
-      end
-
-      # Setter for checksum attribute
-      # @param [Integer] sum
-      # @return [Integer]
-      def checksum=(sum)
-        self[:checksum].value = sum
       end
     end
 

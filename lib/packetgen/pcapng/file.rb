@@ -277,7 +277,7 @@ module PacketGen
       # @return [void]
       def parse_section(io)
         shb = SHB.new
-        type = StructFu::Int32.new(0, shb.endian).read(io.read(4))
+        type = Types::Int32.new(0, shb.endian).read(io.read(4))
         io.seek(-4, IO::SEEK_CUR)
         shb = parse(type, io, shb)
         raise InvalidFileError, 'no Section header found' unless shb.is_a?(SHB)
@@ -287,7 +287,7 @@ module PacketGen
           section = StringIO.new(io.read(shb.section_len.to_i))
           while !section.eof? do
             shb = @sections.last
-            type = StructFu::Int32.new(0, shb.endian).read(section.read(4))
+            type = Types::Int32.new(0, shb.endian).read(section.read(4))
             section.seek(-4, IO::SEEK_CUR)
             block = parse(type, section, shb)
           end
@@ -295,7 +295,7 @@ module PacketGen
           # section length is undefined
           while !io.eof?
             shb = @sections.last
-            type = StructFu::Int32.new(0, shb.endian).read(io.read(4))
+            type = Types::Int32.new(0, shb.endian).read(io.read(4))
             io.seek(-4, IO::SEEK_CUR)
             block = parse(type, io, shb)
           end
@@ -303,7 +303,7 @@ module PacketGen
       end
 
       # Parse a block from its type
-      # @param [StructFu::Int32] type
+      # @param [Types::Int32] type
       # @param [IO] io stream from which parse block
       # @param [SHB] shb header of current section
       # @return [void]

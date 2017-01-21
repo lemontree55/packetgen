@@ -191,7 +191,7 @@ module PacketGen
           dns = DNS.new
           str = dns.inspect
           expect(str).to be_a(String)
-          (dns.members - %i(u16) + %i(flags opcode rcode)).each do |attr|
+          (dns.fields - %i(u16) + %i(flags opcode rcode)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

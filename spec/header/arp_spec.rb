@@ -55,11 +55,6 @@ module PacketGen
           expect(arp.dst_ip).to eq('24.25.26.27')
           expect(arp.body).to eq('arp body')
         end
-
-        it 'raises when str is too short' do
-          expect { arp.read 'abcd' }.to raise_error(ParseError, /too short/)
-          expect { arp.read('abcdef' * 2) }.to raise_error(ParseError, /too short/)
-        end
       end
 
       describe 'setters' do
@@ -139,7 +134,7 @@ module PacketGen
           arp = ARP.new
           str = arp.inspect
           expect(str).to be_a(String)
-          (arp.members - %i(body)).each do |attr|
+          (arp.fields - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

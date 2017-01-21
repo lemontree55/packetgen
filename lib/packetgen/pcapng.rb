@@ -11,13 +11,13 @@ module PacketGen
   module PcapNG
 
     # Section Header Block type number
-    SHB_TYPE = StructFu::Int32.new(0x0A0D0D0A, :little)
+    SHB_TYPE = Types::Int32.new(0x0A0D0D0A, :little)
     # Interface Description Block type number
-    IDB_TYPE = StructFu::Int32.new(1, :little)
+    IDB_TYPE = Types::Int32.new(1, :little)
     # Simple Packet Block type number
-    SPB_TYPE = StructFu::Int32.new(3, :little)
+    SPB_TYPE = Types::Int32.new(3, :little)
     # Enhanced Packet Block type number
-    EPB_TYPE = StructFu::Int32.new(6, :little)
+    EPB_TYPE = Types::Int32.new(6, :little)
 
     # Various LINKTYPE values from http://www.tcpdump.org/linktypes.html
     # FIXME: only ETHERNET type is defined as this is the only link layer

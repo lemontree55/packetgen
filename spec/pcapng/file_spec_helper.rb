@@ -5,7 +5,7 @@ module PacketGen
     # Hash's values are arrays. Each element of these arrays are a section in
     # pcapng file. A section is described as a hash which keys are block types
     # and values number of each type in a section.
-    # These files are copied from PacketFu (see {StructFu} for license
+    # These files are copied from PacketFu (see {Types} for license
     # information).
     PCAPNG_TEST_FILES = {
       "basic/test001.pcapng"=>[{:idb=>1, :epb=>4, :spb=>0, :unknown=>0}],

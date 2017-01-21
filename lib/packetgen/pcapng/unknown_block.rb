@@ -7,17 +7,23 @@ module PacketGen
   module PcapNG
 
     # {UnknownBlock} is used to handle unsupported blocks of a pcapng file.
-    class UnknownBlock < Struct.new(:type, :block_len, :body, :block_len2)
-      include StructFu
-      include Block
+    class UnknownBlock < Block
+
+      # Minimum Iblock size
+      MIN_SIZE     = 12
 
       # @return [:little, :big]
       attr_accessor :endian
       # @return [SHB]
       attr_accessor :section
 
-      # Minimum Iblock size
-      MIN_SIZE     = 12
+      # @!attribute body
+      #  @return [Types::String]
+      define_field :body, Types::String
+      # @!attribute block_len2
+      #  32-bit block length
+      #  @return [Integer]
+      define_field :block_len2, Types::Int32
 
       # @option options [:little, :big] :endian set block endianness
       # @option options [Integer] :type
@@ -25,21 +31,9 @@ module PacketGen
       # @option options [::String] :body
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
-        @endian = set_endianness(options[:endian] || :little)
-        init_fields(options)
-        super(options[:type], options[:block_len], options[:body], options[:block_len2])
-      end
-
-      # Used by {#initialize} to set the initial fields
-      # @see #initialize possible options
-      # @param [Hash] options
-      # @return [Hash] return +options+
-      def init_fields(options={})
-        options[:type]  = @int32.new(options[:type] || 0)
-        options[:block_len] = @int32.new(options[:block_len] || MIN_SIZE)
-        options[:body] = StructFu::String.new(options[:body] || '')
-        options[:block_len2] = @int32.new(options[:block_len2] || MIN_SIZE)
-        options
+        super
+        set_endianness(options[:endian] || :little)
+        recalc_block_len
       end
 
       # Has this block option?
@@ -76,7 +70,7 @@ module PacketGen
       def to_s
         pad_field :body
         recalc_block_len
-        to_a.map(&:to_s).join
+        @fields.values.map(&:to_s).join
       end
 
     end
