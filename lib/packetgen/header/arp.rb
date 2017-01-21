@@ -7,9 +7,9 @@ module PacketGen
   module Header
 
     # An ARP header consists of:
-    # * a hardware type ({#hrd} or {#htype}) field ({Int16}),
+    # * a hardware type ({#hrd} or {#htype}) field ({Types::Int16}),
     # * a protocol type ({#pro} or {#ptype}) field (+Int16+),
-    # * a hardware address length ({#hln} or {#hlen}) field ({Int8}),
+    # * a hardware address length ({#hln} or {#hlen}) field ({Types::Int8}),
     # * a protocol address length ({#pln} or {#plen}) field (+Int8+),
     # * a {#opcode} (or {#op}) field (+Int16+),
     # * a source hardware address ({#sha} or {#src_mac}) field ({Eth::MacAddr}),
@@ -29,14 +29,41 @@ module PacketGen
     # @author Sylvain Daubert
     class ARP < Base
 
+      # @!attribute hrd
+      #  16-bit hardware protocol type
+      #  # @return [Integer]
       define_field :hrd, Types::Int16, default: 1
+      # @!attribute pro
+      #  16-bit internet protocol type
+      #  # @return [Integer]
       define_field :pro, Types::Int16, default: 0x800
+      # @!attribute hln
+      #  8-bit hardware address length
+      #  # @return [Integer]
       define_field :hln, Types::Int8, default: 6
+      # @!attribute pln
+      #  8-bit internet address length
+      #  # @return [Integer]
       define_field :pln, Types::Int8, default: 4
+      # @!attribute op
+      #  16-bit operation code
+      #  # @return [Integer]
       define_field :op, Types::Int16, default: 1
+      # @!attribute sha
+      #  source hardware address
+      #  @return [Eth::MacAddr]
       define_field :sha, Eth::MacAddr
+      # @!attribute spa
+      #  source protocol address
+      #  @return [IP::Addr]
       define_field :spa, IP::Addr
+      # @!attribute tha
+      #  target hardware address
+      #  @return [Eth::MacAddr]
       define_field :tha, Eth::MacAddr
+      # @!attribute tpa
+      #  target protocol address
+      #  @return [IP::Addr]
       define_field :tpa, IP::Addr
       # @!attribute body
       #  @return [Types::String,Header::Base]

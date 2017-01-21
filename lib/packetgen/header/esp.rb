@@ -5,12 +5,12 @@ module PacketGen
     class CipherError < Error;end
 
     # A ESP header consists of:
-    # * a Security Parameters Index (#{spi}, {Int32} type),
+    # * a Security Parameters Index (#{spi}, {Types::Int32} type),
     # * a Sequence Number ({#sn}, +Int32+ type),
     # * a {#body} (variable length),
     # * an optional TFC padding ({#tfc}, variable length),
     # * an optional {#padding} (to align ESP on 32-bit boundary, variable length),
-    # * a {#pad_length} ({Int8}),
+    # * a {#pad_length} ({Types::Int8}),
     # * a Next header field ({#next}, +Int8+),
     # * and an optional Integrity Check Value ({#icv}, variable length).
     #

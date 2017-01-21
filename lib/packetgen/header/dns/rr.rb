@@ -6,8 +6,16 @@ module PacketGen
       # @author Sylvain Daubert
       class RR < Question
 
+        # @!attribute ttl
+        #  32-bit time to live
+        #  @return [Integer]
         define_field :ttl, Types::Int32
+        # @!attribute rdlength
+        #  16-bit {#rdata} length
+        #  @return [Integer]
         define_field :rdlength, Types::Int16
+        # @!attribute rdata
+        #  @return [Types::String]
         define_field :rdata, Types::String
 
         # @param [DNS] dns

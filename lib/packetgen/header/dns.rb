@@ -124,11 +124,23 @@ module PacketGen
         'refused'         => 5
       }
 
+      # @!attribute id
+      #  @return [Integer]
       define_field :id, Types::Int16
+      # @!attribute u16
+      #  @return [Integer]
       define_field :u16, Types::Int16
+      # @!attribute qdcount
+      #  @return [Integer]
       define_field :qdcount, Types::Int16
+      # @!attribute ancount
+      #  @return [Integer]
       define_field :ancount, Types::Int16
+      # @!attribute nscount
+      #  @return [Integer]
       define_field :nscount, Types::Int16
+      # @!attribute arcount
+      #  @return [Integer]
       define_field :arcount, Types::Int16
       # @!attribute qd
       #  @return [QDSection]

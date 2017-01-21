@@ -12,7 +12,6 @@ module PacketGen
         # @return [DNS]
         attr_accessor :dns
 
-        # @param [DNS] dns
         def initialize
           super
           @pointer = nil
