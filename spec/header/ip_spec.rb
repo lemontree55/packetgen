@@ -54,7 +54,8 @@ module PacketGen
 
         it 'accepts options' do
           options = {
-            u8: 0xff,
+            version: 0xf,
+            ihl: 0xf,
             tos: 255,
             length: 1000,
             id: 153,

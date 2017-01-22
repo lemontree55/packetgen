@@ -176,32 +176,6 @@ module PacketGen
       define_bit_fields_on :u16, :qr, :opcode, 4, :aa, :tc, :rd, :ra, :z,
                            :ad, :cd, :rcode, 4
 
-      # @param [Hash] options
-      # @option options [Integer] :id
-      # @option options [Integer] :qdcount
-      # @option options [Integer] :ancount
-      # @option options [Integer] :nscount
-      # @option options [Integer] :arcount
-      # @option optons [Boolean] :qr
-      # @option optons [Integer,String] :opcode
-      # @option optons [Boolean] :aa
-      # @option optons [Boolean] :tc
-      # @option optons [Boolean] :rd
-      # @option optons [Boolean] :ra
-      # @option optons [Integer,String] :rcode
-      def initialize(options={})
-        super
-
-        qr = boolean2integer(options[:qr])
-        aa = boolean2integer(options[:aa])
-        tc = boolean2integer(options[:tc])
-        rd = boolean2integer(options[:rd])
-        ra = boolean2integer(options[:ra])
-        self.u16 = (qr << 15) | (aa << 10) | (tc << 9) | (rd << 8) | (ra << 7)
-        self.opcode = options[:opcode] || OPCODES['query']
-        self.rcode = options[:rcode] || RCODES['ok']
-      end
-
       # Read DNS header and sections from a string
       # @param [String] str binary string
       # @return [self]

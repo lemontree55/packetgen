@@ -142,23 +142,6 @@ module PacketGen
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
 
-      # @param [Hash] options
-      # @option options [Integer] :version
-      # @option options [Integer] :traffic_class
-      # @option options [Integer] :flow_label
-      # @option options [Integer] :length payload length
-      # @option options [Integer] :next
-      # @option options [Integer] :hop
-      # @option options [String] :src colon-delimited source address
-      # @option options [String] :dst colon-delimited destination address
-      # @option options [String] :body binary string
-      def initialize(options={})
-        super
-        self.version = options[:version] if options[:version]
-        self.traffic_class = options[:traffic_class] if options[:traffic_class]
-        self.flow_label = options[:flow_label] if options[:flow_label]
-      end
-
       # @!attribute version
       #   @return [Integer] 4-bit version attribute
       # @!attribute traffic_class

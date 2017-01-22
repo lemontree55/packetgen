@@ -13,13 +13,16 @@ module PacketGen
 
       # @private
       @field_defs = {}
+      # @private
+      @bit_fields = []
 
       # On inheritage, create +@field_defs+ class variable
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
         field_defs = @field_defs.clone
-        klass.class_eval { @field_defs = field_defs }
+        bf = @bit_fields.clone
+        klass.class_eval { @field_defs = field_defs; @bit_fields = bf }
       end
 
       # Define a field in
@@ -125,6 +128,8 @@ module PacketGen
               end
               EOM
             end
+
+            @bit_fields << field
           end
 
           idx -= size
@@ -134,7 +139,7 @@ module PacketGen
 
       # Create a new header object
       # @param [Hash] options Keys are symbols. They should have name of object
-      #   attributes.
+      #   attributes, as defined by {.define_field} and by {.define_bit_field}.
       def initialize(options={})
         @fields = {}
         self.class.class_eval { @field_defs }.each do |field, ary|
@@ -149,6 +154,9 @@ module PacketGen
           else
             @fields[field].from_human(value) if @fields[field].respond_to? :from_human
           end
+        end
+        self.class.class_eval { @bit_fields }.each do |bit_field|
+          self.send "#{bit_field}=", options[bit_field] if options[bit_field]
         end
       end
 

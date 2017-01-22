@@ -129,12 +129,8 @@ module PacketGen
       # @option options [Integer] :urg_pointer
       # @option options [String] :body
       def initialize(options={})
-        super
-
-        doff = options[:data_offset] || options[:hlen] || 5
-        rsv = options[:reserved] || 0
-        flgs = options[:flags] || 0
-        self[:u16].read (((doff << 3) | rsv) << 9) | flgs
+        opts = { data_offset: 5 }.merge!(options)
+        super(opts)
       end
 
       # @!attribute data_offset
