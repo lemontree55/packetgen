@@ -76,13 +76,17 @@ module PacketGen
       # A bitfield of more bits defines 2 methods:
       # * +#field+ which returns an Integer,
       # * +#field=+ which takes and returns an Integer.
-      # @param [Symbol] attr attribute name (attribute should a {Types::Int}
+      # @param [Symbol] attr attribute name (attribute should be a {Types::Int}
       #   subclass)
       # @param [Array] args list of bitfield names. Name may be followed
       #   by bitfield size. If no size is given, 1 bit is assumed.
       # @return [void]
       def self.define_bit_fields_on(attr, *args)
-        total_size = self.new[attr].width * 8
+        type = @field_defs[attr].first
+        unless type < Types::Int
+          raise TypeError, "#{attr} is not a PacketGen::Types::Int"
+        end
+        total_size = type.new.width * 8
         idx = total_size - 1
 
         field = args.shift
