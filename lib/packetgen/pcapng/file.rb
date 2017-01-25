@@ -11,7 +11,9 @@ module PacketGen
 
       # Known link types
       KNOWN_LINK_TYPES = {
-        LINKTYPE_ETHERNET => 'Eth'
+        LINKTYPE_ETHERNET => 'Eth',
+        LINKTYPE_IPV4 => 'IP',
+        LINKTYPE_IPV6 => 'IPv6'
       }
 
       # Get file sections

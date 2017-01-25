@@ -19,10 +19,12 @@ module PacketGen
     # Enhanced Packet Block type number
     EPB_TYPE = Types::Int32.new(6, :little)
 
-    # Various LINKTYPE values from http://www.tcpdump.org/linktypes.html
-    # FIXME: only ETHERNET type is defined as this is the only link layer
-    # type supported by PacketGen
+    # IEEE 802.3 Ethernet (10Mb, 100Mb, 1000Mb, and up)
     LINKTYPE_ETHERNET = 1
+    # Raw IPv4; the packet begins with an IPv4 header.
+    LINKTYPE_IPV4 = 228
+    # Raw IPv6; the packet begins with an IPv6 header.
+    LINKTYPE_IPV6 = 229
 
     # Base error class for PcapNG
     class Error < PacketGen::Error; end
