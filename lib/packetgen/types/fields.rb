@@ -12,6 +12,8 @@ module PacketGen
     class Fields
 
       # @private
+      @ordered_fields = []
+      # @private
       @field_defs = {}
       # @private
       @bit_fields = []
@@ -20,12 +22,17 @@ module PacketGen
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
+        ordered = @ordered_fields.clone
         field_defs = @field_defs.clone
         bf = @bit_fields.clone
-        klass.class_eval { @field_defs = field_defs; @bit_fields = bf }
+        klass.class_eval do
+          @ordered_fields = ordered
+          @field_defs = field_defs
+          @bit_fields = bf
+        end
       end
 
-      # Define a field in
+      # Define a field in class
       #   class BinaryStruct < PacketGen::Types::Fields
       #     # 8-bit value
       #     define_field :value1, Types::Int8
@@ -61,8 +68,46 @@ module PacketGen
         define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
         define.delete(0) if type.instance_methods.include? name
         class_eval define.join("\n")
-
         @field_defs[name] = [type, default, builder]
+        @ordered_fields << name
+      end
+
+      # Define a field, before another one
+      # @param [Symbol,nil] other field name to create a new one before. If +nil+,
+      #    new field is appended.
+      # @param [Symbol] name field name to create
+      # @param [Object] type class or instance
+      # @param [Object] default default value. May be a value or a lambda.
+      # @param [Lambda] builder lambda to construct this field. Parameter to this
+      #   lambda is the caller object.
+      # @return [void]
+      def self.define_field_before(other, name, type, default: nil, builder: nil)
+        define_field name, type, default: default, builder: builder
+        unless other.nil?
+          @ordered_fields.delete name
+          idx = @ordered_fields.index(other)
+          raise ArgumentError, "unknown #{other} field" if idx.nil?
+          @ordered_fields[idx, 0] = name
+        end
+      end
+
+      # Define a field, after another one
+      # @param [Symbol,nil] other field name to create a new one after. If +nil+,
+      #    new field is appended.
+      # @param [Symbol] name field name to create
+      # @param [Object] type class or instance
+      # @param [Object] default default value
+      # @param [Lambda] builder lambda to construct this field. Parameter to this
+      #   lambda is the caller object.
+      # @return [void]
+      def self.define_field_after(other, name, type, default: nil, builder: nil)
+        define_field name, type, default: default, builder: builder
+        unless other.nil?
+          @ordered_fields.delete name
+          idx = @ordered_fields.index(other)
+          raise ArgumentError, "unknown #{other} field" if idx.nil?
+          @ordered_fields[idx+1, 0] = name
+        end
       end
 
       # Define a bitfield on given attribute
@@ -85,7 +130,9 @@ module PacketGen
       #   by bitfield size. If no size is given, 1 bit is assumed.
       # @return [void]
       def self.define_bit_fields_on(attr, *args)
-        type = @field_defs[attr].first
+        attr_def = @field_defs[attr]
+        raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
+        type = attr_def.first
         unless type < Types::Int
           raise TypeError, "#{attr} is not a PacketGen::Types::Int"
         end
@@ -178,7 +225,7 @@ module PacketGen
       # Get all field names
       # @return [Array<Symbol>]
       def fields
-        @fields.keys
+        @ordered_fields ||= self.class.class_eval { @ordered_fields }
       end
 
       # Return header protocol name
@@ -226,7 +273,7 @@ module PacketGen
       # Return object as a binary string
       # @return [String]
       def to_s
-        @fields.values.map { |v| force_binary v.to_s }.join
+        fields.map { |f| force_binary @fields[f].to_s }.join
       end
 
       # Size of object as binary strinf
@@ -238,11 +285,11 @@ module PacketGen
       # Return object as a hash
       # @return [Hash] keys: attributes, values: attribute values
       def to_h
-        @fields
+        Hash[fields.map { |f| [f, @fields[f]] }]
       end
 
-      # Used to set body as balue of body object.
-      # @param [Object] value
+      # Used to set body as value of body object.
+      # @param [String,Int,Fields,nil] value
       # @return [void]
       # @raise [BodyError] no body on given object
       # @raise [ArgumentError] cannot cram +body+ in +:body+ field
@@ -251,7 +298,7 @@ module PacketGen
         case body
         when ::String
           self[:body].read value
-        when Types::Int, Base
+        when Int, Fields
           self[:body] = value
         when NilClass
           self[:body] = Types::String.new.read('')
