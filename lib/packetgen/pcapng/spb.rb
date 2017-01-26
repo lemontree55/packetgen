@@ -27,14 +27,10 @@ module PacketGen
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field :orig_len, Types::Int32, default: 0
+      define_field_before :block_len2, :orig_len, Types::Int32, default: 0
       # @!attribute data
       #  @return [Types::String]
-      define_field :data, Types::String
-      # @!attribute block_len2
-      #  32-bit block length
-      #  @return [Integer]
-      define_field :block_len2, Types::Int32
+      define_field_before :block_len2, :data, Types::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -94,7 +90,7 @@ module PacketGen
       def to_s
         pad_field :data
         recalc_block_len
-        @fields.values.map(&:to_s).join
+        fields.map { |f| @fields[f].to_s }.join
       end
 
     end

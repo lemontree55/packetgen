@@ -32,33 +32,29 @@ module PacketGen
       # @!attribute interface_id
       #  32-bit interface ID
       #  @return [Integer]
-      define_field :interface_id, Types::Int32, default: 0
+      define_field_before :block_len2, :interface_id, Types::Int32, default: 0
       # @!attribute tsh
       #  high 32-bit timestamp value
       #  @return [Integer]
-      define_field :tsh, Types::Int32, default: 0
+      define_field_before :block_len2, :tsh, Types::Int32, default: 0
       # @!attribute tsl
       #  low 32-bit imestamp value
       #  @return [Integer]
-      define_field :tsl, Types::Int32, default: 0
+      define_field_before :block_len2, :tsl, Types::Int32, default: 0
       # @!attribute cap_len
       #  32-bit capture length
       #  @return [Integer]
-      define_field :cap_len, Types::Int32, default: 0
+      define_field_before :block_len2, :cap_len, Types::Int32, default: 0
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field :orig_len, Types::Int32, default: 0
+      define_field_before :block_len2, :orig_len, Types::Int32, default: 0
       # @!attribute data
       #  @return [Types::String]
-      define_field :data, Types::String
+      define_field_before :block_len2, :data, Types::String
       # @!attribute options
       #  @return [Types::String]
-      define_field :options, Types::String
-      # @!attribute block_len2
-      #  32-bit block length
-      #  @return [Integer]
-      define_field :block_len2, Types::Int32
+      define_field_before :block_len2, :options, Types::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -122,7 +118,7 @@ module PacketGen
       def to_s
         pad_field :data, :options
         recalc_block_len
-        @fields.values.map(&:to_s).join
+        fields.map { |f| @fields[f].to_s }.join
       end
 
 

@@ -34,22 +34,18 @@ module PacketGen
       # @!attribute link_type
       #  16-bit link type
       #  @return [Integer]
-      define_field :link_type, Types::Int16, default: 1
+      define_field_before :block_len2, :link_type, Types::Int16, default: 1
       # @!attribute reserved
       #  16-bit reserved field
       #  @return [Integer]
-      define_field :reserved, Types::Int16, default: 0
+      define_field_before :block_len2, :reserved, Types::Int16, default: 0
       # @!attribute snaplen
       #  32-bit snap length
       #  @return [Integer]
-      define_field :snaplen, Types::Int32, default: 0
+      define_field_before :block_len2, :snaplen, Types::Int32, default: 0
       # @!attribute options
       #  @return [Types::String]
-      define_field :options, Types::String
-      # @!attribute block_len2
-      #  32-bit block length
-      #  @return [Integer]
-      define_field :block_len2, Types::Int32
+      define_field_before :block_len2, :options, Types::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -140,7 +136,7 @@ module PacketGen
       def to_s
         pad_field :options
         recalc_block_len
-        @fields.values.map(&:to_s).join + @packets.map(&:to_s).join
+        fields.map { |f| @fields[f].to_s }.join << @packets.map(&:to_s).join
       end
 
     end

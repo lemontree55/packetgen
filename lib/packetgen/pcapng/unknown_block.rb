@@ -19,11 +19,7 @@ module PacketGen
 
       # @!attribute body
       #  @return [Types::String]
-      define_field :body, Types::String
-      # @!attribute block_len2
-      #  32-bit block length
-      #  @return [Integer]
-      define_field :block_len2, Types::Int32
+      define_field_before :block_len2, :body, Types::String
 
       # @option options [:little, :big] :endian set block endianness
       # @option options [Integer] :type

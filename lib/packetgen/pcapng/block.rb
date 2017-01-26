@@ -21,6 +21,10 @@ module PacketGen
       #  32-bit block length
       #  @return [Integer]
       define_field :block_len, Types::Int32
+      # @!attribute block_len
+      #  32-bit block length
+      #  @return [Integer]
+      define_field :block_len2, Types::Int32
 
       def initialize(options={})
         super
@@ -35,7 +39,7 @@ module PacketGen
       # Calculate block length and update :block_len and block_len2 fields
       # @return [void]
       def recalc_block_len
-        len = @fields.values.map(&:to_s).join.size
+        len = fields.map { |f| @fields[f].to_s }.join.size
         self.block_len = self.block_len2 = len
       end
 
@@ -67,7 +71,7 @@ module PacketGen
 
       def check_len_coherency
         unless self[:block_len].to_i == self[:block_len2].to_i
-          raise InvalidFileError, 'Incoherency in Extended Packet Block'
+          raise InvalidFileError, 'Incoherency in Block length'
         end
       end
     end
