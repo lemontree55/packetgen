@@ -2,22 +2,14 @@ module PacketGen
   module Header
     class DNS
 
+      # DNS option
       # @author Sylvain Daubert
-      class Option < Base
+      class Option < Types::TLV
 
-        # @!attribute code
-        #  @return [Integer]
-        define_field :code, Types::Int16
-        # @!attribute length
-        #  @return [Integer]
-        define_field :length, Types::Int16
-        # @!attribute data
-        #  @return [Types::String]
-        define_field :data, Types::String
-
-        # @return [String]
-        def to_human
-          "code=#{code},len=#{length},data=#{data.inspect}"
+        # Force {#type} and {#length} fields to be {Types::Int16}
+        # @see TLV#initialize
+        def initialize(options={})
+          super options.merge!(t: Types::Int16, l: Types::Int16)
         end
       end
     end
