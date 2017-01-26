@@ -12,8 +12,30 @@ module PacketGen
     class Base < Types::Fields
 
       # @api private
-      # Simple class to handle header association
+      # Simple class to handle a header association
       Binding = Struct.new(:key, :value)
+
+      # @api private
+      # Class to handle header associations
+      class Bindings
+        include Enumerable
+        attr_accessor :op
+        attr_accessor :bindings
+
+        # @param [:or, :and] op
+        def initialize(op)
+          @op = op
+          @bindings = []
+        end
+
+        def <<(arg)
+          @bindings << arg
+        end
+
+        def each
+          @bindings.each { |b| yield b }
+        end
+      end
 
       # @api private
       # Reference on packet which owns this header
@@ -30,18 +52,23 @@ module PacketGen
       # Bind a upper header to current class
       # @param [Class] header_klass header class to bind to current class
       # @param [Hash] args current class fields and their value when +header_klass+
-      #  is embedded in current class
+      #  is embedded in current class. If multiple fields are given, a special key
+      #  +:op+ may be given to set parse operation on this binding. By default, +:op+
+      #  is +:or+ (at least one binding must match to parse it). It also may be set
+      #  to +:and+ (all bindings must match to parse it).
       # @return [void]
       def self.bind_header(header_klass, args={})
-        @known_headers[header_klass] ||= []
+        op = args.delete(:op) || :or
+        bindings = Bindings.new(op)
+        @known_headers[header_klass] = bindings
         args.each do |key, value|
-          @known_headers[header_klass] << Binding.new(key, value)
+          bindings << Binding.new(key, value)
         end
       end
 
       # @api private
       # Get knwon headers
-      # @return [Hash] keys: header classes, values: array of {Binding}
+      # @return [Hash] keys: header classes, values: hashes
       def self.known_headers
         @known_headers
       end

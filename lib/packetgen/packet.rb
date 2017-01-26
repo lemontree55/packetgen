@@ -77,12 +77,20 @@ module PacketGen
           # * for one known header,
           # * it exists a known binding with a upper header
           hdr.class.known_headers.each do |nh, bindings|
-            bindings.each do |binding|
-              if hdr.send(binding.key) == binding.value
+            case bindings.op
+            when :or
+              bindings.each do |binding|
+                if hdr.send(binding.key) == binding.value
+                  first_header = hklass.to_s.gsub(/.*::/, '')
+                  break
+                end
+                break unless first_header.nil?
+              end
+            when :and
+              if bindings.all? { |binding| hdr.send(binding.key) == binding.value }
                 first_header = hklass.to_s.gsub(/.*::/, '')
                 break
               end
-              break unless first_header.nil?
             end
           end
           break unless first_header.nil?
@@ -100,12 +108,21 @@ module PacketGen
       while decode_packet_bottom_up do
         last_known_hdr = pkt.headers.last
         last_known_hdr.class.known_headers.each do |nh, bindings|
-          bindings.each do |binding|
-            if last_known_hdr.send(binding.key) == binding.value
+          case bindings.op
+          when :or
+            bindings.each do |binding|
+              if last_known_hdr.send(binding.key) == binding.value
+                str = last_known_hdr.body
+                pkt.add nh.to_s.gsub(/.*Header::/, '')
+                pkt.headers[-1, 1] = pkt.headers.last.read(str)
+                break
+              end
+            end
+          when :and
+            if bindings.all? { |binding| last_known_hdr.send(binding.key) == binding.value }
               str = last_known_hdr.body
-              pkt.add nh.to_s.gsub(/.*::/, '')
+              pkt.add nh.to_s.gsub(/.*Header::/, '')
               pkt.headers[-1, 1] = pkt.headers.last.read(str)
-              break
             end
           end
           break unless last_known_hdr == pkt.headers.last
@@ -341,17 +358,26 @@ module PacketGen
       prev_header = previous_header || @headers.last
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
-        if bindings.nil? or bindings.empty?
+        if bindings.nil?
           msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
           msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
           msg << "#{prev_header.protocol_name.downcase}_proto_field: "
           msg << "value_for_#{protocol.downcase})"
           raise ArgumentError, msg
         end
-        # Set prev_header key to value, unless this is already done for at least
-        # one key
-        unless bindings.any? { |b| prev_header.send(b.key) == b.value }
-          prev_header[bindings.first.key].read bindings.first.value
+
+        case bindings.op
+        when :or
+          # Set prev_header key to value, unless this is already done for at least
+          # one key
+          unless bindings.any? { |b| prev_header.send(b.key) == b.value }
+            prev_header.send("#{bindings.first.key}=", bindings.first.value)
+          end
+        when :and
+          # Set all prev_header key to binding value
+          bindings.each do |b|
+            prev_header.send("#{bindings.first.key}=", bindings.first.value)
+          end
         end
         prev_header[:body] = header
       end

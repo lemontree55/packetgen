@@ -13,7 +13,11 @@ module BindingHelper
       if @args and @args.is_a? Hash
         bindings = prev_header.known_headers[@header]
         @args.each do |key, value|
-          bresult = bindings.one? { |b| b.key == key && b.value == value }
+          bresult = if bindings.op == :or
+                      bindings.one? { |b| b.key == key && b.value == value }
+                    else
+                      bindings.all? { |b| b.key == key && b.value == value }
+                    end
           @bad_args = { key: key, value: value} unless bresult
           result &&= bresult
           break unless bresult
