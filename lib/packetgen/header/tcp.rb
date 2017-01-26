@@ -43,8 +43,8 @@ module PacketGen
     # == Options
     # {#options} TCP attribute is a {Options}. {Option} may added to it:
     #  tcph.options << PacketGen::Header::TCP::MSS.new(1250)
-    # Another way is to use {Options#add}:
-    #  tcph.options.add 'MSS', 1250
+    # or:
+    #  tcph.options << { opt: 'MSS', value: 1250 }
     # @author Sylvain Daubert
     class TCP < Base
     end
