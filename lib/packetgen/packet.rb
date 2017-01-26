@@ -71,11 +71,12 @@ module PacketGen
         # No decoding forced for first header. Have to guess it!
         Header.all.each do |hklass|
           hdr = hklass.new
-          hdr.read binary_str
+          # #read may return another object (more specific class)
+          hdr = hdr.read(binary_str)
           # First header is found when:
           # * for one known header,
           # * it exists a known binding with a upper header
-          hklass.known_headers.each do |nh, bindings|
+          hdr.class.known_headers.each do |nh, bindings|
             bindings.each do |binding|
               if hdr.send(binding.key) == binding.value
                 first_header = hklass.to_s.gsub(/.*::/, '')
@@ -92,7 +93,7 @@ module PacketGen
       end
 
       pkt.add(first_header)
-      pkt.headers.last.read binary_str
+      pkt.headers[-1, 1] = pkt.headers.last.read(binary_str)
 
       # Decode upper headers recursively
       decode_packet_bottom_up = true
@@ -103,7 +104,7 @@ module PacketGen
             if last_known_hdr.send(binding.key) == binding.value
               str = last_known_hdr.body
               pkt.add nh.to_s.gsub(/.*::/, '')
-              pkt.headers.last.read str
+              pkt.headers[-1, 1] = pkt.headers.last.read(str)
               break
             end
           end
