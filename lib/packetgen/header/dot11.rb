@@ -14,12 +14,13 @@ module PacketGen
       define_field :flags, Types::Int8
       define_field :length, Types::Int16le, default: 8
       define_field :dlt, Types::Int32le
-      define_field :fields, Types::String,
+      define_field :ppi_fields, Types::String,
                    builder: ->(ppi) { Types::String.new('', length_from: ppi[:length]) }
       define_field :body, Types::String
 
       define_bit_fields_on :flags, :reserved, 7, :align
     end
+    self.add_class PPI
 
     # IEEE 802.11 header
     # @author Sylvain Daubert
@@ -67,13 +68,11 @@ module PacketGen
         return self if str.nil?
         force_binary str
         self[:frame_control].read str[0, 2]
-        if type == 0
-          case subtype
-          when 8
-            Dot11::Beacon.new.read str
-          else
-            private_read str
-          end
+        case type
+        when 0
+          Dot11::Management.new.read str
+        when 1
+          Dot11::Control.new.read str
         else
           private_read str
         end
@@ -83,9 +82,15 @@ module PacketGen
         @applicable_fields.map { |f| force_binary @fields[f].to_s }.join
       end
 
+      def human_type
+        TYPES[type]
+      end
+
       def inspect
         str = if self.class == Dot11
-                Inspect.dashed_line("#{self.class} #{TYPES[type]}", 2)
+                Inspect.dashed_line("#{self.class} #{human_type}", 2)
+              elsif self.respond_to? :human_subtype
+                Inspect.dashed_line("#{self.class} #{human_subtype}", 2)
               else
                 Inspect.dashed_line("#{self.class}", 2)
               end
@@ -97,10 +102,12 @@ module PacketGen
       end
     end
 
+    self.add_class Dot11
     PPI.bind_header Dot11, dlt: PcapNG::LINKTYPE_IEEE802_11
   end
 end
 
 require_relative 'dot11/element'
 require_relative 'dot11/management'
-require_relative 'dot11/beacon'
+require_relative 'dot11/sub_mngt'
+require_relative 'dot11/control'
