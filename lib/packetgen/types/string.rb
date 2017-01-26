@@ -12,10 +12,21 @@ module PacketGen
     # @author Sylvain Daubert
     class String < ::String
 
+      # @param [String] str
+      # @param [Hash] options
+      # @option options [Types::Int] :length_from object from which takes length when
+      #   reading
+      def initialize(str='', options={})
+        super(str)
+        @length_from = options[:length_from]
+      end
+
       # @param [::String] str
       # @return [String] self
       def read(str)
-        self.replace str.to_s
+        s = str.to_s
+        s = s[0, @length_from.to_i] unless @length_from.nil?
+        self.replace s
         self
       end
 
