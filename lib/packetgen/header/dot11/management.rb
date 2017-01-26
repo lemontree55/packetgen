@@ -8,23 +8,16 @@ module PacketGen
   module Header
     class Dot11
 
+      # IEEE 802.11 management frame header
+      # @author Sylvain Daubert
       class Management < Dot11
+
+        # @param [Hash] options
+        # @see Base#initialize
         def initialize(options={})
           super({type: 0}.merge!(options))
-          @applicable_fields -= %i(mac4 qos_control ht_control)
-        end
-
-        def read(str)
-          private_read str
-        end
-
-        def order=(bool)
-          if bool && !@applicable_fields.include?(:ht_control)
-            @applicable_fields[5, 0] = :ht_control
-          elsif !bool && @applicable_fields.include?(:ht_control)
-            @applicable_fields -= %i(ht_control)
-          end
-          super
+          @applicable_fields -= %i(mac4 qos_ctrl ht_ctrl)
+          define_applicable_fields
         end
       end
     end

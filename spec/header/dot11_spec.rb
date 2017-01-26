@@ -3,15 +3,60 @@ require_relative '../spec_helper'
 module PacketGen
   module Header
     describe Dot11 do
-      let(:file) { File.join(__dir__, 'ieee802.11-join.pcapng') }
+      let(:ctrl_mngt_file) { File.join(__dir__, 'ieee802.11-join.pcapng') }
+      let(:wap_file) { File.join(__dir__, 'ieee802.11-data-wap.pcapng') }
+      let(:data_file) { File.join(__dir__, 'ieee802.11-data.pcapng') }
 
-      context '#read' do
-        it 'reads different kinds of Dot11 packets' do
+      describe 'bindings' do
+        it 'in PPI packets' do
+          expect(PPI).to know_header(Dot11).with(dlt: 105)
+        end
+        it 'in RadioTap packets' do
+          expect(RadioTap).to know_header(Dot11)
+        end
+      end
+
+      describe '#initialize' do
+        it 'creates a Dot11 header with default values' do
+          dot11 = Dot11.new
+          expect(dot11.frame_ctrl).to eq(0)
+          expect(dot11.id).to eq(0)
+          expect(dot11.mac1).to eq('00:00:00:00:00:00')
+          expect(dot11.mac2).to eq('00:00:00:00:00:00')
+          expect(dot11.mac3).to eq('00:00:00:00:00:00')
+          expect(dot11.sequence_ctrl).to eq(0)
+          expect(dot11.mac4).to eq('00:00:00:00:00:00')
+          expect(dot11.qos_ctrl).to eq(0)
+          expect(dot11.ht_ctrl).to eq(0)
+          expect(dot11.fields.size).to eq(10)
+        end
+
+        it 'accepts options' do
+          options = {
+            frame_ctrl: 0x0241,
+            id: 0xffff,
+            mac1: 'ff:ff:ff:ff:ff:ff',
+            mac2: '01:02:03:04:05:06',
+            mac3: '01:02:03:04:05:00',
+            mac4: '01:02:03:00:01:02',
+            sequence_ctrl: 0xcafe,
+            qos_ctrl: 0xdeca,
+            ht_ctrl: 0x8000_1234
+          }
+          dot11 = Dot11.new(options)
+          options.each do |key, value|
+            expect(dot11.send(key)).to eq(value)
+          end
+        end
+      end
+
+      describe '#read' do
+        it 'reads different kinds of Dot11 Mngt/Ctrl packets' do
           classes = [Dot11::Beacon, Dot11::ProbeReq, Dot11::ProbeReq, Dot11::ProbeResp,
                      Dot11::Control, Dot11::Beacon, Dot11::Auth, Dot11::Control,
                      Dot11::Auth, Dot11::Control, Dot11::AssoReq, Dot11::Control,
                      Dot11::AssoResp, Dot11::Control]
-          pkts = Packet.read(file)
+          pkts = Packet.read(ctrl_mngt_file)
           expect(pkts.map { |pkt| pkt.headers.last.class }).to eq(classes)
 
           expect(pkts[0].beacon.timestamp).to eq(0x26bbb9189)
@@ -47,7 +92,74 @@ module PacketGen
           expect(pkts[12].assoresp.status).to eq(0)
           expect(pkts[12].assoresp.aid).to eq(0xc004)
           expect(pkts[12].assoresp.elements.size).to eq(3)
-       end
+        end
+
+        it 'reads key packets' do
+          pkt = Packet.read(wap_file)[27]
+          expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data, LLC, SNAP])
+          expect(pkt.dot11.frame_ctrl).to eq(0x0802)
+          expect(pkt.dot11.id).to eq(0x2c)
+          expect(pkt.dot11.from_ds?).to be(true)
+          expect(pkt.llc.dsap).to eq(170)
+          expect(pkt.snap.proto_id).to eq(0x888e)
+          expect(pkt.body[0, 8]).to eq([2, 3, 0, 0x75, 2, 0, 0x8a, 0].pack('C*'))
+        end
+
+        it 'reads encrypted data packets' do
+          pkt = Packet.read(wap_file)[37]
+          expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data])
+          expect(pkt.dot11.frame_ctrl).to eq(0x0841)
+          expect(pkt.body.size).to eq(356)
+        end
+
+        it 'reads clear data packets' do
+          pkt = Packet.read(data_file).first
+          expect(pkt.headers.map(&:class)).to eq([PPI, Dot11::Data, LLC, SNAP,
+                                                  IP, UDP, DNS])
+          expect(pkt.snap.proto_id).to eq(0x800)
+          expect(pkt.dns.qd.first.to_human).to eq('A IN www.polito.it.')
+        end
+      end
+
+      describe '#to_s' do
+        it 'returns a binary string' do
+          mngt_ctrl = PcapNG::File.new.read_packet_bytes(ctrl_mngt_file)
+          mngt_str = mngt_ctrl[0]
+          ctrl_str = mngt_ctrl[4]
+          wep_str = PcapNG::File.new.read_packet_bytes(wap_file)[37]
+          data_str = PcapNG::File.new.read_packet_bytes(data_file).first
+
+          pkt = Packet.parse(mngt_str)
+          expect(pkt.is? 'Dot11::Beacon').to be(true)
+          expect(pkt.to_s).to eq(mngt_str)
+
+          pkt = Packet.parse(ctrl_str, first_header: 'Dot11')
+          expect(pkt.is? 'Dot11::Control').to be(true)
+          expect(pkt.to_s).to eq(ctrl_str)
+
+          pkt = Packet.parse(wep_str, first_header: 'RadioTap')
+          expect(pkt.is? 'Dot11::Data').to be(true)
+          expect(pkt.dot11.wep?).to be(true)
+          expect(pkt.to_s).to eq(wep_str)
+
+          pkt = Packet.parse(data_str)
+          expect(pkt.is? 'Dot11::Data').to be(true)
+          expect(pkt.dot11.wep?).to be(false)
+          expect(pkt.to_s).to eq(data_str)
+        end
+      end
+
+      describe '#inspect' do
+        it 'returns a String with applicable attributes'
+      end
+
+      describe '#to_w' do
+        it 'responds to #to_w'
+        it 'sends a Dot11 packet on "wire"'
+      end
+
+      describe '#decrypt' do
+        it 'decrypts data packets'
       end
     end
   end

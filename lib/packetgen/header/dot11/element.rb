@@ -8,7 +8,7 @@ module PacketGen
   module Header
     class Dot11
 
-      # IEEE802.11 information element
+      # IEEE 802.11 information element
       # @author Sylvain Daubert
       class Element < Types::TLV
         # Known element types

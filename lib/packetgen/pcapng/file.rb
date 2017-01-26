@@ -13,6 +13,7 @@ module PacketGen
       KNOWN_LINK_TYPES = {
         LINKTYPE_ETHERNET => 'Eth',
         LINKTYPE_IEEE802_11 => 'Dot11',
+        LINKTYPE_IEEE802_11_RADIOTAP => 'RadioTap',
         LINKTYPE_PPI => 'PPI',
         LINKTYPE_IPV4 => 'IP',
         LINKTYPE_IPV6 => 'IPv6'
@@ -76,7 +77,7 @@ module PacketGen
         end
       end
 
-      # Give an array of parsed packets (raw data from packets).
+      # Give an array of raw packets (raw data from packets).
       # If a block is given, yield raw packet data from the given file.
       # @overload read_packet_bytes(fname)
       #  @param [String] fname pcapng file name

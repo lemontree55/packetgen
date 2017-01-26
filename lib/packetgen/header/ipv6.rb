@@ -114,6 +114,9 @@ module PacketGen
         end
       end
 
+      # IPv6 Ether type
+      ETHERTYPE = 0x86dd
+
       # @!attribute u32
       #  First 32-bit word of IPv6 header
       #  @return [Integer]
@@ -216,7 +219,8 @@ module PacketGen
 
     self.add_class IPv6
 
-    Eth.bind_header IPv6, ethertype: 0x86DD
+    Eth.bind_header IPv6, ethertype: IPv6::ETHERTYPE
+    SNAP.bind_header IPv6, proto_id: IPv6::ETHERTYPE
     IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end

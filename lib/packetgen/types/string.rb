@@ -14,8 +14,8 @@ module PacketGen
 
       # @param [String] str
       # @param [Hash] options
-      # @option options [Types::Int] :length_from object from which takes length when
-      #   reading
+      # @option options [Types::Int,Proc] :length_from object or proc from which
+      #   takes length when reading
       def initialize(str='', options={})
         super(str)
         @length_from = options[:length_from]
@@ -25,7 +25,12 @@ module PacketGen
       # @return [String] self
       def read(str)
         s = str.to_s
-        s = s[0, @length_from.to_i] unless @length_from.nil?
+        s = case @length_from
+            when Int
+              s[0, @length_from.to_i]
+            else
+              s
+            end
         self.replace s
         self
       end

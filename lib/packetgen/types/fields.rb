@@ -186,7 +186,7 @@ module PacketGen
 
       # Create a new header object
       # @param [Hash] options Keys are symbols. They should have name of object
-      #   attributes, as defined by {.define_field} and by {.define_bit_field}.
+      #   attributes, as defined by {.define_field} and by {.define_bit_fields_on}.
       def initialize(options={})
         @fields = {}
         self.class.class_eval { @field_defs }.each do |field, ary|

@@ -26,6 +26,8 @@ module PacketGen
     LINKTYPE_RAW = 101
     # IEEE 802.11 wireless LAN
     LINKTYPE_IEEE802_11 = 105
+    # RadioTap link layer informations + IEEE 802.11 wireless LAN
+    LINKTYPE_IEEE802_11_RADIOTAP = 127
     # Per-Packet Information information, as specified by the Per-Packet Information
     # Header Specification, followed by a packet with the LINKTYPE_ value specified
     # by the +pph_dlt+ field of that header.
