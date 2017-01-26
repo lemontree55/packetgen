@@ -12,8 +12,93 @@ module PacketGen
     class Base < Types::Fields
 
       # @api private
-      # Simple class to handle header association
-      Binding = Struct.new(:key, :value)
+      # Simple class to handle a header association
+      class Binding < Struct.new(:key, :value)
+        # Check +fields+ responds to binding
+        # @param [Types::Fields] fields
+        # @return [Boolean]
+        def check?(fields)
+          case self[:value]
+          when Proc
+            self[:value].call fields.send(self[:key])
+          else
+            fields.send(self[:key]) == self[:value]
+          end
+        end
+
+        # Set +fields+ field to binding value
+        # @param [Types::Fields] fields
+        # @return [void]
+        def set(fields)
+          case self[:value]
+          when Proc
+            fields.send "#{self[:key]}=", self[:value].call(nil)
+          else
+            fields.send "#{self[:key]}=", self[:value]
+          end
+        end
+      end
+
+      # @api private
+      # Class to handle header associations
+      class Bindings
+        include Enumerable
+
+        # op type
+        # @return [:or,:and]
+        attr_accessor :op
+        # @return [Array<Binding>]
+        attr_accessor :bindings
+
+        # @param [:or, :and] op
+        def initialize(op)
+          @op = op
+          @bindings = []
+        end
+
+        # @param [Object] arg
+        # @return [Bindings] self
+        def <<(arg)
+          @bindings << arg
+        end
+
+        # each iterator
+        # @return [void]
+        def each
+          @bindings.each { |b| yield b }
+        end
+
+        # @return [Boolean]
+        def empty?
+          @bindings.empty?
+        end
+
+        # @return [Hash]
+        def to_h
+          hsh = {}
+          each { |b| hsh[b.key] = b.value }
+          hsh
+        end
+
+        # Check +fields+ responds to set of bindings
+        # @param [Types::Fields] fields
+        # @return [Boolean]
+        def check?(fields)
+          case @op
+          when :or
+            @bindings.any? { |binding| binding.check?(fields) }
+          when :and
+            @bindings.all? { |binding| binding.check?(fields) }
+          end
+        end
+
+        # Set +fields+ to bindings value
+        # @param [Types::Fields] fields
+        # @return [void]
+        def set(fields)
+          @bindings.each { |b| b.set fields }
+        end
+      end
 
       # @api private
       # Reference on packet which owns this header
@@ -28,20 +113,33 @@ module PacketGen
       end
 
       # Bind a upper header to current class
+      #   Header1.bind_header Header2, field1: 43
+      #   Header1.bind_header Header2, field1: 43, field2: 43
+      #   Header1.bind_header Header2, op: :and, field1: 43, field2: 43
+      #   Header1.bind_header Header2, field1: ->(v) { v.nil? ? 128 : v > 127 }
       # @param [Class] header_klass header class to bind to current class
       # @param [Hash] args current class fields and their value when +header_klass+
-      #  is embedded in current class
+      #  is embedded in current class. Given value may be a lambda, whose alone argument
+      #  is the value extracted from header field (or +nil+ when lambda is used to set
+      #  field while adding a header).
+      #
+      #  If multiple fields are given, a special key +:op+ may be given to set parse
+      #  operation on this binding. By default, +:op+ is +:or+ (at least one binding
+      #  must match to parse it). It also may be set to +:and+ (all bindings must match
+      #  to parse it).
       # @return [void]
       def self.bind_header(header_klass, args={})
-        @known_headers[header_klass] ||= []
+        op = args.delete(:op) || :or
+        bindings = Bindings.new(op)
+        @known_headers[header_klass] = bindings
         args.each do |key, value|
-          @known_headers[header_klass] << Binding.new(key, value)
+          bindings << Binding.new(key, value)
         end
       end
 
       # @api private
       # Get knwon headers
-      # @return [Hash] keys: header classes, values: array of {Binding}
+      # @return [Hash] keys: header classes, values: hashes
       def self.known_headers
         @known_headers
       end
