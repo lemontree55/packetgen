@@ -12,9 +12,11 @@ module PacketGen
       # Known link types
       KNOWN_LINK_TYPES = {
         LINKTYPE_ETHERNET => 'Eth',
+        LINKTYPE_IEEE802_11 => 'Dot11',
+        LINKTYPE_PPI => 'PPI',
         LINKTYPE_IPV4 => 'IP',
         LINKTYPE_IPV6 => 'IPv6'
-      }
+      }.freeze
 
       # Get file sections
       # @return [Array]

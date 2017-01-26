@@ -57,7 +57,7 @@ module PacketGen
     # @param [#to_s] body
     # @return [String]
     def self.inspect_body(body)
-      return '' if body.nil?
+      return '' if body.nil? or body.empty?
       str = dashed_line('Body', 2)
       str << (0..15).to_a.map { |v| " %02d" % v}.join << "\n"
       str << '-' * INSPECT_MAX_WIDTH << "\n"
