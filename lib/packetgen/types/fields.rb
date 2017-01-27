@@ -39,7 +39,7 @@ module PacketGen
       #     # 16-bit value
       #     define_field :value2, Types::Int16
       #     # specific class, may use a specific constructor
-      #     define_field :value3, MyClass, constructor: ->(obj) { Myclass.new(obj) }
+      #     define_field :value3, MyClass, builder: ->(obj) { Myclass.new(obj) }
       #   end
       #
       #   bs = BinaryStruct.new
@@ -47,11 +47,13 @@ module PacketGen
       #   bs.value1    # => Integer
       # @param [Symbol] name field name
       # @param [Object] type class or instance
-      # @param [Object] default default value
-      # @param [Lambda] builder lambda to construct this field. Parameter to this
-      #   lambda is the caller object.
+      # @param [Hash] options Unrecognized options are passed to object builder if
+      #   +:builder+ option is not set.
+      # @option options [Object] :default default value
+      # @option options [Lambda] :builder lambda to construct this field.
+      #   Parameter to this lambda is the caller object.
       # @return [void]
-      def self.define_field(name, type, default: nil, builder: nil)
+      def self.define_field(name, type, options={})
         define = []
         if type < Types::Int
           define << "def #{name}; self[:#{name}].to_i; end"
@@ -68,7 +70,8 @@ module PacketGen
         define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
         define.delete(0) if type.instance_methods.include? name
         class_eval define.join("\n")
-        @field_defs[name] = [type, default, builder]
+        @field_defs[name] = [type, options.delete(:default), options.delete(:builder),
+                             options]
         @ordered_fields << name
       end
 
@@ -77,12 +80,11 @@ module PacketGen
       #    new field is appended.
       # @param [Symbol] name field name to create
       # @param [Object] type class or instance
-      # @param [Object] default default value. May be a value or a lambda.
-      # @param [Lambda] builder lambda to construct this field. Parameter to this
-      #   lambda is the caller object.
+      # @param [Hash] options See {.define_field}.
       # @return [void]
-      def self.define_field_before(other, name, type, default: nil, builder: nil)
-        define_field name, type, default: default, builder: builder
+      # @see .define_field
+      def self.define_field_before(other, name, type, options={})
+        define_field name, type, options
         unless other.nil?
           @ordered_fields.delete name
           idx = @ordered_fields.index(other)
@@ -96,12 +98,11 @@ module PacketGen
       #    new field is appended.
       # @param [Symbol] name field name to create
       # @param [Object] type class or instance
-      # @param [Object] default default value
-      # @param [Lambda] builder lambda to construct this field. Parameter to this
-      #   lambda is the caller object.
+      # @param [Hash] options See {.define_field}.
       # @return [void]
-      def self.define_field_after(other, name, type, default: nil, builder: nil)
-        define_field name, type, default: default, builder: builder
+      # @see .define_field
+      def self.define_field_after(other, name, type, options={})
+        define_field name, type, options
         unless other.nil?
           @ordered_fields.delete name
           idx = @ordered_fields.index(other)
@@ -191,7 +192,13 @@ module PacketGen
         @fields = {}
         self.class.class_eval { @field_defs }.each do |field, ary|
           default = ary[1].is_a?(Proc) ? ary[1].call : ary[1]
-          @fields[field] = ary[2] ? ary[2].call(self) : ary[0].new
+          @fields[field] = if ary[2]
+                             ary[2].call(self)
+                           elsif !ary[3].empty?
+                             ary[0].new(ary[3])
+                           else
+                             ary[0].new
+                           end
 
           value = options[field] || default
           if ary[0] < Types::Int
