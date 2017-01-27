@@ -4,17 +4,7 @@
 
 # PacketGen
 
-PacketGen provides simple ways to generate, send and capture network packets easily.
-
-## Why PacketGen
-Why create PacketGen ? There is already PacketFu!
-
-Yes. But PacketFu is limited:
-* upper protocols use fixed layers: TCP always uses IPv4, IP and IPv6 always uses Ethernet as MAC,...
-* cannot handle tunneled packets (IP-in-IP, or deciphered ESP packets,...)
-* cannot easily encapsulate or decapsulate packets
-* parse packets top-down, and sometimes bad parse down layers
-* cannot send packet on wire at IP/IPv6 level (Ethernet header is mandatory)
+PacketGen provides simple ways to generate, send and capture network packets.
 
 ## Installation
 Via RubyGems:
@@ -25,6 +15,7 @@ Or add it to a Gemfile:
 ```ruby
 gem 'packetgen'
 ```
+
 ## Usage
 
 ### Easily create packets
@@ -43,8 +34,6 @@ PacketGen.gen('IP').to_s
 ```
 
 ### Send packets on wire
-need PcapRub for Ethernet packets. Need a C extension (use of C socket API) for IP packets.
-
 ```
 # send Ethernet packet
 PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').to_w
@@ -60,8 +49,6 @@ packet = PacketGen.parse(binary_data)
 ```
 
 ### Capture packets from wire
-need PCapRub.
-
 ```
 # Capture packets, action from a block
 PacketGen.capture('eth0') do |packet|
@@ -112,24 +99,14 @@ PacketGen.write('more_packets.pcapng', packets)
 ```
 
 ### Add custom header/protocol
-Since v1.1.0, PacketGen permits adding you own header classes.
+Since v1.1.0, PacketGen permits adding your own header classes.
 First, define the new header class. By example:
 
 ```ruby
 module MyModule
- class MyHeader < Struct.new(:field1, :field2)
-   include PacketGen::StructFu
-   include PacketGen::Header::HeaderMethods
-   extend PacketGen::Header::HeaderClassMethods
-   
-   def initialize(options={})
-     super Int32.new(options[:field1]), Int32.new(options[:field2])
-   end
-   
-   def read(str)
-     self[:field1].read str[0, 4]
-     self[:field2].read str[4, 4]
-   end
+ class MyHeader < PacketGen::Types::Fields
+   define_field :field1, PacketGen::Types::Int32   
+   define_field :field2, PacketGen::Types::Int32   
  end
 end
 ```
@@ -143,7 +120,7 @@ PacketGen::Header.add_class MyModule::MyHeader
 Finally, bindings must be declared:
 
 ```
-# bind MyHeader as IP protocol number 254 (needed by Packet#parse)
+# bind MyHeader as IP protocol number 254 (needed by Packet#parse and Packet#add)
 PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
 ```
 
@@ -166,5 +143,5 @@ Copyright © 2016 Sylvain Daubert
 ### Other sources
 All original code maintains its copyright from its original authors and licensing.
 
-This is mainly for PcapNG (copied from [PacketFu](https://github.com/packetfu/packetfu),
+This is mainly for PcapNG (originally copied from [PacketFu](https://github.com/packetfu/packetfu),
 but i am the original author).
