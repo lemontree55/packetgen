@@ -179,6 +179,14 @@ module PacketGen
         @known_headers
       end
 
+      # @abstract Should be redefined by subclasses. This method should check invariant
+      #   fields from header.
+      # Call by {Packet#parse} when guessing first header to check if header is correct
+      # @return [Boolean]
+      def parse?
+        true
+      end
+
       # @api private
       # Get +header+ id in packet headers array
       # @param [Header] header

@@ -215,6 +215,12 @@ module PacketGen
         end
         str
       end
+
+      # Check version field
+      # @see [Base#parse?]
+      def parse?
+        version == 6
+      end
     end
 
     self.add_class IPv6

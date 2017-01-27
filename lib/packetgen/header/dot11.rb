@@ -45,6 +45,12 @@ module PacketGen
         self[:body].read str[length, str.size]
         self
       end
+
+      # Check version field
+      # @see [Base#parse?]
+      def parse?
+        version == 0
+      end
     end
     self.add_class PPI
 
@@ -82,6 +88,12 @@ module PacketGen
         self[:radio_fields].read str[8, length - 8]
         self[:body].read str[length, str.size]
         self
+      end
+
+      # Check version field
+      # @see [Base#parse?]
+      def parse?
+        version == 0
       end
     end
     self.add_class RadioTap
