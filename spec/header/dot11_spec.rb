@@ -145,7 +145,9 @@ module PacketGen
           pkt = Packet.parse(data_str)
           expect(pkt.is? 'Dot11::Data').to be(true)
           expect(pkt.dot11.wep?).to be(false)
-          expect(pkt.to_s).to eq(data_str)
+          a1 = pkt.to_s.unpack('C*').map { |v| "%02x" % v }
+          a2 = data_str[0..-5].unpack('C*').map { |v| "%02x" % v }
+          expect(pkt.to_s).to eq(data_str[0..-5]) # remove FCS
         end
       end
 

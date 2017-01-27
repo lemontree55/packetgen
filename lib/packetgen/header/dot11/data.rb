@@ -24,7 +24,7 @@ module PacketGen
 
         def define_applicable_fields
           super
-          if subtype >= 8
+          if subtype >= 8 and !@applicable_fields.include? :qos_ctrl
             # Insert after mac4, if present
             # else insert after sequence_ctrl
             if @applicable_fields.include? :mac4
@@ -33,9 +33,9 @@ module PacketGen
             else
               @applicable_fields[6, 0] = :qos_ctrl
             end
-          else
-           @applicable_fields -= %i(qos_ctrl)
-         end
+          elsif subtype < 8
+            @applicable_fields -= %i(qos_ctrl)
+          end
         end
       end
     end
