@@ -19,7 +19,7 @@ gem 'packetgen'
 ## Usage
 
 ### Easily create packets
-```
+```ruby
 PacketGen.gen('IP')             # generate a IP packet object
 PacketGen.gen('TCP')            # generate a TCP over IP packet object
 PacketGen.gen('IP').add('TCP')  # the same
@@ -34,7 +34,7 @@ PacketGen.gen('IP').to_s
 ```
 
 ### Send packets on wire
-```
+```ruby
 # send Ethernet packet
 PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').to_w
 # send IP packet
@@ -44,12 +44,12 @@ PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').add('IP').to_
 ```
 
 ### Parse packets from binary data
-```
+```ruby
 packet = PacketGen.parse(binary_data)
 ```
 
 ### Capture packets from wire
-```
+```ruby
 # Capture packets, action from a block
 PacketGen.capture('eth0') do |packet|
   do_stuffs_with_packet
@@ -63,7 +63,7 @@ packets = PacketGen.capture('eth0', filter: 'ip src 1.1.1.2', max: 1)
 ```
 
 ### Easily manipulate packets
-```
+```ruby
 # access header fields
 pkt = PacketGen.gen('IP').add('TCP')
 pkt.ip.src = '192.168.1.1'
@@ -88,7 +88,7 @@ pkt2.decapsulate(pkt2.ip)              # pkt2 is now inner IP/TCP packet
 ```
 
 ### Read/write PcapNG files
-```
+```ruby
 # read a PcapNG file, containing multiple packets
 packets = PacketGen.read('file.pcapng')
 packets.first.udp.sport = 65535
@@ -113,20 +113,20 @@ end
 
 Then, class must be declared to PacketGen:
 
-```
+```ruby
 PacketGen::Header.add_class MyModule::MyHeader
 ```
 
 Finally, bindings must be declared:
 
-```
+```ruby
 # bind MyHeader as IP protocol number 254 (needed by Packet#parse and Packet#add)
 PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
 ```
 
 And use it:
 
-```
+```ruby
 pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)
 pkt.myheader.field2.read 0x01
 ```
