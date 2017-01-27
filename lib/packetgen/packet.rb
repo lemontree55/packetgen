@@ -319,11 +319,14 @@ module PacketGen
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
         if bindings.nil?
-          msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
-          msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
-          msg << "#{prev_header.protocol_name.downcase}_proto_field: "
-          msg << "value_for_#{protocol.downcase})"
-          raise ArgumentError, msg
+          bindings = prev_header.class.known_headers[header.class.superclass]
+          if bindings.nil?
+            msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
+            msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
+            msg << "#{prev_header.protocol_name.downcase}_proto_field: "
+            msg << "value_for_#{protocol.downcase})"
+            raise ArgumentError, msg
+          end
         end
         bindings.set(prev_header) if !bindings.empty? and !parsing
         prev_header[:body] = header
@@ -359,8 +362,9 @@ module PacketGen
         last_known_hdr = @headers.last
         search_header(last_known_hdr) do |nh|
           str = last_known_hdr.body
-          add_header nh.new, parsing: true
-          @headers[-1, 1] = @headers.last.read(str)
+          nheader = nh.new
+          nheader = nheader.read(str)
+          add_header nheader, parsing: true
         end
         decode_packet_bottom_up = (@headers.last != last_known_hdr)
       end
