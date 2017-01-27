@@ -118,6 +118,12 @@ module PacketGen
                 break
               end
             end
+            # Empty bindings: the upper header always contains nh one!
+            if bindings.empty?
+              str = last_known_hdr.body
+              pkt.add nh.to_s.gsub(/.*Header::/, '')
+              pkt.headers[-1, 1] = pkt.headers.last.read(str)
+            end
           when :and
             if bindings.all? { |binding| last_known_hdr.send(binding.key) == binding.value }
               str = last_known_hdr.body
@@ -366,17 +372,19 @@ module PacketGen
           raise ArgumentError, msg
         end
 
-        case bindings.op
-        when :or
-          # Set prev_header key to value, unless this is already done for at least
-          # one key
-          unless bindings.any? { |b| prev_header.send(b.key) == b.value }
-            prev_header.send("#{bindings.first.key}=", bindings.first.value)
-          end
-        when :and
-          # Set all prev_header key to binding value
-          bindings.each do |b|
-            prev_header.send("#{bindings.first.key}=", bindings.first.value)
+        unless bindings.empty?
+          case bindings.op
+          when :or
+            # Set prev_header key to value, unless this is already done for at least
+            # one key
+            unless bindings.any? { |b| prev_header.send(b.key) == b.value }
+              prev_header.send("#{bindings.first.key}=", bindings.first.value)
+            end
+          when :and
+            # Set all prev_header key to binding value
+            bindings.each do |b|
+              prev_header.send("#{bindings.first.key}=", bindings.first.value)
+            end
           end
         end
         prev_header[:body] = header
