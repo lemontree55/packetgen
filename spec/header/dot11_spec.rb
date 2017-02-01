@@ -96,13 +96,13 @@ module PacketGen
 
         it 'reads key packets' do
           pkt = Packet.read(wap_file)[27]
-          expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data, LLC, SNAP])
+          expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data, LLC, SNAP, Dot1x])
           expect(pkt.dot11.frame_ctrl).to eq(0x0802)
           expect(pkt.dot11.id).to eq(0x2c)
           expect(pkt.dot11.from_ds?).to be(true)
           expect(pkt.llc.dsap).to eq(170)
           expect(pkt.snap.proto_id).to eq(0x888e)
-          expect(pkt.body[0, 8]).to eq([2, 3, 0, 0x75, 2, 0, 0x8a, 0].pack('C*'))
+          expect(pkt.body[0, 8]).to eq([2, 0, 0x8a, 0, 16, 0, 0, 0].pack('C*'))
         end
 
         it 'reads encrypted data packets' do

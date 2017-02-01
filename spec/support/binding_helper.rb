@@ -12,6 +12,7 @@ module BindingHelper
       result = prev_header.known_headers.keys.include?(@header)
       if @args and @args.is_a? Hash
         bindings = prev_header.known_headers[@header]
+        return false unless bindings
         if bindings.op == :or
           @args.each do |key, value|
             bresult = bindings.one? { |b| b.key == key && b.value == value }

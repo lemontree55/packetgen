@@ -227,6 +227,7 @@ module PacketGen
 
     Eth.bind_header IPv6, ethertype: IPv6::ETHERTYPE
     SNAP.bind_header IPv6, proto_id: IPv6::ETHERTYPE
+    Dot1q.bind_header IPv6, ethertype: IPv6::ETHERTYPE
     IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end

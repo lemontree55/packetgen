@@ -237,6 +237,7 @@ module PacketGen
 
     Eth.bind_header IP, ethertype: IP::ETHERTYPE
     SNAP.bind_header IP, proto_id: IP::ETHERTYPE
+    Dot1q.bind_header IP, ethertype: IP::ETHERTYPE
     IP.bind_header IP, protocol: 4
   end
 end
