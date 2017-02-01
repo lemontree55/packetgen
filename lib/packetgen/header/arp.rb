@@ -116,6 +116,7 @@ module PacketGen
     self.add_class ARP
 
     Eth.bind_header ARP, ethertype: 0x806
+    Dot1q.bind_header ARP, ethertype: 0x806
   end
 end
 

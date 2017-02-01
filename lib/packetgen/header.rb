@@ -79,6 +79,7 @@ end
 
 require_relative 'header/base'
 require_relative 'header/eth'
+require_relative 'header/dot1x'
 require_relative 'header/ip'
 require_relative 'header/icmp'
 require_relative 'header/arp'

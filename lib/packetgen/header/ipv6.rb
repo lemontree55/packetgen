@@ -217,6 +217,7 @@ module PacketGen
     self.add_class IPv6
 
     Eth.bind_header IPv6, ethertype: 0x86DD
+    Dot1q.bind_header IPv6, ethertype: 0x86DD
     IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end

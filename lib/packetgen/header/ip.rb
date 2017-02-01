@@ -227,6 +227,7 @@ module PacketGen
     self.add_class IP
 
     Eth.bind_header IP, ethertype: 0x800
+    Dot1q.bind_header IP, ethertype: 0x800
     IP.bind_header IP, protocol: 4
   end
 end
