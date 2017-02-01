@@ -152,16 +152,28 @@ module PacketGen
       end
 
       describe '#inspect' do
-        it 'returns a String with applicable attributes'
+        it 'returns a String with applicable attributes' do
+          dot11 = Dot11.new
+          str = dot11.inspect
+          expect(str).to be_a(String)
+          (dot11.to_h.keys - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+
+          dot11 = Dot11::Control.new
+          str = dot11.inspect
+          expect(str).to be_a(String)
+          expect(dot11.to_h.keys).to_not include(:mac3, :sequence_ctrl, :mac4,
+                                                 :qos_ctrl, :ht_ctrl)
+          (dot11.to_h.keys - %i(body)).each do |attr|
+            expect(str).to include(attr.to_s)
+          end
+        end
       end
 
       describe '#to_w' do
         it 'responds to #to_w'
         it 'sends a Dot11 packet on "wire"'
-      end
-
-      describe '#decrypt' do
-        it 'decrypts data packets'
       end
     end
   end
