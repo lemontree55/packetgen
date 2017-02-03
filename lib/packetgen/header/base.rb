@@ -144,6 +144,12 @@ module PacketGen
         @known_headers
       end
 
+      # Return header protocol name
+      # @return [String]
+      def protocol_name
+        self.class.to_s.sub(/.*::/, '')
+      end
+
       # @api private
       # Get +header+ id in packet headers array
       # @param [Header] header

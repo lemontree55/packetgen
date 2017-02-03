@@ -2,6 +2,15 @@ module PacketGen
   module Types
 
     # Class to handle Type-Length-Value attributes
+    #
+    # TLV fields handles three subfields:
+    # * a tag/type field (defaults: {Int8} type),
+    # * a length field (defaults: {Int8} type),
+    # * a value field (defaults: {String} type).
+    #
+    # {#initialize} supports options to change tag and length type. By example, to
+    # declare a TLV using {Int16}:
+    #    define_field :tlv, PacketGen::Types::TLV, builder: ->(obj) { PacketGen::Types::TLV.new(t: PacketGen::Types::Int16, l: PacketGen::Types::Int16) }
     # @author Sylvain Daubert
     class TLV < Fields
       # @!attribute type

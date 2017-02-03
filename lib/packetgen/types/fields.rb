@@ -6,8 +6,84 @@
 module PacketGen
   module Types
 
-    # @abstract
-    # Set of fields
+    # @abstract Set of fields
+    # This class is a base class to define headers or anything else with a binary
+    # format containing multiple fields.
+    #
+    # == Basics
+    # A {Fields} subclass is generaly composed of multiple binary fields. These fields
+    # have each a given type. All types from {Types} module are supported, and all
+    # {Fields} subclasses may also be used as field type.
+    #
+    # To define a new subclass, it has to inherit from {Fields}. And some class
+    # methods have to be used to declare attributes/fields:
+    #   class MyBinaryStructure < PacketGen::Types::Fields
+    #     # define a first Int8 attribute, with default value: 1
+    #     define_field :attr1, PacketGen::Types::Int8, default: 1
+    #     #define a second attribute, of kind Int32
+    #     define_field :attr2, PacketGen::Types::Int32
+    #   end
+    #
+    # These defintions create 4 methods: +#attr1+, +#attr1=+, +#attr2+ and +#attr2=+.
+    # All these methods take and/or return Integers.
+    #
+    # Fields may also be accessed through {#[]} ans {#[]=}. These methods give access
+    # to type object:
+    #   mybs = MyBinaryStructure.new
+    #   mybs.attr1     # => Integer
+    #   mybs[:attr1]   # => PacketGen::Types::Int8
+    #
+    # {#initialize} accepts an option hash to populate attributes. Keys are attribute
+    # name symbols, and values are those expected by writer accessor.
+    #
+    # {#read} is able to populate object from a binary string.
+    #
+    # {#to_s} returns binary string from object.
+    #
+    # == Add Fields
+    # {.define_field} adds a field to Fields subclass. A lot of field types may be
+    # defined: integer types, string types (to handle a stream of bytes). More
+    # complex field types may be defined using others Fields subclasses:
+    #   # define a 16-bit little-endian integer field, named type
+    #   define_field :type, PacketGen::Types::Int16le
+    #   # define a string field
+    #   define_field :body, PacketGen::Types::String
+    #   # define afield using a complex type (Fields subclass)
+    #   define_field :mac_addr, PacketGen::Eth::MacAddr
+    #
+    # This example creates six methods on our Fields subclass: +#type+, +#type=+,
+    # +#body+, +#body=+, +#mac_addr+ and +#mac_addr=+.
+    #
+    # {.define_field} has many options (third optional Hash argument):
+    # * +:default+ gives default field value. It may be a simple value (an Integer
+    #   for an Int field, for example) or a lambda,
+    # * +:builder+ to give a builder/constructor lambda to create field. The lambda
+    #   takes one argument: {Fields} subclass object owning field.
+    # For example:
+    #   # 32-bit integer field defaulting to 1
+    #   define_field :type, PacketGen::Types::Int32, default: 1
+    #   # 16-bit integer field, created with a random value. Each instance of this
+    #   # object will have a different value.
+    #   define_field :id, PacketGen::Types::Int16, default: ->{ rand(65535) }
+    #   # a size field
+    #   define_field :body_size, PacketGen::Type::Int16
+    #   # String field which length is taken from body_size field
+    #   define_field :body, PacketGen::Type::String, builder: ->(obj) { PacketGen::Type::String.new('', length_from: obj[:body_size]) }
+    #
+    # {.define_field_before} and {.define_field_after} are also defined to relatively
+    # create a field from anoher one (for example, when adding a field in a subclass).
+    # == Generating bit fields
+    # {.define_bit_fields_on} creates a bit field on a previuously declared integer
+    # field. For example, +frag+ field in IP header:
+    #   define_field :frag, Types::Int16, default: 0
+    #   define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
+    #
+    # This example generates methods:
+    # * +#frag+ and +#frag=+ to access +frag+ field as a 16-bit integer,
+    # * +#flag_rsv?+, +#flag_rsv=+, +#flag_df?+, +#flag_df=+, +#flag_mf?+ and +#flag_mf=+
+    #   to access Boolean RSV, MF and DF flags from +frag+ field,
+    # * +#fragment_offset+ and +#fragment_offset=+ to access 13-bit integer fragment
+    #   offset subfield from +frag+ field.
     # @author Sylvain Daubert
     class Fields
 
@@ -235,12 +311,6 @@ module PacketGen
         @ordered_fields ||= self.class.class_eval { @ordered_fields }
       end
 
-      # Return header protocol name
-      # @return [String]
-      def protocol_name
-        self.class.to_s.sub(/.*::/, '')
-      end
-
       # Populate object from a binary string
       # @param [String] str
       # @return [Fields] self
@@ -283,7 +353,7 @@ module PacketGen
         fields.map { |f| force_binary @fields[f].to_s }.join
       end
 
-      # Size of object as binary strinf
+      # Size of object as binary string
       # @return [nteger]
       def sz
         to_s.size

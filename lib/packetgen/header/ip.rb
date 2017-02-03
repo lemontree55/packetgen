@@ -153,7 +153,7 @@ module PacketGen
       # @!attribute flag_df
       #   @return [Boolean] Don't Fragment flag 
       # @!attribute flag_mf
-      #   @return [Boolena] More Fragment flags
+      #   @return [Boolean] More Fragment flags
       # @!attribute fragment_offset
       #   @return [Integer] 13-bit fragment offset
       define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13

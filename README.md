@@ -100,11 +100,11 @@ PacketGen.write('more_packets.pcapng', packets)
 
 ### Add custom header/protocol
 Since v1.1.0, PacketGen permits adding your own header classes.
-First, define the new header class. By example:
+First, define the new header class. For example:
 
 ```ruby
 module MyModule
- class MyHeader < PacketGen::Types::Fields
+ class MyHeader < PacketGen::Header::Base
    define_field :field1, PacketGen::Types::Int32   
    define_field :field2, PacketGen::Types::Int32   
  end

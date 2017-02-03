@@ -9,10 +9,15 @@ module PacketGen
     # IEEE 802.1X / EAPOL
     #
     # A IEEE 802.1X header consists of:
-    # * a {#verion} ({Types::Int8}),
+    # * a {#version} ({Types::Int8}),
     # * a packet {#type} ({Types::Int8}),
     # * a {#length} ({Types::Int16}),
     # * and a body (a {Types::String} or another Header class).
+    # == Create a Dot1x header
+    #   pkt1 = PacketGen.gen('Eth').add('Dot1x', type: 1)
+    #   pkt2 = PacketGen.gen('Eth').add('Dot1x')
+    #   pkt2.dot1x.type = 'EAP Packet'
+    #   pkt2.dot1x.body.read 'body'
     # @author Sylvain Daubert
     class Dot1x < Base
 

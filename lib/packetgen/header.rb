@@ -11,20 +11,14 @@ module PacketGen
   # First, define the new header class. By example:
   #  module MyModule
   #    class MyHeader < PacketGen::Header::Base
-  #      def initialize(options={})
-  #        super Int32.new(options[:field1]), Int32.new(options[:field2])
-  #      end
-  #      
-  #      def read(str)
-  #        self[:field1].read str[0, 4]
-  #        self[:field2].read str[4, 4]
-  #      end
+  #      define_field :field1, PacketGen::Types::Int32   
+  #      define_field :field2, PacketGen::Types::Int32   
   #    end
   #   end
   # Then, class must be declared to PacketGen:
   #  PacketGen::Header.add_class MyModule::MyHeader
   # Finally, bindings must be declared:
-  #  # bind MyHeader as IP protocol number 254 (needed by Packet#parse)
+  #  # bind MyHeader as IP protocol number 254 (needed by Packet#parse and Packet#add)
   #  PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
   # And use it:
   #  pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)

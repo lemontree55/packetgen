@@ -12,6 +12,10 @@ module PacketGen
     # * a {#tci Tag Control Information} ({Types::Int16}),
     # * a {#ethertype} ({Types::Int16}),
     # * and a body (a {Types::String} or another Header class).
+    #
+    # == Create a Dot1q header
+    #   # Create a IP packet in VLAN #43
+    #   pkt = PacketGen.gen('Eth').add('Dot1q', vid: 43).add('IP')
     # @author Sylvain Daubert
     class Dot1q < Base
       # @!attribute tci

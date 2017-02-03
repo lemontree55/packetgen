@@ -21,7 +21,7 @@ module PacketGen
     #  pkt.eth   # => PacketGen::Header::Eth
     #
     # == Ethernet attributes
-    #  eth.dst = "00:01:02:03:04:05'
+    #  eth.dst = "00:01:02:03:04:05"
     #  eth.src        # => "00:01:01:01:01:01"
     #  eth[:src]      # => PacketGen::Header::Eth::MacAddr
     #  eth.ethertype  # => 16-bit Integer
