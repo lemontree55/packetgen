@@ -16,6 +16,10 @@ module PacketGen
         end
       end
 
+      it '.has_fcs should default to true' do
+        expect(Dot11.has_fcs).to be(true)
+      end
+
       describe '#initialize' do
         it 'creates a Dot11 header with default values' do
           dot11 = Dot11.new
@@ -28,7 +32,8 @@ module PacketGen
           expect(dot11.mac4).to eq('00:00:00:00:00:00')
           expect(dot11.qos_ctrl).to eq(0)
           expect(dot11.ht_ctrl).to eq(0)
-          expect(dot11.fields.size).to eq(10)
+          expect(dot11.fcs).to eq(0)
+          expect(dot11.fields.size).to eq(11)
         end
 
         it 'accepts options' do
@@ -41,7 +46,8 @@ module PacketGen
             mac4: '01:02:03:00:01:02',
             sequence_ctrl: 0xcafe,
             qos_ctrl: 0xdeca,
-            ht_ctrl: 0x8000_1234
+            ht_ctrl: 0x8000_1234,
+            fcs: 0x87654321
           }
           dot11 = Dot11.new(options)
           options.each do |key, value|
@@ -56,7 +62,9 @@ module PacketGen
                      Dot11::Control, Dot11::Beacon, Dot11::Auth, Dot11::Control,
                      Dot11::Auth, Dot11::Control, Dot11::AssoReq, Dot11::Control,
                      Dot11::AssoResp, Dot11::Control]
+          Dot11.has_fcs = false
           pkts = Packet.read(ctrl_mngt_file)
+          Dot11.has_fcs = true
           expect(pkts.map { |pkt| pkt.headers.last.class }).to eq(classes)
 
           expect(pkts[0].beacon.timestamp).to eq(0x26bbb9189)
@@ -109,7 +117,8 @@ module PacketGen
           pkt = Packet.read(wap_file)[37]
           expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data])
           expect(pkt.dot11.frame_ctrl).to eq(0x0841)
-          expect(pkt.body.size).to eq(356)
+          expect(pkt.body.size).to eq(352)
+          expect(pkt.dot11.fcs).to eq(0x2794a82c)
         end
 
         it 'reads clear data packets' do
@@ -121,33 +130,53 @@ module PacketGen
         end
       end
 
+      describe '#calc_checksum' do
+        before(:each) { @pkt = PcapNG::File.new.read_packets(data_file)[0] }
+        it 'calculates checksum' do
+          expected_fcs = @pkt.data.fcs
+          expect(@pkt.data.calc_checksum).to eq(expected_fcs)
+        end
+
+        it 'sets FCS field with calculated value' do
+          expected_fcs = @pkt.data.fcs
+          @pkt.data.fcs = 0
+          @pkt.data.calc_checksum
+          expect(@pkt.data.fcs).to eq(expected_fcs)
+        end
+      end
+
       describe '#to_s' do
         it 'returns a binary string' do
-          mngt_ctrl = PcapNG::File.new.read_packet_bytes(ctrl_mngt_file)
-          mngt_str = mngt_ctrl[0]
-          ctrl_str = mngt_ctrl[4]
-          wep_str = PcapNG::File.new.read_packet_bytes(wap_file)[37]
-          data_str = PcapNG::File.new.read_packet_bytes(data_file).first
+          Dot11.has_fcs = false
+          begin
+            mngt_ctrl = PcapNG::File.new.read_packet_bytes(ctrl_mngt_file)
+            mngt_str = mngt_ctrl[0]
+            ctrl_str = mngt_ctrl[4]
+            wep_str = PcapNG::File.new.read_packet_bytes(wap_file)[37]
+            data_str = PcapNG::File.new.read_packet_bytes(data_file).first
 
-          pkt = Packet.parse(mngt_str)
-          expect(pkt.is? 'Dot11::Beacon').to be(true)
-          expect(pkt.to_s).to eq(mngt_str)
+            pkt = Packet.parse(mngt_str)
+            expect(pkt.is? 'Dot11::Beacon').to be(true)
+            expect(pkt.to_s).to eq(mngt_str)
 
-          pkt = Packet.parse(ctrl_str, first_header: 'Dot11')
-          expect(pkt.is? 'Dot11::Control').to be(true)
-          expect(pkt.to_s).to eq(ctrl_str)
+            pkt = Packet.parse(ctrl_str, first_header: 'Dot11')
+            expect(pkt.is? 'Dot11::Control').to be(true)
+            expect(pkt.to_s).to eq(ctrl_str)
 
-          pkt = Packet.parse(wep_str, first_header: 'RadioTap')
-          expect(pkt.is? 'Dot11::Data').to be(true)
-          expect(pkt.dot11.wep?).to be(true)
-          expect(pkt.to_s).to eq(wep_str)
+            pkt = Packet.parse(wep_str, first_header: 'RadioTap')
+            expect(pkt.is? 'Dot11::Data').to be(true)
+            expect(pkt.dot11.wep?).to be(true)
+            expect(pkt.to_s).to eq(wep_str)
 
-          pkt = Packet.parse(data_str)
-          expect(pkt.is? 'Dot11::Data').to be(true)
-          expect(pkt.dot11.wep?).to be(false)
-          a1 = pkt.to_s.unpack('C*').map { |v| "%02x" % v }
-          a2 = data_str[0..-5].unpack('C*').map { |v| "%02x" % v }
-          expect(pkt.to_s).to eq(data_str[0..-5]) # remove FCS
+            pkt = Packet.parse(data_str)
+            expect(pkt.is? 'Dot11::Data').to be(true)
+            expect(pkt.dot11.wep?).to be(false)
+            a1 = pkt.to_s.unpack('C*').map { |v| "%02x" % v }
+            a2 = data_str[0..-5].unpack('C*').map { |v| "%02x" % v }
+            expect(pkt.to_s).to eq(data_str[0..-5]) # remove FCS
+          ensure
+            Dot11.has_fcs = true
+          end
         end
       end
 

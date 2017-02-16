@@ -112,12 +112,21 @@ module PacketGen
     # * a {#mac4} ({Eth::MacAddr}),
     # * a {#qos_ctrl} ({Types::Int16}),
     # * a {#ht_ctrl} ({Types::Int32}),
-    # * and/or a {#body} (a {Types::String} or another {Base} class).
+    # * a {#body} (a {Types::String} or another {Base} class),
+    # * a Frame check sequence ({#fcs}, of type {Types::Int32le})
     # @author Sylvain Daubert
     class Dot11 < Base
 
       # Frame types
       TYPES = %w(Management Control Data Reserved).freeze
+
+      class << self
+        # Set a flag for parsing Dot11 packets. If set to +true+, parse FCS field,
+        # else don't. Default is +true+.
+        # @return [Boolean]
+        attr_accessor :has_fcs
+      end
+      Dot11.has_fcs = true
 
       # @!attribute frame_ctrl
       #  @return [Integer] 16-bit frame control word
@@ -136,7 +145,7 @@ module PacketGen
       define_field :mac3, Eth::MacAddr
       # @!attribute sequence_ctrl
       #  @return [Integer] 16-bit sequence control word
-      define_field :sequence_ctrl, Types::Int16, default: 0
+      define_field :sequence_ctrl, Types::Int16le, default: 0
       # @!attribute mac4
       #  @return [Eth::MacAddr]
       define_field :mac4, Eth::MacAddr
@@ -147,8 +156,11 @@ module PacketGen
       #  @return [Integer] 16-bit HT control word
       define_field :ht_ctrl, Types::Int32
       # @!attribute body
-      #  @return [Type::String]
+      #  @return [Types::String]
       define_field :body, Types::String
+      # @!attribute fcs
+      #  @return [Types::Int32le]
+      define_field :fcs, Types::Int32le
 
       # @!attribute subtype
       #  @return [Integer] 4-bit frame subtype from {#frame_ctrl}
@@ -200,10 +212,13 @@ module PacketGen
       # @return [Dot11] may return a subclass object if a more specific class
       #   may be determined
       def read(str)
+        has_fcs = Dot11.has_fcs
+
         if self.class == Dot11
           return self if str.nil?
           force_binary str
           self[:frame_ctrl].read str[0, 2]
+
           case type
           when 0
             Dot11::Management.new.read str
@@ -212,11 +227,19 @@ module PacketGen
           when 2
             Dot11::Data.new.read str
           else
-            private_read str
+            private_read str, has_fcs
           end
         else
-          private_read str
+          private_read str, has_fcs
         end
+      end
+
+      # Compute checksum and set +fcs+ field
+      # @return [Integer]
+      def calc_checksum
+        fcs = Zlib.crc32(to_s[0...-4])
+        self.fcs = fcs
+        fcs
       end
 
       # @return [String]
@@ -264,12 +287,22 @@ module PacketGen
         else
           @applicable_fields -= %i(ht_ctrl)
         end
+        if Dot11.has_fcs
+          @applicable_fields << :fcs unless @applicable_fields.include? :fcs
+        else
+          @applicable_fields -= %i(fcs)
+        end
       end
 
-      def private_read(str)
+      def private_read(str, has_fcs)
         self[:frame_ctrl].read str[0, 2]
         define_applicable_fields
-        old_read str
+        if has_fcs
+          old_read str[0...-4]
+          self[:fcs].read str[-4..-1]
+        else
+          old_read str
+        end
         self
       end
     end

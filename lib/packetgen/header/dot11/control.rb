@@ -45,19 +45,12 @@ module PacketGen
         private
 
         def define_applicable_fields
+          super
           if @applicable_fields.include? :mac2
             @applicable_fields -= %i(mac2) unless SUBTYPES_WITH_MAC2.include? self.subtype
           elsif SUBTYPES_WITH_MAC2.include? self.subtype
             sz = self.sz
             @applicable_fields[3, 0] = :mac2
-          end
-          if order?
-            unless @applicable_fields.include? :ht_ctrl
-              idx = @applicable_fields.index(:body)
-              @applicable_fields[idx, 0] = :ht_ctrl
-            end
-          else
-            @applicable_fields -= %i(ht_ctrl)
           end
         end
       end
