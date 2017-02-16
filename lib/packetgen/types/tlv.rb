@@ -34,10 +34,11 @@ module PacketGen
       def initialize(options={})
         super
         self[:type] = options[:t].new(type) if options[:t]
-        if options[:l]
-          self[:length] = options[:l].new(length)
-          self[:value] = String.new('', length_from: self[:length])
-        end
+        self[:length] = options[:l].new(length) if options[:l]
+        self[:value] = String.new('', length_from: self[:length])
+        self.type = options[:type] if options[:type]
+        self.value = options[:value] if options[:value]
+        self.length = options[:length] if options[:length]
       end
 
       # @private
@@ -60,6 +61,15 @@ module PacketGen
           raise ArgumentError, "unknown #{val.to_s} type" if new_val.nil?
           self.old_type = new_val
         end
+      end
+
+      # Set +value+ and +length+ fields
+      # @param [::String] str
+      # @return [::String]
+      def value=(str)
+        self.length = str.length
+        self[:value].read str
+        str
       end
 
       # Return human readable type, if TYPES is defined
