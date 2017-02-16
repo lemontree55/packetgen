@@ -77,13 +77,6 @@ module PacketGen
         end
       end
 
-      # @private snap length for PCAPRUB
-      PCAP_SNAPLEN = 0xffff
-      # @private promiscuous (or not) for PCAPRUB
-      PCAP_PROMISC = false
-      # @private timeout for PCAPRUB
-      PCAP_TIMEOUT = 1
-
       # @!attribute dst
       #  @return [MacAddr] Destination MAC address
       define_field :dst, MacAddr, default: '00:00:00:00:00:00'

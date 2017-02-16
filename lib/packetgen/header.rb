@@ -32,6 +32,13 @@ module PacketGen
   # @author Sylvain Daubert
   module Header
 
+    # @private snap length for PCAPRUB
+    PCAP_SNAPLEN = 0xffff
+    # @private promiscuous (or not) for PCAPRUB
+    PCAP_PROMISC = false
+    # @private timeout for PCAPRUB
+    PCAP_TIMEOUT = 1
+
     @added_header_classes = {}
 
     # Get known header classes

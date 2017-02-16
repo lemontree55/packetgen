@@ -3,6 +3,7 @@
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
+require 'zlib'
 
 module PacketGen
   module Header
@@ -51,6 +52,15 @@ module PacketGen
       def parse?
         version == 0
       end
+
+      # send PPI packet on wire. Dot11 FCS trailer should be set.
+      # @param [String] iface interface name
+      # @return [void]
+      def to_w(iface)
+        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
+                                       PCAP_TIMEOUT)
+        pcap.inject self.to_s
+      end
     end
     self.add_class PPI
 
@@ -94,6 +104,15 @@ module PacketGen
       # @see [Base#parse?]
       def parse?
         version == 0
+      end
+
+      # send RadioTap packet on wire. Dot11 FCS trailer should be set.
+      # @param [String] iface interface name
+      # @return [void]
+      def to_w(iface)
+        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
+                                       PCAP_TIMEOUT)
+        pcap.inject self.to_s
       end
     end
     self.add_class RadioTap
@@ -269,6 +288,16 @@ module PacketGen
           str << Inspect.inspect_attribute(attr, @fields[attr], 2)
         end
         str
+      end
+
+      # send Dot11 packet on wire.
+      # @param [String] iface interface name
+      # @return [void]
+      def to_w(iface)
+        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
+                                       PCAP_TIMEOUT)
+        str = self.to_s
+        pcap.inject str << [crc32].pack('V')
       end
 
       private
