@@ -372,7 +372,7 @@ module PacketGen
 
     def search_header(hdr)
       hdr.class.known_headers.each do |nh, bindings|
-        if bindings.check?(hdr)
+        if bindings.check?(hdr) and hdr.parse?
           yield nh
           break
         end

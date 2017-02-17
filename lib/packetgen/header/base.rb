@@ -86,7 +86,7 @@ module PacketGen
         def check?(fields)
           case @op
           when :or
-            @bindings.any? { |binding| binding.check?(fields) }
+            empty? || @bindings.any? { |binding| binding.check?(fields) }
           when :and
             @bindings.all? { |binding| binding.check?(fields) }
           end
@@ -97,6 +97,41 @@ module PacketGen
         # @return [void]
         def set(fields)
           @bindings.each { |b| b.set fields }
+        end
+      end
+
+      # @api private
+      # Class to handle header associations
+      class Bindings
+        include Enumerable
+
+        # op type
+        # @return [:or,:and]
+        attr_accessor :op
+        # @return [Array<Binding>]
+        attr_accessor :bindings
+
+        # @param [:or, :and] op
+        def initialize(op)
+          @op = op
+          @bindings = []
+        end
+
+        # @param [Object] arg
+        # @return [Bindings] self
+        def <<(arg)
+          @bindings << arg
+        end
+
+        # each iterator
+        # @return [void]
+        def each
+          @bindings.each { |b| yield b }
+        end
+
+        # @return [Boolean]
+        def empty?
+          @bindings.empty?
         end
       end
 
@@ -148,6 +183,14 @@ module PacketGen
       # @return [String]
       def protocol_name
         self.class.to_s.sub(/.*::/, '')
+      end
+
+      # @abstract Should be redefined by subclasses. This method should check invariant
+      #   fields from header.
+      # Call by {Packet#parse} when guessing first header to check if header is correct
+      # @return [Boolean]
+      def parse?
+        true
       end
 
       # @api private

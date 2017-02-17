@@ -21,6 +21,9 @@ module PacketGen
     # @author Sylvain Daubert
     class Dot1x < Base
 
+      # IEEE 802.1x Ether type
+      ETHERTYPE = 0x888e
+
       # IEEE 802.1X packet types
       TYPES = {
         0 => 'EAP Packet',
@@ -69,6 +72,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_header Dot1x, ethertype: 0x888e
+    Eth.bind_header Dot1x, ethertype: Dot1x::ETHERTYPE
+    SNAP.bind_header Dot1x, proto_id: Dot1x::ETHERTYPE
   end
 end

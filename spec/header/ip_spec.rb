@@ -30,6 +30,9 @@ module PacketGen
         it 'in Eth packets' do
           expect(Eth).to know_header(IP).with(ethertype: 0x800)
         end
+        it 'in SNAP packets' do
+          expect(SNAP).to know_header(IP).with(proto_id: 0x800)
+        end
         it 'in IP packets' do
           expect(IP).to know_header(IP).with(protocol: 4)
         end

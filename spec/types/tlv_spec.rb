@@ -23,6 +23,13 @@ module PacketGen
           expect(tlv[:length]).to be_a(Int16)
           expect(tlv[:value]).to be_a(String)
         end
+
+        it 'accepts field options' do
+          tlv = TLV.new(type: 45, value: 'abc', length: 2)
+          expect(tlv.type).to eq(45)
+          expect(tlv.length).to eq(2)
+          expect(tlv.value).to eq('abc')
+        end
       end
 
       context '#read' do
