@@ -21,7 +21,7 @@ module PacketGen
     #  pkt.eth   # => PacketGen::Header::Eth
     #
     # == Ethernet attributes
-    #  eth.dst = "00:01:02:03:04:05'
+    #  eth.dst = "00:01:02:03:04:05"
     #  eth.src        # => "00:01:01:01:01:01"
     #  eth[:src]      # => PacketGen::Header::Eth::MacAddr
     #  eth.ethertype  # => 16-bit Integer
@@ -76,13 +76,6 @@ module PacketGen
           fields.map { |m| "#{'%02x' % self[m]}" }.join(':')
         end
       end
-
-      # @private snap length for PCAPRUB
-      PCAP_SNAPLEN = 0xffff
-      # @private promiscuous (or not) for PCAPRUB
-      PCAP_PROMISC = false
-      # @private timeout for PCAPRUB
-      PCAP_TIMEOUT = 1
 
       # @!attribute dst
       #  @return [MacAddr] Destination MAC address

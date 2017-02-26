@@ -9,12 +9,12 @@ module PacketGen
   module Header
 
     # A IPv6 header consists of:
-    # * a first 32-bit word ({#u32}, of {Int32} type) composoed of:
+    # * a first 32-bit word ({#u32}, of {Types::Int32} type) composoed of:
     #   * a 4-bit {#version} field,
     #   * a 8-bit {#traffic_class} field,
     #   * a 20-bit {#flow_label} field,
-    # * a payload length field ({#length}, {Int16} type}),
-    # * a next header field ({#next}, {Int8} type),
+    # * a payload length field ({#length}, {Types::Int16} type}),
+    # * a next header field ({#next}, {Types::Int8} type),
     # * a hop-limit field ({#hop}, +Int8+ type),
     # * a source address field ({#src}, {IPv6::Addr} type),
     # * a destination address field ({#dst}, +IPv6::Addr+ type),
@@ -114,6 +114,9 @@ module PacketGen
         end
       end
 
+      # IPv6 Ether type
+      ETHERTYPE = 0x86dd
+
       # @!attribute u32
       #  First 32-bit word of IPv6 header
       #  @return [Integer]
@@ -141,23 +144,6 @@ module PacketGen
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
-
-      # @param [Hash] options
-      # @option options [Integer] :version
-      # @option options [Integer] :traffic_class
-      # @option options [Integer] :flow_label
-      # @option options [Integer] :length payload length
-      # @option options [Integer] :next
-      # @option options [Integer] :hop
-      # @option options [String] :src colon-delimited source address
-      # @option options [String] :dst colon-delimited destination address
-      # @option options [String] :body binary string
-      def initialize(options={})
-        super
-        self.version = options[:version] if options[:version]
-        self.traffic_class = options[:traffic_class] if options[:traffic_class]
-        self.flow_label = options[:flow_label] if options[:flow_label]
-      end
 
       # @!attribute version
       #   @return [Integer] 4-bit version attribute
@@ -229,11 +215,19 @@ module PacketGen
         end
         str
       end
+
+      # Check version field
+      # @see [Base#parse?]
+      def parse?
+        version == 6
+      end
     end
 
     self.add_class IPv6
 
-    Eth.bind_header IPv6, ethertype: 0x86DD
+    Eth.bind_header IPv6, ethertype: IPv6::ETHERTYPE
+    SNAP.bind_header IPv6, proto_id: IPv6::ETHERTYPE
+    Dot1q.bind_header IPv6, ethertype: IPv6::ETHERTYPE
     IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end

@@ -7,9 +7,9 @@ module PacketGen
   module Header
 
     # A ICMP header consists of:
-    # * a {#type} field ({Int8} type),
-    # * a {#code} field ({Int8} type),
-    # * a {#checksum} field ({Int16} type),
+    # * a {#type} field ({Types::Int8} type),
+    # * a {#code} field ({Types::Int8} type),
+    # * a {#checksum} field ({Types::Int16} type),
     # * and a {#body}.
     #
     # == Create a ICMP header

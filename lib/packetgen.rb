@@ -85,6 +85,6 @@ end
 
 require 'packetgen/types'
 require 'packetgen/inspect'
+require 'packetgen/pcapng'
 require 'packetgen/packet'
 require 'packetgen/capture'
-require 'packetgen/pcapng'

@@ -4,17 +4,7 @@
 
 # PacketGen
 
-PacketGen provides simple ways to generate, send and capture network packets easily.
-
-## Why PacketGen
-Why create PacketGen ? There is already PacketFu!
-
-Yes. But PacketFu is limited:
-* upper protocols use fixed layers: TCP always uses IPv4, IP and IPv6 always uses Ethernet as MAC,...
-* cannot handle tunneled packets (IP-in-IP, or deciphered ESP packets,...)
-* cannot easily encapsulate or decapsulate packets
-* parse packets top-down, and sometimes bad parse down layers
-* cannot send packet on wire at IP/IPv6 level (Ethernet header is mandatory)
+PacketGen provides simple ways to generate, send and capture network packets.
 
 ## Installation
 Via RubyGems:
@@ -25,10 +15,11 @@ Or add it to a Gemfile:
 ```ruby
 gem 'packetgen'
 ```
+
 ## Usage
 
 ### Easily create packets
-```
+```ruby
 PacketGen.gen('IP')             # generate a IP packet object
 PacketGen.gen('TCP')            # generate a TCP over IP packet object
 PacketGen.gen('IP').add('TCP')  # the same
@@ -43,9 +34,7 @@ PacketGen.gen('IP').to_s
 ```
 
 ### Send packets on wire
-need PcapRub for Ethernet packets. Need a C extension (use of C socket API) for IP packets.
-
-```
+```ruby
 # send Ethernet packet
 PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').to_w
 # send IP packet
@@ -55,14 +44,12 @@ PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').add('IP').to_
 ```
 
 ### Parse packets from binary data
-```
+```ruby
 packet = PacketGen.parse(binary_data)
 ```
 
 ### Capture packets from wire
-need PCapRub.
-
-```
+```ruby
 # Capture packets, action from a block
 PacketGen.capture('eth0') do |packet|
   do_stuffs_with_packet
@@ -76,7 +63,7 @@ packets = PacketGen.capture('eth0', filter: 'ip src 1.1.1.2', max: 1)
 ```
 
 ### Easily manipulate packets
-```
+```ruby
 # access header fields
 pkt = PacketGen.gen('IP').add('TCP')
 pkt.ip.src = '192.168.1.1'
@@ -101,7 +88,7 @@ pkt2.decapsulate(pkt2.ip)              # pkt2 is now inner IP/TCP packet
 ```
 
 ### Read/write PcapNG files
-```
+```ruby
 # read a PcapNG file, containing multiple packets
 packets = PacketGen.read('file.pcapng')
 packets.first.udp.sport = 65535
@@ -112,44 +99,34 @@ PacketGen.write('more_packets.pcapng', packets)
 ```
 
 ### Add custom header/protocol
-Since v1.1.0, PacketGen permits adding you own header classes.
-First, define the new header class. By example:
+Since v1.1.0, PacketGen permits adding your own header classes.
+First, define the new header class. For example:
 
 ```ruby
 module MyModule
- class MyHeader < Struct.new(:field1, :field2)
-   include PacketGen::StructFu
-   include PacketGen::Header::HeaderMethods
-   extend PacketGen::Header::HeaderClassMethods
-   
-   def initialize(options={})
-     super Int32.new(options[:field1]), Int32.new(options[:field2])
-   end
-   
-   def read(str)
-     self[:field1].read str[0, 4]
-     self[:field2].read str[4, 4]
-   end
+ class MyHeader < PacketGen::Header::Base
+   define_field :field1, PacketGen::Types::Int32   
+   define_field :field2, PacketGen::Types::Int32   
  end
 end
 ```
 
 Then, class must be declared to PacketGen:
 
-```
+```ruby
 PacketGen::Header.add_class MyModule::MyHeader
 ```
 
 Finally, bindings must be declared:
 
-```
-# bind MyHeader as IP protocol number 254 (needed by Packet#parse)
+```ruby
+# bind MyHeader as IP protocol number 254 (needed by Packet#parse and Packet#add)
 PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
 ```
 
 And use it:
 
-```
+```ruby
 pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)
 pkt.myheader.field2.read 0x01
 ```
@@ -166,5 +143,5 @@ Copyright © 2016 Sylvain Daubert
 ### Other sources
 All original code maintains its copyright from its original authors and licensing.
 
-This is mainly for PcapNG (copied from [PacketFu](https://github.com/packetfu/packetfu),
+This is mainly for PcapNG (originally copied from [PacketFu](https://github.com/packetfu/packetfu),
 but i am the original author).

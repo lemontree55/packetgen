@@ -43,26 +43,23 @@ module PacketGen
       # @!attribute magic
       #  32-bit magic number
       #  @return [Integer]
-      define_field :magic, Types::Int32, default: MAGIC_INT32
+      define_field_before :block_len2, :magic, Types::Int32, default: MAGIC_INT32
       # @!attribute ver_major
       #  16-bit major version number
       #  @return [Integer]
-      define_field :ver_major, Types::Int16, default: 1
+      define_field_before :block_len2, :ver_major, Types::Int16, default: 1
       # @!attribute ver_major
       #  16-bit minor version number
       #  @return [Integer]
-      define_field :ver_minor, Types::Int16, default: 0
+      define_field_before :block_len2, :ver_minor, Types::Int16, default: 0
       # @!attribute section_len
       #  64-bit section length
       #  @return [Integer]
-      define_field :section_len, Types::Int64, default: SECTION_LEN_UNDEFINED
+      define_field_before :block_len2, :section_len, Types::Int64,
+                          default: SECTION_LEN_UNDEFINED
       # @!attribute options
       #  @return [Types::String]
-      define_field :options, Types::String
-      # @!attribute block_len2
-      #  32-bit block length
-      #  @return [Integer]
-      define_field :block_len2, Types::Int32
+      define_field_before :block_len2, :options, Types::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -156,7 +153,7 @@ module PacketGen
         end
         pad_field :options
         recalc_block_len
-        @fields.values.map(&:to_s).join + body
+        fields.map { |f| @fields[f].to_s }.join + body
       end
 
 

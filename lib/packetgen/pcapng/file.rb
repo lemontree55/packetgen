@@ -8,6 +8,17 @@ module PacketGen
 
     # PcapNG::File is a complete Pcap-NG file handler.
     class File
+
+      # Known link types
+      KNOWN_LINK_TYPES = {
+        LINKTYPE_ETHERNET => 'Eth',
+        LINKTYPE_IEEE802_11 => 'Dot11',
+        LINKTYPE_IEEE802_11_RADIOTAP => 'RadioTap',
+        LINKTYPE_PPI => 'PPI',
+        LINKTYPE_IPV4 => 'IP',
+        LINKTYPE_IPV6 => 'IPv6'
+      }.freeze
+
       # Get file sections
       # @return [Array]
       attr_accessor :sections
@@ -66,7 +77,7 @@ module PacketGen
         end
       end
 
-      # Give an array of parsed packets (raw data from packets).
+      # Give an array of raw packets (raw data from packets).
       # If a block is given, yield raw packet data from the given file.
       # @overload read_packet_bytes(fname)
       #  @param [String] fname pcapng file name
@@ -74,6 +85,7 @@ module PacketGen
       # @overload read_packet_bytes(fname)
       #  @param [String] fname pcapng file name
       #  @yieldparam [String] raw packet raw data
+      #  @yieldparam [Integer] interface's link_type from which packet was captured
       #  @return [Integer] number of packets
       # @raise [ArgumentError] cannot read +fname+
       def read_packet_bytes(fname, &blk)
@@ -83,7 +95,7 @@ module PacketGen
         readfile(fname) do |packet|
           if blk
             count += 1
-            yield packet.data.to_s
+            yield packet.data.to_s, packet.interface.link_type
           else
             packets << packet.data.to_s
           end
@@ -106,12 +118,19 @@ module PacketGen
         count = 0
         packets = [] unless blk
 
-        read_packet_bytes(fname) do |packet|
+        read_packet_bytes(fname) do |packet, link_type|
+          first_header = KNOWN_LINK_TYPES[link_type]
+          parsed_pkt = if first_header.nil?
+                         # unknown link type, try to guess
+                         Packet.parse(packet)
+                       else
+                         Packet.parse(packet, first_header: first_header)
+                       end
           if blk
             count += 1
-            yield Packet.parse(packet)
+            yield parsed_pkt
           else
-            packets << Packet.parse(packet)
+            packets << parsed_pkt
           end
         end
 

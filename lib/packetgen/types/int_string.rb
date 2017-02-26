@@ -59,7 +59,7 @@ module PacketGen
         @length.read @string.length
       end
 
-      # Give binary string length
+      # Give binary string length (including +length+ field)
       # @return [Integer]
       def sz
         to_s.size

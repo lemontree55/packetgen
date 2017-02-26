@@ -72,18 +72,6 @@ module PacketGen
           self.rrclass = options[:rrclass] if options[:rrclass]
         end
 
-        # Read DNS question from a string
-        # @param [String] str binary string
-        # @return [self]
-        def read(str)
-          return self if str.nil?
-          force_binary str
-          self[:name].read str
-          self[:type].read str[self[:name].sz, 2]
-          self[:rrclass].read str[self[:name].sz+2, 2]
-          self
-        end
-
         # Setter for type
         # @param [Integer] val
         # @return [Integer,String]

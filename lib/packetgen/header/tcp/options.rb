@@ -4,7 +4,7 @@ module PacketGen
 
       # Container for TCP options in {TCP TCP header}.
       # @author Sylvain Daubert
-      class Options < Array
+      class Options < Types::Array
 
         # Get {Option} subclasses
         # @return [Array<Class>]
@@ -47,36 +47,35 @@ module PacketGen
           self
         end
 
+        # @deprecated use {#push} or {#<<}
         # Add a well-known option
         # @param [String] opt option name
         # @param [Object] value
         # @return [self]
         # @raise [ArgumentError] unknown option
         def add(opt, value=nil)
-          raise ArgumentError, "unknown option #{opt}" unless TCP.const_defined?(opt)
-          klass = TCP.const_get(opt)
-          raise ArgumentError "unknown option #{opt}" unless klass < Option
-          option = klass.new(value: value)
+          option = record_from_hash(opt: opt, value: value)
           self << option
           self
         end
 
-        # Get options binary string
-        # @return [String]
-        def to_s
-          map(&:to_s).join
-        end
+        private
 
-        # Get a human readable string
-        # @return [String]
-        def to_human
-          map(&:to_human).join(', ')
-        end
-
-        # Get options size in bytes
-        # @return [Integer]
-        def sz
-          to_s.length
+        def record_from_hash(hsh)
+          if hsh.has_key? :opt
+            klassname = hsh.delete(:opt)
+            if TCP.const_defined?(klassname)
+              klass = TCP.const_get(klassname)
+              unless klass < Option
+                raise ArgumentError, 'opt should be a TCP::Option subclass'
+              end
+              klass.new(hsh)
+            else
+              raise ArgumentError, 'opt should be a TCP::Option subclass'
+            end
+          else
+            hsh
+          end
         end
       end
     end

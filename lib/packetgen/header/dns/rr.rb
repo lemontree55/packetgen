@@ -6,9 +6,18 @@ module PacketGen
       # @author Sylvain Daubert
       class RR < Question
 
+        # @!attribute ttl
+        #  32-bit time to live
+        #  @return [Integer]
         define_field :ttl, Types::Int32
+        # @!attribute rdlength
+        #  16-bit {#rdata} length
+        #  @return [Integer]
         define_field :rdlength, Types::Int16
-        define_field :rdata, Types::String
+        # @!attribute rdata
+        #  @return [Types::String]
+        define_field :rdata, Types::String,
+                     builder: ->(rr) { Types::String.new('', length_from: rr[:rdlength]) }
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -22,19 +31,16 @@ module PacketGen
         def initialize(dns, options={})
           super
           if options[:rdata] and options[:rdlength].nil?
-            self[:rdlength].read self[:rdata].size
+            self.rdata = options[:rdata]
           end
         end
 
-        # Read DNS Ressource Record from a string
-        # @param [String] str binary string
-        # @return [self]
-        def read(str)
-          super
-          self[:ttl].read str[self[:name].sz+4, 4]
-          self[:rdlength].read str[self[:name].sz+8, 2]
-          self[:rdata].read str[self[:name].sz+10, self.rdlength]
-          self
+        # Set rdata and rdlength from +data+
+        # @param [String] data
+        # @return [void]
+        def rdata=(data)
+          self[:rdlength].read data.size
+          self[:rdata].read data
         end
         
         # Get human readable rdata

@@ -83,11 +83,6 @@ module PacketGen
         expect(pkt.ipv6.dst).to eq('2a00:1450:4007:810::2003')
       end
 
-      it 'raises if first header cannot be guessed' do
-        str = "\x00" * 45
-        expect { Packet.parse str }.to raise_error(ParseError, /cannot identify/)
-      end
-
       it 'parses a string with first_header set to correct header' do
         pkt = nil
         expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'Eth') }.

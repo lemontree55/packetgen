@@ -4,7 +4,7 @@ module PacketGen
 
       # DNS Name, defined as a suite of labels. A label is of type {Types::IntString}.
       # @author Sylvain Daubert
-      class Name < Array
+      class Name < Types::Array
 
         # Mask to decode a pointer on another label
         POINTER_MASK = 0xc000
@@ -12,12 +12,18 @@ module PacketGen
         # @return [DNS]
         attr_accessor :dns
 
-        # @param [DNS] dns
         def initialize
           super
           @pointer = nil
           @pointer_name = nil
         end
+
+        # @!method push(label)
+        #  @param [Types::IntString] label
+        #  @return [Name] self
+        # @!method <<(label)
+        #  @param [Types::IntString] label
+        #  @return [Name] self
 
         # Read a set of labels form a dotted string
         # @param [String] str
@@ -41,7 +47,7 @@ module PacketGen
           clear
           return self if str.nil?
 
-          PacketGen.force_binary str
+          force_binary str
           start = 0
           while true
             index = str[start, 2].unpack('n').first
@@ -63,7 +69,7 @@ module PacketGen
         # Get options binary string
         # @return [String]
         def to_s
-          map(&:to_s).join + @pointer.to_s
+          super << @pointer.to_s
         end
 
         # Get a human readable string
@@ -74,12 +80,6 @@ module PacketGen
           ary << np if np
           str = ary.join('.')
           str.empty? ? '.' : str
-        end
-
-        # Get options size in bytes
-        # @return [Integer]
-        def sz
-          to_s.size
         end
 
         private
@@ -99,6 +99,10 @@ module PacketGen
           name = Name.new
           name.dns = @dns
           @pointer_name = name.read(self.dns.to_s[ptr..-1]).to_human
+        end
+
+        def record_from_hash(hsh)
+          raise NotImplementedError, "not supported by #{self.class}"
         end
       end
     end

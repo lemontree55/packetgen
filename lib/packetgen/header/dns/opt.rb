@@ -6,7 +6,7 @@ module PacketGen
 
       # OPT pseudo-RR. Used by Extended DNS (EDNS(0), cf. RFC 6891).
       #
-      # a OPT record may contain zero or more {Option options} in its {rdata}.
+      # a OPT record may contain zero or more {Option options} in its {#rdata}.
       # @author Sylvain Daubert
       class OPT < RR
         # @return [Array<Option>]

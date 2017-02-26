@@ -124,11 +124,23 @@ module PacketGen
         'refused'         => 5
       }
 
+      # @!attribute id
+      #  @return [Integer]
       define_field :id, Types::Int16
+      # @!attribute u16
+      #  @return [Integer]
       define_field :u16, Types::Int16
+      # @!attribute qdcount
+      #  @return [Integer]
       define_field :qdcount, Types::Int16
+      # @!attribute ancount
+      #  @return [Integer]
       define_field :ancount, Types::Int16
+      # @!attribute nscount
+      #  @return [Integer]
       define_field :nscount, Types::Int16
+      # @!attribute arcount
+      #  @return [Integer]
       define_field :arcount, Types::Int16
       # @!attribute qd
       #  @return [QDSection]
@@ -163,32 +175,6 @@ module PacketGen
       #   @return [Integer] Response code. See {RCODES}.
       define_bit_fields_on :u16, :qr, :opcode, 4, :aa, :tc, :rd, :ra, :z,
                            :ad, :cd, :rcode, 4
-
-      # @param [Hash] options
-      # @option options [Integer] :id
-      # @option options [Integer] :qdcount
-      # @option options [Integer] :ancount
-      # @option options [Integer] :nscount
-      # @option options [Integer] :arcount
-      # @option optons [Boolean] :qr
-      # @option optons [Integer,String] :opcode
-      # @option optons [Boolean] :aa
-      # @option optons [Boolean] :tc
-      # @option optons [Boolean] :rd
-      # @option optons [Boolean] :ra
-      # @option optons [Integer,String] :rcode
-      def initialize(options={})
-        super
-
-        qr = boolean2integer(options[:qr])
-        aa = boolean2integer(options[:aa])
-        tc = boolean2integer(options[:tc])
-        rd = boolean2integer(options[:rd])
-        ra = boolean2integer(options[:ra])
-        self.u16 = (qr << 15) | (aa << 10) | (tc << 9) | (rd << 8) | (ra << 7)
-        self.opcode = options[:opcode] || OPCODES['query']
-        self.rcode = options[:rcode] || RCODES['ok']
-      end
 
       # Read DNS header and sections from a string
       # @param [String] str binary string

@@ -107,6 +107,9 @@ module PacketGen
         end
       end
 
+      # IP Ether type
+      ETHERTYPE = 0x0800
+
       # @!attribute u8
       #  First byte of IP header. May be accessed through {#version} and {#ihl}.
       #  @return [Integer] first byte of IP header.
@@ -153,7 +156,7 @@ module PacketGen
       # @!attribute flag_df
       #   @return [Boolean] Don't Fragment flag 
       # @!attribute flag_mf
-      #   @return [Boolena] More Fragment flags
+      #   @return [Boolean] More Fragment flags
       # @!attribute fragment_offset
       #   @return [Integer] 13-bit fragment offset
       define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
@@ -222,11 +225,19 @@ module PacketGen
         end
         str
       end
+
+      # Check version field
+      # @see [Base#parse?]
+      def parse?
+        version == 4
+      end
     end
 
     self.add_class IP
 
-    Eth.bind_header IP, ethertype: 0x800
+    Eth.bind_header IP, ethertype: IP::ETHERTYPE
+    SNAP.bind_header IP, proto_id: IP::ETHERTYPE
+    Dot1q.bind_header IP, ethertype: IP::ETHERTYPE
     IP.bind_header IP, protocol: 4
   end
 end

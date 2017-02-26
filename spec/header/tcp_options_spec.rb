@@ -100,7 +100,46 @@ module PacketGen
           end
 
           it 'raises on unknown option' do
-            expect { options.add 'UNKNOWN' }.to raise_error(ArgumentError, /^unknown opt/)
+            expect { options.add 'UNKNOWN' }.
+              to raise_error(ArgumentError, /^opt should be/)
+          end
+        end
+
+        describe '#<<' do
+          let(:options) { Options.new }
+
+          it 'adds an option without value' do
+            options << { opt: 'NOP' }
+            expect(options.size).to eq(1)
+            expect(options.first).to be_a(NOP)
+            expect(options.first.value).to eq('')
+          end
+
+          it 'adds an option with value' do
+            options << { opt: 'ECHO', value: 0x87654321 }
+            options << { opt: 'TS', value: [0x01234567, 0x89abcdef].pack('N2') }
+            expect(options.size).to eq(2)
+            expect(options.first).to be_a(ECHO)
+            expect(options.first.value).to eq(0x87654321)
+            expect(options.last).to be_a(TS)
+            expected_ts_value = PacketGen.force_binary("\x01\x23\x45\x67\x89\xab\xcd\xef")
+            expect(options.last.value).to eq(expected_ts_value)
+          end
+
+          it 'may be serialized with another #<<' do
+            options << { opt: 'SACK' } << { opt: 'MSS', value: 500 } << { opt: 'NOP' }
+            expect(options.size).to eq(3)
+            expect(options.sz).to eq(7)
+            expect(options[0]).to be_a(SACK)
+            expect(options[1]).to be_a(MSS)
+            expect(options[2]).to be_a(NOP)
+          end
+
+          it 'raises on unknown option' do
+            expect { options << { opt: 'UNKNOWN' } }.
+              to raise_error(ArgumentError, /^opt should be/)
+            expect { options << { opt: 'Options' } }.
+              to raise_error(ArgumentError, /^opt should be/)
           end
         end
 
@@ -116,9 +155,9 @@ module PacketGen
 
         describe '#to_human' do
           it 'returns a human-readable string' do
-            expected = ['MSS:1420, SACKOK, TS:36978029;0, NOP, WS:7',
-                        'MSS:1410, SACKOK, TS:2583455884;36978029, NOP, WS:7',
-                        'NOP, NOP, TS:36978033;2583455884']
+            expected = ['MSS:1420,SACKOK,TS:36978029;0,NOP,WS:7',
+                        'MSS:1410,SACKOK,TS:2583455884;36978029,NOP,WS:7',
+                        'NOP,NOP,TS:36978033;2583455884']
             @packets.each_with_index do |pkt, i|
               str_opts = pkt[0x4a..-1]
               opts.read str_opts

@@ -43,8 +43,8 @@ module PacketGen
     # == Options
     # {#options} TCP attribute is a {Options}. {Option} may added to it:
     #  tcph.options << PacketGen::Header::TCP::MSS.new(1250)
-    # Another way is to use {Options#add}:
-    #  tcph.options.add 'MSS', 1250
+    # or:
+    #  tcph.options << { opt: 'MSS', value: 1250 }
     # @author Sylvain Daubert
     class TCP < Base
     end
@@ -129,12 +129,8 @@ module PacketGen
       # @option options [Integer] :urg_pointer
       # @option options [String] :body
       def initialize(options={})
-        super
-
-        doff = options[:data_offset] || options[:hlen] || 5
-        rsv = options[:reserved] || 0
-        flgs = options[:flags] || 0
-        self[:u16].read (((doff << 3) | rsv) << 9) | flgs
+        opts = { data_offset: 5 }.merge!(options)
+        super(opts)
       end
 
       # @!attribute data_offset

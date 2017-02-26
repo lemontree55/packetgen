@@ -65,54 +65,7 @@ module PacketGen
     # @return [Packet]
     # @raise [ArgumentError] +first_header+ is an unknown header
     def self.parse(binary_str, first_header: nil)
-      pkt = new
-
-      if first_header.nil?
-        # No decoding forced for first header. Have to guess it!
-        Header.all.each do |hklass|
-          hdr = hklass.new
-          hdr.read binary_str
-          # First header is found when:
-          # * for one known header,
-          # * it exists a known binding with a upper header
-          hklass.known_headers.each do |nh, bindings|
-            bindings.each do |binding|
-              if hdr.send(binding.key) == binding.value
-                first_header = hklass.to_s.gsub(/.*::/, '')
-                break
-              end
-              break unless first_header.nil?
-            end
-          end
-          break unless first_header.nil?
-        end
-        if first_header.nil?
-          raise ParseError, 'cannot identify first header in string'
-        end
-      end
-
-      pkt.add(first_header)
-      pkt.headers.last.read binary_str
-
-      # Decode upper headers recursively
-      decode_packet_bottom_up = true
-      while decode_packet_bottom_up do
-        last_known_hdr = pkt.headers.last
-        last_known_hdr.class.known_headers.each do |nh, bindings|
-          bindings.each do |binding|
-            if last_known_hdr.send(binding.key) == binding.value
-              str = last_known_hdr.body
-              pkt.add nh.to_s.gsub(/.*::/, '')
-              pkt.headers.last.read str
-              break
-            end
-          end
-          break unless last_known_hdr == pkt.headers.last
-        end
-        decode_packet_bottom_up = (pkt.headers.last != last_known_hdr)
-      end
-
-      pkt
+      new.parse binary_str, first_header: first_header
     end
 
     # Capture packets from +iface+
@@ -268,10 +221,35 @@ module PacketGen
         prev_header = idx > 0 ? @headers[idx - 1] : nil
         next_header = (idx+1) < @headers.size ? @headers[idx + 1] : nil
         @headers.delete_at(idx)
-        add_header(next_header, prev_header) if prev_header and next_header
+        if prev_header and next_header
+          add_header(next_header, previous_header: prev_header)
+        end
       end
     rescue ArgumentError => ex
       raise FormatError, ex.message
+    end
+
+    # Parse a binary string and populate Packet from it.
+    # @param [String] binary_str
+    # @param [String,nil] first_header First protocol header. +nil+ means discover it!
+    # @return [Packet] self
+    # @raise [ArgumentError] +first_header+ is an unknown header
+    def parse(binary_str, first_header: nil)
+      @headers.clear
+
+      if first_header.nil?
+        # No decoding forced for first header. Have to guess it!
+        first_header = guess_first_header(binary_str)
+        if first_header.nil?
+          raise ParseError, 'cannot identify first header in string'
+        end
+      end
+      add first_header
+      @headers[-1, 1] = @headers.last.read(binary_str)
+
+      # Decode upper headers recursively
+      decode_bottom_up
+      self
     end
 
     # @return [String]
@@ -335,23 +313,22 @@ module PacketGen
     # @param [Header::Base] header
     # @param [Header::Base] previous_header
     # @return [void]
-    def add_header(header, previous_header=nil)
+    def add_header(header, previous_header: nil, parsing: false)
       protocol = header.protocol_name
       prev_header = previous_header || @headers.last
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
-        if bindings.nil? or bindings.empty?
-          msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
-          msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
-          msg << "#{prev_header.protocol_name.downcase}_proto_field: "
-          msg << "value_for_#{protocol.downcase})"
-          raise ArgumentError, msg
+        if bindings.nil?
+          bindings = prev_header.class.known_headers[header.class.superclass]
+          if bindings.nil?
+            msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
+            msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
+            msg << "#{prev_header.protocol_name.downcase}_proto_field: "
+            msg << "value_for_#{protocol.downcase})"
+            raise ArgumentError, msg
+          end
         end
-        # Set prev_header key to value, unless this is already done for at least
-        # one key
-        unless bindings.any? { |b| prev_header.send(b.key) == b.value }
-          prev_header[bindings.first.key].read bindings.first.value
-        end
+        bindings.set(prev_header) if !bindings.empty? and !parsing
         prev_header[:body] = header
       end
       header.packet = self
@@ -359,6 +336,46 @@ module PacketGen
       unless respond_to? protocol.downcase
         self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
                               "header(#{header.class}, arg); end"
+      end
+    end
+
+    def guess_first_header(binary_str)
+      first_header = nil
+      Header.all.each do |hklass|
+        hdr = hklass.new
+        # #read may return another object (more specific class)
+        hdr = hdr.read(binary_str)
+        # First header is found when:
+        # * for one known header,
+        # * it exists a known binding with a upper header
+        search_header(hdr) do
+          first_header = hklass.to_s.gsub(/.*::/, '')
+        end
+        break unless first_header.nil?
+      end
+      first_header
+    end
+
+    def decode_bottom_up
+      decode_packet_bottom_up = true
+      while decode_packet_bottom_up do
+        last_known_hdr = @headers.last
+        search_header(last_known_hdr) do |nh|
+          str = last_known_hdr.body
+          nheader = nh.new
+          nheader = nheader.read(str)
+          add_header nheader, parsing: true
+        end
+        decode_packet_bottom_up = (@headers.last != last_known_hdr)
+      end
+    end
+
+    def search_header(hdr)
+      hdr.class.known_headers.each do |nh, bindings|
+        if bindings.check?(hdr) and hdr.parse?
+          yield nh
+          break
+        end
       end
     end
   end
