@@ -33,10 +33,10 @@ module PacketGen
   #
   # == Get packets
   # Packets may be captured from wire:
-  #  Packet.capture('eth0') do |packet|
+  #  Packet.capture do |packet|
   #    do_some_stuffs
   #  end
-  #  packets = Packet.capture('eth0', max: 5)  # get 5 packets
+  #  packets = Packet.capture(iface: 'eth0', max: 5)  # get 5 packets from eth0
   #
   # Packets may also be read from a file:
   #  packets = Packet.read(file.pcapng)
@@ -68,9 +68,10 @@ module PacketGen
       new.parse binary_str, first_header: first_header
     end
 
-    # Capture packets from +iface+
-    # @param [String] iface interface name
+    # Capture packets
     # @param [Hash] options capture options
+    # @option options [String]  :iface interface on which capture
+    #    packets on. Default: Use default interface lookup.
     # @option options [Integer] :max maximum number of packets to capture
     # @option options [Integer] :timeout maximum number of seconds before end
     #    of capture
@@ -78,8 +79,8 @@ module PacketGen
     # @option options [Boolean] :promiscuous
     # @yieldparam [Packet] packet if a block is given, yield each captured packet
     # @return [Array<Packet>] captured packet
-    def self.capture(iface, options={})
-      capture = Capture.new(iface, options)
+    def self.capture(options={})
+      capture = Capture.new(options)
       if block_given?
         capture.start { |packet| yield packet }
       else

@@ -6,6 +6,13 @@ module PacketGen
     let(:iface) { Pcap.lookupdev }
 
     describe '#initialize' do
+      it 'accepts old API with iface name as first argument' do
+        cap = nil
+        expect { cap = Capture.new('lo') }.to_not raise_error
+        expect(cap).to be_a(Capture)
+        expect(cap.iface).to eq('lo')
+      end
+
       it 'accepts no options' do
         cap = nil
         expect { cap = Capture.new }.to_not raise_error
@@ -43,12 +50,10 @@ module PacketGen
 
       it 'capture packets using a filter' do
         cap = capture(iface: 'lo', filter: 'ip dst 127.0.0.2') do
-          #system 'ping -c 1 127.0.0.1 > /dev/null'
           system '(ping -c 1 127.0.0.1; ping -c 1 127.0.0.2) > /dev/null'
         end
 
         packets = cap.packets
-        binding.pry
         expect(packets.size).to eq(1)
         expect(packets.first.ip.src).to eq('127.0.0.1')
         expect(packets.first.ip.dst).to eq('127.0.0.2')

@@ -160,7 +160,7 @@ module PacketGen
                 add('UDP', sport: 35535, dport: 65535, body: body)
           pkt.calc
           Thread.new { sleep 0.1; pkt.ipv6.to_w('lo') }
-          packets = PacketGen.capture('lo', max: 1,
+          packets = PacketGen.capture(iface: 'lo', max: 1,
                                       filter: 'ip6 dst ::1 and ip6 proto 17',
                                       timeout: 2)
           packet = packets.first
