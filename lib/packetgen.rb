@@ -42,8 +42,8 @@ module PacketGen
   # @param [Hash] options capture options. See {Packet.capture}.
   # @yieldparam [Packet] packet
   # @return [Array<Packet>]
-  def self.capture(iface, options={})
-    Packet.capture(iface, options) { |packet| yield packet if block_given? }
+  def self.capture(options={})
+    Packet.capture(options) { |packet| yield packet if block_given? }
   end
 
   # Shortcut for {Packet.read}

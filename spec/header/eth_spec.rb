@@ -95,7 +95,7 @@ module PacketGen
           pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff',
                            src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
           Thread.new { sleep 0.1; pkt.eth.to_w('lo') }
-          packets = Packet.capture('lo', max: 1,
+          packets = Packet.capture(iface: 'lo', max: 1,
                                    filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                    timeout: 2)
           packet = packets.first

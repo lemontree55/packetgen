@@ -12,7 +12,7 @@ install:
   - bundler install --path vendor/bundle --jobs=3 --retry=3
 before_script:
   - openssl version
-  - gem list openssl
+  - ruby -ropenssl -e 'puts OpenSSL::VERSION'
 script:
   - bundler exec rake
   - rvmsudo bundle exec rake spec:sudo
