@@ -40,7 +40,8 @@ module PacketGen
     # @overload initialize(options={})
     #  @param [Hash] options
     #  @option options [String]  :iface interface on which capture
-    #     packets on. Default: Use default interface lookup.
+    #     packets on. Default: Use default interface lookup. If no interface found,
+    #     use loopback one.
     #  @option options [Integer] :max maximum number of packets to capture.
     #  @option options [Integer] :timeout maximum number of seconds before end
     #     of capture. Default: +nil+ (no timeout)
@@ -51,7 +52,12 @@ module PacketGen
     #  @option options [Integer] :snaplen maximum number of bytes to capture for
     #     each packet.
     def initialize(iface_or_options={}, options={})
-      @iface = Pcap.lookupdev
+      begin
+        @iface = Pcap.lookupdev
+      rescue PCAPRUB::BindingError
+        @iface = 'lo'
+      end
+
       case iface_or_options
       when Hash
         options = iface_or_options
