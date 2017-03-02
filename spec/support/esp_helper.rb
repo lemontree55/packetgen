@@ -1,3 +1,5 @@
+require 'openssl'
+
 module EspHelper
   def get_packets_from(file, icv_length:nil)
     black_pkt, red_pkt, = PacketGen.read(file)
