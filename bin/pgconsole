@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'packetgen'
+require 'pry'
+
+include PacketGen
+
+Pry.config.prompt = [
+  proc { |target_self, nest_level, pry|
+    "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+     },
+  proc { |target_self, nest_level, pry|
+    "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+  }
+]
+Pry.config.prompt_name = 'pg'
+Pry.start
