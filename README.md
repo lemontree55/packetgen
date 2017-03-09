@@ -131,6 +131,21 @@ pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)
 pkt.myheader.field2.read 0x01
 ```
 
+## Interactive console
+PacketGen provides an interactive console, based on `pry`: `pgconsole`.
+
+In this console, context includes PacketGen module to give direct access to PacketGen
+classes. A special `config` object gives local network configuration:
+
+    $ pgconsole
+    pg(main)> config
+    => #<PacketGen::Config:0x00559f27d2afe8
+     @hwaddr="75:74:73:72:71:70",
+     @iface="eth0",
+     @ipaddr="192.168.0.2">
+    pg(main)> packets = capture(max: 5)
+    pg(main)> exit
+
 ## Pull requests?
 
 yes

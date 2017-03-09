@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'packetgen'
+require 'packetgen/config'
+require 'pry'
+
+include PacketGen
+
+def parse(binary_str, first_header: nil)
+  Packet.parse binary_str, first_header: first_header
+end
+
+def capture(options={})
+  Packet.capture(options) { |packet| yield packet if block_given? }
+end
+
+def read(filename)
+  Packet.read filename
+end
+
+def write(filename, packets)
+  Packet.write filename, packets
+end
+
+@config = Config.new
+
+def config
+  @config
+end
+
+Pry.config.prompt = [
+  proc { |target_self, nest_level, pry|
+    "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+     },
+  proc { |target_self, nest_level, pry|
+    "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+  }
+]
+Pry.config.prompt_name = 'pg'
+Pry.start
