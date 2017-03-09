@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'packetgen'
+require 'packetgen/config'
 require 'pry'
 
 include PacketGen
@@ -20,6 +21,12 @@ end
 
 def write(filename, packets)
   Packet.write filename, packets
+end
+
+@config = Config.new
+
+def config
+  @config
 end
 
 Pry.config.prompt = [

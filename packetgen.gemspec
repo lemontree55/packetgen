@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'pcaprub', '~>0.12.4'
   spec.add_dependency 'pry', '~>0.10'
+  spec.add_dependency 'network_interface'
 
   spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
