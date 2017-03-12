@@ -101,41 +101,6 @@ module PacketGen
       end
 
       # @api private
-      # Class to handle header associations
-      class Bindings
-        include Enumerable
-
-        # op type
-        # @return [:or,:and]
-        attr_accessor :op
-        # @return [Array<Binding>]
-        attr_accessor :bindings
-
-        # @param [:or, :and] op
-        def initialize(op)
-          @op = op
-          @bindings = []
-        end
-
-        # @param [Object] arg
-        # @return [Bindings] self
-        def <<(arg)
-          @bindings << arg
-        end
-
-        # each iterator
-        # @return [void]
-        def each
-          @bindings.each { |b| yield b }
-        end
-
-        # @return [Boolean]
-        def empty?
-          @bindings.empty?
-        end
-      end
-
-      # @api private
       # Reference on packet which owns this header
       attr_accessor :packet
 
