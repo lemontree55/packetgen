@@ -165,8 +165,12 @@ module PacketGen
       # @return [void]
       def self.bind_header(header_klass, args={})
         op = args.delete(:op) || :or
-        bindings = Bindings.new(op)
-        @known_headers[header_klass] = bindings
+        if @known_headers[header_klass].nil? || @known_headers[header_klass].op != op
+          bindings = Bindings.new(op)
+          @known_headers[header_klass] = bindings
+        else
+          bindings = @known_headers[header_klass]
+        end
         args.each do |key, value|
           bindings << Binding.new(key, value)
         end
