@@ -40,6 +40,32 @@ module PacketGen
       end
 
       # @api private
+      # Class to handle a header association from procs
+      class ProcBinding
+
+        # @param [Array<Proc>] procs first proc is used to set fields, second proc is
+        #  used to check binding
+        def initialize(procs)
+          @set = procs.shift
+          @check = procs.shift
+        end
+
+        # Check +fields+ responds to binding
+        # @param [Types::Fields] fields
+        # @return [Boolean]
+        def check?(fields)
+          @check.call(fields)
+        end
+
+        # Set +fields+ field to binding value
+        # @param [Types::Fields] fields
+        # @return [void]
+        def set(fields)
+          @set.call(fields)
+        end
+      end
+
+      # @api private
       # Class to handle header associations
       class Bindings
         include Enumerable
@@ -114,9 +140,10 @@ module PacketGen
 
       # Bind a upper header to current class
       #   Header1.bind_header Header2, field1: 43
-      #   Header1.bind_header Header2, field1: 43, field2: 43
-      #   Header1.bind_header Header2, op: :and, field1: 43, field2: 43
-      #   Header1.bind_header Header2, field1: ->(v) { v.nil? ? 128 : v > 127 }
+      #   Header1.bind_header Header3, field1: 43, field2: 43
+      #   Header1.bind_header Header4, op: :and, field1: 43, field2: 43
+      #   Header1.bind_header Header5, field1: ->(v) { v.nil? ? 128 : v > 127 }
+      #   Header1.bind_header Header6, proc: ->(pkt) { pkt.header1.field1 == 1 && pkt.header1.body[0..1] == "\x00\x00" }
       # @param [Class] header_klass header class to bind to current class
       # @param [Hash] args current class fields and their value when +header_klass+
       #  is embedded in current class. Given value may be a lambda, whose alone argument
@@ -137,7 +164,11 @@ module PacketGen
           bindings = @known_headers[header_klass]
         end
         args.each do |key, value|
-          bindings << Binding.new(key, value)
+          if key == :procs
+            bindings << ProcBinding.new(value)
+          else
+            bindings << Binding.new(key, value)
+          end
         end
       end
 

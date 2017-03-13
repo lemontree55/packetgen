@@ -431,7 +431,10 @@ module PacketGen
 
     IP.bind_header ESP, protocol: ESP::IP_PROTOCOL
     IPv6.bind_header ESP, next: ESP::IP_PROTOCOL
-    UDP.bind_header ESP, dport: ESP::UDP_PORT, sport: ESP::UDP_PORT
+    UDP.bind_header ESP, procs: [ ->(f) { f.dport = f.sport = ESP::UDP_PORT },
+                                  ->(f) { (f.dport == ESP::UDP_PORT ||
+                                           f.sport == ESP::UDP_PORT) &&
+                                          Types::Int32.new.read(f.body[0..3]).to_i > 0 }]
     ESP.bind_header IP, next: 4
     ESP.bind_header IPv6, next: 41
     ESP.bind_header TCP, next: TCP::IP_PROTOCOL
