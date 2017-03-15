@@ -107,8 +107,7 @@ module PacketGen
         end
 
         it 'is parsed when first 32-bit word in UDP (port 4500) body is null' do
-          udp.add('IKE', non_esp_marker: 0)
-          udp.udp.sport = udp.udp.dport = 4500
+          udp.add('NonESPMarker').add('IKE')
           str = udp.to_s
           pkt = Packet.parse(str)
           expect(pkt.is? 'UDP').to be(true)
