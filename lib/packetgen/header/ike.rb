@@ -111,6 +111,26 @@ module PacketGen
       #  version flag. Ignored by IKEv2 peers, and should be set to 0
       #  @return [Boolean]
       define_bit_fields_on :flags, :rsv1, 2, :flag_r, :flag_v, :flag_i, :rsv2, 3
+
+      # @param [Hash] options
+      # @see Base#initialize
+      def initialize(options={})
+        super
+        @non_esp_marker_applicable = !!options[:non_esp_marker]
+        calc_length unless options[:length]
+      end
+
+      # Get all used field names
+      # @return [Array<Symbol>]
+      def fields
+        fields = super
+        fields -= %i(non_esp_marker) unless @non_esp_marker_applicable
+        fields
+      end
+
+      def calc_length
+        self[:length].value = self.sz
+      end
     end
 
     self.add_class IKE
