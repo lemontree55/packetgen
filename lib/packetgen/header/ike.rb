@@ -55,7 +55,7 @@ module PacketGen
       # @!attribute non_esp_marker
       #  32-bit zero marker to differentiate IKE packet over UDP port 4500 from ESP ones
       #  @return [Integer]
-      define_field :non_esp_marker, Types::Int32
+      define_field :non_esp_marker, Types::Int32, default: 0
       # @!attribute init_spi
       #  64-bit initiator SPI
       #  @return [Integer]
@@ -71,7 +71,7 @@ module PacketGen
       # @!attribute version
       #  8-bit IKE version
       #  @return [Integer]
-      define_field :version, Types::Int8
+      define_field :version, Types::Int8, default: 0x20
       # @!attribute exchange_type
       #  8-bit exchange type
       #  @return [Integer]
@@ -88,9 +88,6 @@ module PacketGen
       #  32-bit length of total message (header + payloads)
       #  @return [Integer]
       define_field :length, Types::Int32
-      # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
 
       # @!attribute mjver
       #  4-bit major version value
