@@ -1,6 +1,25 @@
 module PacketGen
   module Header
 
+    # This class handles a pseudo-header used to differentiate ESP from IKE headers
+    # in a UDP datagram with port 4500.
+    # @author Sylvain Daubert
+    class NonESPMarker < Base
+      # @!attribute non_esp_marker
+      #  32-bit zero marker to differentiate IKE packet over UDP port 4500 from ESP ones
+      #  @return [Integer]
+      define_field :non_esp_marker, Types::Int32, default: 0
+      # @!attribute body
+      #  @return [Types::String,Header::Base]
+      define_field :body, Types::String
+
+      # Check non_esp_marker field
+      # @see [Base#parse?]
+      def parse?
+        non_esp_marker == 0
+      end
+    end
+
     # IKE is the Internet Key Exchange protocol (RFC 7296). Ony IKEv2 is supported.
     #
     # A IKE header consists of a header, and a set of payloads. This class
@@ -52,10 +71,6 @@ module PacketGen
       # Well-known UDP port for IKE when NAT is detected
       UDP_PORT2 = 4500
 
-      # @!attribute non_esp_marker
-      #  32-bit zero marker to differentiate IKE packet over UDP port 4500 from ESP ones
-      #  @return [Integer]
-      define_field :non_esp_marker, Types::Int32, default: 0
       # @!attribute init_spi
       #  64-bit initiator SPI
       #  @return [Integer]
@@ -116,26 +131,21 @@ module PacketGen
       # @see Base#initialize
       def initialize(options={})
         super
-        @non_esp_marker_applicable = !!options[:non_esp_marker]
         calc_length unless options[:length]
       end
 
-      # Get all used field names
-      # @return [Array<Symbol>]
-      def fields
-        fields = super
-        fields -= %i(non_esp_marker) unless @non_esp_marker_applicable
-        fields
-      end
-
+      # Calculate length field
+      # @return [Integer]
       def calc_length
         self[:length].value = self.sz
       end
     end
 
     self.add_class IKE
+    self.add_class NonESPMarker
 
     UDP.bind_header IKE, dport: IKE::UDP_PORT1, sport: IKE::UDP_PORT1
-    UDP.bind_header IKE, dport: IKE::UDP_PORT2, sport: IKE::UDP_PORT2
+    UDP.bind_header NonESPMarker, dport: IKE::UDP_PORT2, sport: IKE::UDP_PORT2
+    NonESPMarker.bind_header IKE
   end
 end

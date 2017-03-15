@@ -193,7 +193,7 @@ module PacketGen
       #     # define a bit field on :flag attribute:
       #     # flag1, flag2 and flag3 are 1-bit fields
       #     # type and stype are 3-bit fields. reserved is a 6-bit field
-      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved: 7
+      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved, 7
       #   end
       # A bitfield of size 1 bit defines 2 methods:
       # * +#field?+ which returns a Boolean,
