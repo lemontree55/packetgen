@@ -133,6 +133,7 @@ module PacketGen
           expect(packets[0].is? 'IKE').to be(true)
           ike0 = packets[0].ike
           expect(ike0.payloads).to be_a(Array)
+          expect(ike0.payloads.size).to eq(5)
           ike0.payloads.each do |payload|
             expect(payload).to be_a(IKE::Payload)
           end
