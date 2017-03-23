@@ -11,6 +11,33 @@ module PacketGen
     # @author Sylvain Daubert
     class Array < ::Array
 
+      # Separator used in {#to_human}.
+      # May be ovverriden by subclasses
+      HUMAN_SEPARATOR = ','
+
+      # Define type of objects in set. Used by {#read}.
+      # @param [Class] klass
+      # @return [void]
+      def self.set_of(klass)
+        @klass = klass
+      end
+
+      # Populate object from a string
+      # @param [String] str
+      # @return [self]
+      def read(str)
+        clear
+        return self if str.nil?
+        force_binary str
+        klass = self.class.class_eval { @klass }
+        while str.length > 0
+          obj = klass.new.read(str)
+          self << obj
+          str.slice!(0, obj.sz)
+        end
+        self
+      end
+
       # @abstract depend on private method +#record_from_hash+ which should be
       #   declared by subclasses.
       # Add an object to this array
@@ -36,7 +63,7 @@ module PacketGen
       # Get a human readable string
       # @return [String]
       def to_human
-        map(&:to_human).join(',')
+        map(&:to_human).join(self.class::HUMAN_SEPARATOR)
       end
 
       # Get size in bytes
