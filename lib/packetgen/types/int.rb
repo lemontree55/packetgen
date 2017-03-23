@@ -55,12 +55,22 @@ module PacketGen
         [to_i].pack(@packstr[@endian])
       end
 
+      # Convert Int to Integer
+      # @return [Integer]
       def to_i
         @value || @default
       end
 
+      # Convert Int to Float
+      # @return [Float]
       def to_f
         to_i.to_f
+      end
+
+      # Give size in bytes of self
+      # @return [Integer]
+      def sz
+        to_s.size
       end
     end
 
