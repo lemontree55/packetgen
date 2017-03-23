@@ -51,18 +51,19 @@ module PacketGen
     # * a Exchange type ({#exchange_type}, {Types::Int8} type),
     # * a {#flags} field ({Types::Int8} type),
     # * a Message ID ({#message_id}, {Types::Int32} type),
-    # * a {#length} ({Types::Int32} type),
-    # * and a {#body}, containing IKE payloads.
-    # For IKE packets transported over UDP port 4500, IKE header is prepended with a
-    # 32-bit field set to 0 ({#non_esp_marker}, type {Types::Int32}).
+    # * and a {#length} ({Types::Int32} type).
     #
     # == Create a IKE header
-    #   # standalone
+    # === Standalone
     #   ike = PacketGen::Header::IKE.new
-    #   # in a packet
+    # === Classical IKE packet
     #   pkt = PacketGen.gen('IP').add('UDP').add('IKE')
     #   # access to IKE header
     #   pkt.ike    # => PacketGen::Header::IKE
+    # === NAT-T IKE packet
+    #   # NonESPMarker is used to insert a 32-bit null field between UDP header
+    #   # and IKE one to differentiate it from ESP-in-UDP (see RFC 3948)
+    #   pkt = PacketGen.gen('IP').add('UDP').add('NonESPMarker').add('IKE)
     # @author Sylvain Daubert
     class IKE < Base
 
