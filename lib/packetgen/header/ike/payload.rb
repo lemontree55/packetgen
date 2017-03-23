@@ -55,8 +55,14 @@ module PacketGen
   end
 end
 
+# here, future payloads to be required
+require_relative 'sa'
+
 module PacketGen
   module Header
+    IKE.bind_header IKE::SA, next: 33
+    IKE::Payload.bind_header IKE::SA, next: 33
+    IKE::SA.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Payload.bind_header IKE::Payload, next: ->(v) { v > 0 }
   end

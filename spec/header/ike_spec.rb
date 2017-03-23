@@ -134,9 +134,7 @@ module PacketGen
           ike0 = packets[0].ike
           expect(ike0.payloads).to be_a(Array)
           expect(ike0.payloads.size).to eq(5)
-          ike0.payloads.each do |payload|
-            expect(payload).to be_a(IKE::Payload)
-          end
+          expect(ike0.payloads[0]).to be_a(IKE::SA)
         end
       end
     end
