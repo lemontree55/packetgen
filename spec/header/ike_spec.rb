@@ -36,6 +36,7 @@ module PacketGen
           expect(ike.flags).to eq(0)
           expect(ike.message_id).to eq(0)
           expect(ike.length).to eq(28)
+          expect(ike.payloads).to be_empty
         end
 
         it 'accepts options' do
@@ -87,7 +88,7 @@ module PacketGen
           ike = IKE.new
           str = ike.inspect
           expect(str).to be_a(String)
-          ike.fields.each do |attr|
+          (ike.fields - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -125,6 +126,16 @@ module PacketGen
           expect(pkt.udp.sport).to eq(4500)
           expect(pkt.udp.dport).to eq(4500)
           expect(pkt.is? 'IKE').to be(false)
+        end
+
+        it 'also parses IKE payload' do
+          packets = Packet.read(File.join(__dir__, 'ikev2.pcapng'))
+          expect(packets[0].is? 'IKE').to be(true)
+          ike0 = packets[0].ike
+          expect(ike0.payloads).to be_a(Array)
+          ike0.payloads.each do |payload|
+            expect(payload).to be_a(IKE::Payload)
+          end
         end
       end
     end

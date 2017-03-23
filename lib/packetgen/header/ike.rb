@@ -105,6 +105,10 @@ module PacketGen
       #  @return [Integer]
       define_field :length, Types::Int32
 
+      # Defining a body permits using Packet#parse to parse IKE payloads.
+      # But this method is hidden as prefered way to access payloads is via #payloads
+      define_field :body, Types::String
+
       # @!attribute mjver
       #  4-bit major version value
       #  @return [Integer]
@@ -140,6 +144,18 @@ module PacketGen
       def calc_length
         self[:length].value = self.sz
       end
+
+      # IKE payloads
+      # @return [Array<Payload>]
+      def payloads
+        payloads = []
+        body = self.body
+        while body.is_a?(Payload) do
+          payloads << body
+          body = body.body
+        end
+        payloads
+      end
     end
 
     self.add_class IKE
@@ -150,3 +166,5 @@ module PacketGen
     NonESPMarker.bind_header IKE
   end
 end
+
+require_relative 'ike/payload'
