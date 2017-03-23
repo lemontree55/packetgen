@@ -187,6 +187,14 @@ module PacketGen
         end
       end
 
+      # Delete a previously defined field
+      # @param [Symbol] name
+      # @return [void]
+      def self.delete_field(name)
+        @ordered_fields.delete name
+        @field_defs.delete name
+      end
+
       # Define a bitfield on given attribute
       #   class MyHeader < PacketGen::Types::Fields
       #     define_field :flags, Types::Int16
