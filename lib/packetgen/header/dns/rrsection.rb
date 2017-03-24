@@ -30,24 +30,6 @@ module PacketGen
           self
         end
 
-        # Add a ressource record to this section. Increment associated counter
-        # @param [RR,Hash] rr
-        # @return [RRSection] self
-        def <<(rr)
-          push rr
-          @counter.read(@counter.to_i + 1)
-          self
-        end
-
-        # Delete a ressource
-        # @param [RR] rr
-        # @return [RR]
-        def delete(rr)
-          obj = super
-          @counter.read(@counter.to_i - 1) if obj
-          obj
-        end
-
         private
 
         def record_from_hash(hsh)

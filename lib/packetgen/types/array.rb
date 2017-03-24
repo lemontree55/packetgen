@@ -27,6 +27,13 @@ module PacketGen
         @klass = klass
       end
 
+      # @param [Hash] options
+      # @option options [Int] counter Int object used as a counter for this set
+      def initialize(options={})
+        super()
+        @counter = options[:counter]
+      end
+
       # Populate object from a string
       # @param [String] str
       # @return [self]
@@ -37,7 +44,7 @@ module PacketGen
         klass = self.class.class_eval { @klass }
         while str.length > 0
           obj = klass.new.read(str)
-          self << obj
+          self.push obj
           str.slice!(0, obj.sz)
         end
         self
@@ -57,7 +64,26 @@ module PacketGen
               end
         super(obj)
       end
-      alias :<< :push
+
+      # @abstract depend on private method +#record_from_hash+ which should be
+      #   declared by subclasses.
+      # Add an object to this array, and increment associated counter, if any
+      # @param [Object] obj type depends on subclass
+      # @return [Array] self
+      def <<(obj)
+        push obj
+        @counter.read(@counter.to_i + 1) if @counter
+        self
+      end
+
+      # Delete an object from this array. Update associated counter if any
+      # @param [Object] obj
+      # @return [Object] deleted object
+      def delete(obj)
+        deleted = super
+        @counter.read(@counter.to_i - 1) if @counter && deleted
+        deleted
+      end
 
       # Get binary string
       # @return [String]
