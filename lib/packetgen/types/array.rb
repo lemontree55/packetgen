@@ -6,8 +6,13 @@
 module PacketGen
   module Types
 
-    # @abstract
-    # Array supporting some fields methods
+    # @abstract Base class to define set of {Fields} subclasses.
+    # == #record_from_hash
+    # Subclasses should define private method +#record_from_hash+. This method
+    # is called by {#push} to add an object to the set.
+    #
+    # A default method is defined by {Array}: it calls constructor of class defined
+    # by {.set_of}.
     # @author Sylvain Daubert
     class Array < ::Array
 
@@ -15,7 +20,7 @@ module PacketGen
       # May be ovverriden by subclasses
       HUMAN_SEPARATOR = ','
 
-      # Define type of objects in set. Used by {#read}.
+      # Define type of objects in set. Used by {#read} and {#push}.
       # @param [Class] klass
       # @return [void]
       def self.set_of(klass)
@@ -77,6 +82,17 @@ module PacketGen
       # @return [String] binary encoded string
       def force_binary(str)
         PacketGen.force_binary str
+      end
+
+      private
+
+      def record_from_hash(obj)
+        obj_klass = self.class.class_eval { @klass }
+        if obj_klass
+          obj_klass.new(obj)
+        else
+          raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
+        end
       end
     end
   end
