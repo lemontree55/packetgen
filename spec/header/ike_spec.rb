@@ -135,6 +135,35 @@ module PacketGen
           expect(ike0.payloads).to be_a(Array)
           expect(ike0.payloads.size).to eq(5)
           expect(ike0.payloads[0]).to be_a(IKE::SA)
+          expect(ike0.payloads[1]).to be_a(IKE::KE)
+        end
+      end
+
+      context '(building)' do
+        let(:ike) do
+          PacketGen.gen('IP', id: 0).add('UDP').add('IKE', init_spi: 0x1234567812345678)
+        end
+
+        it 'permits to create a SA_INIT packet' do
+          ike.ike.exchange_type = 34
+          ike.ike.flag_i = true
+          prop1 = IKE::SAProposal.new(num: 1, protocol: 'IKE')
+          prop1.transforms << { type: 'ENCR', id: 'AES_GCM16' }
+          prop1.transforms << { type: 'PRF', id: 'HMAC_SHA2_256' }
+          prop1.transforms << { type: 'DH', id: 'ECP256' }
+          prop2 = IKE::SAProposal.new(num: 2, protocol: 'IKE')
+          prop2.transforms << { type: 'ENCR', id: 'AES_CTR' }
+          prop2.transforms << { type: 'INTG', id: 'AES_XCBC_96' }
+          prop2.transforms << { type: 'PRF', id: 'HMAC_SHA2_256' }
+          prop1.transforms << { type: 'DH', id: 'MODP768' }
+          ike.add('SA')
+          ike.sa.proposals << prop1
+          ike.sa.proposals << prop2
+          ike.add('KE', group: 'ECP256', data: PacketGen.force_binary("\0" * 64))
+          ike.calc_length
+          ike.calc_checksum
+          expected = File.read(File.join(__dir__, 'ike_sa_init.bin'))
+          expect(ike.to_s).to eq(PacketGen.force_binary expected)
         end
       end
     end
