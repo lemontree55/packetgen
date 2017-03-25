@@ -211,7 +211,7 @@ module PacketGen
         #  16-bit proposal length
         #  @return [Integer]
         define_field :length, Types::Int16
-        # @!attribute type
+        # @!attribute [r] type
         #  8-bit transform type. The Transform Type is the cryptographic
         #  algorithm type (i.e. encryption, PRF, integrity, etc.)
         #  @return [Integer]
@@ -220,7 +220,7 @@ module PacketGen
         #  8-bit reserved field
         #  @return [Integer]
         define_field :rsv2, Types::Int8
-        # @!attribute id
+        # @!attribute [r] id
         #  16-bit transform ID. The Transform ID is the specific instance of
         #  the proposed transform type.
         #  @return [Integer]
@@ -324,7 +324,7 @@ module PacketGen
         end
       end
 
-      # Set of {Tranform} in a {SAProposal}
+      # Set of {Transform} in a {SAProposal}
       # @author Sylvain Daubert
       class Transforms < Types::Array
         set_of Transform
@@ -516,10 +516,31 @@ module PacketGen
         end
       end
 
-      # This class hnadles Security Assocation payloads, as defined in RFC 7296 §3.3.
+      # This class handles Security Assocation payloads, as defined in RFC 7296 §3.3.
       #
       # A SA payload contains a generic payload header (see {Payload}) and a set of
-      # {SAProposal}.
+      # {SAProposal} ({#proposals} field, which is a {SAProposals} object):
+      #                        1                   2                   3
+      #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #   | Next Payload  |C|  RESERVED   |         Payload Length        |
+      #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #   |                                                               |
+      #   ~                          <Proposals>                          ~
+      #   |                                                               |
+      #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #
+      # == Create a SA payload
+      #   # Create a IKE packet with a SA payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('SA')
+      #   # add a proposal. Protocol name is taken from SAProposal::PROTO_* constants
+      #   pkt.sa.proposals << { num: 1, protocol: 'ESP' }
+      #   # add a transform to this proposal.
+      #   # type name is taken from Transform::TYPE_* constants.
+      #   # ID is taken from Transform::<TYPE>_* constants.
+      #   pkt.sa.proposals.first.transforms << { type: 'ENCR', id: 'AES_CTR' }
+      #   # and finally, add an attribute to this transform (here, KEY_SIZE = 128 bits)
+      #   pkt.sa.proposals[0].transforms[0].attributes << { type: 0x800e, value: 128 }
       # @author Sylvain Daubert
       class SA < Payload
         delete_field :content
