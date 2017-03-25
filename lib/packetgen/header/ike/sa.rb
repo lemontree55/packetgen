@@ -549,12 +549,7 @@ module PacketGen
         #  @return [SAProposals]
         define_field_before :body, :proposals, SAProposals
 
-        def initialize(options={})
-          super
-          self[:length].value = sz unless options[:length]
-        end
-
-       # Populate object from a string
+        # Populate object from a string
         # @param [String] str
         # @return [self]
         def read(str)

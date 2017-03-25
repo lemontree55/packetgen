@@ -42,6 +42,11 @@ module PacketGen
         #  @return [Integer]
         define_bit_fields_on :flags, :critical, :reserved, 7
 
+        def initialize(options={})
+          super
+          self[:length].value = sz unless options[:length]
+        end
+
         # @private
         alias base_read read
 
