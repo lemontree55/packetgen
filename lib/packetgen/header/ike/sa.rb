@@ -565,7 +565,7 @@ module PacketGen
         # @return [Integer] new length
         def calc_length
           proposals.each { |p| p.calc_length }
-          self[:length].value = sz
+          super
         end
       end
     end

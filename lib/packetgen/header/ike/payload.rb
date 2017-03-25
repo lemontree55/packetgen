@@ -64,6 +64,12 @@ module PacketGen
           end
           self
         end
+
+        # Compute length and set {#length} field
+        # @return [Integer] new length
+        def calc_length
+          self[:length].value = sz - body.sz
+        end
       end
     end
 
@@ -73,12 +79,19 @@ end
 
 # here, future payloads to be required
 require_relative 'sa'
+require_relative 'ke'
 
 module PacketGen
   module Header
     IKE.bind_header IKE::SA, next: 33
     IKE::Payload.bind_header IKE::SA, next: 33
+    IKE::KE.bind_header IKE::SA, next: 33
+    IKE.bind_header IKE::KE, next: 34
+    IKE::Payload.bind_header IKE::KE, next: 34
+    IKE::SA.bind_header IKE::KE, next: 34
+    # Last defined. To be used as default if no other may be parsed.
     IKE::SA.bind_header IKE::Payload, next: ->(v) { v > 0 }
+    IKE::KE.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Payload.bind_header IKE::Payload, next: ->(v) { v > 0 }
   end
