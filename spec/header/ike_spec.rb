@@ -136,6 +136,7 @@ module PacketGen
           expect(ike0.payloads.size).to eq(5)
           expect(ike0.payloads[0]).to be_a(IKE::SA)
           expect(ike0.payloads[1]).to be_a(IKE::KE)
+          expect(ike0.payloads[2]).to be_a(IKE::Nonce)
         end
       end
 
@@ -160,6 +161,7 @@ module PacketGen
           ike.sa.proposals << prop1
           ike.sa.proposals << prop2
           ike.add('KE', group: 'ECP256', data: PacketGen.force_binary("\0" * 64))
+          ike.add('Nonce', data: PacketGen.force_binary("\0" * 16))
           ike.calc_length
           ike.calc_checksum
           expected = File.read(File.join(__dir__, 'ike_sa_init.bin'))
