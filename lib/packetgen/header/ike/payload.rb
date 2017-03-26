@@ -37,10 +37,10 @@ module PacketGen
         # @!attribute critical
         #  critical flag
         #  @return [Boolean]
-        # @!attribute reserved
+        # @!attribute hreserved
         #  reserved part of {#flags} field
         #  @return [Integer]
-        define_bit_fields_on :flags, :critical, :reserved, 7
+        define_bit_fields_on :flags, :critical, :hreserved, 7
 
         def initialize(options={})
           super
