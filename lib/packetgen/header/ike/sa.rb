@@ -543,6 +543,10 @@ module PacketGen
       #   pkt.sa.proposals[0].transforms[0].attributes << { type: 0x800e, value: 128 }
       # @author Sylvain Daubert
       class SA < Payload
+
+        # Payload type number
+        PAYLOAD_TYPE = 33
+
         delete_field :content
         # @!attribute proposals
         #  8-bit set of SA proposals

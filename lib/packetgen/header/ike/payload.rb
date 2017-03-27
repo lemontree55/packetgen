@@ -84,18 +84,18 @@ require_relative 'nonce'
 
 module PacketGen
   module Header
-    IKE.bind_header IKE::SA, next: 33
-    IKE::Payload.bind_header IKE::SA, next: 33
-    IKE::KE.bind_header IKE::SA, next: 33
-    IKE::Nonce.bind_header IKE::SA, next: 33
-    IKE.bind_header IKE::KE, next: 34
-    IKE::Payload.bind_header IKE::KE, next: 34
-    IKE::SA.bind_header IKE::KE, next: 34
-    IKE::Nonce.bind_header IKE::KE, next: 34
-    IKE.bind_header IKE::Nonce, next: 40
-    IKE::Payload.bind_header IKE::Nonce, next: 40
-    IKE::SA.bind_header IKE::Nonce, next: 40
-    IKE::KE.bind_header IKE::Nonce, next: 40
+    IKE.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Payload.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::KE.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Nonce.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Payload.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::SA.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Nonce.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::Payload.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::SA.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::KE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     # Last defined. To be used as default if no other may be parsed.
     IKE::SA.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::KE.bind_header IKE::Payload, next: ->(v) { v > 0 }

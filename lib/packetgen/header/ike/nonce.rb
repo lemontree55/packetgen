@@ -18,6 +18,10 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class Nonce < Payload
+
+        # Payload type number
+        PAYLOAD_TYPE = 40
+
         delete_field :content
         # @!attribute data
         #  Key Exchange data

@@ -32,6 +32,10 @@ module PacketGen
       #   pkt.ke.group = 1
       # @author Sylvain Daubert
       class KE < Payload
+
+        # Payload type number
+        PAYLOAD_TYPE = 34
+
         delete_field :content
         # @!attribute [r] group_num
         #  16-bit Diffie-Hellman Group Number
