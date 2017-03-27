@@ -137,6 +137,10 @@ module PacketGen
           expect(ike0.payloads[0]).to be_a(IKE::SA)
           expect(ike0.payloads[1]).to be_a(IKE::KE)
           expect(ike0.payloads[2]).to be_a(IKE::Nonce)
+          expect(ike0.payloads[3]).to be_a(IKE::Notify)
+          expect(ike0.payloads[3].type).to eq(IKE::Notify::TYPE_NAT_DETECTION_SOURCE_IP)
+          expect(ike0.payloads[4]).to be_a(IKE::Notify)
+          expect(ike0.payloads[4].type).to eq(IKE::Notify::TYPE_NAT_DETECTION_DESTINATION_IP)
         end
       end
 
