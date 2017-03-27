@@ -16,6 +16,11 @@ module PacketGen
       #   ~                            Nonce Data                         ~
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #
+      # == Create a Nonce payload
+      #   # Create a IKE packet with a Nonce payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE')
+      #   pkt.add('Nonce', data: "abcdefgh")
       # @author Sylvain Daubert
       class Nonce < Payload
 
@@ -24,7 +29,7 @@ module PacketGen
 
         delete_field :content
         # @!attribute data
-        #  Key Exchange data
+        #  Nonce data
         #  @return [String]
         define_field_before :body, :data, Types::String
 
