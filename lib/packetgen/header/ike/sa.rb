@@ -358,7 +358,7 @@ module PacketGen
       #  # using protocol name
       #  proposal = PacketGen::Header::IKE::Proposal.new(num: 1, protocol: 'IKE')
       #  # using integer values
-      #  proposal = PacketGen::Header::IKE::Proposal.new(num: 1, protocol_id: 1)
+      #  proposal = PacketGen::Header::IKE::Proposal.new(num: 1, protocol: 1)
       # == Add transforms to a proposal
       #  # using a Transform object
       #  trans = PacketGen::Header::IKE::Transform.new(type: 'ENCR', id: '3DES')
@@ -367,10 +367,6 @@ module PacketGen
       #  proposal.transforms << { type: 'ENCR', id: '3DES' }
       # @author Sylvain Daubert
       class SAProposal < Types::Fields
-
-        PROTO_IKE = 1
-        PROTO_AH  = 2
-        PROTO_ESP = 3
 
         # @!attribute last
         #  8-bit last substructure. Specifies whether or not this is the
@@ -387,10 +383,6 @@ module PacketGen
         #  16-bit proposal length
         #  @return [Integer]
         define_field :length, Types::Int16
-        # @!attribute reserved
-        #  8-bit reserved field
-        #  @return [Integer]
-        define_field :num, Types::Int8, default: 1
         # @!attribute num
         #  8-bit proposal number. When a proposal is made, the first
         #  proposal in an SA payload MUST be 1, and subsequent proposals MUST
@@ -399,20 +391,25 @@ module PacketGen
         #  in the SA payload MUST match the number on the proposal sent that
         #  was accepted.
         #  @return [Integer]
-        define_field :protocol_id, Types::Int8
-        # @!attribute protocol_id
+        define_field :num, Types::Int8, default: 1
+        # @!attribute [r] protocol
         #  8-bit protocol ID. Specify IPsec protocol currently negociated.
         #  May 1 (IKE), 2 (AH) or 3 (ESP).
         #  @return [Integer]
-        define_field :spi_size, Types::Int8, default: 0
+        define_field :protocol, Types::Int8
         # @!attribute spi_size
         #  8-bit SPI size. Give size of SPI field. Set to 0 for an initial IKE SA
         #  negotiation, as SPI is obtained from outer header.
         #  @return [Integer]
-        define_field :num_trans, Types::Int8, default: 0
+        define_field :spi_size, Types::Int8, default: 0
         # @!attribute num_trans
         #  8-bit number of transformations
         #  @return [Integer]
+        define_field :num_trans, Types::Int8, default: 0
+        # @!attribute spi
+        #   the sending entity's SPI. When the {#spi_size} field is zero,
+        #   this field is not present in the proposal.
+        #   @return [String]
         define_field :spi, Types::String, builder: ->(t) { Types::String.new('', length_from: t[:spi_size]) }
         # @!attribute transforms
         #  8-bit set of tranforms for this proposal
@@ -436,11 +433,11 @@ module PacketGen
                when Integer
                  value
                else
-                 c = self.class.constants.grep(/PROTO_#{value}/).first
-                 c ? self.class.const_get(c) : nil
+                 c = IKE.constants.grep(/PROTO_#{value}/).first
+                 c ? IKE.const_get(c) : nil
                end
           raise ArgumentError, "unknown protocol #{value.inspect}" unless proto
-          self[:protocol_id].value = proto
+          self[:protocol].value = proto
         end
 
         # Populate object from a string
@@ -477,9 +474,9 @@ module PacketGen
         # Get protocol name
         # @return [String]
         def human_protocol
-          name = self.class.constants.grep(/PROTO/).
-                 select { |c| self.class.const_get(c) == protocol_id }.
-                 first || 'proto #{protocol_id}'
+          name = IKE.constants.grep(/PROTO/).
+                 select { |c| IKE.const_get(c) == protocol }.
+                 first || "proto #{protocol}"
           name.to_s.sub(/PROTO_/, '')
         end
 

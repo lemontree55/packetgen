@@ -210,7 +210,7 @@ module PacketGen
             expect(prop.reserved).to eq(0)
             expect(prop.length).to eq(8)
             expect(prop.num).to eq(1)
-            expect(prop.protocol_id).to eq(0)
+            expect(prop.protocol).to eq(0)
             expect(prop.spi_size).to eq(0)
             expect(prop.num_trans).to eq(0)
             expect(prop.spi).to be_empty
@@ -223,7 +223,7 @@ module PacketGen
               reserved: 55,
               length: 1200,
               num: 6,
-              protocol_id: 155,
+              protocol: 155,
               spi_size: 12,
               num_trans: 28
             }
@@ -236,7 +236,7 @@ module PacketGen
 
           it 'accepts String for protocol option' do
             prop = SAProposal.new(protocol: 'IKE')
-            expect(prop.protocol_id).to eq(1)
+            expect(prop.protocol).to eq(1)
           end
 
           it 'raises on unknwon string type' do

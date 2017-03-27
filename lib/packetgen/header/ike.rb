@@ -72,6 +72,10 @@ module PacketGen
       # Well-known UDP port for IKE when NAT is detected
       UDP_PORT2 = 4500
 
+      PROTO_IKE = 1
+      PROTO_AH  = 2
+      PROTO_ESP = 3
+
       # @!attribute init_spi
       #  64-bit initiator SPI
       #  @return [Integer]
