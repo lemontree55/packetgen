@@ -93,7 +93,6 @@ module PacketGen
         # Non-first fragment also
         TYPE_NON_FIRST_FRAGMENTS_ALSO = 16395
 
-        delete_field :content
         # @!attribute [r] protocol
         #  8-bit protocol ID. If this notification concerns an existing
         #  SA whose SPI is given in the SPI field, this field indicates the
@@ -104,7 +103,7 @@ module PacketGen
         #  CHILD_SA_NOT_FOUND.  If the SPI field is empty, this field MUST be
         #  sent as zero and MUST be ignored on receipt.
         #  @return [Integer]
-        define_field_before :body, :protocol, Types::Int8
+        define_field_before :content, :protocol, Types::Int8
         # @!attribute spi_size
         #  8-bit SPI size. Give size of SPI field. Length in octets of the SPI as
         #  defined by the IPsec protocol ID or zero if no SPI is applicable. For a
@@ -112,23 +111,17 @@ module PacketGen
         #  the field must be empty.Set to 0 for an initial IKE SA
         #  negotiation, as SPI is obtained from outer header.
         #  @return [Integer]
-        define_field_before :body, :spi_size, Types::Int8, default: 0
+        define_field_before :content, :spi_size, Types::Int8, default: 0
         # @!attribute message_type
         #  16-bit notify message type. Specifies the type of notification message.
         #  @return [Integer]
-        define_field_before :body, :message_type, Types::Int16
+        define_field_before :content, :message_type, Types::Int16
         # @!attribute spi
         #   the sending entity's SPI. When the {#spi_size} field is zero,
         #   this field is not present in the proposal.
         #   @return [String]
-        define_field_before :body, :spi, Types::String,
+        define_field_before :content, :spi, Types::String,
                             builder: ->(t) { Types::String.new('', length_from: t[:spi_size]) }
-        # @!attribute data
-        #  Notification Data (variable length). Status or error data
-        #  transmitted in addition to the Notify Message Type. Values for
-        #  this field are type specific.
-        #  @return [String]
-        define_field_before :body, :data, Types::String
 
         alias type message_type
 
@@ -173,19 +166,6 @@ module PacketGen
         end
         alias type= message_type=
 
-         # Populate object from a string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          super
-          hlen = self.class.new.sz
-          plen = length - hlen - spi_size
-          spi.read str[hlen, spi_size]
-          data.read str[hlen+spi_size, plen]
-          body.read str[hlen+spi_size+plen..-1]
-          self
-        end
-        
         # Get protocol name
         # @return [String]
         def human_protocol

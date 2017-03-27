@@ -26,8 +26,7 @@ module PacketGen
         #  @return [Integer]
         define_field :length, Types::Int16
         # @!attribute content
-        #  Payload content, for unknown payload types. Known payloads do not own
-        #  this attribute, as their content is defined through fields.
+        #  Payload content. Depends on payload. Variable length.
         #  @return [String]
         define_field :content, Types::String
 

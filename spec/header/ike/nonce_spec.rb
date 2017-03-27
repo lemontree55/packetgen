@@ -10,7 +10,7 @@ module PacketGen
             expect(nonce.next).to eq(0)
             expect(nonce.flags).to eq(0)
             expect(nonce.length).to eq(4)
-            expect(nonce.data).to be_empty
+            expect(nonce.content).to be_empty
           end
 
           it 'accepts options' do
@@ -18,7 +18,7 @@ module PacketGen
               next: 59,
               flags: 0x65,
               length: 128,
-              data: 'abcdefghij'
+              content: 'abcdefghij'
             }
 
             nonce = Nonce.new(opts)
@@ -37,13 +37,13 @@ module PacketGen
             expect(nonce.critical?).to be(true)
             expect(nonce.hreserved).to eq(5)
             expect(nonce.length).to eq(9)
-            expect(nonce.data).to eq('abcde')
+            expect(nonce.content).to eq('abcde')
           end
         end
 
         describe '#to_s' do
           it 'returns a binary string' do
-            nonce = Nonce.new(next: 2, data: 'abcdefghijkl')
+            nonce = Nonce.new(next: 2, content: 'abcdefghijkl')
             nonce.calc_length
             expected = "\x02\x00\x00\x10abcdefghijkl"
             expect(nonce.to_s).to eq(PacketGen.force_binary expected)

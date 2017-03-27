@@ -14,7 +14,7 @@ module PacketGen
             expect(notify.spi_size).to eq(0)
             expect(notify.type).to eq(0)
             expect(notify.spi).to be_empty
-            expect(notify.data).to be_empty
+            expect(notify.content).to be_empty
           end
 
           it 'accepts options' do
@@ -26,7 +26,7 @@ module PacketGen
               spi_size: 55,
               message_type: 0x8765,
               spi: "\x00\x01",
-              data: 'abcdefghij'
+              content: 'abcdefghij'
             }
 
             notify = Notify.new(opts)
@@ -49,7 +49,7 @@ module PacketGen
             expect(notify.spi_size).to eq(4)
             expect(notify.type).to eq(0x100)
             expect(notify.spi).to eq([0x12345678].pack('N'))
-            expect(notify.data).to eq('abcdef')
+            expect(notify.content).to eq('abcdef')
           end
         end
 
@@ -96,7 +96,7 @@ module PacketGen
         describe '#to_s' do
           it 'returns a binary string' do
             notify = Notify.new(next: 2, protocol: 'AH', type: 'COOKIE',
-                                spi: 'yz', data: 'abcdefghijkl')
+                                spi: 'yz', content: 'abcdefghijkl')
             notify.calc_length
             expected = "\x02\x00\x00\x16\x02\x02\x40\x06yzabcdefghijkl"
             expect(notify.to_s).to eq(PacketGen.force_binary expected)

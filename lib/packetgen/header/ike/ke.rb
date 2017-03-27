@@ -21,7 +21,7 @@ module PacketGen
       # These specific fields are:
       # * {#group_num} (type {Types::Int16}),
       # * {#reserved} (type {Types::Int16}),
-      # * and {#data} (type {Types::String}).
+      # * and {#content} (type {Types::String}).
       #
       # == Create a KE payload
       #   # Create a IKE packet with a KE payload
@@ -36,35 +36,18 @@ module PacketGen
         # Payload type number
         PAYLOAD_TYPE = 34
 
-        delete_field :content
-        # @!attribute [r] group_num
-        #  16-bit Diffie-Hellman Group Number
+        # @!attribute group_num
+        #  16-bit DH group number
         #  @return [Integer]
-        define_field_before :body, :group_num, Types::Int16
+        define_field_before :content, :group_num, Types::Int16
         # @!attribute reserved
         #  16-bit reserved field
         #  @return [Integer]
-        define_field_before :body, :reserved, Types::Int16, default: 0
-        # @!attribute data
-        #  Key Exchange data
-        #  @return [String]
-        define_field_before :body, :data, Types::String
+        define_field_before :content, :reserved, Types::Int16, default: 0
 
         def initialize(options={})
           super
           self.group = options[:group] if options[:group]
-        end
-
-        # Populate object from a string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          super
-          hlen = self.class.new.sz
-          plen = length - hlen
-          data.read str[hlen, plen]
-          body.read str[hlen+plen..-1]
-          self
         end
 
         # Set group

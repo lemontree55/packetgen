@@ -26,24 +26,6 @@ module PacketGen
 
         # Payload type number
         PAYLOAD_TYPE = 40
-
-        delete_field :content
-        # @!attribute data
-        #  Nonce data
-        #  @return [String]
-        define_field_before :body, :data, Types::String
-
-        # Populate object from a string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          super
-          hlen = self.class.new.sz
-          plen = length - hlen
-          data.read str[hlen, plen]
-          body.read str[hlen+plen..-1]
-          self
-        end
       end
     end
 
