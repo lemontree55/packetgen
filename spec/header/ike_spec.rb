@@ -150,7 +150,7 @@ module PacketGen
         end
 
         it 'permits to create a SA_INIT packet' do
-          ike.ike.exchange_type = 34
+          ike.ike.exchange_type = 'IKE_SA_INIT'
           ike.ike.flag_i = true
           prop1 = IKE::SAProposal.new(num: 1, protocol: 'IKE')
           prop1.transforms << { type: 'ENCR', id: 'AES_GCM16' }

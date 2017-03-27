@@ -76,6 +76,11 @@ module PacketGen
       PROTO_AH  = 2
       PROTO_ESP = 3
 
+      TYPE_IKE_SA_INIT     = 34
+      TYPE_IKE_AUTH        = 35
+      TYPE_CREATE_CHILD_SA = 36
+      TYPE_INFORMATIONAL   = 37
+
       # @!attribute init_spi
       #  64-bit initiator SPI
       #  @return [Integer]
@@ -92,7 +97,7 @@ module PacketGen
       #  8-bit IKE version
       #  @return [Integer]
       define_field :version, Types::Int8, default: 0x20
-      # @!attribute exchange_type
+      # @!attribute [r] exchange_type
       #  8-bit exchange type
       #  @return [Integer]
       define_field :exchange_type, Types::Int8
@@ -141,7 +146,36 @@ module PacketGen
       def initialize(options={})
         super
         calc_length unless options[:length]
+        self.type = options[:type] if options[:type]
+        self.type = options[:exchange_type] if options[:exchange_type]
       end
+
+        # Set exchange type
+        # @param [Integer,String] value
+        # @return [Integer]
+      def exchange_type=(value)
+        type = case value
+               when Integer
+                 value
+               else
+                 c = self.class.constants.grep(/TYPE_#{value}/).first
+                 c ? self.class.const_get(c) : nil
+               end
+        raise ArgumentError, "unknown exchange type #{value.inspect}" unless type
+        self[:exchange_type].value = type
+      end
+      alias type exchange_type
+      alias type= exchange_type=
+
+      # Get exchange type name
+      # @return [String
+      def human_exchange_type
+          name = self.class.constants.grep(/TYPE_/).
+                 select { |c| self.class.const_get(c) == type }.
+                 first || "type #{type}"
+          name.to_s.sub(/TYPE_/, '')
+      end
+      alias human_type human_exchange_type
 
       # Calculate length field
       # @return [Integer]
@@ -159,6 +193,31 @@ module PacketGen
           body = body.body
         end
         payloads
+      end
+
+      # @return [String]
+      def inspect
+        str = Inspect.dashed_line(self.class, 2)
+        to_h.each do |attr, value|
+          next if attr == :body
+          case attr
+          when :flags
+            str_flags = ''
+            %w(r v i).each do |flag|
+              str_flags << (send("flag_#{flag}?") ? flag.upcase : '.')
+            end
+            str << Inspect.shift_level(2)
+            str << Inspect::FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr,
+                                        str_flags]
+          when :exchange_type
+            str << Inspect.shift_level(2)
+            str << Inspect::FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr,
+                                        human_exchange_type]
+          else
+            str << Inspect.inspect_attribute(attr, value, 2)
+          end
+        end
+        str
       end
     end
 
