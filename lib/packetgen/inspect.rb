@@ -6,10 +6,10 @@ module PacketGen
   module Inspect
 
     # Maximum number of characters on a line for INSPECT
-    INSPECT_MAX_WIDTH = 70
+    MAX_WIDTH = 70
 
     # Format to inspect attribute
-    INSPECT_FMT_ATTR = "%10s %12s: %s\n"
+    FMT_ATTR = "%10s %12s: %s\n"
 
     # Create a dashed line with +obj+ class writing in it
     # @param [String] name
@@ -17,7 +17,7 @@ module PacketGen
     # @return [String]
     def self.dashed_line(name, level=1)
       str = '--' * level << " #{name} "
-      str << '-' * (INSPECT_MAX_WIDTH - str.length) << "\n"
+      str << '-' * (MAX_WIDTH - str.length) << "\n"
     end
 
     # @return [String]
@@ -51,7 +51,7 @@ module PacketGen
             else
               value.to_s.inspect
             end
-      str << INSPECT_FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
+      str << FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
     end
 
     # @param [#to_s] body
@@ -60,7 +60,7 @@ module PacketGen
       return '' if body.nil? or body.empty?
       str = dashed_line('Body', 2)
       str << (0..15).to_a.map { |v| " %02d" % v}.join << "\n"
-      str << '-' * INSPECT_MAX_WIDTH << "\n"
+      str << '-' * MAX_WIDTH << "\n"
       if body.size > 0
         (body.size / 16 + 1).times do |i|
           octets = body.to_s[i*16, 16].unpack('C*')
@@ -71,7 +71,7 @@ module PacketGen
           str << "\n"
         end
       end
-      str << '-' * INSPECT_MAX_WIDTH << "\n"
+      str << '-' * MAX_WIDTH << "\n"
     end
   end
 end
