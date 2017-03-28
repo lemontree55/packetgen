@@ -48,14 +48,14 @@ module PacketGen
     #  
     #  # encrypt ESP payload
     #  cipher = OpenSSL::Cipher.new('aes-128-gcm')
-    #  cipher.encrypt!
+    #  cipher.encrypt
     #  cipher.key = 16bytes_key
     #  iv = 8bytes_iv
     #  esp.esp.encrypt! cipher, iv, salt: 4bytes_gcm_salt
     #
     # === Decrypt a ESP packet using CBC mode and HMAC-SHA-256
     #  cipher = OpenSSL::Cipher.new('aes-128-cbc')
-    #  cipher.decrypt!
+    #  cipher.decrypt
     #  cipher.key = 16bytes_key
     #  
     #  hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
