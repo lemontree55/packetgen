@@ -56,7 +56,7 @@ module PacketGen
           base_read str
           unless self[:content].nil?
             content_length = length - self.class.new.sz
-            if content_length > 0
+            if content_length >= 0
               self[:body] = self[:content][content_length..-1]
               self[:content] = self[:content][0, content_length]
             end
