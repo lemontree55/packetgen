@@ -348,9 +348,9 @@ module PacketGen
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
-        @fields.each do |attr, value|
+        fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
+          str << Inspect.inspect_attribute(attr, self[attr], 2)
         end
         str
       end
