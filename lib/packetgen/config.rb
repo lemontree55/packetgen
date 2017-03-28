@@ -31,7 +31,12 @@ module PacketGen
       @iface = iface
 
       addresses = NetworkInterface.addresses(iface)
-      @hwaddr = addresses[Socket::AF_PACKET][0]['addr'] if addresses[Socket::AF_PACKET]
+      @hwaddr = case RbConfig::CONFIG['target_os']
+                when /darwin/
+                  addresses[Socket::AF_LINK][0]['addr'] if addresses[Socket::AF_LINK]
+                else
+                  addresses[Socket::AF_PACKET][0]['addr'] if addresses[Socket::AF_PACKET]
+                end
       @ipaddr = addresses[Socket::AF_INET][0]['addr'] if addresses[Socket::AF_INET]
       @ip6addr = addresses[Socket::AF_INET6][0]['addr'] if addresses[Socket::AF_INET6]
     end
