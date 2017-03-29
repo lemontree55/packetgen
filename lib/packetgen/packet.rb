@@ -202,10 +202,15 @@ module PacketGen
 
     # Encapulate another packet in +self+
     # @param [Packet] other
+    # @param [Boolean] parsing set to +true+ to not update last current header field
+    #    from binding with first other's one. Use only when current heade field as
+    #    its value set accordingly.
     # @return [self] +self+ with new headers from +other+
     # @since 1.1.0
-    def encapsulate(other)
-      other.headers.each { |h| add_header h }
+    def encapsulate(other, parsing: false)
+      other.headers.each_with_index do |h, i|
+        add_header h, parsing: (i > 0) || parsing
+      end
     end
 
     # Remove headers from +self+
@@ -313,6 +318,7 @@ module PacketGen
     # Add a header to packet
     # @param [Header::Base] header
     # @param [Header::Base] previous_header
+    # @param [Boolean] parsing
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
       protocol = header.protocol_name
