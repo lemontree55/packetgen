@@ -293,12 +293,6 @@ module PacketGen
 
       private
 
-      def encipher(data)
-        enciphered_data = @conf.update(data)
-        @intg.update(enciphered_data) if @intg
-        enciphered_data
-      end
-
       def get_auth_data(opt)
         ad = self[:spi].to_s
         if opt[:esn]

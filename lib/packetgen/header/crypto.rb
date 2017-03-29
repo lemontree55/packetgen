@@ -44,6 +44,12 @@ module PacketGen
         false
       end
 
+      def encipher(data)
+        enciphered_data = @conf.update(data)
+        @intg.update(enciphered_data) if @intg
+        enciphered_data
+      end
+
       def decipher(data)
         @intg.update(data) if @intg
         @conf.update(data)

@@ -81,6 +81,7 @@ require_relative 'sa'
 require_relative 'ke'
 require_relative 'nonce'
 require_relative 'notify'
+require_relative 'sk'
 
 module PacketGen
   module Header
@@ -89,26 +90,39 @@ module PacketGen
     IKE::KE.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
     IKE::Nonce.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
     IKE::Notify.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::SK.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
     IKE.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::SA.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::Nonce.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::Notify.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::SK.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::SA.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::KE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::Notify.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::SK.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::SA.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::KE.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::Nonce.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::Notify.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::SK.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Payload.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::SA.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::KE.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Nonce.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Nonce.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Notify.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
     # Last defined. To be used as default if no other may be parsed.
     IKE::SA.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::KE.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Nonce.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Notify.bind_header IKE::Payload, next: ->(v) { v > 0 }
+    IKE::SK.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Payload.bind_header IKE::Payload, next: ->(v) { v > 0 }
   end
