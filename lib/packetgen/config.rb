@@ -25,7 +25,7 @@ module PacketGen
     # @param [String,nil] iface
     def initialize(iface=nil)
       if iface.nil?
-        iface = NetworkInterface.interfaces.select { |iface| iface != 'lo' }.first
+        iface = NetworkInterface.interfaces.select { |iface| iface =~ /lo/ }.first
         iface = NetworkInterface.interfaces.first if iface.nil?
       end
       @iface = iface
