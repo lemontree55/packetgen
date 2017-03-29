@@ -63,6 +63,7 @@ module PacketGen
     #  pkt.esp.decrypt! cipher, intmode: hmac    # => true if ICV check OK
     # @author Sylvain Daubert
     class ESP < Base
+      include Crypto
 
       # IP protocol number for ESP
       IP_PROTOCOL = 50
@@ -292,41 +293,10 @@ module PacketGen
 
       private
 
-      def set_crypto(conf, intg)
-        @conf, @intg = conf, intg
-      end
-
-      def confidentiality_mode
-        mode = @conf.name.match(/-([^-]*)$/)[1]
-        raise CipherError, 'unknown cipher mode' if mode.nil?
-        mode.downcase
-      end
-
-      def authenticated?
-        @conf.authenticated? or !!@intg
-      end
-
-      def authenticate!
-        @conf.final
-        if @intg
-          @intg.update @esn.to_s if @esn
-          @intg.digest[0, @icv_length] == @icv
-        else
-          true
-        end
-      rescue OpenSSL::Cipher::CipherError
-        false
-      end
-
       def encipher(data)
         enciphered_data = @conf.update(data)
         @intg.update(enciphered_data) if @intg
         enciphered_data
-      end
-
-      def decipher(data)
-        @intg.update(data) if @intg
-        @conf.update(data)
       end
 
       def get_auth_data(opt)

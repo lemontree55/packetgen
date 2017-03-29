@@ -78,6 +78,7 @@ module PacketGen
   end
 end
 
+require_relative 'header/crypto'
 require_relative 'header/base'
 require_relative 'header/eth'
 require_relative 'header/dot11'
