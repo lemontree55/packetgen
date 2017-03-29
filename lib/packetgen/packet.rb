@@ -361,6 +361,8 @@ module PacketGen
       decode_packet_bottom_up = true
       while decode_packet_bottom_up do
         last_known_hdr = @headers.last
+        break unless last_known_hdr.respond_to? :body
+        break if last_known_hdr.body.empty?
         search_header(last_known_hdr) do |nh|
           str = last_known_hdr.body
           nheader = nh.new
