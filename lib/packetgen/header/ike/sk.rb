@@ -155,8 +155,7 @@ module PacketGen
             pading = padding[0, pad_length]
           end
           msg = self.body.to_s + padding + Types::Int8.new(pad_length).to_s
-          encrypted_msg = encipher(msg)
-          cipher.final
+          encrypted_msg = encipher(msg) + cipher.final
 
           if authenticated?
             if @conf.authenticated?

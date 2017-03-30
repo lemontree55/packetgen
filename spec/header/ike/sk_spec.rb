@@ -74,7 +74,7 @@ module PacketGen
             end
 
             it 'returns false on bad ICV' do
-              pkt.sk.content[-1] = PacketGen.force_binary("\x00")
+              pkt.sk.content[-1] = PacketGen.force_binary("\xff")
               pkt.sk.icv_length = 16
               expect(pkt.sk.decrypt! cipher, salt: sk_ei[32..35]).to be(false)
             end
