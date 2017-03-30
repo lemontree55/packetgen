@@ -5,6 +5,7 @@ module PacketGen
 
   # Config class to provide +config+ object to pgconsole
   # @author Sylvain Daubert
+  # @author Kent 'picat' Gruber 
   class Config
 
     # Default network interface
@@ -20,13 +21,17 @@ module PacketGen
     # @return [String] 
     attr_reader :ip6addr
 
-    # Create a configuration object. If +iface+ is not set, get first network interface.
-    # If non exists, use loopback one.
+    # Create a configuration object. If +iface+ is not set,
+    # attempt to find it automatically or default to the 
+    # first available loopback interface.
     # @param [String,nil] iface
     def initialize(iface=nil)
       if iface.nil?
-        iface = NetworkInterface.interfaces.select { |iface| iface =~ /lo/ }.first
-        iface = NetworkInterface.interfaces.first if iface.nil?
+        begin
+          iface = Pcap.lookupdev
+        rescue PCAPRUB::BindingError
+          iface = NetworkInterface.interfaces.select { |iface| iface =~ /lo/ }.first
+        end
       end
       @iface = iface
 
