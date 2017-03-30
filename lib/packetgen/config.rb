@@ -21,13 +21,17 @@ module PacketGen
     # @return [String] 
     attr_reader :ip6addr
 
-    # Create a configuration object. If +iface+ is not set then 
-    # it will be attempted to be found automatically. 
+    # Create a configuration object. If +iface+ is not set,
+    # attempt to find it automatically or default to the 
+    # first available loopback interface.
     # @param [String,nil] iface
     def initialize(iface=nil)
       if iface.nil?
-        iface = Pcap.lookupdev
-        iface = NetworkInterface.interfaces.first if iface.nil?
+        begin
+          iface = Pcap.lookupdev
+        rescue PCAPRUB::BindingError
+          iface = NetworkInterface.interfaces.select { |iface| iface =~ /lo/ }.first
+        end
       end
       @iface = iface
 
