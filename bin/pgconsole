@@ -1,5 +1,3 @@
-# Path setting slight of hand you can ignore if not running it for debugging, basically
-# $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
