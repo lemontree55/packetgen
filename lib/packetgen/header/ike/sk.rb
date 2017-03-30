@@ -158,6 +158,7 @@ module PacketGen
           encrypted_msg = encipher(msg) + cipher.final
 
           if authenticated?
+            @icv_length = opt[:icv_length] if opt[:icv_length]
             if @conf.authenticated?
               encrypted_msg << @conf.auth_tag[0, @icv_length]
             else
