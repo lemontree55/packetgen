@@ -59,7 +59,7 @@ module PacketGen
                  c = self.class.constants.grep(/TYPE_#{value}/).first
                  c ? self.class.const_get(c) : nil
                end
-          raise ArgumentError, "unknown message type #{value.inspect}" unless type
+          raise ArgumentError, "unknown ID type #{value.inspect}" unless type
           self[:u32].value = (self[:u32].to_i & 0xffffff) | (type << 24)
         end
 
