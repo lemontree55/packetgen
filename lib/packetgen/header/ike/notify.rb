@@ -6,7 +6,7 @@ module PacketGen
       # This class handles Notify payloads, as defined in RFC 7296 §3.10.
       #
       # A Notify payload contains a generic payload header (see {Payload}) and
-      # datasom specific fields:
+      # some specific fields:
       #                        1                   2                   3
       #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
