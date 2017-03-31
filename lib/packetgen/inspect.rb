@@ -44,7 +44,7 @@ module PacketGen
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
       str = shift_level(level)
-      val = if value.is_a? Types::Int
+      val = if value.is_a?(Types::Int) or value.is_a?(Integer)
               int_dec_hex(value, value.to_s.size * 2)
             elsif value.respond_to? :to_human
               value.to_human
