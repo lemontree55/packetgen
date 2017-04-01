@@ -6,6 +6,9 @@ module PacketGen
     # @author Sylvain Daubert
     module Crypto
 
+      # Cryptographic error
+      class Error < PacketGen::Error; end
+
       # Register cryptographic modes
       # @param [OpenSSL::Cipher] conf
       # @param [OpenSSL::HMAC] intg
@@ -22,7 +25,7 @@ module PacketGen
       # @return [String]
       def confidentiality_mode
         mode = @conf.name.match(/-([^-]*)$/)[1]
-        raise CipherError, 'unknown cipher mode' if mode.nil?
+        raise Error, 'unknown cipher mode' if mode.nil?
         mode.downcase
       end
 

@@ -1,9 +1,6 @@
 module PacketGen
   module Header
 
-    # Error about enciphering/deciphering was encountered
-    class CipherError < Error;end
-
     # A ESP header consists of:
     # * a Security Parameters Index (#{spi}, {Types::Int32} type),
     # * a Sequence Number ({#sn}, +Int32+ type),
