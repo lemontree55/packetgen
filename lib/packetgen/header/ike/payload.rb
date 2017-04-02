@@ -85,6 +85,7 @@ require_relative 'sk'
 require_relative 'id'
 require_relative 'cert'
 require_relative 'certreq'
+require_relative 'auth'
 
 module PacketGen
   module Header
@@ -98,6 +99,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
 
     IKE.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
@@ -109,6 +111,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
 
     IKE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
@@ -120,6 +123,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
 
     IKE.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
@@ -132,6 +136,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
 
     IKE.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
@@ -143,6 +148,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
 
     IKE.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
@@ -154,6 +160,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
 
     IKE.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
@@ -164,6 +171,7 @@ module PacketGen
     IKE::SK.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
     IKE::IDi.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
 
     IKE.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
@@ -175,6 +183,7 @@ module PacketGen
     IKE::IDi.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
     IKE::IDr.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
     IKE::CertReq.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
 
     IKE.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
     IKE::Payload.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
@@ -186,6 +195,19 @@ module PacketGen
     IKE::IDi.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
     IKE::IDr.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::Auth.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+
+    IKE.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Payload.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::SA.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::KE.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Nonce.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Notify.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::SK.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::IDi.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::IDr.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Cert.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::CertReq.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
 
     # Last defined. To be used as default if no other may be parsed.
     IKE::SA.bind_header IKE::Payload, next: ->(v) { v > 0 }
@@ -197,6 +219,7 @@ module PacketGen
     IKE::IDr.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Cert.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::CertReq.bind_header IKE::Payload, next: ->(v) { v > 0 }
+    IKE::Auth.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE.bind_header IKE::Payload, next: ->(v) { v > 0 }
     IKE::Payload.bind_header IKE::Payload, next: ->(v) { v > 0 }
   end
