@@ -86,11 +86,10 @@ module PacketGen
             end
 
             text = cert.to_text
-            p text
             m = text.match(/Public Key Algorithm: ([a-zA-Z0-9-]+)/)
             digest = case m[1]
                      when 'id-ecPublicKey'
-                       m2 = text.match(/NIST CURVE: P-(\d+)/)
+                       m2 = text.match(/Public-Key: \((\d+) bit\)/)
                        case m2[1]
                        when '256'
                          OpenSSL::Digest::SHA256.new
