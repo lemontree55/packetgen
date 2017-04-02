@@ -172,6 +172,13 @@ module PacketGen
         end
       end
 
+      # Give protocol name for this class
+      # @return [String]
+      # @since 2.0.0
+      def self.protocol_name
+        self.new.protocol_name
+      end
+
       # @api private
       # Get knwon headers
       # @return [Hash] keys: header classes, values: hashes
@@ -194,6 +201,7 @@ module PacketGen
 
       # return header method name
       # @return [String]
+      # @since 2.0.0
       def method_name
         return @method_name if @method_name
 
