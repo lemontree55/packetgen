@@ -182,7 +182,23 @@ module PacketGen
       # Return header protocol name
       # @return [String]
       def protocol_name
-        self.class.to_s.sub(/.*::/, '')
+        return @protocol_name if @protocol_name
+
+        classname = self.class.to_s
+        name = if classname.start_with?('PacketGen::Header')
+                 classname.sub(/.*Header::/, '')
+               else
+                 classname.sub(/.*::/, '')
+               end
+        @protocol_name = name.sub(/::/, ':')
+      end
+
+      # return header method name
+      # @return [String]
+      def method_name
+        return @method_name if @method_name
+
+        @method_name = protocol_name.downcase.sub(/:/, '_')
       end
 
       # @abstract Should be redefined by subclasses. This method should check invariant
