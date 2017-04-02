@@ -5,7 +5,7 @@ module PacketGen
 
     let(:iface) { Pcap.lookupdev }
 
-    describe '#initialize' do
+    describe '#initialize', :deprecated do
       it 'accepts old API with iface name as first argument' do
         cap = nil
         expect { cap = Capture.new('lo') }.to_not raise_error

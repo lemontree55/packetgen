@@ -133,6 +133,11 @@ module PacketGen
     # * a {#ht_ctrl} ({Types::Int32}),
     # * a {#body} (a {Types::String} or another {Base} class),
     # * a Frame check sequence ({#fcs}, of type {Types::Int32le})
+    #
+    # == header accessors
+    # As Dot11 header types are defined under Dot11 namespace, Dot11 header accessors
+    # have a specific name. By example, to access to a {Dot11::Beacon} header,
+    # accessor is +#dot11_beacon+.
     # @author Sylvain Daubert
     class Dot11 < Base
 
