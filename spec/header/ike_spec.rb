@@ -165,11 +165,11 @@ module PacketGen
           prop2.transforms << { type: 'INTG', id: 'AES_XCBC_96' }
           prop2.transforms << { type: 'PRF', id: 'HMAC_SHA2_256' }
           prop1.transforms << { type: 'DH', id: 'MODP768' }
-          ike.add('SA')
+          ike.add('IKE::SA')
           ike.ike_sa.proposals << prop1
           ike.ike_sa.proposals << prop2
-          ike.add('KE', group: 'ECP256', content: PacketGen.force_binary("\0" * 64))
-          ike.add('Nonce', content: PacketGen.force_binary("\0" * 16))
+          ike.add('IKE::KE', group: 'ECP256', content: PacketGen.force_binary("\0" * 64))
+          ike.add('IKE::Nonce', content: PacketGen.force_binary("\0" * 16))
           ike.calc_length
           ike.calc_checksum
           expected = File.read(File.join(__dir__, 'ike_sa_init.bin'))
