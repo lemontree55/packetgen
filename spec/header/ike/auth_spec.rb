@@ -92,50 +92,47 @@ module PacketGen
                      'E6052AAE13FF634950E19C1A35F61F39'].pack('H*')
             pkts = PacketGen.read(File.join(__dir__, '..', 'ikev2.pcapng'))
             @init_pkt = pkts[0]
-            @nonce_r = pkts[1].nonce.content
-            @prf = pkts[1].sa.proposals.first.transforms.
+            @nonce_r = pkts[1].ike_nonce.content
+            @prf = pkts[1].ike_sa.proposals.first.transforms.
                    find { |t| t.type == Transform::TYPE_PRF }.id
             @auth_pkt = pkts[2]
             sk_ei = ['B37E73D129FFE681D2E3AA3728C2401E' \
                      'D50160E39FD55EF1A1EAE0D3F4AA6126D8B8A626'].pack('H*')
             cipher = get_cipher('gcm', :decrypt, sk_ei[0..31])
-            @auth_pkt.sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16
+            @auth_pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16
           end
 
           describe '#check?' do
             it 'returns true when authentication is verified' do
-              p @auth_pkt
-              p @auth_pkt.headers.map(&:class)
-              p @auth_pkt.auth
-              p @auth_pkt.headers[10]
-              result = @auth_pkt.auth.check?(init_msg: @init_pkt, nonce: @nonce_r,
-                                             sk_p: @sk_pi, prf: @prf)
+              result = @auth_pkt.ike_auth.check?(init_msg: @init_pkt, nonce: @nonce_r,
+                                                 sk_p: @sk_pi, prf: @prf)
               expect(result).to be(true)
             end
 
             it 'returns false when authentication failed (bad nonceR)' do
-              result = @auth_pkt.auth.check?(init_msg: @init_pkt,
-                                             nonce: "\x00" * 8, sk_p: @sk_pi, prf: @prf)
+              result = @auth_pkt.ike_auth.check?(init_msg: @init_pkt,
+                                                 nonce: "\x00" * 8, sk_p: @sk_pi,
+                                                 prf: @prf)
               expect(result).to be(false)
             end
 
             it 'returns false when authentication failed (truncated init message)' do
-              @init_pkt.notify(1).message_type = 43
-              result = @auth_pkt.auth.check?(init_msg: @init_pkt, nonce: @nonce_r,
-                                             sk_p: @sk_pi, prf: @prf)
+              @init_pkt.ike_notify(1).message_type = 43
+              result = @auth_pkt.ike_auth.check?(init_msg: @init_pkt, nonce: @nonce_r,
+                                                 sk_p: @sk_pi, prf: @prf)
               expect(result).to be(false)
             end
 
             it 'returns false when authentication failed (bad IDi)' do
-              @auth_pkt.idi.type = 'IPV4_ADDR'
-              @auth_pkt.idi.content = @auth_pkt.ip[:src].to_s
-              result = @auth_pkt.auth.check?(init_msg: @init_pkt, nonce: @nonce_r,
-                                             sk_p: @sk_pi, prf: @prf)
+              @auth_pkt.ike_idi.type = 'IPV4_ADDR'
+              @auth_pkt.ike_idi.content = @auth_pkt.ip[:src].to_s
+              result = @auth_pkt.ike_auth.check?(init_msg: @init_pkt, nonce: @nonce_r,
+                                                 sk_p: @sk_pi, prf: @prf)
               expect(result).to be(false)
             end
 
             it 'raises unless init_msg is a Packet' do
-              expect { @auth_pkt.auth.check?(init_msg: @init_pkt.ike.to_s) }.
+              expect { @auth_pkt.ike_auth.check?(init_msg: @init_pkt.ike.to_s) }.
                 to raise_error(TypeError)
             end
           end

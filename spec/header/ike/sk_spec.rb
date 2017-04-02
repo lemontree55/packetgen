@@ -69,25 +69,26 @@ module PacketGen
 
           describe '#decrypt!' do
             it 'decrypts a GCM-encrypted SK payload' do
-              expect(pkt.sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16).to be(true)
+              expect(pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35],
+                                         icv_length: 16).to be(true)
               expect(pkt.ike.payloads.size).to eq(12)
             end
 
             it 'returns false on bad ICV' do
-              pkt.sk.content[-1] = PacketGen.force_binary("\xff")
-              pkt.sk.icv_length = 16
-              expect(pkt.sk.decrypt! cipher, salt: sk_ei[32..35]).to be(false)
+              pkt.ike_sk.content[-1] = PacketGen.force_binary("\xff")
+              pkt.ike_sk.icv_length = 16
+              expect(pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35]).to be(false)
             end
           end
 
           describe '#encrypt!' do
             it 'encrypts a SK payload with GCM mode' do
               cipher = get_cipher('gcm', :decrypt, sk_ei[0..31])
-              pkt.sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16
+              pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16
 
               cipher = get_cipher('gcm', :encrypt, sk_ei[0..31])
               iv = ['61c37f461d9fce57'].pack('H*')
-              pkt.sk.encrypt! cipher, iv, salt: sk_ei[32..35]
+              pkt.ike_sk.encrypt! cipher, iv, salt: sk_ei[32..35]
               expect(pkt.to_s).to eq(PacketGen.read(File.join(__dir__, '..',
                                                               'ikev2.pcapng'))[2].to_s)
             end

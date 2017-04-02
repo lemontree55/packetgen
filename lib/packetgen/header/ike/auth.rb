@@ -69,7 +69,7 @@ module PacketGen
           raise TypeError, 'init_msg should be a Packet' unless init_msg.is_a?(Packet)
           signed_octets = init_msg.ike.to_s
           signed_octets << nonce
-          id = packet.ike.flag_i? ? packet.idi : packet.idr
+          id = packet.ike.flag_i? ? packet.ike_idi : packet.ike_idr
           signed_octets << prf(prf, sk_p, id.to_s[4, id.length - 4])
 
           case method
@@ -77,10 +77,10 @@ module PacketGen
             auth  = prf(prf(shared_secret, 'Key Pad for IKEv2'), signed_octets)
             auth == content
           when METHOD_RSA_SIGNATURE, METHOD_ECDSA256, METHOD_ECDSA384, METHOD_ECDSA512
-            if packet.cert
+            if packet.ike_cert
               # FIXME: Expect a ENCODING_X509_CERT_SIG
               #        Others types not supported for now...
-              cert = OpenSSL::X509::Certificate.new(packet.cert.content)
+              cert = OpenSSL::X509::Certificate.new(packet.ike_cert.content)
             elsif cert.nil?
               raise CryptoError, 'a certificate should be provided'
             end

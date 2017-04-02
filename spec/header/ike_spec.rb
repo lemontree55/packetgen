@@ -134,9 +134,13 @@ module PacketGen
           ike0 = packets[0].ike
           expect(ike0.payloads).to be_a(Array)
           expect(ike0.payloads.size).to eq(5)
+          expect(packets[0].is?('IKE::SA')).to be(true)
           expect(ike0.payloads[0]).to be_a(IKE::SA)
+          expect(packets[0].is?('IKE::KE')).to be(true)
           expect(ike0.payloads[1]).to be_a(IKE::KE)
+          expect(packets[0].is?('IKE::Nonce')).to be(true)
           expect(ike0.payloads[2]).to be_a(IKE::Nonce)
+          expect(packets[0].is?('IKE::Notify')).to be(true)
           expect(ike0.payloads[3]).to be_a(IKE::Notify)
           expect(ike0.payloads[3].type).to eq(IKE::Notify::TYPE_NAT_DETECTION_SOURCE_IP)
           expect(ike0.payloads[4]).to be_a(IKE::Notify)
@@ -162,8 +166,8 @@ module PacketGen
           prop2.transforms << { type: 'PRF', id: 'HMAC_SHA2_256' }
           prop1.transforms << { type: 'DH', id: 'MODP768' }
           ike.add('SA')
-          ike.sa.proposals << prop1
-          ike.sa.proposals << prop2
+          ike.ike_sa.proposals << prop1
+          ike.ike_sa.proposals << prop2
           ike.add('KE', group: 'ECP256', content: PacketGen.force_binary("\0" * 64))
           ike.add('Nonce', content: PacketGen.force_binary("\0" * 16))
           ike.calc_length
