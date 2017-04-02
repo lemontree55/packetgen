@@ -80,7 +80,6 @@ module PacketGen
           expect(pkts[3].dot11_proberesp.elements[2].value).to eq("\x0b")
           expect(pkts[4].dot11.human_type).to eq('Control')
           expect(pkts[4].dot11.human_subtype).to eq('Ack')
-          expect(pkts[5].is? 'Beacon').to be(true)
           expect(pkts[5].is? 'Dot11::Beacon').to be(true)
           expect(pkts[6].is? 'Dot11::Auth').to be(true)
           expect(pkts[6].dot11_auth.algo).to eq(0)
@@ -197,6 +196,15 @@ module PacketGen
           (dot11.to_h.keys - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
+        end
+      end
+
+      describe 'building a Dot11 packet' do
+        it 'builds a Dot11::Beacon packet' do
+          expect { PacketGen.gen('Beacon') }.to raise_error(ArgumentError, /^unknown/)
+          pkt = nil
+          expect { pkt = PacketGen.gen('Dot11::Beacon') }.to_not raise_error
+          expect(pkt.headers.first).to be_a(Dot11::Beacon)
         end
       end
     end

@@ -48,7 +48,7 @@ module PacketGen
     # @return [void]
     # @since 1.1.0
     def self.add_class(klass)
-      protocol_name = klass.to_s.sub(/.*::/, '')
+      protocol_name = klass.new.protocol_name
       @added_header_classes[protocol_name] = klass
       @header_classes = nil
     end
@@ -59,7 +59,7 @@ module PacketGen
     # @return [void]
     # @since 1.1.0
     def self.remove_class(klass)
-      protocol_name = klass.to_s.sub(/.*::/, '')
+      protocol_name = klass.new.protocol_name
       @added_header_classes.delete protocol_name
       @header_classes = nil
     end
