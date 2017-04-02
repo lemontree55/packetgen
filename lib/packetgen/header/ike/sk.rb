@@ -233,9 +233,8 @@ module PacketGen
               cst = IKE.const_get(c)
               cst.is_a?(Class) && (cst < Payload) && (cst::PAYLOAD_TYPE == self.next)
             end
-            klass = klass.first
-            klass ||= Payload
-            firsth = klass.to_s.sub(/^PacketGen::Header::IKE::/, '')
+            klass = klass.nil? ? Payload : IKE.const_get(klass.first)
+            firsth = klass.protocol_name
             pkt = Packet.parse(payloads, first_header: firsth)
             packet.encapsulate(pkt, parsing: true) unless pkt.nil?
           end
