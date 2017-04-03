@@ -171,6 +171,7 @@ module PacketGen
     IKE::SK.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
     IKE::IDi.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
     IKE::Cert.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::CertReq.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
     IKE::Auth.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
 
     IKE.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
