@@ -187,6 +187,7 @@ module PacketGen
         def authenticate_if_needed(options, iv, icv=nil)
           if @conf.authenticated?
             @conf.auth_tag = icv if icv
+            puts "get_ad: #{get_ad.unpack('H*').first}"
             @conf.auth_data = get_ad
           elsif @int
             @intg.reset
