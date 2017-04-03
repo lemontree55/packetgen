@@ -105,9 +105,11 @@ module PacketGen
           end
           cipher.iv = real_iv
 
-          if authenticated? and (@icv_length == 0 or opt[:icv_length])
-            raise ParseError, 'unknown ICV size' unless opt[:icv_length]
-            @icv_length = opt[:icv_length].to_i
+          if authenticated?
+            if @icv_length == 0
+              @icv_length = opt[:icv_length].to_i if opt[:icv_length]
+              raise ParseError, 'unknown ICV size' if @icv_length == 0
+            end
             icv = self.content.slice!(-@icv_length, @icv_length)
           end
 
@@ -187,7 +189,6 @@ module PacketGen
         def authenticate_if_needed(options, iv, icv=nil)
           if @conf.authenticated?
             @conf.auth_tag = icv if icv
-            puts "get_ad: #{get_ad.unpack('H*').first}"
             @conf.auth_data = get_ad
           elsif @int
             @intg.reset

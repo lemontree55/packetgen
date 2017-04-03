@@ -79,6 +79,12 @@ module PacketGen
               pkt.ike_sk.icv_length = 16
               expect(pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35]).to be(false)
             end
+
+            it 'raises on authenticated cipher without icv_length being set' do
+              salt = "\x00" * 4
+              expect { pkt.ike_sk.decrypt! cipher, salt: salt }.
+                to raise_error(ParseError, 'unknown ICV size')
+            end
           end
 
           describe '#encrypt!' do
