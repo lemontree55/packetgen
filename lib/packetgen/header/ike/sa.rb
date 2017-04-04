@@ -531,13 +531,13 @@ module PacketGen
       #   # Create a IKE packet with a SA payload
       #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('SA')
       #   # add a proposal. Protocol name is taken from SAProposal::PROTO_* constants
-      #   pkt.sa.proposals << { num: 1, protocol: 'ESP' }
+      #   pkt.ike_sa.proposals << { num: 1, protocol: 'ESP' }
       #   # add a transform to this proposal.
       #   # type name is taken from Transform::TYPE_* constants.
       #   # ID is taken from Transform::<TYPE>_* constants.
-      #   pkt.sa.proposals.first.transforms << { type: 'ENCR', id: 'AES_CTR' }
+      #   pkt.ike_sa.proposals.first.transforms << { type: 'ENCR', id: 'AES_CTR' }
       #   # and finally, add an attribute to this transform (here, KEY_SIZE = 128 bits)
-      #   pkt.sa.proposals[0].transforms[0].attributes << { type: 0x800e, value: 128 }
+      #   pkt.ike_sa.proposals[0].transforms[0].attributes << { type: 0x800e, value: 128 }
       # @author Sylvain Daubert
       class SA < Payload
 
@@ -546,7 +546,7 @@ module PacketGen
 
         delete_field :content
         # @!attribute proposals
-        #  8-bit set of SA proposals
+        #  Set of SA proposals
         #  @return [SAProposals]
         define_field_before :body, :proposals, SAProposals
 
