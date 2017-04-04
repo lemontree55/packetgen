@@ -239,6 +239,8 @@ module PacketGen
             firsth = klass.protocol_name
             pkt = Packet.parse(payloads, first_header: firsth)
             packet.encapsulate(pkt, parsing: true) unless pkt.nil?
+          else
+            self[:body].read payloads
           end
 
           true
