@@ -21,6 +21,13 @@ module PacketGen
       # These specific fields are:
       # * {#encoding},
       # * and {#content} (Certificate Data).
+      #
+      # == Create a Cert payload
+      #   # Create a IKE packet with a Cert payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::Cert', encoding: 'X509_CERT_SIG')
+      #   certs = cert.to_der << ca_cert.to_der
+      #   pkt.ike_cert.content.read certs
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class Cert < Payload
 

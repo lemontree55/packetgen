@@ -20,7 +20,8 @@ module PacketGen
       # == Create a Nonce payload
       #   # Create a IKE packet with a Nonce payload
       #   pkt = PacketGen.gen('IP').add('UDP').add('IKE')
-      #   pkt.add('Nonce', data: "abcdefgh")
+      #   pkt.add('IKE::Nonce', data: "abcdefgh")
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class Nonce < Payload
 

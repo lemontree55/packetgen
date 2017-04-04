@@ -30,29 +30,30 @@ module PacketGen
       #
       # == Read and decrypt a SK payload
       #   # Read a IKE packet
-      #   ike = PacketGen.read(str)
+      #   pkt = PacketGen.read(str)
       #   # decrypt SK payload
       #   cipher = OpenSSL::Cipher.new('aes-128-ctr')
       #   cipher.decrypt
       #   cipher_key = aes_key
       #   hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
-      #   ike.sk.decrypt! cipher, intmode: hmac, icv_length: 16   # => true if authentication is verified
-      #   ike.sk.body       # => kind of PacketGen::Header::IKE::Payload
+      #   pkt.ike_sk.decrypt! cipher, intmode: hmac, icv_length: 16   # => true if authentication is verified
+      #   pkt.ike_sk.body       # => kind of PacketGen::Header::IKE::Payload
       #
       # == Set and encrypt a SK payload
       #   # Create a IKE packet
-      #   ike = PacketGen.gen('IP').add('IP').add('UDP').add('IKE', init_spi: 0x123456789, resp_spi: 0x987654321, type: 'IKE_AUTH', message_id: 1)
+      #   pkt = PacketGen.gen('IP').add('IP').add('UDP').add('IKE', init_spi: 0x123456789, resp_spi: 0x987654321, type: 'IKE_AUTH', message_id: 1)
       #   # Add SK payload
-      #   ike.add('SK', icv_length: 16)
+      #   pkt.add('IKE::SK', icv_length: 16)
       #   # Add others unencrypted payloads
-      #   ike.add('ID').add('AUTH').add('SA').add('TS').add('TS')
+      #   pkt.add('IKE::IDi').add('IKE::Auth').add('IKE::SA').add('IKE::TSi').add('IKE::TSr')
       #   # encrypt SK payload
       #   cipher = OpenSSL::Cipher.new('aes-128-ctr')
       #   cipher.encrypt
       #   cipher_key = aes_key
       #   hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
-      #   ike.sk.encrypt! cipher, iv, intmode: hmac
-      #   ike.sk.body       # => String
+      #   pkt.ike_sk.encrypt! cipher, iv, salt: salt, intmode: hmac
+      #   pkt.ike_sk.body       # => String
+      #   pkt.calc_length
       #
       # @author Sylvain Daubert
       class SK < Payload

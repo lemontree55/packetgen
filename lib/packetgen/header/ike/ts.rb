@@ -202,13 +202,14 @@ module PacketGen
       # * {#num_ts},
       # * {#reserved},
       # * and {#traffic_selectors}.
+      #
       # == Create a TSi payload
       #  # Create a IKE packet with a TSi payload
-      #  pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('TSi')
+      #  pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::TSi')
       #  # add a traffic selector to this payload
-      #  pkt.ike_tsi.traffic_selectors << { protocol: 'tcp', ports: 1..1024, start: '20.0.0.1', end: '21.255.255.254' }
+      #  pkt.ike_tsi.traffic_selectors << { protocol: 'tcp', ports: 1..1024, start_addr: '20.0.0.1', end_addr: '21.255.255.254' }
       #  # add another traffic selector (IPv6, all protocols)
-      #  pkt.ike_tsi.traffic_selectors << { start: '2001::1', end: '200a::ffff:ffff:ffff:ffff:ffff:ffff:ffff' }
+      #  pkt.ike_tsi.traffic_selectors << { start_addr: '2001::1', end_addr: '200a:ffff:ffff:ffff:ffff:ffff:ffff:ffff' }
       # @author Sylvain Daubert
       class TSi < Payload
 

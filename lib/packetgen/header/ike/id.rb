@@ -3,7 +3,8 @@ module PacketGen
   module Header
     class IKE
 
-      # This class handles Identification - Initiator payloads, denoted IDi.
+      # This class handles Identification - Initiator payloads, denoted IDi
+      # (see RFC 7296, §3.5).
       #
       # A ID payload consists of the IKE generic payload header (see {Payload})
       # and some specific fields:
@@ -22,6 +23,12 @@ module PacketGen
       # * {#type} (ID type),
       # * {#reserved},
       # * and {#content} (Identification Data).
+      #
+      # == Create a IDi payload
+      #   # Create a IKE packet with a IDi payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::IDi', type: 'FQDN')
+      #   pkt.ike_idi.content.read 'fqdn.example.org'
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class IDi < Payload
 
@@ -106,6 +113,11 @@ module PacketGen
 
       # This class handles Identification - Responder payloads, denoted IDr.
       # See {IDi}.
+      #
+      # == Create a IDr payload
+      #   # Create a IKE packet with a IDr payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::IDr', type: 'FQDN')
+      #   pkt.ike_idr.content.read 'fqdn.example.org'
       # @author Sylvain Daubert
       class IDr < IDi
         # Payload type number

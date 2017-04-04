@@ -21,6 +21,12 @@ module PacketGen
       # These specific fields are:
       # * {#encoding},
       # * and {#content} (Certification Authority).
+      #
+      # == Create a CertReq payload
+      #   # Create a IKE packet with a CertReq payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::CertReq', encoding: 'X509_CERT_SIG')
+      #   pkt.ike_certreq.content.read OpenSSL::Digest::SHA1.digest(ca_cert.to_der)
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class CertReq < Cert
 

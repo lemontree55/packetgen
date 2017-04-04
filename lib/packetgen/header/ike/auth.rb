@@ -22,6 +22,11 @@ module PacketGen
       # * {#type} (ID type),
       # * {#reserved},
       # * and {#content} (Identification Data).
+      #
+      # == Create a KE payload
+      #   # create a IKE packet with a Auth payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::Auth', method: 'SHARED_KEY')
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class Auth < Payload
 

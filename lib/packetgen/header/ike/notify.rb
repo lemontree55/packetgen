@@ -27,7 +27,19 @@ module PacketGen
       # * {#spi_size} (type {Types::Int8}),
       # * {#message_type} (type {Types::Int16}),
       # * {#spi} (type {Types::String}),
-      # * {#data} (type {Types::String}).
+      # * {#content} (type {Types::String}).
+      #
+      # == Create a Notify payload
+      #   # Create a IKE packet with a Notify payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::Notify', protocol: 'IKE', type: 'INVALID_SYNTAX')
+      #   pkt.ike_notify.spi      # => ""
+      #   pkt.ike_notify.content  # => ""
+      #   pkt.calc_length
+      # == Create a Notify payload with a SPI
+      #   # Create a IKE packet with a Notify payload
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::Notify', protocol: 'ESP', spi_size: 4, type: 'INVALID_SYNTAX')
+      #   pkt.ike_notify.spi.read PacketGen::Types::Int32.new(0x12345678).to_s
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class Notify < Payload
 

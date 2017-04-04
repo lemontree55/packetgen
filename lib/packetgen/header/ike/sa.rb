@@ -529,7 +529,7 @@ module PacketGen
       #
       # == Create a SA payload
       #   # Create a IKE packet with a SA payload
-      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('SA')
+      #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::SA')
       #   # add a proposal. Protocol name is taken from SAProposal::PROTO_* constants
       #   pkt.ike_sa.proposals << { num: 1, protocol: 'ESP' }
       #   # add a transform to this proposal.
@@ -538,6 +538,7 @@ module PacketGen
       #   pkt.ike_sa.proposals.first.transforms << { type: 'ENCR', id: 'AES_CTR' }
       #   # and finally, add an attribute to this transform (here, KEY_SIZE = 128 bits)
       #   pkt.ike_sa.proposals[0].transforms[0].attributes << { type: 0x800e, value: 128 }
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class SA < Payload
 

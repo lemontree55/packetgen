@@ -27,9 +27,10 @@ module PacketGen
       #   # Create a IKE packet with a KE payload
       #   pkt = PacketGen.gen('IP').add('UDP').add('IKE')
       #   # group name is taken from Transform::DH_* constants
-      #   pkt.add('KE', group: 'MODP4096')
+      #   pkt.add('IKE::KE', group: 'MODP4096')
       #   # group number may also be used
-      #   pkt.ke.group = 1
+      #   pkt.ike_ke.group = 1
+      #   pkt.calc_length
       # @author Sylvain Daubert
       class KE < Payload
 
