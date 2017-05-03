@@ -68,6 +68,9 @@ module PacketGen
           let (:cipher) { get_cipher('gcm', :decrypt, sk_ei[0..31]) }
 
           describe '#decrypt!' do
+            it 'decrypts a CBC-encrypted SK payload'
+            it 'decrypts a CTR-encrypted HMAC-SHA256-authenticated SK payload'
+
             it 'decrypts a GCM-encrypted SK payload' do
               expect(pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35],
                                          icv_length: 16).to be(true)
@@ -88,6 +91,9 @@ module PacketGen
           end
 
           describe '#encrypt!' do
+            it 'encrypts a SK payload with CBC mode'
+            it 'encrypts and authenticates a SK payload with CTR and HMAC-SHA256'
+
             it 'encrypts a SK payload with GCM mode' do
               cipher = get_cipher('gcm', :decrypt, sk_ei[0..31])
               pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16
