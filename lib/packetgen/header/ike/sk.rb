@@ -155,10 +155,11 @@ module PacketGen
             pad_length -= (self.body.sz + iv.size + 1) % cipher.block_size
             pad_length = 0 if pad_length == 16
             padding = force_binary(opt[:padding] || ([0] * pad_length).pack('C*'))
-            pading = padding[0, pad_length]
+            padding = padding[0, pad_length]
           end
           msg = self.body.to_s + padding + Types::Int8.new(pad_length).to_s
-          encrypted_msg = encipher(msg) + cipher.final
+          encrypted_msg = encipher(msg)
+          cipher.final # message is already padded. No need for mode padding
 
           if authenticated?
             @icv_length = opt[:icv_length] if opt[:icv_length]
@@ -191,7 +192,7 @@ module PacketGen
           if @conf.authenticated?
             @conf.auth_tag = icv if icv
             @conf.auth_data = get_ad
-          elsif @int
+          elsif @intg
             @intg.reset
             @intg.update get_ad
             @intg.update iv
