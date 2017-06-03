@@ -2,9 +2,9 @@ language: ruby
 sudo: required
 rvm:
   - 2.1
-  - 2.2
-  - 2.3.3
-  - 2.4.0
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
 
 install:
   - sudo apt-get update -qq
