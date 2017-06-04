@@ -67,39 +67,38 @@ module PacketGen
           Dot11.has_fcs = true
           expect(pkts.map { |pkt| pkt.headers.last.class }).to eq(classes)
 
-          expect(pkts[0].beacon.timestamp).to eq(0x26bbb9189)
-          expect(pkts[0].beacon.elements.first.human_type).to eq('SSID')
-          expect(pkts[0].beacon.elements.first.value).to eq('martinet3')
-          expect(pkts[1].probereq.elements[1].human_type).to eq('Rates')
-          expect(pkts[1].probereq.elements[1].value).
+          expect(pkts[0].dot11_beacon.timestamp).to eq(0x26bbb9189)
+          expect(pkts[0].dot11_beacon.elements.first.human_type).to eq('SSID')
+          expect(pkts[0].dot11_beacon.elements.first.value).to eq('martinet3')
+          expect(pkts[1].dot11_probereq.elements[1].human_type).to eq('Rates')
+          expect(pkts[1].dot11_probereq.elements[1].value).
             to eq(PacketGen.force_binary "\x82\x84\x8b\x96\x0c\x12\x18\x24")
-          expect(pkts[3].proberesp.timestamp).to eq(0x26bbcad38)
-          expect(pkts[3].proberesp.beacon_interval).to eq(0x64)
-          expect(pkts[3].proberesp.cap).to eq(0x0411)
-          expect(pkts[3].proberesp.elements[2].human_type).to eq('DSset')
-          expect(pkts[3].proberesp.elements[2].value).to eq("\x0b")
+          expect(pkts[3].dot11_proberesp.timestamp).to eq(0x26bbcad38)
+          expect(pkts[3].dot11_proberesp.beacon_interval).to eq(0x64)
+          expect(pkts[3].dot11_proberesp.cap).to eq(0x0411)
+          expect(pkts[3].dot11_proberesp.elements[2].human_type).to eq('DSset')
+          expect(pkts[3].dot11_proberesp.elements[2].value).to eq("\x0b")
           expect(pkts[4].dot11.human_type).to eq('Control')
           expect(pkts[4].dot11.human_subtype).to eq('Ack')
-          expect(pkts[5].is? 'Beacon').to be(true)
           expect(pkts[5].is? 'Dot11::Beacon').to be(true)
           expect(pkts[6].is? 'Dot11::Auth').to be(true)
-          expect(pkts[6].auth.algo).to eq(0)
-          expect(pkts[6].auth.seqnum).to eq(1)
-          expect(pkts[6].auth.status).to eq(0)
-          expect(pkts[6].auth.elements.size).to eq(0)
+          expect(pkts[6].dot11_auth.algo).to eq(0)
+          expect(pkts[6].dot11_auth.seqnum).to eq(1)
+          expect(pkts[6].dot11_auth.status).to eq(0)
+          expect(pkts[6].dot11_auth.elements.size).to eq(0)
           expect(pkts[8].is? 'Dot11::Auth').to be(true)
-          expect(pkts[8].auth.seqnum).to eq(2)
-          expect(pkts[8].auth.elements.size).to eq(1)
+          expect(pkts[8].dot11_auth.seqnum).to eq(2)
+          expect(pkts[8].dot11_auth.elements.size).to eq(1)
           expect(pkts[10].is? 'Dot11::AssoReq').to be(true)
-          expect(pkts[10].assoreq.cap).to eq(0x411)
-          expect(pkts[10].assoreq.listen_interval).to eq(10)
-          expect(pkts[10].assoreq.elements.size).to eq(4)
-          expect(pkts[10].assoreq.elements[2].human_type).to eq('ESRates')
+          expect(pkts[10].dot11_assoreq.cap).to eq(0x411)
+          expect(pkts[10].dot11_assoreq.listen_interval).to eq(10)
+          expect(pkts[10].dot11_assoreq.elements.size).to eq(4)
+          expect(pkts[10].dot11_assoreq.elements[2].human_type).to eq('ESRates')
           expect(pkts[12].is? 'Dot11::AssoResp').to be(true)
-          expect(pkts[12].assoresp.cap).to eq(0x411)
-          expect(pkts[12].assoresp.status).to eq(0)
-          expect(pkts[12].assoresp.aid).to eq(0xc004)
-          expect(pkts[12].assoresp.elements.size).to eq(3)
+          expect(pkts[12].dot11_assoresp.cap).to eq(0x411)
+          expect(pkts[12].dot11_assoresp.status).to eq(0)
+          expect(pkts[12].dot11_assoresp.aid).to eq(0xc004)
+          expect(pkts[12].dot11_assoresp.elements.size).to eq(3)
         end
 
         it 'reads key packets' do
@@ -133,15 +132,15 @@ module PacketGen
       describe '#calc_checksum' do
         before(:each) { @pkt = PcapNG::File.new.read_packets(data_file)[0] }
         it 'calculates checksum' do
-          expected_fcs = @pkt.data.fcs
-          expect(@pkt.data.calc_checksum).to eq(expected_fcs)
+          expected_fcs = @pkt.dot11_data.fcs
+          expect(@pkt.dot11_data.calc_checksum).to eq(expected_fcs)
         end
 
         it 'sets FCS field with calculated value' do
-          expected_fcs = @pkt.data.fcs
-          @pkt.data.fcs = 0
-          @pkt.data.calc_checksum
-          expect(@pkt.data.fcs).to eq(expected_fcs)
+          expected_fcs = @pkt.dot11_data.fcs
+          @pkt.dot11_data.fcs = 0
+          @pkt.dot11_data.calc_checksum
+          expect(@pkt.dot11_data.fcs).to eq(expected_fcs)
         end
       end
 
@@ -197,6 +196,15 @@ module PacketGen
           (dot11.to_h.keys - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
+        end
+      end
+
+      describe 'building a Dot11 packet' do
+        it 'builds a Dot11::Beacon packet' do
+          expect { PacketGen.gen('Beacon') }.to raise_error(ArgumentError, /^unknown/)
+          pkt = nil
+          expect { pkt = PacketGen.gen('Dot11::Beacon') }.to_not raise_error
+          expect(pkt.headers.first).to be_a(Dot11::Beacon)
         end
       end
     end
