@@ -4,7 +4,11 @@ module PacketGen
   module Types
     describe TLV do
 
-      context '#initialize' do
+      class TLVTest < TLV
+        TYPES = { 1 => 'one', 2 => 'two' }
+      end
+
+      describe '#initialize' do
         it 'returns a TLV with default values' do
           tlv = TLV.new
           expect(tlv[:type]).to be_a(Int8)
@@ -32,7 +36,7 @@ module PacketGen
         end
       end
 
-      context '#read' do
+      describe '#read' do
         it 'reads a TLV from a binary string' do
           bin_str = [1, 2, 0x12345678].pack('CCN')
           tlv = TLV.new.read(bin_str)
@@ -46,6 +50,46 @@ module PacketGen
           expect(tlv.length).to eq(3)
           expect(tlv.value).to eq(PacketGen.force_binary "\x12\x34\x56")
         end
+      end
+
+      describe '#type=' do
+        it 'raises when setting a String and there is no TYPES constant' do
+          expect { TLV.new.type = 'TRUC' }.to raise_error(TypeError, 'need an Integer')
+        end
+
+        it 'accepts a String if subclass defines a TYPES constant' do
+          tlv = TLVTest.new
+          expect { tlv.type = 'two' }.to_not raise_error
+          expect(tlv.type).to eq(2)
+        end
+
+        it 'raises if String is unknown from TYPES hash' do
+          tlv = TLVTest.new
+          expect { tlv.type = 'three' }.to raise_error(ArgumentError, /unknown/)
+        end
+      end
+
+      describe '#human_type' do
+        it 'returns human readable type, if TYPES is defined' do
+          tlv = TLVTest.new
+          tlv.type = 'one'
+          expect(tlv.type).to eq(1)
+          expect(tlv.human_type).to eq('one')
+        end
+
+        it 'returns integer string, if TYPES is undefined or type has no string' do
+          tlv = TLVTest.new
+          tlv.type = 3
+          expect(tlv.type).to eq(3)
+          expect(tlv.human_type).to eq('3')
+
+          tlv = TLV.new
+          tlv.type = 12
+          expect(tlv.human_type).to eq('12')
+        end
+      end
+
+      describe '#to_human' do
       end
     end
   end

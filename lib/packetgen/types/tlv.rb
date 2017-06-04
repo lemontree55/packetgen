@@ -65,9 +65,9 @@ module PacketGen
           self.old_type = val
         else
           unless has_human_types?
-            raise TypeError, "no human types defined for #{self.class}"
+            raise TypeError, 'need an Integer'
           end
-          new_val = self.class::TYPES[val.to_s]
+          new_val = self.class::TYPES.key(val.to_s)
           raise ArgumentError, "unknown #{val.to_s} type" if new_val.nil?
           self.old_type = new_val
         end

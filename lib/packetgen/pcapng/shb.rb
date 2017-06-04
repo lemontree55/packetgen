@@ -17,6 +17,7 @@ module PacketGen
     #   Int64   :section_len
     #   String  :options        Default: ''
     #   Int32   :block_len2
+    # @author Sylvain Daubert
     class SHB < Block
 
       # @return [:little, :big]

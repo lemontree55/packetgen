@@ -19,6 +19,7 @@ module PacketGen
     #   String  :data
     #   String  :options
     #   Int32   :block_len2
+    # @author Sylvain Daubert
     class EPB < Block
 
       # Minimum EPB size
