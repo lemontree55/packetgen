@@ -217,13 +217,13 @@ module PacketGen
           str << Inspect.inspect_attribute(attr, value, 2)
           if attr == :u16
             doff = Inspect.int_dec_hex(data_offset, 1)
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'data_offset', doff]
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'reserved', reserved]
+            str << shift + Inspect::FMT_ATTR % ['', 'data_offset', doff]
+            str << shift + Inspect::FMT_ATTR % ['', 'reserved', reserved]
             flags = ''
             %w(ns cwr ece urg ack psh rst syn fin).each do |fl|
               flags << (send("flag_#{fl}?") ? fl[0].upcase : '.')
             end
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flags', flags]
+            str << shift + Inspect::FMT_ATTR % ['', 'flags', flags]
           end
         end
         str

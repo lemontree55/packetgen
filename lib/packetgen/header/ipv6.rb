@@ -206,11 +206,11 @@ module PacketGen
           str << Inspect.inspect_attribute(attr, value, 2)
           if attr == :u32
             shift = Inspect.shift_level(2)
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'version', version]
+            str << shift + Inspect::FMT_ATTR % ['', 'version', version]
             tclass = Inspect.int_dec_hex(traffic_class, 2)
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'tclass', tclass]
+            str << shift + Inspect::FMT_ATTR % ['', 'tclass', tclass]
             fl_value = Inspect.int_dec_hex(flow_label, 5)
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flow_label', fl_value]
+            str << shift + Inspect::FMT_ATTR % ['', 'flow_label', fl_value]
           end
         end
         str
