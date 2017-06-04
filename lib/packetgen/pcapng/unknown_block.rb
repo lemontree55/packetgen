@@ -7,6 +7,7 @@ module PacketGen
   module PcapNG
 
     # {UnknownBlock} is used to handle unsupported blocks of a pcapng file.
+    # @author Sylvain Daubert
     class UnknownBlock < Block
 
       # Minimum Iblock size

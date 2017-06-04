@@ -14,6 +14,7 @@ module PacketGen
     #   Int32   :orig_len
     #   String  :data
     #   Int32   :block_len2
+    # @author Sylvain Daubert
     class SPB < Block
 
       # Minimum SPB size
