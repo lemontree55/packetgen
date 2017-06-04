@@ -123,9 +123,16 @@ module PacketGen
 
     describe '.read' do
       let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
+      let(:pcap_file) { ::File.join(__dir__, 'sample.pcap') }
 
-      it '.read reads a PcapNG file and returns a Array of Packet' do
+      it 'reads a PcapNG file and returns a Array of Packet' do
         ary = Packet.read(file)
+        expect(ary).to be_a(Array)
+        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+      end
+
+      it 'reads a pcap file and returns a Array of Packet' do
+        ary = Packet.read(pcap_file)
         expect(ary).to be_a(Array)
         expect(ary.all? { |el| el.is_a? Packet }).to be(true)
       end
@@ -134,6 +141,10 @@ module PacketGen
         ary = PacketGen.read(file)
         expect(ary).to be_a(Array)
         expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+      end
+
+      it 'raises error on unknown file' do
+        expect { Packet.read __FILE__ }.to raise_error(ArgumentError)
       end
     end
 
