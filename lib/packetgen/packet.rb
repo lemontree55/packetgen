@@ -43,6 +43,8 @@ module PacketGen
   #
   # == Save packets to a file
   #  Packet.write 'file.pcapng', packets
+  #
+  # @author Sylvain Daubert
   class Packet
     # @return [Array<Header::Base]
     attr_reader :headers
@@ -91,11 +93,23 @@ module PacketGen
 
     # Read packets from +filename+.
     #
-    # For more control, see {PcapNG::File}.
-    # @param [String] filename PcapNG file
+    # For more control, see {PcapNG::File} or {PCAPRUB::Pcap}.
+    # @param [String] filename PcapNG or Pcap file.
     # @return [Array<Packet>]
+    # @author Sylvain Daubert
+    # @author Kent Gruber
     def self.read(filename)
-      PcapNG::File.new.read_packets filename
+      begin
+        PcapNG::File.new.read_packets filename
+      rescue => e
+        raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
+        packets = []
+        PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
+          next unless packet = PacketGen.parse(packet.to_s)  
+          packets << packet
+        end
+        packets
+      end
     end
 
     # Write packets to +filename+

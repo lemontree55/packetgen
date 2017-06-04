@@ -8,6 +8,7 @@ module PacketGen
 
   # Module to handle PCAP-NG file format.
   # See http://xml2rfc.tools.ietf.org/cgi-bin/xml2rfc.cgi?url=https://raw.githubusercontent.com/pcapng/pcapng/master/draft-tuexen-opsawg-pcapng.xml&modeAsFormat=html/ascii&type=ascii
+  # @author Sylvain Daubert
   module PcapNG
 
     # Section Header Block type number

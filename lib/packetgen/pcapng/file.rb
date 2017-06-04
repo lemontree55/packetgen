@@ -7,6 +7,7 @@ module PacketGen
   module PcapNG
 
     # PcapNG::File is a complete Pcap-NG file handler.
+    # @author Sylvain Daubert
     class File
 
       # Known link types

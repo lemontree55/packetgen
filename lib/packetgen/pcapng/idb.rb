@@ -16,6 +16,7 @@ module PacketGen
     #   Int64   :snaplen        Default: 0 (no limit)
     #   String  :options
     #   Int32   :block_len2
+    # @author Sylvain Daubert
     class IDB < Block
 
       # Minimum IDB size

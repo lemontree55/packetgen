@@ -59,6 +59,7 @@ module PacketGen
       end
 
       # IEEE 802.11 Association Request frame
+      # @author Sylvain Daubert
       class AssoReq < SubMngt
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
@@ -71,6 +72,7 @@ module PacketGen
       Management.bind_header AssoReq, op: :and, type: 0, subtype: 0
 
       # IEEE 802.11 Association Response frame
+      # @author Sylvain Daubert
       class AssoResp < SubMngt
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
@@ -86,6 +88,7 @@ module PacketGen
       Management.bind_header AssoResp, op: :and, type: 0, subtype: 1
 
       # IEEE 802.11 ReAssociation Request frame
+      # @author Sylvain Daubert
       class ReAssoReq < AssoReq
         # @!attribute current_ap
         #  @return [Eth::MAcAddr]
@@ -95,18 +98,21 @@ module PacketGen
       Management.bind_header ReAssoReq, op: :and, type: 0, subtype: 2
 
       # IEEE 802.11 ReAssociation Response frame
+      # @author Sylvain Daubert
       class ReAssoResp < AssoResp
       end
       Header.add_class ReAssoResp
       Management.bind_header ReAssoResp, op: :and, type: 0, subtype: 3
 
       # IEEE 802.11 Probe Request frame
+      # @author Sylvain Daubert
       class ProbeReq < SubMngt
       end
       Header.add_class ProbeReq
       Management.bind_header ProbeReq, op: :and, type: 0, subtype: 4
 
       # IEEE 802.11 Probe Response frame
+      # @author Sylvain Daubert
       class ProbeResp < SubMngt
         # @!attribute timestamp
         #  @return [Integer] 64-bit timestamp
@@ -122,6 +128,7 @@ module PacketGen
       Management.bind_header ProbeResp, op: :and, type: 0, subtype: 5
 
       # IEEE 802.11 Beacon frame
+      # @author Sylvain Daubert
       class Beacon < SubMngt
         # @!attribute timestamp
         #  @return [Integer] 64-bit timestamp
@@ -137,11 +144,13 @@ module PacketGen
       Management.bind_header Beacon, op: :and, type: 0, subtype: 8
 
       # IEEE 802.11 ATIM frame
+      # @author Sylvain Daubert
       class ATIM < SubMngt; end
       Header.add_class ATIM
       Management.bind_header ATIM, op: :and, type: 0, subtype: 9
 
       # IEEE 802.11 Disassociation frame
+      # @author Sylvain Daubert
       class Disas < SubMngt
         # @!attribute reason
         #  @return [Integer] 16-bit reason value
@@ -151,6 +160,7 @@ module PacketGen
       Management.bind_header Disas, op: :and, type: 0, subtype: 10
 
       # IEEE 802.11 Authentication frame
+      # @author Sylvain Daubert
       class Auth < SubMngt
         # @!attribute algo
         #  @return [Integer] 16-bit algo value
@@ -166,6 +176,7 @@ module PacketGen
       Management.bind_header Auth, op: :and, type: 0, subtype: 11
 
       # IEEE 802.11 Deauthentication frame
+      # @author Sylvain Daubert
       class DeAuth < SubMngt
         # @!attribute reason
         #  @return [Integer] 16-bit reason value
