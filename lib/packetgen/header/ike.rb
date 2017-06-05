@@ -4,6 +4,7 @@ module PacketGen
     # This class handles a pseudo-header used to differentiate ESP from IKE headers
     # in a UDP datagram with port 4500.
     # @author Sylvain Daubert
+    # @since 2.0.0
     class NonESPMarker < Base
       # @!attribute non_esp_marker
       #  32-bit zero marker to differentiate IKE packet over UDP port 4500 from ESP ones
@@ -65,6 +66,7 @@ module PacketGen
     #   # and IKE one to differentiate it from ESP-in-UDP (see RFC 3948)
     #   pkt = PacketGen.gen('IP').add('UDP').add('NonESPMarker').add('IKE)
     # @author Sylvain Daubert
+    # @since 2.0.0
     class IKE < Base
 
       # Classical well-known UDP port for IKE
