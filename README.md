@@ -36,11 +36,11 @@ PacketGen.gen('IP').to_s
 ### Send packets on wire
 ```ruby
 # send Ethernet packet
-PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').to_w
+PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').to_w
 # send IP packet
 PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').to_w
 # send forged IP packet over Ethernet
-PacketGen.gen('Eth', src: '00:00:00:00:01', dst: '00:00:00:00:02').add('IP').to_w('eth1')
+PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').add('IP').to_w('eth1')
 ```
 
 ### Parse packets from binary data
