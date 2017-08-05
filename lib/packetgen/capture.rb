@@ -12,6 +12,9 @@ module PacketGen
 
     # Default snaplen to use if :snaplen option not defined.
     DEFAULT_SNAPLEN = 0xffff
+    
+    # Default snaplen to use if :timeout option not defined.
+    DEFAULT_TIMEOUT = 1
 
     # Get captured packets.
     # @return [Array<Packets>]
@@ -72,6 +75,7 @@ module PacketGen
       @raw_packets = []
       @promisc = false
       @snaplen = DEFAULT_SNAPLEN
+      @timeout = DEFAULT_TIMEOUT
       @parse = true
       set_options options
     end
@@ -82,7 +86,7 @@ module PacketGen
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
     def start(options={})
       set_options options
-      @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, 1)
+      @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, @timeout)
       set_filter
       @cap_thread = Thread.new do
         @pcap.each do |packet_data|
@@ -112,13 +116,13 @@ module PacketGen
     private
 
     def set_options(options)
-      @max = options[:max] if options[:max]
-      @filter = options[:filter] if options[:filter]
+      @max     = options[:max]     if options[:max]
+      @filter  = options[:filter]  if options[:filter]
       @timeout = options[:timeout] if options[:timeout]
       @promisc = options[:promisc] if options.has_key? :promisc
       @snaplen = options[:snaplen] if options[:snaplen]
-      @parse = options[:parse] if options.has_key? :parse
-      @iface = options[:iface] if options[:iface]
+      @parse   = options[:parse]   if options.has_key? :parse
+      @iface   = options[:iface]   if options[:iface]
     end
 
     def set_filter
