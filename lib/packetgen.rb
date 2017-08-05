@@ -38,7 +38,6 @@ module PacketGen
   end
 
   # Shortcut for {Packet.capture}
-  # @param [String] iface interface name
   # @param [Hash] options capture options. See {Packet.capture}.
   # @yieldparam [Packet] packet
   # @return [Array<Packet>]

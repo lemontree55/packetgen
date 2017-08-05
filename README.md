@@ -50,16 +50,16 @@ packet = PacketGen.parse(binary_data)
 
 ### Capture packets from wire
 ```ruby
-# Capture packets, action from a block
-PacketGen.capture('eth0') do |packet|
+# Capture packets from first network interface, action from a block
+PacketGen.capture do |packet|
   do_stuffs_with_packet
 end
 
 # Capture some packets, and act on them afterward
-packets = PacketGen.capture('eth0', max: 10)   # return when 10 packets were captured
+packets = PacketGen.capture(iface: 'eth0', max: 10)   # return when 10 packets were captured
 
 # Use filters
-packets = PacketGen.capture('eth0', filter: 'ip src 1.1.1.2', max: 1)
+packets = PacketGen.capture(iface: 'eth0', filter: 'ip src 1.1.1.2', max: 1)
 ```
 
 ### Easily manipulate packets
