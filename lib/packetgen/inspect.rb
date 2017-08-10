@@ -9,7 +9,7 @@ module PacketGen
     MAX_WIDTH = 70
 
     # Format to inspect attribute
-    FMT_ATTR = "%10s %12s: %s\n"
+    FMT_ATTR = "%12s %12s: %s\n"
 
     # Create a dashed line with +obj+ class writing in it
     # @param [String] name
@@ -54,11 +54,37 @@ module PacketGen
       str << FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
     end
 
+    # Format a ASN.1 attribute for +#inspect+.
+    # 3 cases are handled:
+    # * attribute value is a {Types::Int}: show value as integer and in
+    #   hexdecimal format,
+    # * attribute value responds to +#to_human+: call it,
+    # * else, +#to_s+ is used to format attribute value.
+    # @param [Symbol] name attribute name
+    # @param [RASN1::Types::Base,RASN1::Model] attr attribute
+    # @param [Integer] level
+    # @return [String]
+    def self.inspect_asn1_attribute(name, attr, level=1)
+      str = shift_level(level)
+      val = case attr
+            when RASN1::Types::Enumerated
+              hexsize = attr.value_size * 2
+              "%-10s (0x%0#{hexsize}x)" % [attr.value, attr.to_i]
+            when RASN1::Types::Integer
+              int_dec_hex(attr.value, attr.value_size * 2)
+            when RASN1::Model
+              attr.root.type
+            else
+              attr.value.to_s.inspect
+            end
+      str << FMT_ATTR % [attr.type, name, val]
+    end
+
     # @param [#to_s] body
     # @return [String]
-    def self.inspect_body(body)
+    def self.inspect_body(body, name='Body')
       return '' if body.nil? or body.empty?
-      str = dashed_line('Body', 2)
+      str = dashed_line(name, 2)
       str << (0..15).to_a.map { |v| " %02d" % v}.join << "\n"
       str << '-' * MAX_WIDTH << "\n"
       if body.size > 0
