@@ -115,9 +115,9 @@ module PacketGen
                            model(:varbindlist, VariableBindings)]
 
         # @return [String]
-        #def inspect
-        #  Inspect.inspect_body(to_der, self.class)
-        #end
+        def inspect
+          Inspect.inspect_body(to_der, self.class)
+        end
       end
 
       # Class to handle GetNextRequest PDU
@@ -132,6 +132,95 @@ module PacketGen
       # @author Sylvain Daubert
       class GetResponse < GetRequest
         root_options implicit: SNMP::PDU_RESPONSE
+      end
+
+      # Class to handle SetRequest PDU
+      #  SetRequest-PDU ::= [3] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @author Sylvain Daubert
+      class SetRequest < GetRequest
+        root_options implicit: SNMP::PDU_GET
+      end
+
+      # Class to handle Trap from SNMPv1
+      #  Trap-PDU ::= [4] IMPLICIT SEQUENCE {
+      #                          enterprise OBJECT IDENTIFIER,
+      #                          agent-addr NetworkAddress,
+      #                          generic-trap      -- generic trap type
+      #                              INTEGER {
+      #                                  coldStart(0),
+      #                                  warmStart(1),
+      #                                  linkDown(2),
+      #                                  linkUp(3),
+      #                                  authenticationFailure(4),
+      #                                  egpNeighborLoss(5),
+      #                                  enterpriseSpecific(6)
+      #                              },
+      #                          specific-trap INTEGER,
+      #                          time-stamp TimeTicks,
+      #                          variable-bindings VarBindList
+      #                   }
+      class Trapv1 < RASN1::Model
+        sequence :trap,
+                 implicit: SNMP::PDU_TRAPv1, constructed: true,
+                 content: [objectid(:enterprise),
+                           octet_string(:agent_addr),
+                           enumerated(:generic_trap, enum: { 'cold_start'        => 0,
+                                                             'warm_start'        => 1,
+                                                             'link_down'         => 2,
+                                                             'link_up'           => 3,
+                                                             'auth_failure'      => 4,
+                                                             'egp_neighbor_loss' => 5,
+                                                             'specific'          => 6 }),
+                           integer(:specific_trap),
+                           integer(:timestamp),
+                           model(:varbindlist, VariableBindings)]
+      end
+
+      # Class to handle Bulk PDU
+      #  GetBulkRequest-PDU ::= [5] IMPLICIT BulkPDU
+      #  
+      #  BulkPDU ::=                         -- must be identical in
+      #        SEQUENCE {                    -- structure to PDU
+      #            request-id      INTEGER (-214783648..214783647),
+      #            non-repeaters   INTEGER (0..max-bindings),
+      #            max-repetitions INTEGER (0..max-bindings),
+      #            variable-bindings           -- values are ignored
+      #                VarBindList
+      #        }
+      # @author Sylvain Daubert
+      class Bulk < RASN1::Model
+        sequence :bulkpdu,
+                 implicit: SNMP::PDU_BULK, constructed: true,
+                 content: [integer(:id, value: 0),
+                           integer(:non_repeaters),
+                           integer(:max_repetitions),
+                           model(:varbindlist, VariableBindings)]
+
+        # @return [String]
+        def inspect
+          Inspect.inspect_body(to_der, self.class)
+        end
+      end
+
+      # Class to handle InformRequest PDU
+      #  InformRequest-PDU ::= [6] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @author Sylvain Daubert
+      class InformRequest < GetRequest
+        root_options implicit: SNMP::PDU_INFORM
+      end
+
+      # Class to handle Trapv2 PDU
+      #  SNMPv2-Trap-PDU ::= [7] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @author Sylvain Daubert
+      class Trapv2 < GetRequest
+        root_options implicit: SNMP::PDU_TRAPv2
+      end
+
+      # Class to handle Report PDU
+      #  Report-PDU ::= [8] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @author Sylvain Daubert
+      class Report < GetRequest
+        root_options implicit: SNMP::PDU_REPORT
       end
 
       # Class to handle PDUs from SNMP packet
@@ -152,12 +241,12 @@ module PacketGen
                content: [model(:get_request, GetRequest),
                          model(:get_next_request, GetNextRequest),
                          model(:get_response, GetResponse),
-                         #model(:set_request, SetRequest),
+                         model(:set_request, SetRequest),
                          #model(:trapv1, Trapv1),
-                         #model(:bulk, Bulk),
-                         #model(:inform, Inform),
-                         #model(:trapv2, Trapv2)]
-                        ]
+                         model(:bulk, Bulk),
+                         model(:inform, InformRequest),
+                         model(:trapv2, Trapv2),
+                         model(:report, Report)]
       end
 
       sequence :message,
