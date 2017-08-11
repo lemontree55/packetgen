@@ -6,6 +6,7 @@ require 'packetgen/version'
 Gem::Specification.new do |spec|
   spec.name          = 'packetgen'
   spec.version       = PacketGen::VERSION
+  spec.license       = 'MIT'
   spec.authors       = ['Sylvain Daubert']
   spec.email         = ['sylvain.daubert@laposte.net']
 
