@@ -187,13 +187,21 @@ module PacketGen
         end
       end
 
+      # Delete a previously defined field
+      # @param [Symbol] name
+      # @return [void]
+      def self.delete_field(name)
+        @ordered_fields.delete name
+        @field_defs.delete name
+      end
+
       # Define a bitfield on given attribute
       #   class MyHeader < PacketGen::Types::Fields
       #     define_field :flags, Types::Int16
       #     # define a bit field on :flag attribute:
       #     # flag1, flag2 and flag3 are 1-bit fields
       #     # type and stype are 3-bit fields. reserved is a 6-bit field
-      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved: 7
+      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved, 7
       #   end
       # A bitfield of size 1 bit defines 2 methods:
       # * +#field?+ which returns a Boolean,
@@ -340,9 +348,9 @@ module PacketGen
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
-        @fields.each do |attr, value|
+        fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
+          str << Inspect.inspect_attribute(attr, self[attr], 2)
         end
         str
       end

@@ -211,16 +211,16 @@ module PacketGen
           next if attr == :body
           str << Inspect.inspect_attribute(attr, value, 2)
           if attr == :u8
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'version', version]
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'ihl', ihl]
+            str << shift + Inspect::FMT_ATTR % ['', 'version', version]
+            str << shift + Inspect::FMT_ATTR % ['', 'ihl', ihl]
           elsif attr == :frag
             flags = flag_rsv? ? %w(RSV) : []
             flags << 'DF' if flag_df?
             flags << 'MF' if flag_mf?
             flags_str = flags.empty? ? 'none' : flags.join(',')
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'flags', flags_str]
+            str << shift + Inspect::FMT_ATTR % ['', 'flags', flags_str]
             foff = Inspect.int_dec_hex(fragment_offset, 4)
-            str << shift + Inspect::INSPECT_FMT_ATTR % ['', 'frag_offset', foff]
+            str << shift + Inspect::FMT_ATTR % ['', 'frag_offset', foff]
           end
         end
         str

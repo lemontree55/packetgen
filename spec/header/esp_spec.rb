@@ -14,8 +14,11 @@ module PacketGen
         end
 
         it 'in UDP packets' do
-          expect(UDP).to know_header(ESP).with(dport: 4500)
-          expect(UDP).to know_header(ESP).with(sport: 4500)
+          int32 = Types::Int32.new(1)
+          expect(UDP).to know_header(ESP).with(dport: 4500, body: int32.to_s)
+          expect(UDP).to know_header(ESP).with(sport: 4500, body: int32.to_s)
+          int32.value = 0
+          expect(UDP).to_not know_header(ESP).with(dport: 4500, body: int32.to_s)
         end
       end
 
@@ -394,6 +397,23 @@ module PacketGen
             pkt.decapsulate pkt.eth, pkt.ip, pkt.esp
             expect(pkt.to_s).to eq(red_pkt.to_s)
           end
+        end
+      end
+
+      context '(parsing)' do
+        it 'is parsed when UDP port 4500 is used and first 32-bit word in body is not null' do
+          pkt = Packet.gen('IP').add('UDP').add('ESP', spi: 0x1234, sn: 143)
+          str = pkt.to_s
+          pkt2 = Packet.parse(str)
+          expect(pkt2.is? 'ESP').to be(true)
+        end
+
+        it 'is not parsed when UDP port 4500 is used and first 32-bit word in body is null' do
+          pkt = Packet.gen('IP').add('UDP')
+          pkt.body.read("\x00" * 16)
+          str = pkt.to_s
+          pkt2 = Packet.parse(str)
+          expect(pkt2.udp.body).to be_a(Types::String)
         end
       end
     end

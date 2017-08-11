@@ -216,10 +216,15 @@ module PacketGen
 
     # Encapulate another packet in +self+
     # @param [Packet] other
+    # @param [Boolean] parsing set to +true+ to not update last current header field
+    #    from binding with first other's one. Use only when current heade field as
+    #    its value set accordingly.
     # @return [self] +self+ with new headers from +other+
     # @since 1.1.0
-    def encapsulate(other)
-      other.headers.each { |h| add_header h }
+    def encapsulate(other, parsing: false)
+      other.headers.each_with_index do |h, i|
+        add_header h, parsing: (i > 0) || parsing
+      end
     end
 
     # Remove headers from +self+
@@ -327,19 +332,19 @@ module PacketGen
     # Add a header to packet
     # @param [Header::Base] header
     # @param [Header::Base] previous_header
+    # @param [Boolean] parsing
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
-      protocol = header.protocol_name
       prev_header = previous_header || @headers.last
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
         if bindings.nil?
           bindings = prev_header.class.known_headers[header.class.superclass]
           if bindings.nil?
-            msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
-            msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
-            msg << "#{prev_header.protocol_name.downcase}_proto_field: "
-            msg << "value_for_#{protocol.downcase})"
+            msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. "
+            msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
+            msg << "#{prev_header.method_name}_proto_field: "
+            msg << "value_for_#{header.method_name})"
             raise ArgumentError, msg
           end
         end
@@ -348,8 +353,8 @@ module PacketGen
       end
       header.packet = self
       @headers << header unless previous_header
-      unless respond_to? protocol.downcase
-        self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
+      unless respond_to? header.method_name
+        self.class.class_eval "def #{header.method_name}(arg=nil);" \
                               "header(#{header.class}, arg); end"
       end
     end
@@ -375,11 +380,14 @@ module PacketGen
       decode_packet_bottom_up = true
       while decode_packet_bottom_up do
         last_known_hdr = @headers.last
+        break unless last_known_hdr.respond_to? :body
+        break if last_known_hdr.body.empty?
         search_header(last_known_hdr) do |nh|
           str = last_known_hdr.body
           nheader = nh.new
           nheader = nheader.read(str)
           add_header nheader, parsing: true
+          nheader.dissect if nheader.respond_to? :dissect
         end
         decode_packet_bottom_up = (@headers.last != last_known_hdr)
       end
