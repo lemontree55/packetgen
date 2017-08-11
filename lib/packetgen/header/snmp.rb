@@ -12,7 +12,7 @@ module PacketGen
 
     # Simple Network Management Protocol (SNMP)
     # @author Sylvain Daubert
-    # @version 2.0.0
+    # @since 2.0.0
     class SNMP < ASN1Base
 
       # Agents listen to this port

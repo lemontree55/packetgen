@@ -38,6 +38,7 @@ module PacketGen
     #    yielding.  Default: +true+
     # @option options [Integer] :snaplen maximum number of bytes to capture for
     #    each packet.
+    # @since 2.0.0 remove old 1.x API
     def initialize(options={})
       begin
         @iface = Pcap.lookupdev

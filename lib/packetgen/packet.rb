@@ -44,6 +44,12 @@ module PacketGen
   # == Save packets to a file
   #  Packet.write 'file.pcapng', packets
   #
+  # @since 2.0.0
+  #   
+  #   Packet accessor has changed. When header class is in a namespace
+  #   (for example Dot11::* header classes), to avoid clashes in names, such
+  #   accessors are named +namespace_class+. For example {Header::Dot11::Data}
+  #   header is now accessed through +Packet#dot11_data+ and nor more +Packet#data+).
   # @author Sylvain Daubert
   class Packet
     # @return [Array<Header::Base]
