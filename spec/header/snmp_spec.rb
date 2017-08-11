@@ -43,6 +43,29 @@ module PacketGen
           expect(snmp.community).to eq('public')
           expect(snmp.data.root.chosen).to eq(SNMP::PDU_GET)
         end
+
+        it 'reads a getResponse from a string' do
+          snmp.read ber[1][42..-1]
+          expect(snmp.version).to eq('v1')
+          expect(snmp.community).to eq('public')
+          expect(snmp.data.root.chosen).to eq(SNMP::PDU_RESPONSE)
+          expect(snmp.data.chosen_value[:id].value).to eq(39)
+          list = snmp.data.chosen_value[:varbindlist]
+
+          expected_list = [{ name: '1.3.6.1.2.1.1.5.0',
+                             value: RASN1::Types::OctetString.new(:os, value: 'B6300').to_der },
+                           { name: '1.3.6.1.2.1.1.6.0',
+                             value: RASN1::Types::OctetString.new(:os, value: "Chandra's cube").to_der }]
+          expect(list.value).to eq(expected_list)
+        end
+
+        it 'parses a complete packet' do
+          snmp = Packet.parse(ber[1])
+          expect(snmp.is?('IP')).to be(true)
+          expect(snmp.is?('UDP')).to be(true)
+          expect(snmp.is?('SNMP')).to be(true)
+          expect(snmp.snmp.data.root.chosen).to eq(SNMP::PDU_RESPONSE)
+        end
       end
 
       describe 'setters' do

@@ -108,16 +108,30 @@ module PacketGen
       # @author Sylvain Daubert
       class GetRequest < RASN1::Model
         sequence :pdu,
-                 implicit: 0, constructed: true,
-                 content: [integer(:id, value: SNMP::PDU_GET),
+                 implicit: SNMP::PDU_GET, constructed: true,
+                 content: [integer(:id, value: 0),
                            enumerated(:error, enum: ERRORS),
                            integer(:error_index),
                            model(:varbindlist, VariableBindings)]
 
         # @return [String]
-        def inspect
-          Inspect.inspect_body(to_der, self.class)
-        end
+        #def inspect
+        #  Inspect.inspect_body(to_der, self.class)
+        #end
+      end
+
+      # Class to handle GetNextRequest PDU
+      #  GetNextRequest-PDU ::= [1] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @author Sylvain Daubert
+      class GetNextRequest < GetRequest
+        root_options implicit: SNMP::PDU_NEXT
+      end
+
+      # Class to handle GetResponse PDU
+      #  GetResponse-PDU ::= [2] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @author Sylvain Daubert
+      class GetResponse < GetRequest
+        root_options implicit: SNMP::PDU_RESPONSE
       end
 
       # Class to handle PDUs from SNMP packet
@@ -136,8 +150,8 @@ module PacketGen
       class PDUs < RASN1::Model
         choice :pdus,
                content: [model(:get_request, GetRequest),
-                         #model(:get_next_request, GetNextRequest),
-                         #model(:get_response, GetResponse),
+                         model(:get_next_request, GetNextRequest),
+                         model(:get_response, GetResponse),
                          #model(:set_request, SetRequest),
                          #model(:trapv1, Trapv1),
                          #model(:bulk, Bulk),
