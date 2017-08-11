@@ -24,6 +24,9 @@ module PacketGen
         self.new.protocol_name
       end
 
+      # Define some methods from given ASN.1 fields to mimic {Base} attributes
+      # @param [Array<Symbol>] attributes
+      # @return [void]
       def self.define_attributes(*attributes)
         @attributes = attributes
         attributes.each do |attr|
@@ -77,33 +80,6 @@ module PacketGen
           str << Inspect.inspect_asn1_attribute(attr, self[attr], 2)
         end
         str
-      end
-
-      # @api private
-      # Get +header+ id in packet headers array
-      # @param [Header] header
-      # @return [Integer]
-      # @raise FormatError +header+ not in a packet
-      def header_id(header)
-        raise FormatError, "header of type #{header.class} not in a packet" if packet.nil?
-        id = packet.headers.index(header)
-        if id.nil?
-          raise FormatError, "header of type #{header.class} not in packet #{packet}"
-        end
-        id
-      end
-
-      # @api private
-      # Get IP or IPv6 previous header from +header+
-      # @param [Header] header
-      # @return [Header]
-      # @raise FormatError no IP or IPv6 header previous +header+ in packet
-      # @raise FormatError +header+ not in a packet
-      def ip_header(header)
-        hid = header_id(header)
-        iph = packet.headers[0...hid].reverse.find { |h| h.is_a? IP or h.is_a? IPv6 }
-        raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
-        iph
       end
     end
   end
