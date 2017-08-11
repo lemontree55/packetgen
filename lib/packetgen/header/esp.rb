@@ -1,9 +1,6 @@
 module PacketGen
   module Header
 
-    # Error about enciphering/deciphering was encountered
-    class CipherError < Error;end
-
     # A ESP header consists of:
     # * a Security Parameters Index (#{spi}, {Types::Int32} type),
     # * a Sequence Number ({#sn}, +Int32+ type),
@@ -48,14 +45,14 @@ module PacketGen
     #  
     #  # encrypt ESP payload
     #  cipher = OpenSSL::Cipher.new('aes-128-gcm')
-    #  cipher.encrypt!
+    #  cipher.encrypt
     #  cipher.key = 16bytes_key
     #  iv = 8bytes_iv
     #  esp.esp.encrypt! cipher, iv, salt: 4bytes_gcm_salt
     #
     # === Decrypt a ESP packet using CBC mode and HMAC-SHA-256
     #  cipher = OpenSSL::Cipher.new('aes-128-cbc')
-    #  cipher.decrypt!
+    #  cipher.decrypt
     #  cipher.key = 16bytes_key
     #  
     #  hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
@@ -63,6 +60,7 @@ module PacketGen
     #  pkt.esp.decrypt! cipher, intmode: hmac    # => true if ICV check OK
     # @author Sylvain Daubert
     class ESP < Base
+      include Crypto
 
       # IP protocol number for ESP
       IP_PROTOCOL = 50
@@ -292,43 +290,6 @@ module PacketGen
 
       private
 
-      def set_crypto(conf, intg)
-        @conf, @intg = conf, intg
-      end
-
-      def confidentiality_mode
-        mode = @conf.name.match(/-([^-]*)$/)[1]
-        raise CipherError, 'unknown cipher mode' if mode.nil?
-        mode.downcase
-      end
-
-      def authenticated?
-        @conf.authenticated? or !!@intg
-      end
-
-      def authenticate!
-        @conf.final
-        if @intg
-          @intg.update @esn.to_s if @esn
-          @intg.digest[0, @icv_length] == @icv
-        else
-          true
-        end
-      rescue OpenSSL::Cipher::CipherError
-        false
-      end
-
-      def encipher(data)
-        enciphered_data = @conf.update(data)
-        @intg.update(enciphered_data) if @intg
-        enciphered_data
-      end
-
-      def decipher(data)
-        @intg.update(data) if @intg
-        @conf.update(data)
-      end
-
       def get_auth_data(opt)
         ad = self[:spi].to_s
         if opt[:esn]
@@ -431,7 +392,10 @@ module PacketGen
 
     IP.bind_header ESP, protocol: ESP::IP_PROTOCOL
     IPv6.bind_header ESP, next: ESP::IP_PROTOCOL
-    UDP.bind_header ESP, dport: ESP::UDP_PORT, sport: ESP::UDP_PORT
+    UDP.bind_header ESP, procs: [ ->(f) { f.dport = f.sport = ESP::UDP_PORT },
+                                  ->(f) { (f.dport == ESP::UDP_PORT ||
+                                           f.sport == ESP::UDP_PORT) &&
+                                          Types::Int32.new.read(f.body[0..3]).to_i > 0 }]
     ESP.bind_header IP, next: 4
     ESP.bind_header IPv6, next: 41
     ESP.bind_header TCP, next: TCP::IP_PROTOCOL

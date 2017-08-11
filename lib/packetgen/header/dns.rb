@@ -248,13 +248,13 @@ module PacketGen
             flags = [:qr, :aa, :tc, :rd, :ra].select! { |attr| send "#{attr}?" }.
                     map(&:to_s).join(',')
             str << Inspect.shift_level(2)
-            str << Inspect::INSPECT_FMT_ATTR % ['Flags', 'flags', flags]
+            str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
             opcode = '%-10s (%u)' % [OPCODES.key(self.opcode), self.opcode]
             str << Inspect.shift_level(2)
-            str << Inspect::INSPECT_FMT_ATTR % ['Integer', 'opcode', opcode]
+            str << Inspect::FMT_ATTR % ['Integer', 'opcode', opcode]
             rcode = '%-10s (%u)' % [RCODES.key(self.rcode), self.rcode]
             str << Inspect.shift_level(2)
-            str << Inspect::INSPECT_FMT_ATTR % ['Integer', 'rcode', rcode]
+            str << Inspect::FMT_ATTR % ['Integer', 'rcode', rcode]
           else
             str << Inspect.inspect_attribute(attr, value, 2)
           end
