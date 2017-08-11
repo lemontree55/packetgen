@@ -6,8 +6,9 @@
 module PacketGen
   module Header
 
-    # @abstract
-    # Base class for all header types
+    # @abstract Base class for all header types.
+    #    Subclasses may define magic methods:
+    #    * {#parse?}.
     # @author Sylvain Daubert
     class Base < Types::Fields
 
