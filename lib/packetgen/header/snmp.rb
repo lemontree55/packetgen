@@ -242,7 +242,7 @@ module PacketGen
                          model(:get_next_request, GetNextRequest),
                          model(:get_response, GetResponse),
                          model(:set_request, SetRequest),
-                         #model(:trapv1, Trapv1),
+                         model(:trapv1, Trapv1),
                          model(:bulk, Bulk),
                          model(:inform, InformRequest),
                          model(:trapv2, Trapv2),
