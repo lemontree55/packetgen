@@ -138,7 +138,7 @@ module PacketGen
       #  SetRequest-PDU ::= [3] IMPLICIT PDU   -- PDU definition: see GetRequest
       # @author Sylvain Daubert
       class SetRequest < GetRequest
-        root_options implicit: SNMP::PDU_GET
+        root_options implicit: SNMP::PDU_SET
       end
 
       # Class to handle Trap from SNMPv1

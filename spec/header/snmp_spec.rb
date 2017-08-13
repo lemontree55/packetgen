@@ -128,6 +128,16 @@ module PacketGen
           end
         end
       end
+
+      describe SNMP::PDUs do
+        it 'index of a model in CHOICE corresponds to its PDU number' do
+          pdus = SNMP::PDUs.new
+          
+          (0..8).each do |i|
+            expect(pdus.value[i].tag & 0x1f).to eq(i)
+          end
+        end
+      end
     end
   end
 end
