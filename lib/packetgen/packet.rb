@@ -203,7 +203,7 @@ module PacketGen
     # @return [Array] see return from {PcapNG::File#to_file}
     # @see File
     def to_f(filename)
-      File.new.array_to_file(filename: filename, array: [self])
+      PcapNG::File.new.array_to_file(filename: filename, array: [self])
     end
     alias :write :to_f
 
