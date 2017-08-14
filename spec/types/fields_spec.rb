@@ -152,6 +152,46 @@ module PacketGen
             to raise_error(TypeError, 'f1 is not a PacketGen::Types::Int')
         end
       end
+
+      context 'may define an optional field' do
+        class FOptional < Fields
+          define_field :u8, Types::Int32
+          define_bit_fields_on :u8, :present, :others, 31
+          define_field :optional, Types::Int32, optional: ->(fo) { fo.present? }
+        end
+
+        let(:f) { FOptional.new }
+
+        it 'which is listed in optional fields' do
+          expect(f.is_optional?(:optional)).to be(true)
+          expect(f.optional_fields).to include(:optional)
+          expect(f.optional_fields).to_not include(:u8)
+        end
+
+        it 'which may be parsed' do
+          f.read(PacketGen.force_binary("\x80\x00\x00\x00\x01\x23\x45\x67"))
+          expect(f.present?).to be(true)
+          expect(f.optional).to eq(0x1234567)
+        end
+
+        it 'which may be not parsed' do
+          f.read(PacketGen.force_binary("\x00\x00\x00\x00\x01\x23\x45\x67"))
+          expect(f.present?).to be(false)
+          expect(f.optional).to eq(0)
+        end
+
+        it 'which may be serialized' do
+          f.present = true
+          f.optional = 0x89abcdef
+          expect(f.to_s).to eq(PacketGen.force_binary("\x80\x00\x00\x00\x89\xab\xcd\xef"))
+        end
+
+        it 'which may be not serialized' do
+          f.present = false
+          f.optional = 0x89abcdef
+          expect(f.to_s).to eq(PacketGen.force_binary("\x00\x00\x00\x00"))
+        end
+      end
     end
   end
 end
