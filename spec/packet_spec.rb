@@ -285,9 +285,38 @@ module PacketGen
     end
 
     describe '#to_w' do
+      it 'send packet on wire', :sudo do
+        pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: 'ff:ff:ff:ff:ff:ff').
+                add('IP', src: '128.1.2.3', dst: '129.1.2.3')
+        Thread.new { sleep 0.1; pkt.to_w('lo') }
+        packets = Packet.capture(iface: 'lo', max: 1,
+                                 filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                 timeout: 2)
+        packet = packets.first
+        expect(packet.is? 'Eth').to be(true)
+        expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
+        expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
+        expect(packet.eth.ethertype).to eq(0x0800)
+        expect(packet.ip.dst).to eq('129.1.2.3')
+      end
+
       it 'raises when first header do not implement #to_w' do
         pkt = Packet.gen('UDP')
         expect { pkt.to_w }.to raise_error(WireError, /don't known how to send/)
+      end
+    end
+
+    describe '#to_f' do
+      before(:each) { @write_file = Tempfile.new('packet') }
+      after(:each) { @write_file.close; @write_file.unlink }
+
+      it 'writes packet as a PcapNG file' do
+        pkt1 = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
+                add('UDP', sport: 45768, dport: 80)
+        pkt1.to_f(@write_file.path)
+
+        pkt2 = Packet.read(@write_file.path).first
+        expect(pkt2).to eq(pkt1)
       end
     end
 
