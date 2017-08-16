@@ -23,7 +23,7 @@ def write(filename, packets)
   Packet.write filename, packets
 end
 
-@config = Config.new
+@config = Packet::Config.new
 
 def config
   @config
