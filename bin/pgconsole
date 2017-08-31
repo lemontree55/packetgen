@@ -1,9 +1,17 @@
 #!/usr/bin/env ruby
 
-require 'bundler/setup'
 require 'packetgen'
 require 'packetgen/config'
-require 'pry'
+
+use_pry = false
+begin
+  require 'pry'
+  use_pry = true
+  puts "use Pry!"
+rescue LoadError
+  require 'irb'
+  require 'irb/completion'
+end
 
 include PacketGen
 
@@ -29,13 +37,42 @@ def config
   @config
 end
 
-Pry.config.prompt = [
-  proc { |target_self, nest_level, pry|
-    "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
-     },
-  proc { |target_self, nest_level, pry|
-    "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
-  }
-]
-Pry.config.prompt_name = 'pg'
-Pry.start
+def start_message(use_pry)
+  print "\npgconsole uses #{use_pry ? 'Pry' : 'IRB'}\n\n"
+end
+
+start_message use_pry
+
+if use_pry
+  Pry.config.prompt = [
+    proc { |target_self, nest_level, pry|
+      "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+    },                                                                           
+    proc { |target_self, nest_level, pry|                                           
+      "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "       
+    }
+  ]
+  Pry.config.prompt_name = 'pg'
+  Pry.start
+else
+  IRB.setup nil
+  irb = IRB::Irb.new(IRB::WorkSpace.new(binding))
+  IRB.conf[:MAIN_CONTEXT] = irb.context
+  irb.context.auto_indent_mode = true
+  irb.context.prompt_i = "pg(%m)>"
+  irb.context.prompt_s = "pg(%m)*"
+  irb.context.prompt_c = "pg(%m)*"
+
+  trap("SIGINT") do
+    irb.signal_handle
+  end
+
+  begin
+    catch(:IRB_EXIT) do
+      irb.eval_input
+    end
+  ensure
+    IRB.irb_at_exit
+  end
+end
+   
