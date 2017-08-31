@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.1.0'
 
   spec.add_dependency 'pcaprub', '~>0.12.4'
-  spec.add_dependency 'pry', '~>0.10'
   spec.add_dependency 'network_interface'
   spec.add_dependency 'net-proto', '~>1.2'
   spec.add_dependency 'rasn1', '~>0.3', '>= 0.3.1'
