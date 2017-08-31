@@ -132,7 +132,7 @@ pkt.myheader.field2.read 0x01
 ```
 
 ## Interactive console
-PacketGen provides an interactive console, based on `pry`: `pgconsole`.
+PacketGen provides an interactive console: `pgconsole`.
 
 In this console, context includes PacketGen module to give direct access to PacketGen
 classes. A special `config` object gives local network configuration:
@@ -145,6 +145,8 @@ classes. A special `config` object gives local network configuration:
      @ipaddr="192.168.0.2">
     pg(main)> packets = capture(max: 5)
     pg(main)> exit
+
+If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is used.
 
 ## Pull requests?
 
