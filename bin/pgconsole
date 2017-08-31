@@ -31,7 +31,7 @@ def write(filename, packets)
   Packet.write filename, packets
 end
 
-@config = Config.new
+@config = PacketGen::Config.new
 
 def config
   @config
