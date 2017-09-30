@@ -1,3 +1,8 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 require 'network_interface'
 require 'socket'
 
@@ -5,24 +10,24 @@ module PacketGen
 
   # Config class to provide +config+ object to pgconsole
   # @author Sylvain Daubert
-  # @author Kent 'picat' Gruber 
+  # @author Kent 'picat' Gruber
   class Config
 
     # Default network interface
-    # @return [String] 
+    # @return [String]
     attr_reader :iface
     # MAC address of default interface
-    # @return [String] 
+    # @return [String]
     attr_reader :hwaddr
     # IP address of default interface
-    # @return [String] 
+    # @return [String]
     attr_reader :ipaddr
     # IPv6 address of default interface
-    # @return [String] 
+    # @return [String]
     attr_reader :ip6addr
 
     # Create a configuration object. If +iface+ is not set,
-    # attempt to find it automatically or default to the 
+    # attempt to find it automatically or default to the
     # first available loopback interface.
     # @param [String,nil] iface
     def initialize(iface=nil)
