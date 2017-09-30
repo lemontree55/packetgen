@@ -276,7 +276,7 @@ module PacketGen
           end
           str
         end
-     end
+      end
 
       class TSr < TSi
         # Payload type number

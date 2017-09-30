@@ -47,9 +47,9 @@ if use_pry
   Pry.config.prompt = [
     proc { |target_self, nest_level, pry|
       "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
-    },                                                                           
-    proc { |target_self, nest_level, pry|                                           
-      "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "       
+    },
+    proc { |target_self, nest_level, pry|
+      "#{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
     }
   ]
   Pry.config.prompt_name = 'pg'
@@ -75,4 +75,3 @@ else
     IRB.irb_at_exit
   end
 end
-   
