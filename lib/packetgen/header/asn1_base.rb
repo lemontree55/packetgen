@@ -8,6 +8,8 @@ module PacketGen
   module Header
 
     # @abstract Base class for ASN.1 header types.
+    #    This class implement minimal {Base} API to mimic a {Base} object.
+    #    
     #    Subclasses may define magic methods:
     #    * {#parse?}.
     # @author Sylvain Daubert
