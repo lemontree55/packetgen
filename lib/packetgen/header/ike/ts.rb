@@ -105,10 +105,10 @@ module PacketGen
         # @return [Integer]
         def protocol=(value)
           protocol = case value
-               when Integer
+                when Integer
                  value
                else
-                 Net::Proto.getprotobyname(value)
+                 Proto.getprotobyname(value)
                end
           raise ArgumentError, "unknown protocol #{value.inspect}" unless protocol
           self[:protocol].value = protocol
@@ -132,7 +132,7 @@ module PacketGen
           if protocol == 0
             ''
           else
-            Net::Proto.getprotobynumber(protocol) || "#{protocol}"
+            Proto.getprotobynumber(protocol) || "#{protocol}"
           end
         end
 
