@@ -148,6 +148,10 @@ classes. A special `config` object gives local network configuration:
 
 If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is used.
 
+## API documentation
+
+see http://www.rubydoc.info/gems/packetgen
+
 ## Pull requests?
 
 yes

@@ -45,7 +45,7 @@ module PacketGen
   #  Packet.write 'file.pcapng', packets
   #
   # @since 2.0.0
-  #   
+  #
   #   Packet accessor has changed. When header class is in a namespace
   #   (for example Dot11::* header classes), to avoid clashes in names, such
   #   accessors are named +namespace_class+. For example {Header::Dot11::Data}
@@ -97,7 +97,7 @@ module PacketGen
       capture.packets
     end
 
-    # Read packets from +filename+.
+    # Read packets from +filename+. Mays read Pcap and Pcap-NG formats.
     #
     # For more control, see {PcapNG::File} or {PCAPRUB::Pcap}.
     # @param [String] filename PcapNG or Pcap file.
@@ -111,7 +111,7 @@ module PacketGen
         raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
         packets = []
         PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
-          next unless packet = PacketGen.parse(packet.to_s)  
+          next unless packet = PacketGen.parse(packet.to_s)
           packets << packet
         end
         packets
