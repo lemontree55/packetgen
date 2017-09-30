@@ -118,9 +118,9 @@ module PacketGen
           end
 
           it 'accepts String' do
-            ts.protocol = 'ospf'
-            expect(ts.protocol).to eq(89)
-            expect(ts.human_protocol).to eq('ospf')
+            ts.protocol = 'tcp'
+            expect(ts.protocol).to eq(6)
+            expect(ts.human_protocol).to eq('tcp')
           end
 
           it 'raises on unknown protocol (String only)' do
@@ -136,9 +136,9 @@ module PacketGen
             expected = "\x07\x02\x00\x10\x00\x00\xff\xff\x2a\x17\x05\x59\x2a\x17\x05\x59"
             expect(ts.to_s).to eq(PacketGen.force_binary expected)
 
-            ts = TrafficSelector.new(protocol: 'sctp', ports: 64..65,
+            ts = TrafficSelector.new(protocol: 'udp', ports: 64..65,
                                      start_addr: '2a00::1', end_addr: '2a00::2')
-            expected = "\x08\x84\x00\x28\x00\x40\x00\x41"
+            expected = "\x08\x11\x00\x28\x00\x40\x00\x41"
             expected << IPAddr.new('2a00::1').hton << IPAddr.new('2a00::2').hton
             expect(ts.to_s).to eq(PacketGen.force_binary expected)
           end
@@ -149,9 +149,9 @@ module PacketGen
             ts = TrafficSelector.new(protocol: 'igmp', start_addr: '42.23.5.89',
                                      end_addr: '42.23.5.89')
             expect(ts.to_human).to eq('42.23.5.89-42.23.5.89/igmp')
-            ts = TrafficSelector.new(protocol: 'sctp', ports: 64..65,
+            ts = TrafficSelector.new(protocol: 'udp', ports: 64..65,
                                      start_addr: '2a00::1', end_addr: '2a00::2')
-            expect(ts.to_human).to eq('2a00::1-2a00::2/sctp[64-65]')
+            expect(ts.to_human).to eq('2a00::1-2a00::2/udp[64-65]')
           end
         end
       end
