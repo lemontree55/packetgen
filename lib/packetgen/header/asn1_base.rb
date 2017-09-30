@@ -9,7 +9,7 @@ module PacketGen
 
     # @abstract Base class for ASN.1 header types.
     #    This class implement minimal {Base} API to mimic a {Base} object.
-    #    
+    #
     #    Subclasses may define magic methods:
     #    * {#parse?}.
     # @author Sylvain Daubert
@@ -58,6 +58,8 @@ module PacketGen
         @method_name = protocol_name.downcase.sub(/::/, '_')
       end
 
+      # Called by {Packet#parse} when guessing first header to check if header
+      # is correct
       # @return [true]
       def parse?
         true
