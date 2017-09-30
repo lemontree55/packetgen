@@ -1,8 +1,13 @@
 # coding: utf-8
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
 module PacketGen
   module Header
     class IKE
-      
+
       # This class handles Key Exchange payloads, as defined in RFC 7296 §3.4
       #
       # A KE payload contains a generic payload header (see {Payload}) and some
