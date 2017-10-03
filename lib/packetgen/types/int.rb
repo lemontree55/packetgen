@@ -36,6 +36,10 @@ module PacketGen
         @default = default
       end
 
+      # @abstract
+      # Read an Int from a binary string or an integer
+      # @param [Integer, String] value
+      # @return [self]
       def read(value)
         @value = if value.is_a?(Integer)
                    value.to_i
