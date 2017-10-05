@@ -60,7 +60,8 @@ module PacketGen
     # * +:builder+ to give a builder/constructor lambda to create field. The lambda
     #   takes one argument: {Fields} subclass object owning field,
     # * +:optional+ to define this field as optional. This option takes a lambda
-    #   parameter used to say if this field is present or not.
+    #   parameter used to say if this field is present or not,
+    # * +:enum+ to define Hash enumeration for an {Enum} type.
     # For example:
     #   # 32-bit integer field defaulting to 1
     #   define_field :type, PacketGen::Types::Int32, default: 1
@@ -71,6 +72,8 @@ module PacketGen
     #   define_field :body_size, PacketGen::Type::Int16
     #   # String field which length is taken from body_size field
     #   define_field :body, PacketGen::Type::String, builder: ->(obj) { PacketGen::Type::String.new('', length_from: obj[:body_size]) }
+    #   # 16-bit enumeration type. As :default not specified, default to first value of enum
+    #   define_field :type_class, PacketGen::Type::Int16Enum, enum: { 'class1' => 1, 'class2' => 2}
     #
     # {.define_field_before} and {.define_field_after} are also defined to relatively
     # create a field from anoher one (for example, when adding a field in a subclass).
@@ -133,16 +136,21 @@ module PacketGen
       # @option options [Lambda] :optional define this field as optional. Given lambda
       #   is used to known if this field is present or not. Parameter to this lambda is
       #   the being defined Field object.
+      # @option options [Hash] :enum mandatory option for an {Enum} type.
+      #   Define enumeration: hash's keys are +String+, and values are +Integer+.
       # @return [void]
       def self.define_field(name, type, options={})
         define = []
-        if type < Types::Int
+        if type < Types::Enum
+          define << "def #{name}; self[:#{name}].to_i; end"
+          define << "def #{name}=(val) self[:#{name}].value = val; end"
+        elsif type < Types::Int
           define << "def #{name}; self[:#{name}].to_i; end"
           define << "def #{name}=(val) self[:#{name}].read val; end"
         elsif type.instance_methods.include? :to_human and
-             type.instance_methods.include? :from_human
-          define << "def #{name}; self[:#{name}].to_human; end"
-          define << "def #{name}=(val) self[:#{name}].from_human val; end"
+           type.instance_methods.include? :from_human
+           define << "def #{name}; self[:#{name}].to_human; end"
+           define << "def #{name}=(val) self[:#{name}].from_human val; end"
         else
           define << "def #{name}; self[:#{name}]; end\n"
           define << "def #{name}=(val) self[:#{name}].read val; end"
@@ -151,8 +159,11 @@ module PacketGen
         define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
         define.delete(0) if type.instance_methods.include? name
         class_eval define.join("\n")
-        @field_defs[name] = [type, options.delete(:default), options.delete(:builder),
-                             options.delete(:optional), options]
+        @field_defs[name] = [type, options.delete(:default),
+                             options.delete(:builder),
+                             options.delete(:optional),
+                             options.delete(:enum),
+                             options]
         @ordered_fields << name
       end
 
@@ -285,8 +296,10 @@ module PacketGen
           default = ary[1].is_a?(Proc) ? ary[1].call : ary[1]
           @fields[field] = if ary[2]
                              ary[2].call(self)
-                           elsif !ary[4].empty?
+                           elsif ary[4]
                              ary[0].new(ary[4])
+                           elsif !ary[5].empty?
+                             ary[0].new(ary[5])
                            else
                              ary[0].new
                            end
