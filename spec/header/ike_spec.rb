@@ -32,7 +32,7 @@ module PacketGen
           expect(ike.resp_spi).to eq(0)
           expect(ike.next).to eq(0)
           expect(ike.version).to eq(0x20)
-          expect(ike.exchange_type).to eq(0)
+          expect(ike.exchange_type).to eq(34)
           expect(ike.flags).to eq(0)
           expect(ike.message_id).to eq(0)
           expect(ike.length).to eq(28)
@@ -45,7 +45,7 @@ module PacketGen
             resp_spi: 0x08090a0b_0c0d0e0f,
             next: 255,
             version: 0x50,
-            exchange_type: 240,
+            exchange_type: 36,
             flags: 0x80,
             message_id: 0x12345678,
             length: 0x400
@@ -142,9 +142,9 @@ module PacketGen
           expect(ike0.payloads[2]).to be_a(IKE::Nonce)
           expect(packets[0].is?('IKE::Notify')).to be(true)
           expect(ike0.payloads[3]).to be_a(IKE::Notify)
-          expect(ike0.payloads[3].type).to eq(IKE::Notify::TYPE_NAT_DETECTION_SOURCE_IP)
+          expect(ike0.payloads[3].type).to eq(IKE::Notify::TYPES['NAT_DETECTION_SOURCE_IP'])
           expect(ike0.payloads[4]).to be_a(IKE::Notify)
-          expect(ike0.payloads[4].type).to eq(IKE::Notify::TYPE_NAT_DETECTION_DESTINATION_IP)
+          expect(ike0.payloads[4].type).to eq(IKE::Notify::TYPES['NAT_DETECTION_DESTINATION_IP'])
         end
       end
 

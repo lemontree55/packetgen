@@ -94,7 +94,7 @@ module PacketGen
             @init_pkt = pkts[0]
             @nonce_r = pkts[1].ike_nonce.content
             @prf = pkts[1].ike_sa.proposals.first.transforms.
-                   find { |t| t.type == Transform::TYPE_PRF }.id
+                   find { |t| t.type == Transform::TYPES['PRF'] }.id
             @auth_pkt = pkts[2]
             sk_ei = ['B37E73D129FFE681D2E3AA3728C2401E' \
                      'D50160E39FD55EF1A1EAE0D3F4AA6126D8B8A626'].pack('H*')

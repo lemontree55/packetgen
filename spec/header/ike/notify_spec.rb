@@ -24,7 +24,7 @@ module PacketGen
               length: 128,
               protocol: 43,
               spi_size: 55,
-              message_type: 0x8765,
+              message_type: 16389,
               spi: "\x00\x01",
               content: 'abcdefghij'
             }
@@ -70,26 +70,6 @@ module PacketGen
 
           it 'raises on unknown type (String only)' do
             expect { notify.protocol = 'TCP' }.to raise_error(ArgumentError)
-          end
-        end
-
-        describe '#message_type=' do
-          let(:notify)  { Notify.new }
-
-          it 'accepts Integer' do
-            expect { notify.message_type = 59 }.to_not raise_error
-            expect(notify.message_type).to eq(59)
-            expect(notify.human_type).to eq('type 59')
-          end
-
-          it 'accepts String' do
-            expect { notify.message_type = 'AUTHENTICATION_FAILED' }.to_not raise_error
-            expect(notify.message_type).to eq(Notify::TYPE_AUTHENTICATION_FAILED)
-            expect(notify.human_type).to eq('AUTHENTICATION_FAILED')
-          end
-
-          it 'raises on unknown type (String only)' do
-            expect { notify.message_type = 'READ_ERROR' }.to raise_error(ArgumentError)
           end
         end
 

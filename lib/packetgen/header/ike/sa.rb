@@ -122,11 +122,13 @@ module PacketGen
       # @author Sylvain Daubert
       class Transform < Types::Fields
 
-        TYPE_ENCR = 1
-        TYPE_PRF  = 2
-        TYPE_INTG = 3
-        TYPE_DH   = 4
-        TYPE_ESN  = 5
+        TYPES = {
+          'ENCR' => 1,
+          'PRF'  => 2,
+          'INTG' => 3,
+          'DH'   => 4,
+          'ESN'  => 5
+        }.freeze
 
         ENCR_DES_IV64          = 1
         ENCR_DES               = 2
@@ -215,7 +217,7 @@ module PacketGen
         #  8-bit transform type. The Transform Type is the cryptographic
         #  algorithm type (i.e. encryption, PRF, integrity, etc.)
         #  @return [Integer]
-        define_field :type, Types::Int8
+        define_field :type, Types::Int8Enum, enum: TYPES
         # @!attribute rsv2
         #  8-bit reserved field
         #  @return [Integer]
@@ -235,21 +237,6 @@ module PacketGen
           self[:length].value = sz unless options[:length]
           self.type = options[:type] if options[:type]
           self.id = options[:id] if options[:id]
-        end
-
-        # Set transform type
-        # @param [Integer,String] value
-        # @return [Integer]
-        def type=(value)
-          type = case value
-                 when Integer
-                   value
-                 else
-                   c = self.class.constants.grep(/TYPE_#{value}/).first
-                   c ? self.class.const_get(c) : nil
-                 end
-          raise ArgumentError, "unknown type #{value.inspect}" unless type
-          self[:type].value = type
         end
 
         # Set transform ID
@@ -295,10 +282,11 @@ module PacketGen
         # Get human-readable type
         # @return [String]
         def human_type
-          name = self.class.constants.grep(/TYPE/).
-                 select { |c| self.class.const_get(c) == type }.
-                 first || "type[#{type}]"
-          name.to_s.sub(/TYPE_/, '')
+          if self[:type].enum.has_value? self.type
+            self[:type].to_human
+          else
+            "type[#{self.type}]"
+          end
         end
 
         # Get human-readable ID

@@ -10,7 +10,7 @@ module PacketGen
             expect(certreq.next).to eq(0)
             expect(certreq.flags).to eq(0)
             expect(certreq.length).to eq(5)
-            expect(certreq.encoding).to eq(0)
+            expect(certreq.encoding).to eq(1)
             expect(certreq.content).to be_empty
           end
 
@@ -19,7 +19,7 @@ module PacketGen
               next: 59,
               flags: 0x65,
               length: 128,
-              encoding: 0xf0,
+              encoding: 13,
               content: 'abcdefghij'
             }
 
@@ -49,14 +49,14 @@ module PacketGen
           let(:certreq)  { CertReq.new }
 
           it 'accepts Integer' do
-            expect { certreq.encoding = 59 }.to_not raise_error
-            expect(certreq.encoding).to eq(59)
-            expect(certreq.human_encoding).to eq('encoding 59')
+            expect { certreq.encoding = 2 }.to_not raise_error
+            expect(certreq.encoding).to eq(2)
+            expect(certreq.human_encoding).to eq('PGP')
           end
 
           it 'accepts String' do
             expect { certreq.encoding = 'X509_CRL' }.to_not raise_error
-            expect(certreq.encoding).to eq(CertReq::ENCODING_X509_CRL)
+            expect(certreq.encoding).to eq(CertReq::ENCODINGS['X509_CRL'])
             expect(certreq.human_encoding).to eq('X509_CRL')
           end
 

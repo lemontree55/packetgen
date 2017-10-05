@@ -78,19 +78,21 @@ module PacketGen
       PROTO_AH  = 2
       PROTO_ESP = 3
 
-      TYPE_IKE_SA_INIT     = 34
-      TYPE_IKE_AUTH        = 35
-      TYPE_CREATE_CHILD_SA = 36
-      TYPE_INFORMATIONAL   = 37
+      EXCHANGE_TYPES = {
+        'IKE_SA_INIT'     => 34,
+        'IKE_AUTH'        => 35,
+        'CREATE_CHILD_SA' => 36,
+        'INFORMATIONAL'   => 37
+      }.freeze
 
       # @!attribute init_spi
       #  64-bit initiator SPI
       #  @return [Integer]
-      define_field :init_spi, Types::Int64 
+      define_field :init_spi, Types::Int64
       # @!attribute resp_spi
       #  64-bit responder SPI
       #  @return [Integer]
-      define_field :resp_spi, Types::Int64 
+      define_field :resp_spi, Types::Int64
       # @!attribute next
       #  8-bit next payload type
       #  @return [Integer]
@@ -102,7 +104,7 @@ module PacketGen
       # @!attribute [r] exchange_type
       #  8-bit exchange type
       #  @return [Integer]
-      define_field :exchange_type, Types::Int8
+      define_field :exchange_type, Types::Int8Enum, enum: EXCHANGE_TYPES
       # @!attribute flags
       #  8-bit flags
       #  @return [Integer]
@@ -152,30 +154,13 @@ module PacketGen
         self.type = options[:exchange_type] if options[:exchange_type]
       end
 
-        # Set exchange type
-        # @param [Integer,String] value
-        # @return [Integer]
-      def exchange_type=(value)
-        type = case value
-               when Integer
-                 value
-               else
-                 c = self.class.constants.grep(/TYPE_#{value}/).first
-                 c ? self.class.const_get(c) : nil
-               end
-        raise ArgumentError, "unknown exchange type #{value.inspect}" unless type
-        self[:exchange_type].value = type
-      end
       alias type exchange_type
       alias type= exchange_type=
 
       # Get exchange type name
       # @return [String
       def human_exchange_type
-          name = self.class.constants.grep(/TYPE_/).
-                 select { |c| self.class.const_get(c) == type }.
-                 first || "type #{type}"
-          name.to_s.sub(/TYPE_/, '')
+        self[:exchange_type].to_human
       end
       alias human_type human_exchange_type
 

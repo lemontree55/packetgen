@@ -9,7 +9,7 @@ module PacketGen
           expect(Eth).to know_header(Dot1x).with(ethertype: 0x888e)
         end
       end
-      
+
       describe '#initialize' do
         it 'creates a Dot1x header with default values' do
           ip = Dot1x.new
@@ -65,7 +65,7 @@ module PacketGen
             expect(dot1x.to_s).to eq(PacketGen.force_binary expected)
           end
         end
-        
+
         describe '#inspect' do
           it 'returns a String with all attributes' do
             dot1x = Dot1x.new
@@ -76,28 +76,7 @@ module PacketGen
             end
           end
         end
-
-        describe '#type=' do
-          let(:dot1x) { Dot1x.new }
-
-          it 'accepts Integers' do
-            dot1x.type = 250
-            expect(dot1x.type).to eq(250)
-          end
-
-          it 'accepts known Strings' do
-            Dot1x::TYPES.each do |val, name|
-              dot1x.type = name
-              expect(dot1x.type).to eq(val)
-            end
-          end
-
-          it 'raises on unknown String' do
-            expect { dot1x.type = 'unknown' }.to raise_error(ArgumentError)
-          end
-        end
       end
     end
   end
 end
-

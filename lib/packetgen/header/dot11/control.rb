@@ -49,7 +49,6 @@ module PacketGen
           if @applicable_fields.include? :mac2
             @applicable_fields -= %i(mac2) unless SUBTYPES_WITH_MAC2.include? self.subtype
           elsif SUBTYPES_WITH_MAC2.include? self.subtype
-            sz = self.sz
             @applicable_fields[3, 0] = :mac2
           end
         end

@@ -26,19 +26,19 @@ module PacketGen
 
       # IEEE 802.1X packet types
       TYPES = {
-        0 => 'EAP Packet',
-        1 => 'Start',
-        2 => 'Logoff',
-        3 => 'Key',
-        4 => 'Encap-ASF-Alert'
-      }
+        'EAP Packet'      => 0,
+        'Start'           => 1,
+        'Logoff'          => 2,
+        'Key'             => 3,
+        'Encap-ASF-Alert' => 4
+      }.freeze
 
       # @!attribute version
       #  @return [Integer] 8-bit Protocol Version
       define_field :version, Types::Int8, default: 1
       # @!attribute type
       #  @return [Integer] 8-bit Packet Type
-      define_field :type, Types::Int8
+      define_field :type, Types::Int8Enum, enum: TYPES
       # @!attribute length
       #  @return [Integer] 16-bit body length
       define_field :length, Types::Int16
@@ -46,29 +46,10 @@ module PacketGen
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
 
-      # @private
-      alias old_type= type=
-
-      # Set type attribute
-      # @param [String,Integer] type
-      # @return [Integer]
-      def type=(type)
-        case type
-        when Integer
-          self.old_type = type
-        else
-          v = TYPES.key(type.to_s)
-          raise ArgumentError, "unknown type #{type}" if v.nil?
-          self.old_type = v
-        end
-      end
-
       # Get human readable type
       # @return [String]
       def human_type
-        v = TYPES[self.type]
-        v = self.type if v.nil?
-        v.to_s
+        self[:type].to_human
       end
     end
 

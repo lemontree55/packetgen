@@ -317,7 +317,7 @@ module PacketGen
           unless @applicable_fields.include? :ht_ctrl
             idx = @applicable_fields.index(:body)
             @applicable_fields[idx, 0] = :ht_ctrl
-            end
+          end
         else
           @applicable_fields -= %i(ht_ctrl)
         end

@@ -103,7 +103,7 @@ module PacketGen
             expect(trans.last?).to be(true)
             expect(trans.rsv1).to eq(0)
             expect(trans.length).to eq(8)
-            expect(trans.type).to eq(0)
+            expect(trans.type).to eq(1)
             expect(trans.rsv2).to eq(0)
             expect(trans.id).to eq(0)
             expect(trans.attributes).to be_empty
@@ -126,7 +126,7 @@ module PacketGen
 
           it 'accepts String for type and id options' do
             trans = Transform.new(type: 'DH', id: 'ECP384')
-            expect(trans.type).to eq(Transform::TYPE_DH)
+            expect(trans.type).to eq(Transform::TYPES['DH'])
             expect(trans.id).to eq(Transform::DH_ECP384)
           end
 
@@ -167,10 +167,10 @@ module PacketGen
           end
 
           it 'returns a human readable string with undefined type and ID' do
-            @trans.type = 10
+            @trans[:type].read 50
             @trans.id = 60
             @trans.attributes.clear
-            expect(@trans.to_human).to eq('type[10](ID=60)')
+            expect(@trans.to_human).to eq('type[50](ID=60)')
           end
 
           describe '#attributes' do
@@ -181,14 +181,14 @@ module PacketGen
               expect { trans.attributes << attr }.to change(trans.attributes, :size).by(1)
               attr = Attribute.new(type: 12, value: 7)
               expect { trans.attributes << attr }.to change(trans.attributes, :size).by(1)
-              expect(trans.to_human).to eq('type[0](ID=0,KEY_LENGTH=128,attr[12]=7)')
+              expect(trans.to_human).to eq('ENCR(ID=0,KEY_LENGTH=128,attr[12]=7)')
             end
 
             it 'accepts a Hash describing an attribute' do
               expect { trans.attributes << { type: 0x800e, value: 192 } }.
                 to change(trans.attributes, :size).by(1)
               expect(trans.attributes.first).to be_a(Attribute)
-              expect(trans.to_human).to eq('type[0](ID=0,KEY_LENGTH=192)')
+              expect(trans.to_human).to eq('ENCR(ID=0,KEY_LENGTH=192)')
             end
           end
         end

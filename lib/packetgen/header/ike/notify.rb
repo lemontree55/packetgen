@@ -40,70 +40,44 @@ module PacketGen
       #   pkt = PacketGen.gen('IP').add('UDP').add('IKE').add('IKE::Notify', protocol: 'ESP', spi_size: 4, type: 'INVALID_SYNTAX')
       #   pkt.ike_notify.spi.read PacketGen::Types::Int32.new(0x12345678).to_s
       #   pkt.calc_length
-      # @author Sylvain Daubert
+      #   @author Sylvain Daubert
       class Notify < Payload
 
         # Payload type number
         PAYLOAD_TYPE = 41
 
-        # Unsupported critical payload
-        TYPE_UNSUPPORTED_CRITICAL_PAYLOAD = 1
-        # Invalid IKE SPI
-        TYPE_INVALID_IKE_SPI = 4
-        # Invalid major version
-        TYPE_INVALID_MAJOR_VERSION = 5
-        # Invalid syntax
-        TYPE_INVALID_SYNTAX = 7
-        # Invalid message ID
-        TYPE_INVALID_MESSAGE_ID = 9
-        # Invalid SPI
-        TYPE_INVALID_SPI = 11
-        # No proposal chosen (none of the proposed crypto suites was acceptable)
-        TYPE_NO_PROPOSAL_CHOSEN = 14
-        # Invalid KE payload
-        TYPE_INVALID_KE_PAYLOAD = 17
-        # Authentication failed
-        TYPE_AUTHENTICATION_FAILED = 24
-        # Single pair required
-        TYPE_SINGLE_PAIR_REQUIRED = 34
-        # No additional SAs
-        TYPE_NO_ADDITIONAL_SAS = 35
-        # Internal address failture
-        TYPE_INTERNAL_ADDRESS_FAILURE = 36
-        # Failed CP required
-        TYPE_FAILED_CP_REQUIRED = 37
-        # traffic selectors unacceptable
-        TYPE_TS_UNACCEPTABLE  = 38
-        # invalid selectors
-        TYPE_INVALID_SELECTORS = 39
-        # Temporary failure
-        TYPE_TEMPORARY_FAILURE = 43
-        # Child SA not found
-        TYPE_CHILD_SA_NOT_FOUND = 44
-        # Initial contact
-        TYPE_INITIAL_CONTACT = 16384
-        # Set window size
-        TYPE_SET_WINDOW_SIZE = 16385
-        # Additional traffic selector possible
-        TYPE_ADDITIONAL_TS_POSSIBLE = 16386
-        # IPcomp supported
-        TYPE_IPCOMP_SUPPORTED = 16387
-        # NAT detection source IP
-        TYPE_NAT_DETECTION_SOURCE_IP = 16388
-        # NAT detection destination IP
-        TYPE_NAT_DETECTION_DESTINATION_IP = 16389
-        # Cookie
-        TYPE_COOKIE = 16390
-        # Use transport mode (tunnel mode is default)
-        TYPE_USE_TRANSPORT_MODE = 16391
-        # HTTP certificate look up supported
-        TYPE_HTTP_CERT_LOOKUP_SUPPORTED = 16392
-        # Rekey SA
-        TYPE_REKEY_SA = 16393
-        # ESP TFC paddin not supported
-        TYPE_ESP_TFC_PADDING_NOT_SUPPORTED = 16394
-        # Non-first fragment also
-        TYPE_NON_FIRST_FRAGMENTS_ALSO = 16395
+        # Message types
+        TYPES = {
+          'UNSUPPORTED_CRITICAL_PAYLOAD'  => 1,
+          'INVALID_IKE_SPI'               => 4,
+          'INVALID_MAJOR_VERSION'         => 5,
+          'INVALID_SYNTAX'                => 7,
+          'INVALID_MESSAGE_ID'            => 9,
+          'INVALID_SPI'                   => 11,
+          'NO_PROPOSAL_CHOSEN'            => 14,
+          'INVALID_KE_PAYLOAD'            => 17,
+          'AUTHENTICATION_FAILED'         => 24,
+          'SINGLE_PAIR_REQUIRED'          => 34,
+          'NO_ADDITIONAL_SAS'             => 35,
+          'INTERNAL_ADDRESS_FAILURE'      => 36,
+          'FAILED_CP_REQUIRED'            => 37,
+          'TS_UNACCEPTABLE'               => 38,
+          'INVALID_SELECTORS'             => 39,
+          'TEMPORARY_FAILURE'             => 43,
+          'CHILD_SA_NOT_FOUND'            => 44,
+          'INITIAL_CONTACT'               => 16384,
+          'SET_WINDOW_SIZE'               => 16385,
+          'ADDITIONAL_TS_POSSIBLE'        => 16386,
+          'IPCOMP_SUPPORTED'              => 16387,
+          'NAT_DETECTION_SOURCE_IP'       => 16388,
+          'NAT_DETECTION_DESTINATION_IP'  => 16389,
+          'COOKIE'                        => 16390,
+          'USE_TRANSPORT_MODE'            => 16391,
+          'HTTP_CERT_LOOKUP_SUPPORTED'    => 16392,
+          'REKEY_SA'                      => 16393,
+          'ESP_TFC_PADDING_NOT_SUPPORTED' => 16394,
+          'NON_FIRST_FRAGMENTS_ALSO'      => 16395,
+        }.freeze
 
         # @!attribute [r] protocol
         #  8-bit protocol ID. If this notification concerns an existing
@@ -127,7 +101,7 @@ module PacketGen
         # @!attribute message_type
         #  16-bit notify message type. Specifies the type of notification message.
         #  @return [Integer]
-        define_field_before :content, :message_type, Types::Int16
+        define_field_before :content, :message_type, Types::Int16Enum, enum: TYPES, default: 0
         # @!attribute spi
         #   the sending entity's SPI. When the {#spi_size} field is zero,
         #   this field is not present in the proposal.
@@ -162,20 +136,6 @@ module PacketGen
           self[:protocol].value = proto
         end
 
-        # Set message type
-        # @param [Integer,String] value
-        # @return [Integer]
-        def message_type=(value)
-          type = case value
-               when Integer
-                 value
-               else
-                 c = self.class.constants.grep(/TYPE_#{value}/).first
-                 c ? self.class.const_get(c) : nil
-               end
-          raise ArgumentError, "unknown message type #{value.inspect}" unless type
-          self[:message_type].value = type
-        end
         alias type= message_type=
 
         # Get protocol name
@@ -190,10 +150,7 @@ module PacketGen
         # Get message type name
         # @return [String]
         def human_message_type
-          name = self.class.constants.grep(/TYPE_/).
-                 select { |c| self.class.const_get(c) == type }.
-                 first || "type #{type}"
-          name.to_s.sub(/TYPE_/, '')
+          self[:message_type].to_human
         end
         alias human_type human_message_type
 
