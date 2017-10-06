@@ -119,7 +119,7 @@ module PacketGen
       def to_s
         pad_field :data, :options
         recalc_block_len
-        fields.map { |f| @fields[f].to_s }.join
+        super
       end
 
 
