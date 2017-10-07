@@ -60,10 +60,12 @@ module PacketGen
     end
 
     # Format a ASN.1 attribute for +#inspect+.
-    # 3 cases are handled:
-    # * attribute value is a {Types::Int}: show value as integer and in
+    # 4 cases are handled:
+    # * attribute value is a =RANS1::Types::Enumerated+: show named value and
+    #   its integer value as hexdecimal format,
+    # * attribute value is a +RASN1::Types::Integer+: show value as integer and in
     #   hexdecimal format,
-    # * attribute value responds to +#to_human+: call it,
+    # * attribute value is a +RASN1::Model+: only show its root type,
     # * else, +#to_s+ is used to format attribute value.
     # @param [Symbol] name attribute name
     # @param [RASN1::Types::Base,RASN1::Model] attr attribute
@@ -98,7 +100,7 @@ module PacketGen
           o_str = octets.map { |v| " %02x" % v}.join
           str << o_str
           str << ' ' * (3*16 - o_str.size) unless o_str.size >= 3*16
-          str << '  ' << octets.map { |v| v < 128 && v > 13 ? v.chr : '.' }.join
+          str << '  ' << octets.map { |v| v < 128 && v > 31 ? v.chr : '.' }.join
           str << "\n"
         end
       end
