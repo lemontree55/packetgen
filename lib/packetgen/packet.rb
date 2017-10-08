@@ -99,7 +99,7 @@ module PacketGen
 
     # Read packets from +filename+. Mays read Pcap and Pcap-NG formats.
     #
-    # For more control, see {PcapNG::File} or {PCAPRUB::Pcap}.
+    # For more control, see {PcapNG::File} or +PCAPRUB::Pcap+.
     # @param [String] filename PcapNG or Pcap file.
     # @return [Array<Packet>]
     # @author Sylvain Daubert

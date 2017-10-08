@@ -203,7 +203,8 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # These specific fields are:
       # * {#num_ts},
-      # * {#reserved},
+      # * {#rsv1},
+      # * {#rsv2},
       # * and {#traffic_selectors}.
       #
       # == Create a TSi payload
@@ -228,7 +229,7 @@ module PacketGen
         #   First 8-bit RESERVED field
         #   @return [Integer]
         define_field_before :body, :rsv1, Types::Int8
-        # @!attribute rsv1
+        # @!attribute rsv2
         #   Last 16-bit RESERVED field
         #   @return [Integer]
         define_field_before :body, :rsv2, Types::Int16

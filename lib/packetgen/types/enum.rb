@@ -32,7 +32,6 @@ module PacketGen
       # @return [Hash]
       attr_reader :enum
 
-      # @param [Integer,nil] default default value
       # @param [Hash] enum enumerated values. Default value is taken from
       #   first element unless given.
       # @param [:little,:big,nil] endian
@@ -75,7 +74,6 @@ module PacketGen
     class Int8Enum < Enum
       # @param [Integer] default
       # @param [Hash] enum
-      # @param [Integer,nil] default default value
       def initialize(enum, default=nil)
         super(enum, nil, 1, default)
         @packstr = { nil => 'C' }
@@ -85,7 +83,6 @@ module PacketGen
     # Enumeration on 2-byte integer. See {Enum}.
     # @author Sylvain Daubert
     class Int16Enum < Enum
-      # @param [Integer] default
       # @param [Hash] enum
       # @param [:big, :little] endian
       # @param [Integer,nil] default default value
@@ -100,7 +97,6 @@ module PacketGen
     class Int16beEnum < Int16Enum
       undef endian=
 
-      # @param [Integer] default
       # @param [Hash] enum
       # @param [Integer,nil] default default value
       def initialize(enum, default=nil)
@@ -113,7 +109,6 @@ module PacketGen
     class Int16leEnum < Int16Enum
       undef endian=
 
-      # @param [Integer] default
       # @param [Hash] enum
       # @param [Integer,nil] default default value
       def initialize(enum, default=nil)
@@ -124,7 +119,6 @@ module PacketGen
     # Enumeration on 4-byte integer. See {Enum}.
     # @author Sylvain Daubert
     class Int32Enum < Enum
-      # @param [Integer] default
       # @param [Hash] enum
       # @param [:big, :little] endian
       # @param [Integer,nil] default default value
@@ -139,7 +133,6 @@ module PacketGen
     class Int32beEnum < Int32Enum
       undef endian=
 
-      # @param [Integer] default
       # @param [Hash] enum
       # @param [Integer,nil] default default value
       def initialize(enum, default=nil)
@@ -152,7 +145,6 @@ module PacketGen
     class Int32leEnum < Int32Enum
       undef endian=
 
-      # @param [Integer] default
       # @param [Hash] enum
       # @param [Integer,nil] default default value
       def initialize(enum, default=nil)

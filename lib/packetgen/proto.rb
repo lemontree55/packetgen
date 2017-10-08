@@ -33,7 +33,7 @@ module PacketGen
     end
 
     # Get protocol name from its number
-    # @param [Integer] number
+    # @param [Integer] num
     # @return [String,nil] return nil for unknown protocol numbers
     def self.getprotobynumber(num)
       @cache.key(num)
