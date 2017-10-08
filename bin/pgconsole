@@ -2,6 +2,7 @@
 
 require 'packetgen'
 require 'packetgen/config'
+require 'packetgen/utils'
 
 use_pry = false
 begin

@@ -35,7 +35,7 @@ module PacketGen
         begin
           iface = Pcap.lookupdev
         rescue PCAPRUB::BindingError
-          iface = NetworkInterface.interfaces.select { |iface| iface =~ /lo/ }.first
+          iface = NetworkInterface.interfaces.select { |i| i =~ /lo/ }.first
         end
       end
       @iface = iface
