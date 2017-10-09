@@ -14,28 +14,24 @@ rescue LoadError
   require 'irb/completion'
 end
 
-include PacketGen
+class PgConsole
+  include PacketGen
 
-def parse(binary_str, first_header: nil)
-  Packet.parse binary_str, first_header: first_header
-end
+  def config
+    @config ||= PacketGen::Config.new
+  end
 
-def capture(options={})
-  Packet.capture(options) { |packet| yield packet if block_given? }
-end
+  PacketGen.singleton_methods.each do |m|
+    define_method m, PacketGen.method(m).to_proc
+  end
 
-def read(filename)
-  Packet.read filename
-end
-
-def write(filename, packets)
-  Packet.write filename, packets
-end
-
-@config = PacketGen::Config.new
-
-def config
-  @config
+  Utils.singleton_methods.each do |m|
+    define_method m, Utils.method(m).to_proc
+  end
+  
+  def get_binding
+    binding
+  end
 end
 
 def start_message(use_pry)
@@ -54,15 +50,15 @@ if use_pry
     }
   ]
   Pry.config.prompt_name = 'pg'
-  Pry.start
+  PgConsole.new.get_binding.pry
 else
   IRB.setup nil
-  irb = IRB::Irb.new(IRB::WorkSpace.new(binding))
+  irb = IRB::Irb.new(IRB::WorkSpace.new(PgConsole.new.get_binding))
   IRB.conf[:MAIN_CONTEXT] = irb.context
   irb.context.auto_indent_mode = true
-  irb.context.prompt_i = "pg(%m)>"
-  irb.context.prompt_s = "pg(%m)*"
-  irb.context.prompt_c = "pg(%m)*"
+  irb.context.prompt_i = "pg> "
+  irb.context.prompt_s = "pg* "
+  irb.context.prompt_c = "pg* "
 
   trap("SIGINT") do
     irb.signal_handle
