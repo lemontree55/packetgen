@@ -305,7 +305,9 @@ module PacketGen
                            end
 
           value = options[field] || default
-          if ary[0] < Types::Int
+          if ary[0] < Types::Enum
+            @fields[field].value = value
+          elsif ary[0] < Types::Int
             @fields[field].read(value)
           elsif ary[0] <= Types::String
             @fields[field].read(value)

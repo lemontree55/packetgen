@@ -44,11 +44,13 @@ module PacketGen
       end
 
       # Setter for value attribute
-      # @param [Integer, String] v value as an Integer or as a String
+      # @param [Integer, String,nil] v value as an Integer or as a String
       #   from enumration
       # @return [Integer]
       def value=(v)
         ival = case v
+               when NilClass
+                 nil
                when ::String
                  raise ArgumentError, "#{v.inspect} not in enumeration" unless @enum.has_key? v
                  @enum[v]
