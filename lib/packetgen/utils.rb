@@ -3,10 +3,14 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 require_relative 'config'
+require_relative 'utils/arp_spoofer'
 
 module PacketGen
 
   # Collection of some network utilities.
+  #
+  # This module is not enabled by default. You need to:
+  #  require 'packetgen/utils'
   # @author Sylvain Daubert
   module Utils
 
@@ -51,7 +55,7 @@ module PacketGen
       timeout = options[:timeout] || 2
       
       arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: @config.hwaddr)
-      arp_pkt.add('ARP', sha: @config.hwaddr, tpa: ipaddr)
+      arp_pkt.add('ARP', sha: @config.hwaddr, spa: @config.ipaddr, tpa: ipaddr)
       
       capture = Capture.new(iface: iface, timeout: timeout, max: 3,
                             filter: "arp src #{ipaddr} and ether dst #{@config.hwaddr}")
@@ -71,6 +75,29 @@ module PacketGen
       else
         nil
       end
+    end
+    
+    # Do ARP spoofing on given IP address. Call to this method blocks.
+    #
+    # For more control, see {ARPSpoofer} class.
+    # @param [String] target_ip target IP address
+    # @param [String] spoofed_ip IP address to spoofed_ip
+    # @param [Hash] options
+    # @option options [String] :mac MAC address used to poison target
+    #   ARP cache. Default to local MAC address.
+    # @option options [Integer,nil] :for_seconds number of seconds to do ARP spoofing.
+    #   If not defined, spoof forever.
+    # @option options [Float,Integer] :interval number of seconds between 2
+    #   ARP packets (default: 1.0).
+    # @option options [String] :iface interface to use. Default to
+    #   {PacketGen.default_iface}
+    # @return [void]
+    def self.arp_spoof(target_ip, spoofed_ip, options={})
+      interval = options[:interval] || 1.0
+      as = ARPSpoofer.new(for_seconds: options[:for_seconds], interval: interval,
+                          iface: options[:iface])
+      as.start(target_ip, spoofed_ip, mac: options[:mac])
+      as.wait
     end
   end
 end
