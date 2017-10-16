@@ -52,12 +52,12 @@ module PacketGen
       end
 
       iface = options[:iface] || PacketGen.default_iface
-      timeout = options[:timeout] || 2
+      timeout = options[:timeout] || 1
       
       arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: @config.hwaddr)
       arp_pkt.add('ARP', sha: @config.hwaddr, spa: @config.ipaddr, tpa: ipaddr)
       
-      capture = Capture.new(iface: iface, timeout: timeout, max: 3,
+      capture = Capture.new(iface: iface, timeout: timeout, max: 1,
                             filter: "arp src #{ipaddr} and ether dst #{@config.hwaddr}")
       cap_thread = Thread.new do
         capture.start
