@@ -37,7 +37,6 @@ module PacketGen
           @ub.body = '123'
 
           str = "\x2a\x00\x00\x00\x10\x00\x00\x00123\x00\x10\x00\x00\x00"
-          p @ub.fields
           expect(@ub.to_s).to eq(PacketGen.force_binary(str))
         end
       end
