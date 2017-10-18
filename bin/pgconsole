@@ -16,6 +16,7 @@ end
 
 class PgConsole
   include PacketGen
+  include Utils
 
   def config
     @config ||= PacketGen::Config.new
