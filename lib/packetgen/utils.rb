@@ -14,9 +14,6 @@ module PacketGen
   # @author Sylvain Daubert
   module Utils
 
-    # @private
-    @config = Config.new
-
     # Get local ARP cache
     # @return [Hash] key: IP address, value: array containing MAC address and
     #    interface name
@@ -53,12 +50,12 @@ module PacketGen
 
       iface = options[:iface] || PacketGen.default_iface
       timeout = options[:timeout] || 1
-      
-      arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: @config.hwaddr)
+      my_hwaddr = Config.instance.hwaddr(iface)
+      arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: my_hwaddr)
       arp_pkt.add('ARP', sha: @config.hwaddr, spa: @config.ipaddr, tpa: ipaddr)
       
       capture = Capture.new(iface: iface, timeout: timeout, max: 1,
-                            filter: "arp src #{ipaddr} and ether dst #{@config.hwaddr}")
+                            filter: "arp src #{ipaddr} and ether dst #{my_hwaddr}")
       cap_thread = Thread.new do
         capture.start
       end

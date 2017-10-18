@@ -30,7 +30,6 @@ module PacketGen
         @timeout = @timeout.to_f if @timeout
         @interval = interval
         @iface = iface || PacketGen.default_iface
-        @config = Config.new
         @targets = {}
         @arp_packets = {}
         @spoof_thread = nil
@@ -177,7 +176,7 @@ module PacketGen
       # @return [Packet]
       def make_arp_packet(target_ip)
         params = @targets[target_ip]
-        mac = params[:mac] || @config.hwaddr
+        mac = params[:mac] || Config.instance.hwaddr(@iface)
 
         target_mac = params[:target_mac] || Utils.arp(target_ip)
 

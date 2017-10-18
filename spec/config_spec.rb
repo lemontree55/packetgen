@@ -4,19 +4,16 @@ require 'packetgen/config'
 module PacketGen
 
   describe Config do
-    describe '#initialize' do
-      it 'gets configuration of given interface' do
-        cfg = Config.new('lo')
-        expect(cfg.iface).to eq('lo')
-        expect(cfg.ipaddr).to eq('127.0.0.1')
-      end
+    let(:config) { Config.instance }
 
-      it 'gets configuration from first available interface when none is given' do
-        cfg = Config.new
-        expect(cfg.iface).to match(/lo|eth0|en0|wlan/)
-        expect(cfg.hwaddr).to match(/[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+/)
-        expect(cfg.ipaddr).to match(/\d+\.\d+\.\d+\.\d+/)
-      end
+    it 'gets configuration of given interface' do
+      expect(config.ipaddr('lo')).to eq('127.0.0.1')
+    end
+
+    it 'gets configuration from default interface when none is given' do
+      expect(config.default_iface).to match(/lo|eth0|en0|wlan/)
+      expect(config.hwaddr).to match(/[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+/)
+      expect(config.ipaddr).to match(/\d+\.\d+\.\d+\.\d+/)
     end
   end
 end

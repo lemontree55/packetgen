@@ -19,7 +19,7 @@ class PgConsole
   include Utils
 
   def config
-    @config ||= PacketGen::Config.new
+    PacketGen::Config.instance
   end
 
   PacketGen.singleton_methods.each do |m|
