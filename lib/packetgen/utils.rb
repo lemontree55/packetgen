@@ -53,7 +53,8 @@ module PacketGen
       timeout = options[:timeout] || 1
       my_hwaddr = Config.instance.hwaddr(iface)
       arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: my_hwaddr)
-      arp_pkt.add('ARP', sha: @config.hwaddr, spa: @config.ipaddr, tpa: ipaddr)
+      arp_pkt.add('ARP', sha: config.instance.hwaddr, spa: Config.instance.ipaddr,
+                  tpa: ipaddr)
       
       capture = Capture.new(iface: iface, timeout: timeout, max: 1,
                             filter: "arp src #{ipaddr} and ether dst #{my_hwaddr}")
@@ -96,6 +97,53 @@ module PacketGen
                           iface: options[:iface])
       as.start(target_ip, spoofed_ip, mac: options[:mac])
       as.wait
+    end
+
+    # Man in the middle attack. Capture all packets between two peers on
+    # same local network.
+    # @param [String] target1 IP address of first peer to attack
+    # @param [String] target2 IP address of second peer to attack
+    # @param [Hash] options
+    # @option options [Float,Integer] :interval number of seconds between 2
+    #   ARP packets (default: 1.0).
+    # @option options [String] :iface interface to use. Default to
+    #   {PacketGen.default_iface}
+    # @return [void]
+    # @yieldparam [Packet] pkt captured packets between target1 and target2
+    # @yieldreturn [Packet] packet to send to target1 or 2. This may be
+    #   modified received packet
+    # @example Change ID in packets
+    #   PacketGen::Utils.mitm('192.168.0.1', '192.168.0.45') do |pkt|
+    #     if pkt.ip.src == '192.168.0.1'
+    #       # 192.168.0.1 -> 192.168.0.45
+    #       pkt.ip.id = 1
+    #     else
+    #       # 192.168.0.45 -> 192.168.0.1
+    #       pkt.ip.id = 2
+    #     end
+    #     pkt
+    #   end
+    def self.mitm(target1, target2, options={})
+      options = { iface: PacketGen.default_iface }.merge(options)
+
+      spoofer = Utils::ARPSpoofer.new(options)
+      spoofer.add target1, target2, options
+      spoofer.add target2, target1, options
+      
+      my_mac = Config.instance.hwaddr(options[:iface])
+      my_ip = Config.instance.ipaddr(options[:iface])
+      capture = Capture.new(iface: options[:iface],
+                            filter: "((ip src #{target1} and not ip dst #{my_ip}) or" +
+                                    " (ip src #{target2} and not ip dst #{my_ip}) or"+
+                                    " (ip dst #{target1} and not ip src #{my_ip}) or"+
+                                    " (ip dst #{target2} and not ip src #{my_ip}))"+
+                                    " and ether dst #{my_mac}")
+
+      spoofer.start_all
+      capture.start do |pkt|
+        modified_pkt = yield pkt
+        modified_pkt.ip.to_w(options[:iface])
+      end
     end
   end
 end
