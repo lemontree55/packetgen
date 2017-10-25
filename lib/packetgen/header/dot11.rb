@@ -120,7 +120,7 @@ module PacketGen
     # IEEE 802.11 header
     # @abstract This is a base class to demultiplex different IEEE 802.11 frames when
     #   parsing.
-    # A IEEE 802.11 header may consists of at least:
+    # A IEEE 802.11 header may consist of at least:
     # * a {#frame_ctrl} ({Types::Int16}),
     # * a {#id}/duration ({Types::Int16le}),
     # * and a {#mac1} ({Eth::MacAddr}).
@@ -134,10 +134,42 @@ module PacketGen
     # * a {#body} (a {Types::String} or another {Base} class),
     # * a Frame check sequence ({#fcs}, of type {Types::Int32le})
     #
-    # == header accessors
+    # == Header accessors
     # As Dot11 header types are defined under Dot11 namespace, Dot11 header accessors
     # have a specific name. By example, to access to a {Dot11::Beacon} header,
     # accessor is +#dot11_beacon+.
+    #
+    # == Create Dot11 packets
+    # As {Dot11} is an abstract class, you have to use one of its subclasses to
+    # instanciate a IEEE802.11 header.
+    #
+    # === IEEE802.11 control frames
+    # Control frames may be created this way:
+    #   pkt = PacketGen.gen('Dot11::Control', subtype: 13) # Ack control frame
+    #   pkt.dot11_control     # => PacketGen::Header::Dot11::Control
+    #
+    # === IEEE802.11 management frames
+    # Management frames may be created this way:
+    #   pkt = PacketGen.gen('Dot11::Management')
+    #   pkt.dot11_management     # => PacketGen::Header::Dot11::Management
+    # Management frames are usually specialized, AssociationRequest by example:
+    #   pkt.add('Dot11::AssoReq')
+    #   pkt.dot11_assoreq        # => PacketGen::Header::Dot11::AssoReq
+    # Management frames also may contain some elements (see IEEE 802.11 standard):
+    #   pkt.dot11_assoreq.elements << PacketGen::Header::Dot11::Element.new(type: 'SSID', value: "My SSID")
+    #   pkt.dot11_assoreq.elements << PacketGen::Header::Dot11::Element.new(type: 'Rates', value: supported_rates)
+    #
+    # === IEEE802.11 data frames
+    # Data frames may be created this way:
+    #   pkt = PacketGen.gen('Dot11::Data')
+    #   pkt.dot11_data     # => PacketGen::Header::Dot11::Data
+    #
+    # == Parse Dot11 packets
+    # When parsing a Dot11 packet, Dot11 subclass is created from +type+ value.
+    # Dot11 header should then be accessed through +Packet#dot11_management+,
+    # +Packet#dot11_control+ or +Packet#dot11_data+.
+    #
+    # A  +Packet#dot11+ may exist for unknown types.
     # @author Sylvain Daubert
     class Dot11 < Base
 
