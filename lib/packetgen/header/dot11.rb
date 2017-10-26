@@ -156,8 +156,8 @@ module PacketGen
     #   pkt.add('Dot11::AssoReq')
     #   pkt.dot11_assoreq        # => PacketGen::Header::Dot11::AssoReq
     # Management frames also may contain some elements (see IEEE 802.11 standard):
-    #   pkt.dot11_assoreq.elements << PacketGen::Header::Dot11::Element.new(type: 'SSID', value: "My SSID")
-    #   pkt.dot11_assoreq.elements << PacketGen::Header::Dot11::Element.new(type: 'Rates', value: supported_rates)
+    #   pkt.dot11_assoreq.add_elements(type: 'SSID', value: "My SSID")
+    #   pkt.dot11_assoreq.add_elements(type: 'Rates', value: supported_rates)
     #
     # === IEEE802.11 data frames
     # Data frames may be created this way:

@@ -170,8 +170,6 @@ module PacketGen
             pkt = Packet.parse(data_str)
             expect(pkt.is? 'Dot11::Data').to be(true)
             expect(pkt.dot11.wep?).to be(false)
-            a1 = pkt.to_s.unpack('C*').map { |v| "%02x" % v }
-            a2 = data_str[0..-5].unpack('C*').map { |v| "%02x" % v }
             expect(pkt.to_s).to eq(data_str[0..-5]) # remove FCS
           ensure
             Dot11.has_fcs = true
@@ -203,8 +201,21 @@ module PacketGen
         it 'builds a Dot11::Beacon packet' do
           expect { PacketGen.gen('Beacon') }.to raise_error(ArgumentError, /^unknown/)
           pkt = nil
-          expect { pkt = PacketGen.gen('Dot11::Beacon') }.to_not raise_error
-          expect(pkt.headers.first).to be_a(Dot11::Beacon)
+          expect { pkt = PacketGen.gen('Dot11::Management').add('Dot11::Beacon') }.to_not raise_error
+          expect(pkt.headers.last).to be_a(Dot11::Beacon)
+
+          expect do
+            pkt.dot11_beacon.add_element(type: 'SSID', value: 'abcd')
+          end.to change { pkt.dot11_beacon.elements.size }.by(1)
+          
+          expect do
+            pkt.dot11_management.add_element(type: 'vendor', value: 'Version 1.2')
+          end.to change { pkt.dot11_beacon.elements.size }.by(1)
+          
+          pkt = PacketGen.gen('Dot11::Management')
+          expect do
+            pkt.dot11_management.add_element(type: 'vendor', value: 'Version 1.2')
+          end.to raise_error(/add a Dot11::SubMngt/)
         end
       end
     end

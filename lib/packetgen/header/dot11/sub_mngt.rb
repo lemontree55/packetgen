@@ -50,6 +50,16 @@ module PacketGen
           end
           str
         end
+        
+        # Add an {Element} to header
+        # @param [Integer,String] type element type
+        # @param [Object] value element value
+        # @return [self]
+        def add_element(type:, value:)
+          element = Element.new(type: type, value: value)
+          @elements << element
+          self
+        end
 
         private
 
