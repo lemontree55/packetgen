@@ -75,7 +75,7 @@ module PacketGen
     end
     
     # Do ARP spoofing on given IP address. Call to this method blocks.
-    #
+    # @note This method is provided for test purpose.
     # For more control, see {ARPSpoofer} class.
     # @param [String] target_ip target IP address
     # @param [String] spoofed_ip IP address to spoofed_ip

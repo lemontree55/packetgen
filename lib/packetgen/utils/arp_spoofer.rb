@@ -7,16 +7,17 @@ require 'thread'
 module PacketGen
   module Utils
 
-    # Utility class to make ARP spoof attacks.
-    #  spoofer = PacketGen::Utils::ARPSpoofer.new
-    #  # start an ARP spoof: send forged ARP packets to target to spoof spoofed_ip
-    #  spoofer.start target_ip, spoofed_ip
-    #  # start another ARP spoof. Say to target2 spoofed_ip has given MAC address
-    #  spoofer.start target2_ip, spoofed_ip, mac: '00:00:00:00:00:01'
-    #  # stop spoofing on target2
-    #  spoofer.stop target2_ip
-    #  # stop all spoofings
-    #  spoofer.stop_all
+    # @note This class is provided for test purpose.
+    # Utility class to make ARP spoofing.
+    #   spoofer = PacketGen::Utils::ARPSpoofer.new
+    #   # start an ARP spoof: send forged ARP packets to target to spoof spoofed_ip
+    #   spoofer.start target_ip, spoofed_ip
+    #   # start another ARP spoof. Say to target2 spoofed_ip has given MAC address
+    #   spoofer.start target2_ip, spoofed_ip, mac: '00:00:00:00:00:01'
+    #   # stop spoofing on target2
+    #   spoofer.stop target2_ip
+    #   # stop all spoofings
+    #   spoofer.stop_all
     # @author Sylvain Daubert
     class ARPSpoofer
 
