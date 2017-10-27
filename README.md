@@ -148,9 +148,11 @@ classes. A special `config` object gives local network configuration:
 
 If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is used.
 
-## API documentation
+## See also
 
-see http://www.rubydoc.info/gems/packetgen
+Wiki: https://github.com/sdaubert/packetgen/wiki
+
+API documentation: http://www.rubydoc.info/gems/packetgen
 
 ## Pull requests?
 
@@ -165,4 +167,4 @@ Copyright © 2016 Sylvain Daubert
 All original code maintains its copyright from its original authors and licensing.
 
 This is mainly for PcapNG (originally copied from [PacketFu](https://github.com/packetfu/packetfu),
-but i am the original author).
+but i am the original author.
