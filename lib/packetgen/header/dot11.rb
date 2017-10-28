@@ -53,6 +53,12 @@ module PacketGen
         version == 0 and length >= 8
       end
 
+      # Calculate length field
+      # @return [Integer] calculated length
+      def calc_length
+        self[:length].value = self.sz - self[:body].sz
+      end
+
       # send PPI packet on wire. Dot11 FCS trailer should be set.
       # @param [String] iface interface name
       # @return [void]
@@ -104,6 +110,12 @@ module PacketGen
       # @see [Base#parse?]
       def parse?
         version == 0 and length >= 8
+      end
+      
+      # Calculate length field
+      # @return [Integer] calculated length
+      def calc_length
+        self[:length].value = self.sz - self[:body].sz
       end
 
       # send RadioTap packet on wire. Dot11 FCS trailer should be set.

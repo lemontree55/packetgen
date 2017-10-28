@@ -2,6 +2,35 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
+
+    describe PPI do
+      describe '#calc_length' do
+        it 'computes PPI header length' do
+          ppi = PPI.new
+          ppi.calc_length
+          expect(ppi.length).to eq(8)
+          
+          ppi.ppi_fields = '12345'
+          ppi.calc_length
+          expect(ppi.length).to eq(13)
+        end
+      end
+    end
+
+    describe RadioTap do
+      describe '#calc_length' do
+        it 'computes RadioTap header length' do
+          rt = RadioTap.new
+          rt.calc_length
+          expect(rt.length).to eq(8)
+          
+          rt.radio_fields = '123456'
+          rt.calc_length
+          expect(rt.length).to eq(14)
+        end
+      end
+    end
+
     describe Dot11 do
       let(:ctrl_mngt_file) { File.join(__dir__, 'ieee802.11-join.pcapng') }
       let(:wap_file) { File.join(__dir__, 'ieee802.11-data-wap.pcapng') }
