@@ -50,7 +50,7 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 0
+        version == 0 and length >= 8
       end
 
       # send PPI packet on wire. Dot11 FCS trailer should be set.
@@ -64,7 +64,7 @@ module PacketGen
     end
     self.add_class PPI
 
-    # Radiotap header
+    # Radiotap header (see http://www.radiotap.org/)
     # @author Sylvain Daubert
     class RadioTap < Base
       # @!attribute version
@@ -75,7 +75,7 @@ module PacketGen
       define_field :pad, Types::Int8, default: 0
       # @!attribute length
       #  @return [Integer] 16-bit RadioTap header length
-      define_field :length, Types::Int16le
+      define_field :length, Types::Int16le, default: 8
       # @!attribute present_flags
       #  @return [Integer] 32-bit integer
       define_field :present_flags, Types::Int32le
@@ -103,7 +103,7 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 0
+        version == 0 and length >= 8
       end
 
       # send RadioTap packet on wire. Dot11 FCS trailer should be set.
