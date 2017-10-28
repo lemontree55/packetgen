@@ -346,7 +346,7 @@ module PacketGen
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
         str = self.to_s
-        pcap.inject str << [crc32].pack('V')
+        pcap.inject str
       end
 
       private
