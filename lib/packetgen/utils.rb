@@ -12,6 +12,7 @@ module PacketGen
   # This module is not enabled by default. You need to:
   #  require 'packetgen/utils'
   # @author Sylvain Daubert
+  # @since 2.1.3
   module Utils
 
     # Get local ARP cache

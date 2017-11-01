@@ -26,6 +26,7 @@ module PacketGen
     #  enum.value = 'unknown'  # => raise!
     # But {#read} will not raise when reading an outbound value. This
     # to enable decoding (or forging) of bad packets.
+    # @since 2.1.3
     # @author Sylvain Daubert
     class Enum < Int
 
@@ -73,6 +74,7 @@ module PacketGen
 
     # Enumeration on one byte. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int8Enum < Enum
       # @param [Integer] default
       # @param [Hash] enum
@@ -84,6 +86,7 @@ module PacketGen
 
     # Enumeration on 2-byte integer. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int16Enum < Enum
       # @param [Hash] enum
       # @param [:big, :little] endian
@@ -96,6 +99,7 @@ module PacketGen
 
     # Enumeration on big endian 2-byte integer. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int16beEnum < Int16Enum
       undef endian=
 
@@ -108,6 +112,7 @@ module PacketGen
 
     # Enumeration on big endian 2-byte integer. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int16leEnum < Int16Enum
       undef endian=
 
@@ -120,6 +125,7 @@ module PacketGen
 
     # Enumeration on 4-byte integer. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int32Enum < Enum
       # @param [Hash] enum
       # @param [:big, :little] endian
@@ -132,6 +138,7 @@ module PacketGen
 
     # Enumeration on big endian 4-byte integer. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int32beEnum < Int32Enum
       undef endian=
 
@@ -144,6 +151,7 @@ module PacketGen
 
     # Enumeration on big endian 4-byte integer. See {Enum}.
     # @author Sylvain Daubert
+    # @since 2.1.3
     class Int32leEnum < Int32Enum
       undef endian=
 

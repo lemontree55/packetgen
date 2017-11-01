@@ -55,6 +55,7 @@ module PacketGen
 
       # Calculate length field
       # @return [Integer] calculated length
+      # @since 2.1.3
       def calc_length
         self[:length].value = self.sz - self[:body].sz
       end
@@ -114,6 +115,7 @@ module PacketGen
       
       # Calculate length field
       # @return [Integer] calculated length
+      # @since 2.1.3
       def calc_length
         self[:length].value = self.sz - self[:body].sz
       end
@@ -268,8 +270,10 @@ module PacketGen
 
       # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
       #  @return [Integer]
+      #  @since 2.1.3
       # @!attribute fragment_number (4-bit field from {#sequence_ctrl})
       #  @return [Integer]
+      #  @since 2.1.3
       define_bit_fields_on :sequence_ctrl, :sequence_number, 12, :fragment_number, 4
 
       alias duration id

@@ -19,6 +19,7 @@ module PacketGen
     #   # stop all spoofings
     #   spoofer.stop_all
     # @author Sylvain Daubert
+    # @since 2.1.3
     class ARPSpoofer
 
       # @param [Integer,Float,nil] timeout spoof will happen for this amount

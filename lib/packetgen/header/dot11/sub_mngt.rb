@@ -55,6 +55,7 @@ module PacketGen
         # @param [Integer,String] type element type
         # @param [Object] value element value
         # @return [self]
+        # @since 2.1.3
         def add_element(type:, value:)
           element = Element.new(type: type, value: value)
           @elements << element
