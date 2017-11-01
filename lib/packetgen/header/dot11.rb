@@ -255,6 +255,13 @@ module PacketGen
       define_bit_fields_on :frame_ctrl,  :subtype, 4, :type, 2, :proto_version, 2,
                             :order, :wep, :md, :pwmngt, :retry, :mf, :from_ds, :to_ds
 
+
+      # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
+      #  @return [Integer]
+      # @!attribute fragment_number (4-bit field from {#sequence_ctrl})
+      #  @return [Integer]
+      define_bit_fields_on :sequence_ctrl, :sequence_number, 12, :fragment_number, 4
+
       alias duration id
       # @private
       alias old_fields fields

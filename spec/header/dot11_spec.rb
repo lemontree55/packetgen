@@ -232,6 +232,10 @@ module PacketGen
           pkt = nil
           expect { pkt = PacketGen.gen('Dot11::Management').add('Dot11::Beacon') }.to_not raise_error
           expect(pkt.headers.last).to be_a(Dot11::Beacon)
+          
+          pkt.dot11_management.sequence_number = 12
+          pkt.dot11_management.fragment_number = 1
+          expect(pkt.dot11_management.sequence_ctrl).to eq(0xc1)
 
           expect do
             pkt.dot11_beacon.add_element(type: 'SSID', value: 'abcd')
