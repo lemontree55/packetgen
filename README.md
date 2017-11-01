@@ -41,6 +41,11 @@ PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').to_w
 PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').to_w
 # send forged IP packet over Ethernet
 PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').add('IP').to_w('eth1')
+# send a IEEE 802.11 frame
+PacketGen.gen('RadioTap').
+          add('Dot11::Management', mac1: client, mac2: bssid, mac3: bssid).
+          add('Dot11::DeAuth', reason: 7).
+          to_w('wlan0')
 ```
 
 ### Parse packets from binary data

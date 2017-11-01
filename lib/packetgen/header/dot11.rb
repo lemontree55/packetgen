@@ -182,6 +182,16 @@ module PacketGen
     # +Packet#dot11_control+ or +Packet#dot11_data+.
     #
     # A  +Packet#dot11+ may exist for unknown types.
+    #
+    # == Send Dot11 packets
+    # To send a Dot11 packet, a RadioTap header is needed:
+    #   pkt = PacketGen.gen('RadioTap')
+    #   pkt.add('Dot11::Management', mac1: client, mac2: bssid, mac3: bssid)
+    #   pkt.add('Dot11::Beacon')
+    #   pkt.dot11_beacon.add_element(type: 'SSID', value: 'My SSID')
+    #   pkt.dot11_beacon.add_element(type: 'Rates', value: "\x85\x0c")
+    #   pkt.calc
+    #   pkt.to_w('wlan0')
     # @author Sylvain Daubert
     class Dot11 < Base
 
