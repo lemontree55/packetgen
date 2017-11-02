@@ -127,9 +127,9 @@ module PacketGen
         end
       end
 
-      # @api private
       # Reference on packet which owns this header
-      attr_accessor :packet
+      # @return [Packet,nil]
+      attr_reader :packet
 
       # On inheritage, create +@known_headers+ class variable
       # @param [Class] klass
@@ -215,6 +215,25 @@ module PacketGen
       # @return [Boolean]
       def parse?
         true
+      end
+
+      # @api private
+      # Set packet to which this header belongs
+      # @param [Packet] packet
+      # @return [Packet] packet
+      # @since 2.1.4
+      def packet=(packet)
+        @packet = packet
+        added_to_packet(packet)
+        @packet
+      end
+      
+      # @abstract This method is called when a header is added to a packet.
+      #   This base method does nothing but may be overriden by subclasses.
+      # @param [Packet] packet packet to which self is added
+      # @return [void]
+      # @since 2.1.4
+      def added_to_packet(packet)
       end
 
       # @api private

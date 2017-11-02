@@ -15,8 +15,8 @@ module PacketGen
     # @author Sylvain Daubert
     class ASN1Base < RASN1::Model
 
-      # @api private
       # Reference on packet which owns this header
+      # @return [Packet,nil]
       attr_accessor :packet
 
       # Give protocol name for this class
@@ -63,6 +63,25 @@ module PacketGen
       # @return [true]
       def parse?
         true
+      end
+
+      # @api private
+      # @since 2.1.4
+      # Set packet to which this header belongs
+      # @param [Packet] packet
+      # @return [Packet] packet
+      def packet=(packet)
+        @packet = packet
+        added_to_packet(packet)
+        @packet
+      end
+      
+      # @abstract This method is called when a header is added to a packet.
+      #   This base method does nothing but may be overriden by subclasses.
+      # @param [Packet] packet packet to which self is added
+      # @return [void]
+      # @since 2.1.4
+      def added_to_packet(packet)
       end
 
       alias :parse :parse!
