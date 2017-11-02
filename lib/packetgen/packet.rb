@@ -360,8 +360,8 @@ module PacketGen
       header.packet = self
       @headers << header unless previous_header
       unless respond_to? header.method_name
-        self.class.class_eval "def #{header.method_name}(arg=nil);" \
-                              "header(#{header.class}, arg); end"
+        self.instance_eval "def #{header.method_name}(arg=nil);" \
+                           "header(#{header.class}, arg); end"
       end
     end
 
