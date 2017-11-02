@@ -96,12 +96,15 @@ module PacketGen
           Dot11.has_fcs = true
           expect(pkts.map { |pkt| pkt.headers.last.class }).to eq(classes)
 
+          expect(pkts[0].is? 'Dot11::Management').to be(true)
           expect(pkts[0].dot11_beacon.timestamp).to eq(0x26bbb9189)
           expect(pkts[0].dot11_beacon.elements.first.human_type).to eq('SSID')
           expect(pkts[0].dot11_beacon.elements.first.value).to eq('martinet3')
+          expect(pkts[1].is? 'Dot11::Management').to be(true)
           expect(pkts[1].dot11_probereq.elements[1].human_type).to eq('Rates')
           expect(pkts[1].dot11_probereq.elements[1].value).
             to eq(PacketGen.force_binary "\x82\x84\x8b\x96\x0c\x12\x18\x24")
+          expect(pkts[3].is? 'Dot11::Management').to be(true)
           expect(pkts[3].dot11_proberesp.timestamp).to eq(0x26bbcad38)
           expect(pkts[3].dot11_proberesp.beacon_interval).to eq(0x64)
           expect(pkts[3].dot11_proberesp.cap).to eq(0x0411)
@@ -110,6 +113,7 @@ module PacketGen
           expect(pkts[4].dot11.human_type).to eq('Control')
           expect(pkts[4].dot11.human_subtype).to eq('Ack')
           expect(pkts[5].is? 'Dot11::Beacon').to be(true)
+          expect(pkts[6].is? 'Dot11::Management').to be(true)
           expect(pkts[6].is? 'Dot11::Auth').to be(true)
           expect(pkts[6].dot11_auth.algo).to eq(0)
           expect(pkts[6].dot11_auth.seqnum).to eq(1)
@@ -133,6 +137,7 @@ module PacketGen
         it 'reads key packets' do
           pkt = Packet.read(wap_file)[27]
           expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data, LLC, SNAP, Dot1x])
+          expect(pkt.dot11).to eq(pkt.dot11_data)
           expect(pkt.dot11.frame_ctrl).to eq(0x0802)
           expect(pkt.dot11.id).to eq(0x2c)
           expect(pkt.dot11.from_ds?).to be(true)
@@ -233,8 +238,9 @@ module PacketGen
           expect { pkt = PacketGen.gen('Dot11::Management').add('Dot11::Beacon') }.to_not raise_error
           expect(pkt.headers.last).to be_a(Dot11::Beacon)
           
-          pkt.dot11_management.sequence_number = 12
-          pkt.dot11_management.fragment_number = 1
+          expect(pkt.dot11).to eq(pkt.dot11_management)
+          pkt.dot11.sequence_number = 12
+          pkt.dot11.fragment_number = 1
           expect(pkt.dot11_management.sequence_ctrl).to eq(0xc1)
 
           expect do
@@ -247,7 +253,7 @@ module PacketGen
           
           pkt = PacketGen.gen('Dot11::Management')
           expect do
-            pkt.dot11_management.add_element(type: 'vendor', value: 'Version 1.2')
+            pkt.dot11.add_element(type: 'vendor', value: 'Version 1.2')
           end.to raise_error(/add a Dot11::SubMngt/)
         end
       end

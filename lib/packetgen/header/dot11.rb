@@ -369,6 +369,17 @@ module PacketGen
         str = self.to_s
         pcap.inject str
       end
+      
+      # Callback called when a Dot11 header is added to a packet
+      # Here, add +#dot11+ method as a shortcut to existing
+      # +#dot11_(control|management|data)+.
+      # @param [Packet] packet
+      # @return [void]
+      def added_to_packet(packet)
+        unless packet.respond_to? :dot11
+          packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end")
+        end
+      end
 
       private
 
