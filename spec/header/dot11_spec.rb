@@ -256,6 +256,20 @@ module PacketGen
             pkt.dot11.add_element(type: 'vendor', value: 'Version 1.2')
           end.to raise_error(/add a Dot11::SubMngt/)
         end
+        
+        it 'builds a IP packet over IEEE 802.11 (no encryption)' do
+          pkt = PacketGen.gen('Dot11::Data', mac1: '00:01:02:03:04:05',
+                              mac2: '06:07:08:09:0a:0b', mac3: '0c:0d:0e:0f:10:11')
+          expect { pkt.add('IP') }.to raise_error(ArgumentError, /no layer assoc/)
+          
+          pkt.add('LLC').add('SNAP').add('IP', src: '192.168.0.1', dst: '192.168.0.2')
+          expect(pkt.dot11.wep?).to be(false)
+          expect(pkt.dot11.type).to eq(2)
+          expect(pkt.llc.dsap).to eq(0xaa)
+          expect(pkt.llc.ssap).to eq(0xaa)
+          expect(pkt.snap.oui).to eq('00:00:00')
+          expect(pkt.snap.proto_id).to eq(0x800)
+        end
       end
     end
   end
