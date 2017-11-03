@@ -201,6 +201,7 @@ module PacketGen
         sock = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
         sock.send to_s, 0, sockaddrin
+        sock.close
       end
 
       # @return [String]

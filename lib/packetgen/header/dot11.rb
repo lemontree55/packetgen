@@ -67,6 +67,7 @@ module PacketGen
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
         pcap.inject self.to_s
+        pcap.close
       end
     end
     self.add_class PPI
@@ -127,6 +128,7 @@ module PacketGen
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
         pcap.inject self.to_s
+        pcap.close
       end
     end
     self.add_class RadioTap
@@ -371,8 +373,8 @@ module PacketGen
       def to_w(iface)
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
-        str = self.to_s
-        pcap.inject str
+        pcap.inject self.to_s
+        pcap.close
       end
       
       # Callback called when a Dot11 header is added to a packet

@@ -196,6 +196,7 @@ module PacketGen
         pkt_info = Socket::AncillaryData.ipv6_pktinfo(Addrinfo.ip(src), ifaddr.ifindex)
 
         sock.sendmsg body.to_s, 0, sockaddrin, hop_limit, tc, pkt_info
+        sock.close
       end
 
       # @return [String]
