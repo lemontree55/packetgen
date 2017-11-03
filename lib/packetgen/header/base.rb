@@ -35,7 +35,12 @@ module PacketGen
           when Proc
             fields.send "#{self[:key]}=", self[:value].call(nil)
           else
-            fields.send "#{self[:key]}=", self[:value]
+            attr = if self[:key].to_s.end_with?('?')
+                     self[:key].to_s[0..-2]
+                   else
+                     self[:key]
+                   end
+            fields.send "#{attr}=", self[:value]
           end
         end
       end
