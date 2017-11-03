@@ -151,9 +151,6 @@ module PacketGen
       end
 
       # Translates a {File} into an array of packets.
-      # Note that this strips out timestamps -- if you'd like to retain
-      # timestamps and other pcapng file information, you will want to
-      # use {#read} instead.
       # @param [Hash] options
       # @option options [String] :filename if given, object is cleared and filename
       #   is analyzed before generating array. Else, array is generated from +self+
