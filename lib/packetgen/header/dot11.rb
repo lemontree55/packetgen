@@ -161,11 +161,15 @@ module PacketGen
     # Control frames may be created this way:
     #   pkt = PacketGen.gen('Dot11::Control', subtype: 13) # Ack control frame
     #   pkt.dot11_control     # => PacketGen::Header::Dot11::Control
+    #   # #dot11 is a shortcut for #dot11_control
+    #   pkt.dot11             # => PacketGen::Header::Dot11::Control
     #
     # === IEEE802.11 management frames
     # Management frames may be created this way:
     #   pkt = PacketGen.gen('Dot11::Management')
     #   pkt.dot11_management     # => PacketGen::Header::Dot11::Management
+    #   # #dot11 is a shortcut for #dot11_management
+    #   pkt.dot11                # => PacketGen::Header::Dot11::Management
     # Management frames are usually specialized, AssociationRequest by example:
     #   pkt.add('Dot11::AssoReq')
     #   pkt.dot11_assoreq        # => PacketGen::Header::Dot11::AssoReq
@@ -177,13 +181,14 @@ module PacketGen
     # Data frames may be created this way:
     #   pkt = PacketGen.gen('Dot11::Data')
     #   pkt.dot11_data     # => PacketGen::Header::Dot11::Data
+    #   # #dot11 is a shortcut for #dot11_data
+    #   pkt.dot11          # => PacketGen::Header::Dot11::Data
     #
     # == Parse Dot11 packets
     # When parsing a Dot11 packet, Dot11 subclass is created from +type+ value.
-    # Dot11 header should then be accessed through +Packet#dot11_management+,
-    # +Packet#dot11_control+ or +Packet#dot11_data+.
-    #
-    # A  +Packet#dot11+ may exist for unknown types.
+    # Dot11 header should then be accessed through +Packet#dot11+, whatever
+    # the frame type is. But, specialized methods also exist: by example,
+    # for a control frame, +Packet#dot11_control+ may also be used.
     #
     # == Send Dot11 packets
     # To send a Dot11 packet, a RadioTap header is needed:
