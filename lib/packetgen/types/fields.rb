@@ -293,34 +293,35 @@ module PacketGen
         @optional_fields = {}
 
         self.class.class_eval { @field_defs }.each do |field, ary|
-          default = ary[1].is_a?(Proc) ? ary[1].call : ary[1]
-          @fields[field] = if ary[2]
-                             ary[2].call(self)
-                           elsif ary[4]
-                             ary[0].new(ary[4])
-                           elsif !ary[5].empty?
-                             ary[0].new(ary[5])
+          type, default, builder, optional, enum, field_options = ary
+          default = default.call if default.is_a?(Proc)
+          @fields[field] = if builder
+                             builder.call(self)
+                           elsif enum
+                             type.new(enum)
+                           elsif !field_options.empty?
+                             type.new(field_options)
                            else
-                             ary[0].new
+                             type.new
                            end
 
           value = options[field] || default
-          if ary[0] < Types::Enum
+          if type < Types::Enum
             case value
             when ::String
               @fields[field].value = value
             else
               @fields[field].read(value)
             end
-          elsif ary[0] < Types::Int
+          elsif type < Types::Int
             @fields[field].read(value)
-          elsif ary[0] <= Types::String
+          elsif type <= Types::String
             @fields[field].read(value)
           else
             @fields[field].from_human(value) if @fields[field].respond_to? :from_human
           end
 
-          @optional_fields[field] = ary[3] if ary[3]
+          @optional_fields[field] = optional if optional
         end
         self.class.class_eval { @bit_fields }.each do |bit_field|
           self.send "#{bit_field}=", options[bit_field] if options[bit_field]
