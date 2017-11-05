@@ -351,7 +351,7 @@ module PacketGen
 
       # Get all optional field name
       def optional_fields
-        fields.select { |f| is_optional?(f) }
+        @optional_fields.keys
       end
 
       # Say if this field is optional
