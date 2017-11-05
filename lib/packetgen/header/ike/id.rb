@@ -77,24 +77,6 @@ module PacketGen
             content.inspect
           end
         end
-
-        # @return [String]
-        def inspect
-          str = Inspect.dashed_line(self.class, 2)
-          fields.each do |attr|
-            case attr
-            when :body
-              next
-            when :u32
-              str << Inspect.shift_level(2)
-              str << Inspect::FMT_ATTR % ['Int8', :type, human_type]
-              str << Inspect.inspect_attribute(:reserved, self[:reserved], 2)
-            else
-              str << Inspect.inspect_attribute(attr, self[attr], 2)
-            end
-          end
-          str
-        end
       end
 
       # This class handles Identification - Responder payloads, denoted IDr.
