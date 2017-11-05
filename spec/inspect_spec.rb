@@ -14,7 +14,7 @@ module PacketGen
 
         enum = Types::Int32leEnum.new({'one' => 1, 'two' => 2})
         inspect = Inspect.inspect_attribute('my_enum', enum)
-        expect(inspect).to eq("     Int32leEnum      my_enum: 1          (0x00000001)\n")
+        expect(inspect).to eq("     Int32leEnum      my_enum: one        (0x00000001)\n")
       end
 
       it 'return a formatted string for an attribute responding to #to_human' do

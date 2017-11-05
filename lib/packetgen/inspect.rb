@@ -49,8 +49,10 @@ module PacketGen
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
       str = shift_level(level)
-      val = if value.is_a?(Types::Int) or value.is_a?(Integer)
-              int_dec_hex(value, value.to_s.size * 2)
+      val = if value.is_a?(Types::Enum)
+              "%-10s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
+            elsif value.is_a?(Types::Int) or value.is_a?(Integer)
+              int_dec_hex(value, value.sz * 2)
             elsif value.respond_to? :to_human
               value.to_human
             else
