@@ -225,14 +225,10 @@ module PacketGen
         #   8-bit Number of TSs
         #   @return [Integer]
         define_field_before :body, :num_ts, Types::Int8
-        # @!attribute rsv1
-        #   First 8-bit RESERVED field
+        # @!attribute rsv
+        #   24-bit RESERVED field
         #   @return [Integer]
-        define_field_before :body, :rsv1, Types::Int8
-        # @!attribute rsv2
-        #   Last 16-bit RESERVED field
-        #   @return [Integer]
-        define_field_before :body, :rsv2, Types::Int16
+        define_field_before :body, :rsv, Types::Int24
 
         # @!attribute traffic_selectors
         #  Set of {TrafficSelector}
@@ -258,24 +254,6 @@ module PacketGen
         def calc_length
           selectors.each { |p| p.calc_length }
           super
-        end
-
-        # @return [String]
-        def inspect
-          str = Inspect.dashed_line(self.class, 2)
-          fields.each do |attr|
-            case attr
-            when :body, :rsv2
-              next
-            when :rsv1
-              str << Inspect.shift_level(2)
-              str << Inspect::FMT_ATTR % ['Int24', 'reserved',
-                                          (rsv1 << 16) | rsv2 ]
-            else
-              str << Inspect.inspect_attribute(attr, self[attr], 2)
-            end
-          end
-          str
         end
       end
 

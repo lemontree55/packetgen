@@ -10,7 +10,7 @@ module PacketGen
             expect(id.next).to eq(0)
             expect(id.flags).to eq(0)
             expect(id.length).to eq(8)
-            expect(id.type).to eq(0)
+            expect(id.type).to eq(1)
             expect(id.reserved).to eq(0)
             expect(id.content).to be_empty
           end
@@ -59,14 +59,14 @@ module PacketGen
           let(:id)  { IDi.new }
 
           it 'accepts Integer' do
-            expect { id.type = 59 }.to_not raise_error
-            expect(id.type).to eq(59)
-            expect(id.human_type).to eq('type 59')
+            expect { id.type = 10 }.to_not raise_error
+            expect(id.type).to eq(10)
+            expect(id.human_type).to eq('DER_ASN1_GN')
           end
 
           it 'accepts String' do
             expect { id.type = 'KEY_ID' }.to_not raise_error
-            expect(id.type).to eq(IDi::TYPE_KEY_ID)
+            expect(id.type).to eq(IDi::TYPES['KEY_ID'])
             expect(id.human_type).to eq('KEY_ID')
           end
 

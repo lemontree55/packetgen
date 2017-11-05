@@ -10,7 +10,7 @@ module PacketGen
             expect(auth.next).to eq(0)
             expect(auth.flags).to eq(0)
             expect(auth.length).to eq(8)
-            expect(auth.method).to eq(0)
+            expect(auth.method).to eq(1)
             expect(auth.content).to be_empty
           end
 
@@ -50,14 +50,14 @@ module PacketGen
           let(:auth)  { Auth.new }
 
           it 'accepts Integer' do
-            expect { auth.method = 59 }.to_not raise_error
-            expect(auth.method).to eq(59)
-            expect(auth.human_method).to eq('method 59')
+            expect { auth.method = 10 }.to_not raise_error
+            expect(auth.method).to eq(10)
+            expect(auth.human_method).to eq('ECDSA384')
           end
 
           it 'accepts String' do
             expect { auth.method = 'ECDSA384' }.to_not raise_error
-            expect(auth.method).to eq(Auth::METHOD_ECDSA384)
+            expect(auth.method).to eq(Auth::METHODS['ECDSA384'])
             expect(auth.human_method).to eq('ECDSA384')
           end
 

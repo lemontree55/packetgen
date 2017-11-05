@@ -38,27 +38,26 @@ module PacketGen
         # Payload type number
         PAYLOAD_TYPE = 39
 
-        METHOD_RSA_SIGNATURE     = 1
-        METHOD_SHARED_KEY        = 2
-        METHOD_DSA_SIGNATURE     = 3
-        METHOD_ECDSA256          = 9
-        METHOD_ECDSA384          = 10
-        METHOD_ECDSA512          = 11
-        METHOD_PASSWORD          = 12
-        METHOD_NULL              = 13
-        METHOD_DIGITAL_SIGNATURE = 14
+        METHODS = {
+          'RSA_SIGNATURE'     => 1,
+          'SHARED_KEY'        => 2,
+          'DSA_SIGNATURE'     => 3,
+          'ECDSA256'          => 9,
+          'ECDSA384'          => 10,
+          'ECDSA512'          => 11,
+          'PASSWORD'          => 12,
+          'NULL'              => 13,
+          'DIGITAL_SIGNATURE' => 14
+        }
 
-        # @attribute :u32
-        #   32-bit word including ID Type and RESERVED fields
-        #   @return [Integer]
-        define_field_before :content, :u32, Types::Int32
         # @attribute [r] method
         #   8-bit Auth Method
         #   @return [Integer]
+        define_field_before :content, :method, Types::Int8Enum, enum: METHODS
         # @attribute reserved
         #   24-bit reserved field
         #   @return [Integer]
-        define_bit_fields_on :u32, :method, 8, :reserved, 24
+        define_field_before :content, :reserved, Types::Int24
 
         # Check authentication (see RFC 7296 §2.15)
         # @param [Packet] init_msg first IKE message sent by peer
@@ -83,10 +82,11 @@ module PacketGen
           signed_octets << prf(prf, sk_p, id.to_s[4, id.length - 4])
 
           case method
-          when METHOD_SHARED_KEY
+          when METHODS['SHARED_KEY']
             auth  = prf(prf(shared_secret, 'Key Pad for IKEv2'), signed_octets)
             auth == content
-          when METHOD_RSA_SIGNATURE, METHOD_ECDSA256, METHOD_ECDSA384, METHOD_ECDSA512
+          when METHODS['RSA_SIGNATURE'], METHODS['ECDSA256'], METHODS['ECDSA384'],
+               METHODS['ECDSA512']
             if packet.ike_cert
               # FIXME: Expect a ENCODING_X509_CERT_SIG
               #        Others types not supported for now...
@@ -122,28 +122,10 @@ module PacketGen
           end
         end
 
-        # Set Auth method
-        # @param [Integer,String] value
-        # @return [Integer]
-        def method=(value)
-          method = case value
-               when Integer
-                 value
-               else
-                 c = self.class.constants.grep(/METHOD_#{value}/).first
-                 c ? self.class.const_get(c) : nil
-               end
-          raise ArgumentError, "unknown auth method #{value.inspect}" unless method
-          self[:u32].value = (self[:u32].to_i & 0xffffff) | (method << 24)
-        end
-
         # Get authentication method name
         # @return [String]
         def human_method
-          name = self.class.constants.grep(/METHOD_/).
-                 select { |c| self.class.const_get(c) == method }.
-                 first || "method #{method}"
-          name.to_s.sub(/METHOD_/, '')
+          self[:method].to_human
         end
 
         # @return [String]
@@ -156,7 +138,7 @@ module PacketGen
             when :u32
               str << Inspect.shift_level(2)
               str << Inspect::FMT_ATTR % ['Int8', :method, human_method]
-              str << Inspect.inspect_attribute(:reserved, self.reserved, 2)
+              str << Inspect.inspect_attribute(:reserved, self[:reserved], 2)
             else
               str << Inspect.inspect_attribute(attr, self[attr], 2)
             end

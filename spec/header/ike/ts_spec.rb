@@ -196,8 +196,7 @@ module PacketGen
             expect(tsi.flags).to eq(0)
             expect(tsi.length).to eq(24)
             expect(tsi.num_ts).to eq(1)
-            expect(tsi.rsv1).to eq(0)
-            expect(tsi.rsv2).to eq(0)
+            expect(tsi.rsv).to eq(0)
             expect(tsi.selectors.to_human).to eq('10.1.0.0-10.1.0.255')
             expect(tsi.selectors.first.human_protocol).to eq('')
           end
