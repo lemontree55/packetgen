@@ -51,6 +51,12 @@ module PacketGen
       def human_type
         self[:type].to_human
       end
+
+      # Calculate and set body length
+      # @return [Integer]
+      def calc_length
+        self.length = bosy.sz
+      end
     end
 
     Eth.bind_header Dot1x, ethertype: Dot1x::ETHERTYPE
