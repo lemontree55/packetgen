@@ -56,6 +56,11 @@ module PacketGen
             expect(packets[2].dot1x.length).to eq(19)
             expect(packets[2].dot1x.body.to_s[0..3]).to eq("\x02\x01\x00\x13")
           end
+          
+          it 'only parses Dot1x data, and no Ethernet padding' do
+            pkt = Packet.read(File.join(__dir__, 'dot1x.pcapng'))[3]
+            expect(pkt.to_s.size).to eq(24)
+          end
         end
 
         describe '#to_s' do
