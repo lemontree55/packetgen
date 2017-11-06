@@ -148,6 +148,69 @@ module PacketGen
           end
         end
       end
+
+      describe EAP::TLS do
+        describe 'binding' do
+          it 'in EAP packets' do
+            expect(EAP).to know_header(EAP::TLS).with(type: 13)
+          end
+        end
+
+        describe '#read' do
+          before(:all) { @packets = Packet.read(File.join(__dir__, 'dot1x.pcapng')) }
+
+          it 'decodes complex strings' do
+            pkt = @packets[3]
+            expect(pkt.is? 'EAP').to be(true)
+            expect(pkt.eap).to be_a_request
+            expect(pkt.eap.human_type).to eq('EAP-TLS')
+            expect(pkt.eap_tls.flags).to eq(0x20)
+            expect(pkt.eap_tls).to_not be_length_present
+            expect(pkt.eap_tls).to_not be_more_fragments
+            expect(pkt.eap_tls).to be_tls_start
+            
+            pkt = @packets[4]
+            expect(pkt.is? 'EAP').to be(true)
+            expect(pkt.eap).to be_a_response
+            expect(pkt.eap.human_type).to eq('EAP-TLS')
+            expect(pkt.eap_tls.flags).to eq(0)
+            expect(pkt.body.sz).to eq(pkt.eap.length - 6)
+          end
+        end
+
+        describe '#inspect' do
+          let(:eaptls) { EAP::TLS.new }
+          it 'only prints present fields' do
+            str = eaptls.inspect
+            expect(str).to_not include('tls_length')
+
+            eaptls2 = EAP::TLS.new(l: true)
+            str = eaptls2.inspect
+            expect(str).to include('tls_length')
+          end
+
+          it 'formats flags field as flags' do
+            str = eaptls.inspect
+            expect(str).to include('flags: ...')
+          end
+        end
+      end
+
+      describe EAP::TTLS do
+        describe 'binding' do
+          it 'in EAP packets' do
+            expect(EAP).to know_header(EAP::TTLS).with(type: 21)
+          end
+        end
+      end
+      
+      describe EAP::FAST do
+        describe 'binding' do
+          it 'in EAP packets' do
+            expect(EAP).to know_header(EAP::FAST).with(type: 43)
+          end
+        end
+      end
     end
   end
 end

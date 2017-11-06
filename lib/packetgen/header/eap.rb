@@ -8,6 +8,17 @@ module PacketGen
 
     # Extensible Authentication Protocol (EAP),
     # {https://tools.ietf.org/html/rfc3748 RFC 3748}
+    #
+    # A EAP header has:
+    # * a {#code} field ({Types::Int8Enum}),
+    # * a {#id} field ({Types::Int8}),
+    # * a {#length} field ({Types::Int16}).
+    # Request (code 1) and Response (code 2) packets also have:
+    # * a {#type} field (+Types::Int8Enum+).
+    # And Expanded Types (type 254) packets also have:
+    # * a {#vendor_id} field ({Types::Int24}),
+    # * a {#vendor_type} field ({Types::Int32}).
+    # Finally, all packets have a {#body} ({Types::String}).
     # @author Sylvain Daubert
     class EAP < Base
 
@@ -27,6 +38,9 @@ module PacketGen
         'MD5-Challenge'      => 4,
         'One Time Password'  => 5,
         'Generic Token Card' => 6,
+        'EAP-TLS'            => 13,
+        'EAP-TTLS'           => 21,
+        'EAP-FAST'           => 43,
         'Expanded Types'     => 254,
         'Experimental Use'   => 255
       }
@@ -132,3 +146,8 @@ module PacketGen
     Dot1x.bind_header EAP, type: 0
   end
 end
+
+require_relative 'eap/md5'
+require_relative 'eap/tls'
+require_relative 'eap/ttls'
+require_relative 'eap/fast'
