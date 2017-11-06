@@ -15,10 +15,10 @@ module PacketGen
       # * optionally {#tls_length} ({Types::Int32}), if +#l?+ is +true+,
       # * {#body} ({Types::String}).
       # @author Sylvain Daubert
-      class TLS < Base
+      class TLS < EAP
         # @!attribute flags
         #  @return [Integer] 8-bit flags
-        define_field :flags, Types::Int8
+        define_field_before :body, :flags, Types::Int8
         
         # @!attribute l
         #  Say if length field is included. Defined on {#flags} field.
@@ -39,12 +39,13 @@ module PacketGen
         #  TLS message or set of messages that is being fragmented. So, it
         #  cannot be automatically calculated (no +#calc_length+ method).
         #  @return [Integer] 32-bit TLS length
-        define_field :tls_length, Types::Int32,
+        define_field_before :body, :tls_length, Types::Int32,
                      optional: ->(h) { h.l? }
 
-        # @!attribute body
-        #  @return [String]
-        define_field :body, Types::String
+        # @return [EAP::TLS]
+        def initialize(options={})
+          super({ type: 13 }.merge!(options))
+        end
 
         # @return [String]
         def inspect
@@ -66,8 +67,6 @@ module PacketGen
           str
         end
       end
-
-      EAP.bind_header TLS, type: EAP::TYPES['EAP-TLS']
     end
   end
 end

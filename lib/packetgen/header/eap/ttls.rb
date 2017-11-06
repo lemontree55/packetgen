@@ -15,10 +15,10 @@ module PacketGen
       # * optionally {#message_length} ({Types::Int32}), if +#l?+ is +true+,
       # * {#body} ({Types::String}).
       # @author Sylvain Daubert
-      class TTLS < Base
+      class TTLS < EAP
         # @!attribute flags
         #  @return [Integer] 8-bit flags
-        define_field :flags, Types::Int8
+        define_field_before :body, :flags, Types::Int8
         
         # @!attribute l
         #  Say if length field is included. Defined on {#flags} field.
@@ -43,12 +43,13 @@ module PacketGen
         #  raw data message sequence prior to fragmentation. So, it
         #  cannot be automatically calculated (no +#calc_length+ method).
         #  @return [Integer] 32-bit message length
-        define_field :message_length, Types::Int32,
+        define_field_before :body, :message_length, Types::Int32,
                      optional: ->(h) { h.l? }
 
-        # @!attribute body
-        #  @return [String]
-        define_field :body, Types::String
+        # @return [EAP::TTLS]
+        def initialize(options={})
+          super({ type: 21 }.merge!(options))
+        end
 
         # @return [String]
         def inspect
@@ -71,8 +72,6 @@ module PacketGen
           str
         end
       end
-
-      EAP.bind_header TTLS, type: EAP::TYPES['EAP-TTLS']
     end
   end
 end

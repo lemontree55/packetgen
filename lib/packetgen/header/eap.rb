@@ -62,21 +62,21 @@ module PacketGen
       #  with type different from Expanded Types (254).
       #  @return [Integer] 8-bit request or response type
       define_field :type, Types::Int8Enum, enum: TYPES, 
-                   optional: ->(eap) { [1, 2].include? eap.code }
+                   optional: ->(eap) { eap.has_type? }
                    
       # @!attribute vendor_id
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 24-bit vendor ID
       define_field :vendor_id, Types::Int24,
-                   optional: ->(eap) { [1, 2].include?(eap.code) and eap.type == 254 }
+                   optional: ->(eap) { eap.has_type? and eap.type == 254 }
       
       # @!attribute vendor_type
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 32-bit vendor type
       define_field :vendor_type, Types::Int32,
-                   optional: ->(eap) { [1, 2].include?(eap.code) and eap.type == 254 }
+                   optional: ->(eap) { eap.has_type? and eap.type == 254 }
 
       # @!attribute body
       #  @return [Types::String, Header::Base]
@@ -86,6 +86,40 @@ module PacketGen
       def initialize(options={})
         super
         calc_length if options[:length].nil?
+      end
+      
+      # @private
+      alias old_read read
+      
+      # Populate object from a binary string
+      # @param [String] str
+      # @return [Dot11] may return a subclass object if a more specific class
+      #   may be determined
+      def read(str)
+        if self.class == EAP
+          super str
+
+          if has_type?
+            obj = case self.type
+                  when 4
+                    EAP::MD5.new.read(str)
+                  when 13
+                    EAP::TLS.new.read(str)
+                  when 21
+                    EAP::TTLS.new.read(str)
+                  when 43
+                    EAP::FAST.new.read(str)
+                  else
+                    self
+                  end
+            return obj
+          else
+            return self
+          end
+        else
+          super str
+        end
+        self
       end
 
       # Get human readable code
@@ -98,7 +132,7 @@ module PacketGen
       # @return [String]
       # @raise [ParseError] not a Request nor a Response packet
       def human_type
-        raise ParseError, 'not a Request nor a Response' unless [1,2].include?(code)
+        raise ParseError, 'not a Request nor a Response' unless has_type?
         self[:type].to_human
       end
       
@@ -140,6 +174,23 @@ module PacketGen
       # @return [Integer]
       def calc_length
         self.length = sz
+      end
+
+      # Say is this EAP header has {#type} field
+      # @return [Boolean]
+      def has_type?
+        [1,2].include?(self.code)
+      end
+
+      # Callback called when a EAP header is added to a packet
+      # Here, add +#eap+ method as a shortcut to existing
+      # +#eap_(md5|tls|ttls|fast)+.
+      # @param [Packet] packet
+      # @return [void]
+      def added_to_packet(packet)
+        unless packet.respond_to? :eap
+          packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end")
+        end
       end
     end
     

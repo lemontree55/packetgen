@@ -15,9 +15,12 @@ module PacketGen
       # * optionally {#message_length} ({Types::Int32}), if +#l?+ is +true+,
       # * {#body} ({Types::String}).
       # @author Sylvain Daubert
-      class FAST < TTLS; end
-
-      EAP.bind_header FAST, type: EAP::TYPES['EAP-FAST']
+      class FAST < TTLS
+        # @return [EAP::FAST]
+        def initialize(options={})
+          super({ type: 43 }.merge!(options))
+        end
+      end
     end
   end
 end

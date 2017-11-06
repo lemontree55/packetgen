@@ -149,10 +149,22 @@ module PacketGen
         end
       end
 
+      describe EAP::MD5 do
+        describe '#initialize' do
+          it 'creates a EAP::MD5 header with default values' do
+            eap = EAP::MD5.new
+            expect(eap).to have_type
+            expect(eap.type).to eq(EAP::TYPES['MD5-Challenge'])
+          end
+        end
+      end
+
       describe EAP::TLS do
-        describe 'binding' do
-          it 'in EAP packets' do
-            expect(EAP).to know_header(EAP::TLS).with(type: 13)
+        describe '#initialize' do
+          it 'creates a EAP::TLS header with default values' do
+            eap = EAP::TLS.new
+            expect(eap).to have_type
+            expect(eap.type).to eq(EAP::TYPES['EAP-TLS'])
           end
         end
 
@@ -170,7 +182,7 @@ module PacketGen
             expect(pkt.eap_tls).to be_tls_start
             
             pkt = @packets[4]
-            expect(pkt.is? 'EAP').to be(true)
+            expect(pkt.is? 'EAP::TLS').to be(true)
             expect(pkt.eap).to be_a_response
             expect(pkt.eap.human_type).to eq('EAP-TLS')
             expect(pkt.eap_tls.flags).to eq(0)
@@ -197,17 +209,21 @@ module PacketGen
       end
 
       describe EAP::TTLS do
-        describe 'binding' do
-          it 'in EAP packets' do
-            expect(EAP).to know_header(EAP::TTLS).with(type: 21)
+        describe '#initialize' do
+          it 'creates a EAP::TTLS header with default values' do
+            eap = EAP::TTLS.new
+            expect(eap).to have_type
+            expect(eap.type).to eq(EAP::TYPES['EAP-TTLS'])
           end
         end
       end
-      
+
       describe EAP::FAST do
-        describe 'binding' do
-          it 'in EAP packets' do
-            expect(EAP).to know_header(EAP::FAST).with(type: 43)
+        describe '#initialize' do
+          it 'creates a EAP::FAST header with default values' do
+            eap = EAP::FAST.new
+            expect(eap).to have_type
+            expect(eap.type).to eq(EAP::TYPES['EAP-FAST'])
           end
         end
       end
