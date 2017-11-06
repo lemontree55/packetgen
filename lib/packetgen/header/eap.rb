@@ -19,6 +19,39 @@ module PacketGen
     # * a {#vendor_id} field ({Types::Int24}),
     # * a {#vendor_type} field ({Types::Int32}).
     # Finally, all packets have a {#body} ({Types::String}).
+    #
+    # == Create EAP headers
+    # An EAP header may be created this way:
+    #   # create a request header with default type (1)
+    #   eap = EAP.new(code: 1)   # => PacketGen::Header::EAP
+    #   # the same
+    #   eap = EAP.new(code: 'Request')   # => PacketGen::Header::EAP
+    #   # create a Response header of type Nak
+    #   nak = EAP.new(code: 'Response', type: 'Nak')
+    #
+    # === Specialized headers
+    # Some EAP has a specialized class:
+    # * EAP-MD5,
+    # * EAP-TLS,
+    # * EAP-TTLS,
+    # * EAP-FAST.
+    # Creating such a header is fairly simple:
+    #   # Generate a EAP-TLS Response (type is forced to 13)
+    #   eap = EAP::TLS.new(code: 2)     # => PacketGen::Header::EAP::TLS
+    #
+    # == Header accessors
+    # EAP headers may be accessed through +Packet#eap+ accessor.
+    # As EAP has specialized subclasses ({EAP::MD5}, {EAP::TLS}, {EAP::TTLS} and
+    # {EAP::FAST}), these headers may be accessed through +#eap_md5+, +#eap_tls+,
+    # +#eap_ttls+ and +#eap_fast+, respectively. But +#eap+ is still here as a
+    # shortcut.
+    #
+    # == Parse EAP packets
+    # When parsing an EAP packet, EAP subclass may be created from +type+ value.
+    #
+    # So result of parsing a EAP header may be a {EAP}, {EAP::MD5}, {EAP::TLS},
+    # {EAP::TTLS} or {EAP::FAST} instance. But this instance is still accessible
+    # through +Packet#eap+.
     # @author Sylvain Daubert
     class EAP < Base
 
