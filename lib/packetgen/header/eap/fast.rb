@@ -15,6 +15,7 @@ module PacketGen
       # * optionally {#message_length} ({Types::Int32}), if +#l?+ is +true+,
       # * {#body} ({Types::String}).
       # @author Sylvain Daubert
+      # @since 2.1.4
       class FAST < TTLS
         # @return [EAP::FAST]
         def initialize(options={})

@@ -119,6 +119,7 @@ module PacketGen
 
     # 3-byte integer
     # @author Sylvain Daubert
+    # @since 2.1.4
     class Int24 < Int
       # @param [Integer,nil] value
       # @param [:big, :little] endian
@@ -159,12 +160,14 @@ module PacketGen
 
     # big endian 3-byte integer
     # @author Sylvain Daubert
+    # @since 2.1.4
     class Int24be < Int24
       undef endian=
     end
 
     # little endian 3-byte integer
     # @author Sylvain Daubert
+    # @since 2.1.4
     class Int24le < Int24
       # @param [Integer,nil] value
       undef endian=

@@ -10,6 +10,7 @@ module PacketGen
       # Extensible Authentication Protocol (EAP) - 
       # {https://tools.ietf.org/html/rfc3748#section-5.4 MD5 challenge}
       # @author Sylvain Daubert
+      # @since 2.1.4
       class MD5 < EAP
         delete_field :body
         # @!attribute value_size
