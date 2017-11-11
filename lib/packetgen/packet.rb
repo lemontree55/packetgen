@@ -209,11 +209,22 @@ module PacketGen
 
     # send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
+    # @param [Boolean] calc call {#calc} on packet before sending it
+    # @param [Integer] number number of times to send the packets
+    # @param [Integer,Float] interval time, in seconds, between sending 2 packets
     # @return [void]
-    def to_w(iface=nil)
+    def to_w(iface=nil, calc: false, number: 1, interval: 1)
       iface ||= PacketGen.default_iface
       if @headers.first.respond_to? :to_w
-        @headers.first.to_w(iface)
+        self.calc if calc
+        if number == 1
+          @headers.first.to_w(iface)
+        else
+          number.times do
+            @headers.first.to_w(iface)
+            sleep interval
+          end
+        end
       else
         type = @headers.first.protocol_name
         raise WireError, "don't known how to send a #{type} packet on wire"
