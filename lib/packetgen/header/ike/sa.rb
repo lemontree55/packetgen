@@ -398,11 +398,11 @@ module PacketGen
         #   the sending entity's SPI. When the {#spi_size} field is zero,
         #   this field is not present in the proposal.
         #   @return [String]
-        define_field :spi, Types::String, builder: ->(t) { Types::String.new('', length_from: t[:spi_size]) }
+        define_field :spi, Types::String, builder: ->(h, t) { t.new('', length_from: h[:spi_size]) }
         # @!attribute transforms
         #  8-bit set of tranforms for this proposal
         #  @return [Transforms]
-        define_field :transforms, Transforms, builder: ->(t) { Transforms.new(counter: t[:num_trans]) }
+        define_field :transforms, Transforms, builder: ->(h, t) { t.new(counter: h[:num_trans]) }
 
         def initialize(options={})
           if options[:spi] and options[:spi_size].nil?

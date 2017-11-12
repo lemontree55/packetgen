@@ -19,7 +19,7 @@ module PacketGen
         # @!attribute value
         #  @return [::String]
         define_field :value, Types::String,
-                     builder: ->(h) { Types::String.new('', length_from: h[:value_size]) }
+                     builder: ->(h, t) { t.new('', length_from: h[:value_size]) }
         # @!attribute optional_name
         #  @return [::String]
         define_field :optional_name, Types::String
