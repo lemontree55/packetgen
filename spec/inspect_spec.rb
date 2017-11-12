@@ -24,11 +24,11 @@ module PacketGen
       end
 
       it 'return a formatted string for another attribute type' do
-        str = Types::String.new('abc')
+        str = Types::String.new.read('abc')
         inspect = Inspect.inspect_attribute('my_str', str)
         expect(inspect).to eq("          String       my_str: \"abc\"\n")
 
-        intstr = Types::IntString.new('abc')
+        intstr = Types::IntString.new(string: 'abc')
         inspect = Inspect.inspect_attribute('my_str', intstr)
         expect(inspect).to eq("       IntString       my_str: \"\\x03abc\"\n")
       end

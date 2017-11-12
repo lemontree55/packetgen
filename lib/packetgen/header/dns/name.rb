@@ -33,9 +33,9 @@ module PacketGen
           return self if str.nil?
 
           str.split('.').each do |label|
-            self << Types::IntString.new(label)
+            self << Types::IntString.new(string: label)
           end
-          self << Types::IntString.new('')
+          self << Types::IntString.new
         end
 
         # Read a sequence of label from a string

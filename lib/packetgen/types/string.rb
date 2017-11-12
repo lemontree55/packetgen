@@ -17,8 +17,8 @@ module PacketGen
       # @option options [Types::Int,Proc] :length_from object or proc from which
       #   takes length when reading
       # @option options [Integer] :static_length set a static length for this string
-      def initialize(str='', options={})
-        super(str)
+      def initialize(options={})
+        super()
         @length_from = options[:length_from]
         @static_length = options[:static_length]
       end

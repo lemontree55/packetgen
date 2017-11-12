@@ -107,7 +107,7 @@ module PacketGen
         #   this field is not present in the proposal.
         #   @return [String]
         define_field_before :content, :spi, Types::String,
-                            builder: ->(t) { Types::String.new('', length_from: t[:spi_size]) }
+                            builder: ->(t) { Types::String.new(length_from: t[:spi_size]) }
 
         alias type message_type
 
