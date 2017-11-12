@@ -11,6 +11,7 @@ module PacketGen
     # * a first byte ({#u8} of {Types::Int8} type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 4-bit IP header length ({#ihl}) field,
+    # * a Type of Service field ({#tos}, {Types::Int8} type),
     # * a total length ({#length}, {Types::Int16} type),
     # * a ID ({#id}, +Int16+ type),
     # * a {#frag} worg (+Int16+) composed of:
@@ -20,7 +21,8 @@ module PacketGen
     # * a {#protocol} field (+Int8+),
     # * a {#checksum} field (+Int16+),
     # * a source IP address ({#src}, {Addr} type),
-    # * a destination IP ddress ({#dst}, +Addr+ type),
+    # * a destination IP address ({#dst}, +Addr+ type),
+    # * an optional {#options} field ({Types::String} type),
     # * and a {#body} ({Types::String} type).
     #
     # == Create a IP header
@@ -141,6 +143,10 @@ module PacketGen
       # @!attribute dst
       #   @return [Addr] destination IP address
       define_field :dst, Addr, default: '127.0.0.1'
+      # @!attribute options
+      #  @return [Types::String]
+      define_field :options, Types::String, optional: ->(h) { h.ihl > 5 },
+                   builder: ->(h,t) { t.new('', length_from: ->() { (h.ihl - 5) * 4 }) }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
@@ -160,6 +166,29 @@ module PacketGen
       # @!attribute fragment_offset
       #   @return [Integer] 13-bit fragment offset
       define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
+
+      # Populate object from a binary string
+      # @param [String] str
+      # @return [Fields] self
+      #def read(str)
+      #  return self if str.nil?
+      #  force_binary str
+      #  self[:u8].read str[0, 1]
+      #  self[:tos].read str[1, 1]
+      #  self[:length].read str[2, 2]
+      #  self[:id].read str[4, 2]
+      #  self[:frag].read str[6, 2]
+      #  self[:ttl].read str[8, 1]
+      #  self[:protocol].read str[9, 1]
+      #  self[:checksum].read str[10, 2]
+      #  self[:src].read str[12, 4]
+      #  self[:dst].read str[16, 4]
+      #  if self.ihl > 5
+      #    opt_size = (self.ihl - 5) * 4
+      #    self[:options].read str[20, opt_size]
+      #  end
+      #  self
+      #end
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]

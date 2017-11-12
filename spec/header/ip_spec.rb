@@ -93,8 +93,20 @@ module PacketGen
           expect(ip.protocol).to eq(10)
           expect(ip.checksum).to eq(0x0b0c)
           expect(ip.src).to eq('13.14.15.16')
-            expect(ip.dst).to eq('17.18.19.20')
-            expect(ip.body).to eq('body')
+          expect(ip.dst).to eq('17.18.19.20')
+          expect(ip.options).to eq('')
+          expect(ip.body).to eq('body')
+        end
+
+        it 'reads a IP header with options' do
+          pkt = PacketGen.read(File.join(__dir__, 'ip_opts.pcapng')).first
+          expect(pkt.is? 'IP').to be(true)
+
+          ip = pkt.ip
+          expect(ip.ihl).to eq(11)
+          expect(ip).to respond_to(:options)
+          expect(ip.options.size).to eq(24)
+          expect(ip.body).to be_a(Header::ICMP)
         end
       end
 
