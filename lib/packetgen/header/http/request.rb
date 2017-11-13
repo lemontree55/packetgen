@@ -37,7 +37,7 @@ module PacketGen
         define_field :path,    Types::String
         # @!attribute version 
         #   @return [Types::String]
-        define_field :version, Types::String
+        define_field :version, Types::String, default: "HTTP/1.1"
         # @!attribute headers
         #   associated http/1.1 headers
         #   @return [Types::HTTPHeaders]
