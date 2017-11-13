@@ -43,6 +43,16 @@ module PacketGen
         #   @return [Types::HTTPHeaders]
         define_field :headers, Types::HTTPHeaders 
 
+        # @param [Hash] options
+        # @option options [String] :method
+        # @option options [String] :path
+        # @option options [String] :version
+        # @option options [Hash]   :headers
+        def initialize(options={})
+          super(options)
+          self.headers ||= options[:headers]
+        end
+
         # Give it a pretty name, the only way I know how.
         # @return [String]
         def protocol_name

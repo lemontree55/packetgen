@@ -47,6 +47,17 @@ module PacketGen
         # @!attribute body 
         #   @return [Types::HTTPHeaders]
         define_field :body, Types::String
+        
+        # @param [Hash] options
+        # @option options [String] :version
+        # @option options [String] :status_code
+        # @option options [String] :status_mesg
+        # @option options [String] :body
+        # @option options [Hash]   :headers
+        def initialize(options={})
+          super(options)
+          self.headers ||= options[:headers]
+        end
 
         # Give it a pretty name, the only way I know how.
         # @return [String]
