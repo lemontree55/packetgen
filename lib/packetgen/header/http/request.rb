@@ -21,11 +21,11 @@ module PacketGen
       #   pkt.http_request # => PacketGen::Header::HTTP::Request
       #
       # == HTTP Request attributes
-      #		http_rqst.version = "HTTP/1.1"
-      #		http_rqst.method = "GET"
-      #		http_rqst.path = "/meow.html"
-      # 	http_resp.headers = "Host: tcpdump.org"     # string or
-      #		http_resp.headers = { host: "tcpdump.org" } # even a hash
+      #	  http_rqst.version = "HTTP/1.1"
+      #	  http_rqst.method = "GET"
+      #	  http_rqst.path = "/meow.html"
+      #   http_resp.headers = "Host: tcpdump.org"     # string or
+      #	  http_resp.headers = { host: "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
       class Request < Base
