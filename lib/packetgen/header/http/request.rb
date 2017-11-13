@@ -11,7 +11,7 @@ module PacketGen
       # * the path ({Types::String}).
       # * the version ({Types::String}).
       # * associated http headers ({Types::String}).
-
+      #
       # == Create a HTTP Request header
       #   # standalone
       #   http_rqst = PacketGen::Header::HTTP::Request.new
