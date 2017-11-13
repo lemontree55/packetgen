@@ -5,6 +5,7 @@ module PacketGen
   end
 end
 
+require_relative 'types/http_headers'
 require_relative 'types/int'
 require_relative 'types/string'
 require_relative 'types/int_string'
