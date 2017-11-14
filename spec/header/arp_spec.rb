@@ -25,7 +25,7 @@ module PacketGen
                      ptype: 0x1234,
                      hlen: 255,
                      plen: 254,
-                     opcode: 0x9999,
+                     opcode: 2,
                      src_mac: '01:02:03:03:03:03',
                      dst_mac: 'ff:ff:ff:ff:ff:ff',
                      src_ip: '10.0.0.1',
@@ -83,8 +83,8 @@ module PacketGen
         end
 
         it '#opcode= accepts an integer' do
-          @arp.opcode = 0xabcd
-          expect(@arp[:op].value).to eq(0xabcd)
+          @arp.opcode = 2
+          expect(@arp[:op].value).to eq(2)
         end
 
         it '#src_mac= accepts a MAC address string' do

@@ -21,8 +21,8 @@ module PacketGen
           it 'accepts options' do
             options = {
               name: 'www.example.net.',
-              type: 253,
-              rrclass: 65000,
+              type: 48,
+              rrclass: 2,
               ttl: 0xffff_8765,
               rdlength: 0xf000,
               rdata: 'azertyuiop'
@@ -58,34 +58,6 @@ module PacketGen
 
         describe 'setters' do
           let(:rr) { RR.new(dns) }
-
-          it '#type= accepts an Integer' do
-            rr.type = 0xacac
-            expect(rr[:type].to_i).to eq(0xacac)
-          end
-
-          it '#type= accepts a String' do
-            RR::TYPES.each do |key, value|
-              rr.type = key
-              expect(rr[:type].to_i).to eq(value)
-            end
-          end
-
-          it '#type= raises an error when string is unknown' do
-            expect { rr.type = 'blah' }.to raise_error(ArgumentError, /unknown type/)
-          end
-
-          it '#rrclass= accepts an Integer' do
-            rr.rrclass = 0xacac
-            expect(rr[:rrclass].to_i).to eq(0xacac)
-          end
-
-          it '#rrclass= accepts a String' do
-            RR::CLASSES.each do |key, value|
-              rr.rrclass = key
-              expect(rr[:rrclass].to_i).to eq(value)
-            end
-          end
 
           it '#ttl= accepts an Integer' do
             rr.ttl = 0xcafe_deca

@@ -154,7 +154,7 @@ module PacketGen
         end
         pad_field :options
         recalc_block_len
-        fields.map { |f| @fields[f].to_s }.join + body
+        super + body
       end
 
 

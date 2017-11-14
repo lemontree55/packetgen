@@ -58,7 +58,10 @@ module PacketGen
     # * +:default+ gives default field value. It may be a simple value (an Integer
     #   for an Int field, for example) or a lambda,
     # * +:builder+ to give a builder/constructor lambda to create field. The lambda
-    #   takes one argument: {Fields} subclass object owning field.
+    #   takes one argument: {Fields} subclass object owning field,
+    # * +:optional+ to define this field as optional. This option takes a lambda
+    #   parameter used to say if this field is present or not,
+    # * +:enum+ to define Hash enumeration for an {Enum} type.
     # For example:
     #   # 32-bit integer field defaulting to 1
     #   define_field :type, PacketGen::Types::Int32, default: 1
@@ -69,6 +72,8 @@ module PacketGen
     #   define_field :body_size, PacketGen::Type::Int16
     #   # String field which length is taken from body_size field
     #   define_field :body, PacketGen::Type::String, builder: ->(obj) { PacketGen::Type::String.new('', length_from: obj[:body_size]) }
+    #   # 16-bit enumeration type. As :default not specified, default to first value of enum
+    #   define_field :type_class, PacketGen::Type::Int16Enum, enum: { 'class1' => 1, 'class2' => 2}
     #
     # {.define_field_before} and {.define_field_after} are also defined to relatively
     # create a field from anoher one (for example, when adding a field in a subclass).
@@ -127,17 +132,25 @@ module PacketGen
       #   +:builder+ option is not set.
       # @option options [Object] :default default value
       # @option options [Lambda] :builder lambda to construct this field.
-      #   Parameter to this lambda is the caller object.
+      #   Parameters to this lambda is the caller object and the field type class.
+      # @option options [Lambda] :optional define this field as optional. Given lambda
+      #   is used to known if this field is present or not. Parameter to this lambda is
+      #   the being defined Field object.
+      # @option options [Hash] :enum mandatory option for an {Enum} type.
+      #   Define enumeration: hash's keys are +String+, and values are +Integer+.
       # @return [void]
       def self.define_field(name, type, options={})
         define = []
-        if type < Types::Int
+        if type < Types::Enum
+          define << "def #{name}; self[:#{name}].to_i; end"
+          define << "def #{name}=(val) self[:#{name}].value = val; end"
+        elsif type < Types::Int
           define << "def #{name}; self[:#{name}].to_i; end"
           define << "def #{name}=(val) self[:#{name}].read val; end"
         elsif type.instance_methods.include? :to_human and
-             type.instance_methods.include? :from_human
-          define << "def #{name}; self[:#{name}].to_human; end"
-          define << "def #{name}=(val) self[:#{name}].from_human val; end"
+           type.instance_methods.include? :from_human
+           define << "def #{name}; self[:#{name}].to_human; end"
+           define << "def #{name}=(val) self[:#{name}].from_human val; end"
         else
           define << "def #{name}; self[:#{name}]; end\n"
           define << "def #{name}=(val) self[:#{name}].read val; end"
@@ -146,7 +159,10 @@ module PacketGen
         define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
         define.delete(0) if type.instance_methods.include? name
         class_eval define.join("\n")
-        @field_defs[name] = [type, options.delete(:default), options.delete(:builder),
+        @field_defs[name] = [type, options.delete(:default),
+                             options.delete(:builder),
+                             options.delete(:optional),
+                             options.delete(:enum),
                              options]
         @ordered_fields << name
       end
@@ -187,13 +203,21 @@ module PacketGen
         end
       end
 
+      # Delete a previously defined field
+      # @param [Symbol] name
+      # @return [void]
+      def self.delete_field(name)
+        @ordered_fields.delete name
+        @field_defs.delete name
+      end
+
       # Define a bitfield on given attribute
       #   class MyHeader < PacketGen::Types::Fields
       #     define_field :flags, Types::Int16
       #     # define a bit field on :flag attribute:
       #     # flag1, flag2 and flag3 are 1-bit fields
       #     # type and stype are 3-bit fields. reserved is a 6-bit field
-      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved: 7
+      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved, 7
       #   end
       # A bitfield of size 1 bit defines 2 methods:
       # * +#field?+ which returns a Boolean,
@@ -266,24 +290,38 @@ module PacketGen
       #   attributes, as defined by {.define_field} and by {.define_bit_fields_on}.
       def initialize(options={})
         @fields = {}
+        @optional_fields = {}
+
         self.class.class_eval { @field_defs }.each do |field, ary|
-          default = ary[1].is_a?(Proc) ? ary[1].call : ary[1]
-          @fields[field] = if ary[2]
-                             ary[2].call(self)
-                           elsif !ary[3].empty?
-                             ary[0].new(ary[3])
+          type, default, builder, optional, enum, field_options = ary
+          default = default.call if default.is_a?(Proc)
+          @fields[field] = if builder
+                             builder.call(self, type)
+                           elsif enum
+                             type.new(enum)
+                           elsif !field_options.empty?
+                             type.new(field_options)
                            else
-                             ary[0].new
+                             type.new
                            end
 
           value = options[field] || default
-          if ary[0] < Types::Int
+          if type < Types::Enum
+            case value
+            when ::String
+              @fields[field].value = value
+            else
+              @fields[field].read(value)
+            end
+          elsif type < Types::Int
             @fields[field].read(value)
-          elsif ary[0] <= Types::String
+          elsif type <= Types::String
             @fields[field].read(value)
           else
             @fields[field].from_human(value) if @fields[field].respond_to? :from_human
           end
+
+          @optional_fields[field] = optional if optional
         end
         self.class.class_eval { @bit_fields }.each do |bit_field|
           self.send "#{bit_field}=", options[bit_field] if options[bit_field]
@@ -311,6 +349,24 @@ module PacketGen
         @ordered_fields ||= self.class.class_eval { @ordered_fields }
       end
 
+      # Get all optional field name
+      def optional_fields
+        @optional_fields.keys
+      end
+
+      # Say if this field is optional
+      # @return [Boolean]
+      def is_optional?(field)
+        @optional_fields.has_key? field
+      end
+
+      # Say if an optional field is present
+      # @return [Boolean]
+      def is_present?(field)
+        return true unless is_optional?(field)
+        @optional_fields[field].call(self)
+      end
+
       # Populate object from a binary string
       # @param [String] str
       # @return [Fields] self
@@ -319,6 +375,7 @@ module PacketGen
         force_binary str
         start = 0
         fields.each do |field|
+          next unless is_present?(field)
           if self[field].respond_to? :width
             width = self[field].width
             self[field].read str[start, width]
@@ -340,9 +397,10 @@ module PacketGen
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
-        @fields.each do |attr, value|
+        fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
+          next unless is_present?(attr)
+          str << Inspect.inspect_attribute(attr, self[attr], 2)
         end
         str
       end
@@ -350,7 +408,8 @@ module PacketGen
       # Return object as a binary string
       # @return [String]
       def to_s
-        fields.map { |f| force_binary @fields[f].to_s }.join
+        fields.select { |f| is_present?(f) }.
+          map! { |f| force_binary @fields[f].to_s }.join
       end
 
       # Size of object as binary string

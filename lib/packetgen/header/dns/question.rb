@@ -6,19 +6,6 @@ module PacketGen
       # @author Sylvain Daubert
       class Question < Base
 
-        # @!attribute name
-        #  Question domain name
-        #  @return [String]
-        define_field :name, Name, default: '.'
-        # @!attribute type
-        #  16-bit question type
-        #  @return [Integer]
-        define_field :type, Types::Int16, default: 1
-        # @!attribute rrclass
-        #  16-bit question class
-        #  @return [Integer]
-        define_field :rrclass, Types::Int16, default: 1
-
         # Ressource Record types
         TYPES = {
           'A'        => 1,
@@ -49,7 +36,7 @@ module PacketGen
           'TKEY'     => 249,
           'TSIG'     => 250,
           '*'        => 255
-        }
+        }.freeze
 
         # Ressource Record classes
         CLASSES = {
@@ -58,7 +45,20 @@ module PacketGen
           'HS'   => 4,
           'NONE' => 254,
           '*'    => 255
-        }
+        }.freeze
+
+        # @!attribute name
+        #  Question domain name
+        #  @return [String]
+        define_field :name, Name, default: '.'
+        # @!attribute type
+        #  16-bit question type
+        #  @return [Integer]
+        define_field :type, Types::Int16Enum, default: 1, enum: TYPES
+        # @!attribute rrclass
+        #  16-bit question class
+        #  @return [Integer]
+        define_field :rrclass, Types::Int16Enum, default: 1, enum: CLASSES
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -70,20 +70,6 @@ module PacketGen
           self[:name].dns = dns
           self.type = options[:type] if options[:type]
           self.rrclass = options[:rrclass] if options[:rrclass]
-        end
-
-        # Setter for type
-        # @param [Integer] val
-        # @return [Integer,String]
-        def type=(val)
-          v = case val
-              when String
-                self.class::TYPES[val.upcase]
-              else
-                val
-              end
-          raise ArgumentError, "unknown type #{val.inspect}" unless v
-          self[:type].read v
         end
 
         # Setter for class
@@ -109,7 +95,7 @@ module PacketGen
 
         # Get human readable type
         # @return [String]
-          def human_type
+        def human_type
           self.class::TYPES.key(type) || "0x%04x" % type
         end
 

@@ -1,5 +1,7 @@
 require_relative '../spec_helper'
 
+$global_var = false
+
 module PacketGen
   module Header
     describe Base do
@@ -9,7 +11,11 @@ module PacketGen
         define_field :field2, Types::Int8
       end
 
-      class ToBind < TestBase; end
+      class ToBind < Base
+        def added_to_packet(packet)
+          $global_var = true
+        end
+      end
 
       context '.bind_header' do
         after(:each) { clear_bindings TestBase }
@@ -42,6 +48,14 @@ module PacketGen
           TestBase.bind_header ToBind, field1: ->(v) { v.nil? ? 128 : v > 127 }
           pkt = Packet.new.add('TestBase').add('ToBind')
           expect(pkt.testbase.field1).to eq(128)
+        end
+      end
+      
+      context 'adding header to a packet' do
+        it 'calls #added_to_packet' do
+          $global_var = false
+          Packet.gen('ToBind')
+          expect($global_var).to be(true)
         end
       end
     end

@@ -48,7 +48,7 @@ module PacketGen
     # @return [void]
     # @since 1.1.0
     def self.add_class(klass)
-      protocol_name = klass.to_s.sub(/.*::/, '')
+      protocol_name = klass.new.protocol_name
       @added_header_classes[protocol_name] = klass
       @header_classes = nil
     end
@@ -59,7 +59,7 @@ module PacketGen
     # @return [void]
     # @since 1.1.0
     def self.remove_class(klass)
-      protocol_name = klass.to_s.sub(/.*::/, '')
+      protocol_name = klass.new.protocol_name
       @added_header_classes.delete protocol_name
       @header_classes = nil
     end
@@ -78,6 +78,7 @@ module PacketGen
   end
 end
 
+require_relative 'header/crypto'
 require_relative 'header/base'
 require_relative 'header/eth'
 require_relative 'header/dot11'
@@ -89,7 +90,12 @@ require_relative 'header/icmp'
 require_relative 'header/arp'
 require_relative 'header/ipv6'
 require_relative 'header/icmpv6'
+require_relative 'header/gre'
 require_relative 'header/udp'
 require_relative 'header/tcp'
+require_relative 'header/eap'
 require_relative 'header/esp'
+require_relative 'header/ike'
 require_relative 'header/dns'
+require_relative 'header/asn1_base'
+require_relative 'header/snmp'

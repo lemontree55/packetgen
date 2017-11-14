@@ -89,7 +89,7 @@ module PacketGen
         check_len_coherency
         self
       end
-      
+
       # Add a xPB to this section
       # @param [EPB,SPB] xpb
       # @return [self]
@@ -137,7 +137,7 @@ module PacketGen
       def to_s
         pad_field :options
         recalc_block_len
-        fields.map { |f| @fields[f].to_s }.join << @packets.map(&:to_s).join
+        super << @packets.map(&:to_s).join
       end
 
     end

@@ -24,7 +24,7 @@ module PacketGen
           it 'accepts options' do
             options = {
               name: 'www.example.net.',
-              type: 253,
+              type: 249,
               udp_size: 2048,
               ext_rcode: 0x80,
               version: 0x91,
@@ -59,22 +59,6 @@ module PacketGen
 
         describe 'setters' do
           let(:opt) { OPT.new(dns) }
-
-          it '#type= accepts an Integer' do
-            opt.type = 0xacac
-            expect(opt[:type].to_i).to eq(0xacac)
-          end
-
-          it '#type= accepts a String' do
-            OPT::TYPES.each do |key, value|
-              opt.type = key
-              expect(opt[:type].to_i).to eq(value)
-            end
-          end
-
-          it '#type= raises an error when string is unknown' do
-            expect { opt.type = 'blah' }.to raise_error(ArgumentError, /unknown type/)
-          end
 
           it '#udp_size= accepts an Integer' do
             opt.udp_size = 0xacac
@@ -127,4 +111,3 @@ module PacketGen
     end
   end
 end
-

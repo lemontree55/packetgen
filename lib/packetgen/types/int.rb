@@ -36,6 +36,10 @@ module PacketGen
         @default = default
       end
 
+      # @abstract
+      # Read an Int from a binary string or an integer
+      # @param [Integer, String] value
+      # @return [self]
       def read(value)
         @value = if value.is_a?(Integer)
                    value.to_i
@@ -104,6 +108,67 @@ module PacketGen
     # little endian 2-byte integer
     # @author Sylvain Daubert
     class Int16le < Int16
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :little)
+      end
+    end
+
+    # 3-byte integer
+    # @author Sylvain Daubert
+    # @since 2.1.4
+    class Int24 < Int
+      # @param [Integer,nil] value
+      # @param [:big, :little] endian
+      def initialize(value=nil, endian=:big)
+        super(value, endian, 3)
+      end
+
+      # Read an 3-byte Int from a binary string or an integer
+      # @param [Integer, String] value
+      # @return [self]
+      def read(value)
+        return self if value.nil?
+        @value =  if value.is_a?(Integer)
+                    value.to_i
+                  else
+                    up8 = down16 = 0
+                    if @endian == :big
+                      up8, down16 = value.to_s.unpack('Cn')
+                    else
+                      down16, up8 = value.to_s.unpack('vC')
+                    end
+                    (up8 << 16) | down16
+                  end
+        self
+      end
+
+      # @return [::String]
+      def to_s
+        up8 = to_i >> 16
+        down16 = to_i & 0xffff
+        if @endian == :little
+          [up8, down16].pack('Cn')
+        else
+          [down16, up8].pack('vC')
+        end
+      end
+    end
+
+    # big endian 3-byte integer
+    # @author Sylvain Daubert
+    # @since 2.1.4
+    class Int24be < Int24
+      undef endian=
+    end
+
+    # little endian 3-byte integer
+    # @author Sylvain Daubert
+    # @since 2.1.4
+    class Int24le < Int24
       # @param [Integer,nil] value
       undef endian=
 

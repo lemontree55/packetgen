@@ -6,6 +6,7 @@ require 'packetgen/version'
 Gem::Specification.new do |spec|
   spec.name          = 'packetgen'
   spec.version       = PacketGen::VERSION
+  spec.license       = 'MIT'
   spec.authors       = ['Sylvain Daubert']
   spec.email         = ['sylvain.daubert@laposte.net']
 
@@ -20,14 +21,14 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.required_ruby_version = '>= 2.1.0'
+  spec.required_ruby_version = '>= 2.2.0'
 
   spec.add_dependency 'pcaprub', '~>0.12.4'
-  spec.add_dependency 'pry', '~>0.10'
   spec.add_dependency 'network_interface'
+  spec.add_dependency 'rasn1', '~>0.3', '>= 0.3.1'
 
   spec.add_development_dependency 'bundler', '~> 1.7'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'simplecov', '~> 0.12'
   spec.add_development_dependency 'yard', '~> 0.9'

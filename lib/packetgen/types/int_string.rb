@@ -14,7 +14,7 @@ module PacketGen
 
       # internal string
       # @return [String]
-      attr_accessor :string
+      attr_reader :string
 
       # @param [::String] str
       # @param [Class] len_type should be a {Int} subclass
@@ -28,7 +28,8 @@ module PacketGen
       # @return [IntString] self
       def read(str)
         unless str[0, @length.width].size == @length.width
-          raise ParseError, "String too short for type #{@length.type}"
+          raise ParseError,
+                "String too short for type #{@length.class.to_s.gsub(/.*::/, '')}"
         end
         @length.read str[0, @length.width]
         @string.read str[@length.width, @length.to_i]
@@ -45,6 +46,13 @@ module PacketGen
       # @return [Integer]
       def length
         @length.to_i
+      end
+
+      # @param [#to_s] s
+      # @return [String]
+      def string=(s)
+        @length.value = s.to_s.size
+        @string = s.to_s
       end
 
       # Get binary string

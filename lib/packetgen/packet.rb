@@ -44,6 +44,12 @@ module PacketGen
   # == Save packets to a file
   #  Packet.write 'file.pcapng', packets
   #
+  # @since 2.0.0
+  #
+  #   Packet accessor has changed. When header class is in a namespace
+  #   (for example Dot11::* header classes), to avoid clashes in names, such
+  #   accessors are named +namespace_class+. For example {Header::Dot11::Data}
+  #   header is now accessed through +Packet#dot11_data+ and nor more +Packet#data+).
   # @author Sylvain Daubert
   class Packet
     # @return [Array<Header::Base]
@@ -91,9 +97,9 @@ module PacketGen
       capture.packets
     end
 
-    # Read packets from +filename+.
+    # Read packets from +filename+. Mays read Pcap and Pcap-NG formats.
     #
-    # For more control, see {PcapNG::File} or {PCAPRUB::Pcap}.
+    # For more control, see {PcapNG::File} or +PCAPRUB::Pcap+.
     # @param [String] filename PcapNG or Pcap file.
     # @return [Array<Packet>]
     # @author Sylvain Daubert
@@ -105,7 +111,7 @@ module PacketGen
         raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
         packets = []
         PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
-          next unless packet = PacketGen.parse(packet.to_s)  
+          next unless packet = PacketGen.parse(packet.to_s)
           packets << packet
         end
         packets
@@ -197,17 +203,29 @@ module PacketGen
     # @return [Array] see return from {PcapNG::File#to_file}
     # @see File
     def to_f(filename)
-      File.new.array_to_file(filename: filename, array: [self])
+      PcapNG::File.new.array_to_file(filename: filename, array: [self])
     end
     alias :write :to_f
 
     # send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
+    # @param [Boolean] calc call {#calc} on packet before sending it
+    # @param [Integer] number number of times to send the packets
+    # @param [Integer,Float] interval time, in seconds, between sending 2 packets
     # @return [void]
-    def to_w(iface=nil)
+    # @since 2.1.4 add `calc`, `number` and `interval` parameters
+    def to_w(iface=nil, calc: false, number: 1, interval: 1)
       iface ||= PacketGen.default_iface
       if @headers.first.respond_to? :to_w
-        @headers.first.to_w(iface)
+        self.calc if calc
+        if number == 1
+          @headers.first.to_w(iface)
+        else
+          number.times do
+            @headers.first.to_w(iface)
+            sleep interval
+          end
+        end
       else
         type = @headers.first.protocol_name
         raise WireError, "don't known how to send a #{type} packet on wire"
@@ -216,10 +234,15 @@ module PacketGen
 
     # Encapulate another packet in +self+
     # @param [Packet] other
+    # @param [Boolean] parsing set to +true+ to not update last current header field
+    #    from binding with first other's one. Use only when current heade field as
+    #    its value set accordingly.
     # @return [self] +self+ with new headers from +other+
     # @since 1.1.0
-    def encapsulate(other)
-      other.headers.each { |h| add_header h }
+    def encapsulate(other, parsing: false)
+      other.headers.each_with_index do |h, i|
+        add_header h, parsing: (i > 0) || parsing
+      end
     end
 
     # Remove headers from +self+
@@ -327,19 +350,19 @@ module PacketGen
     # Add a header to packet
     # @param [Header::Base] header
     # @param [Header::Base] previous_header
+    # @param [Boolean] parsing
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
-      protocol = header.protocol_name
       prev_header = previous_header || @headers.last
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
         if bindings.nil?
           bindings = prev_header.class.known_headers[header.class.superclass]
           if bindings.nil?
-            msg = "#{prev_header.class} knowns no layer association with #{protocol}. "
-            msg << "Try #{prev_header.class}.bind_layer(PacketGen::Header::#{protocol}, "
-            msg << "#{prev_header.protocol_name.downcase}_proto_field: "
-            msg << "value_for_#{protocol.downcase})"
+            msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. "
+            msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
+            msg << "#{prev_header.method_name}_proto_field: "
+            msg << "value_for_#{header.method_name})"
             raise ArgumentError, msg
           end
         end
@@ -348,9 +371,9 @@ module PacketGen
       end
       header.packet = self
       @headers << header unless previous_header
-      unless respond_to? protocol.downcase
-        self.class.class_eval "def #{protocol.downcase}(arg=nil);" \
-                              "header(#{header.class}, arg); end"
+      unless respond_to? header.method_name
+        self.instance_eval "def #{header.method_name}(arg=nil);" \
+                           "header(#{header.class}, arg); end"
       end
     end
 
@@ -375,11 +398,14 @@ module PacketGen
       decode_packet_bottom_up = true
       while decode_packet_bottom_up do
         last_known_hdr = @headers.last
+        break unless last_known_hdr.respond_to? :body
+        break if last_known_hdr.body.empty?
         search_header(last_known_hdr) do |nh|
           str = last_known_hdr.body
           nheader = nh.new
           nheader = nheader.read(str)
           add_header nheader, parsing: true
+          nheader.dissect if nheader.respond_to? :dissect
         end
         decode_packet_bottom_up = (@headers.last != last_known_hdr)
       end

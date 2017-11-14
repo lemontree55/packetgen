@@ -96,6 +96,7 @@ module PacketGen
       def to_w(iface)
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC, PCAP_TIMEOUT)
         pcap.inject self.to_s
+        pcap.close
       end
     end
 

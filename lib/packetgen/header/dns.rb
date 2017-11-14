@@ -144,16 +144,16 @@ module PacketGen
       define_field :arcount, Types::Int16
       # @!attribute qd
       #  @return [QDSection]
-      define_field :qd, QDSection, builder: ->(dns) { QDSection.new(dns, dns[:qdcount]) }
+      define_field :qd, QDSection, builder: ->(h,t) { t.new(h, h[:qdcount]) }
       # @!attribute an
       #  @return [RRSection]
-      define_field :an, RRSection, builder: ->(dns) { RRSection.new(dns, dns[:ancount]) }
+      define_field :an, RRSection, builder: ->(h,t) { t.new(h, h[:ancount]) }
       # @!attribute ns
       #  @return [RRSection]
-      define_field :ns, RRSection, builder: ->(dns) { RRSection.new(dns, dns[:nscount]) }
+      define_field :ns, RRSection, builder: ->(h,t) { t.new(h, h[:nscount]) }
       # @!attribute ar
       #  @return [RRSection]
-      define_field :ar, RRSection, builder: ->(dns) { RRSection.new(dns, dns[:arcount]) }
+      define_field :ar, RRSection, builder: ->(h,t) { t.new(h, h[:arcount]) }
 
       # @!attribute qr
       #   @return [Boolean] query (+false+) or response (+true+)
@@ -248,13 +248,13 @@ module PacketGen
             flags = [:qr, :aa, :tc, :rd, :ra].select! { |attr| send "#{attr}?" }.
                     map(&:to_s).join(',')
             str << Inspect.shift_level(2)
-            str << Inspect::INSPECT_FMT_ATTR % ['Flags', 'flags', flags]
+            str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
             opcode = '%-10s (%u)' % [OPCODES.key(self.opcode), self.opcode]
             str << Inspect.shift_level(2)
-            str << Inspect::INSPECT_FMT_ATTR % ['Integer', 'opcode', opcode]
+            str << Inspect::FMT_ATTR % ['Integer', 'opcode', opcode]
             rcode = '%-10s (%u)' % [RCODES.key(self.rcode), self.rcode]
             str << Inspect.shift_level(2)
-            str << Inspect::INSPECT_FMT_ATTR % ['Integer', 'rcode', rcode]
+            str << Inspect::FMT_ATTR % ['Integer', 'rcode', rcode]
           else
             str << Inspect.inspect_attribute(attr, value, 2)
           end

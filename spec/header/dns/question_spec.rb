@@ -18,8 +18,8 @@ module PacketGen
           it 'accepts options' do
             options = {
               name: 'www.example.net.',
-              type: 253,
-              rrclass: 65000
+              type: 250,
+              rrclass: 254
             }
             q = Question.new(dns, options)
 
@@ -43,42 +43,6 @@ module PacketGen
             expect(q.name).to eq('example.org.')
             expect(q.type).to eq(1)
             expect(q.rrclass).to eq(1)
-          end
-        end
-
-        describe 'setters' do
-          let(:q) { Question.new(dns) }
-
-          it '#type= accepts an Integer' do
-            q.type = 0xacac
-            expect(q[:type].to_i).to eq(0xacac)
-          end
-
-          it '#type= accepts a String' do
-            Question::TYPES.each do |key, value|
-              q.type = key
-              expect(q[:type].to_i).to eq(value)
-            end
-          end
-
-          it '#type= raises an error when string is unknown' do
-            expect { q.type = 'blah' }.to raise_error(ArgumentError, /unknown type/)
-          end
-
-          it '#rrclass= accepts an Integer' do
-            q.rrclass = 0xacac
-            expect(q[:rrclass].to_i).to eq(0xacac)
-          end
-
-          it '#rrclass= accepts a String' do
-            Question::CLASSES.each do |key, value|
-              q.rrclass = key
-              expect(q[:rrclass].to_i).to eq(value)
-            end
-          end
-
-          it '#rrclass= raises an error when string is unknown' do
-            expect { q.rrclass = 'blah' }.to raise_error(ArgumentError, /unknown class/)
           end
         end
 

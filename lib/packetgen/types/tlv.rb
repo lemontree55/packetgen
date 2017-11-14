@@ -31,7 +31,7 @@ module PacketGen
       # @!attribute value
       #  @return [String]
       define_field :value, String,
-                   builder: ->(tlv) { String.new('', length_from: tlv[:length]) }
+                   builder: ->(tlv, type) { type.new('', length_from: tlv[:length]) }
 
       # @param [Hash] options
       # @option options [Integer] :type
