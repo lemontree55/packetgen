@@ -47,12 +47,14 @@ module PacketGen
             expect{ http_resp.to_s }.to raise_error(FormatError)
             http_resp.status_mesg = "OK"
             expect(http_resp.to_s).to be_a(String) 
+            expect(http_resp.to_s).to eq("HTTP/1.1 200 OK\r\n")
           end
           it 'returns a string with the needed fields' do 
             http_resp.version = "HTTP/1.1"
             http_resp.status_code = "200"
             http_resp.status_mesg = "OK"
             expect(http_resp.to_s).to be_a(String) 
+            expect(http_resp.to_s).to eq("HTTP/1.1 200 OK\r\n")
           end
         end
 
