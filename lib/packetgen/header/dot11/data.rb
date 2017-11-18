@@ -9,6 +9,20 @@ module PacketGen
     class Dot11
 
       # IEEE 802.11 data frame header
+      #
+      # This class make a {Dot11} header with {#type} set to +2+
+      # (data frame).
+      #
+      # A IEEE 802.11 data header consists of:
+      # * a {#frame_ctrl} ({Types::Int16}),
+      # * a {#id}/duration ({Types::Int16le}),
+      # * a {#mac2} ({Eth::MacAddr}),
+      # * a {#mac3} ({Eth::MacAddr}),
+      # * a {#sequence_ctrl} ({Types::Int16}),
+      # * sometimes a {#mac4} ({Eth::MacAddr}),
+      # * sometimes a {#qos_ctrl} ({Types::Int16}),
+      # * a {#body} (a {Types::String} or another {Base} class),
+      # * and a Frame check sequence ({#fcs}, of type {Types::Int32le}).
       # @author Sylvain Daubert
       class Data < Dot11
 

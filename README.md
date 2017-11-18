@@ -41,6 +41,11 @@ PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').to_w
 PacketGen.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').to_w
 # send forged IP packet over Ethernet
 PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').add('IP').to_w('eth1')
+# send a IEEE 802.11 frame
+PacketGen.gen('RadioTap').
+          add('Dot11::Management', mac1: client, mac2: bssid, mac3: bssid).
+          add('Dot11::DeAuth', reason: 7).
+          to_w('wlan0')
 ```
 
 ### Parse packets from binary data
@@ -50,16 +55,16 @@ packet = PacketGen.parse(binary_data)
 
 ### Capture packets from wire
 ```ruby
-# Capture packets, action from a block
-PacketGen.capture('eth0') do |packet|
+# Capture packets from first network interface, action from a block
+PacketGen.capture do |packet|
   do_stuffs_with_packet
 end
 
 # Capture some packets, and act on them afterward
-packets = PacketGen.capture('eth0', max: 10)   # return when 10 packets were captured
+packets = PacketGen.capture(iface: 'eth0', max: 10)   # return when 10 packets were captured
 
 # Use filters
-packets = PacketGen.capture('eth0', filter: 'ip src 1.1.1.2', max: 1)
+packets = PacketGen.capture(iface: 'eth0', filter: 'ip src 1.1.1.2', max: 1)
 ```
 
 ### Easily manipulate packets
@@ -132,7 +137,7 @@ pkt.myheader.field2.read 0x01
 ```
 
 ## Interactive console
-PacketGen provides an interactive console, based on `pry`: `pgconsole`.
+PacketGen provides an interactive console: `pgconsole`.
 
 In this console, context includes PacketGen module to give direct access to PacketGen
 classes. A special `config` object gives local network configuration:
@@ -145,6 +150,14 @@ classes. A special `config` object gives local network configuration:
      @ipaddr="192.168.0.2">
     pg(main)> packets = capture(max: 5)
     pg(main)> exit
+
+If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is used.
+
+## See also
+
+Wiki: https://github.com/sdaubert/packetgen/wiki
+
+API documentation: http://www.rubydoc.info/gems/packetgen
 
 ## Pull requests?
 
@@ -159,4 +172,4 @@ Copyright © 2016 Sylvain Daubert
 All original code maintains its copyright from its original authors and licensing.
 
 This is mainly for PcapNG (originally copied from [PacketFu](https://github.com/packetfu/packetfu),
-but i am the original author).
+but i am the original author.

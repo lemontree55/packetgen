@@ -11,7 +11,7 @@ module PacketGen
       end
       before(:each) { @pcapng = File.new }
 
-      context '#readfile' do
+      describe '#readfile' do
         it 'reads a Pcap-NG file' do
           @pcapng.readfile @file
           expect(@pcapng.sections.size).to eq(1)
@@ -100,9 +100,14 @@ module PacketGen
             end
           end
         end
+        
+        it 'raises when file cannot be read' do
+          expect { @pcapng.readfile 'inexistent_file.pcapng' }.
+            to raise_error(ArgumentError, /cannot read/)
+        end
       end
 
-      context '#read_packet_bytes' do
+      describe '#read_packet_bytes' do
         it 'returns an array of raw packets' do
           raw_packets = @pcapng.read_packet_bytes(@file)
           icmp = Packet.parse(raw_packets[2])
@@ -113,7 +118,7 @@ module PacketGen
         end
       end
 
-      context '#read_packets' do
+      describe '#read_packets' do
         before(:all) do
           @expected = [Header::DNS] * 2 + [Header::ICMP] * 3 + [Header::ARP] * 2 +
                       [Header::TCP] * 3 + [Header::ICMP]
@@ -140,7 +145,7 @@ module PacketGen
         end
       end
 
-      context '#file_to_array' do
+      describe '#file_to_array' do
         it 'generates an array from object state' do
           @pcapng.readfile @file
           ary = @pcapng.file_to_array
@@ -180,7 +185,7 @@ module PacketGen
         end
       end
 
-      context '#to_file' do
+      describe '#to_file' do
         before(:each) { @write_file = Tempfile.new('pcapng') }
         after(:each) { @write_file.close; @write_file.unlink }
 
@@ -203,8 +208,25 @@ module PacketGen
           expect(@pcapng.sections[0].to_s).to eq(@pcapng.sections[1].to_s)
         end
       end
+      
+      describe '#append' do
+        before(:each) { @write_file = Tempfile.new('pcapng') }
+        after(:each) { @write_file.close; @write_file.unlink }
 
-      context '#array_to_file' do
+        it "appends a section to an existing file" do
+          @pcapng.readfile @file
+          @pcapng.to_file @write_file.path
+
+          @pcapng.append @write_file.path
+
+          @pcapng.clear
+          @pcapng.readfile @write_file.path
+          expect(@pcapng.sections.size).to eq(2)
+          expect(@pcapng.sections[0].to_s).to eq(@pcapng.sections[1].to_s)
+        end
+      end
+
+      describe '#array_to_file' do
         before(:each) do
           tmpfile = Tempfile.new('packetfu')
           @tmpfilename = tmpfile.path
@@ -285,6 +307,18 @@ module PacketGen
           packets2 = @pcapng.read_packets(@tmpfilename)
           expect(packets2.map(&:to_s).join).to eq(packets.map(&:to_s).join)
         end
+        
+        it 'raises when :array argument is not an Array' do
+          packets = @pcapng.read_packets(@file)[0..2]
+          expect { @pcapng.array_to_file array: packets.map(&:to_s).join }.
+            to raise_error(ArgumentError, /needs to be an array/)
+        end
+        
+        it 'raises when argument is nor an Array neither a Hash' do
+          packets = @pcapng.read_packets(@file)[0..2]
+          expect { @pcapng.array_to_file packets.map(&:to_s).join }.
+            to raise_error(ArgumentError, /Need either/)
+        end
       end
 
       it '#to_s returns object as a String' do
@@ -296,6 +330,17 @@ module PacketGen
         orig_str = PacketGen.force_binary(::File.read(@file_spb))
         @pcapng.read orig_str
         expect(@pcapng.to_s).to eq(orig_str)
+      end
+      
+      describe '#read!' do
+        it 'clears object and reads a string' do
+          str1 = PacketGen.force_binary(::File.read(@file))
+          str2 = PacketGen.force_binary(::File.read(@file_spb))
+          @pcapng.read str1
+          
+          @pcapng.read! str2
+          expect(@pcapng.to_s).to eq(str2)
+        end
       end
     end
   end

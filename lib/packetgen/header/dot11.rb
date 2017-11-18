@@ -50,7 +50,14 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 0
+        version == 0 and length >= 8
+      end
+
+      # Calculate length field
+      # @return [Integer] calculated length
+      # @since 2.1.3
+      def calc_length
+        self[:length].value = self.sz - self[:body].sz
       end
 
       # send PPI packet on wire. Dot11 FCS trailer should be set.
@@ -60,11 +67,12 @@ module PacketGen
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
         pcap.inject self.to_s
+        pcap.close
       end
     end
     self.add_class PPI
 
-    # Radiotap header
+    # Radiotap header (see http://www.radiotap.org/)
     # @author Sylvain Daubert
     class RadioTap < Base
       # @!attribute version
@@ -75,7 +83,7 @@ module PacketGen
       define_field :pad, Types::Int8, default: 0
       # @!attribute length
       #  @return [Integer] 16-bit RadioTap header length
-      define_field :length, Types::Int16le
+      define_field :length, Types::Int16le, default: 8
       # @!attribute present_flags
       #  @return [Integer] 32-bit integer
       define_field :present_flags, Types::Int32le
@@ -103,7 +111,14 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 0
+        version == 0 and length >= 8
+      end
+      
+      # Calculate length field
+      # @return [Integer] calculated length
+      # @since 2.1.3
+      def calc_length
+        self[:length].value = self.sz - self[:body].sz
       end
 
       # send RadioTap packet on wire. Dot11 FCS trailer should be set.
@@ -113,6 +128,7 @@ module PacketGen
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
         pcap.inject self.to_s
+        pcap.close
       end
     end
     self.add_class RadioTap
@@ -120,7 +136,7 @@ module PacketGen
     # IEEE 802.11 header
     # @abstract This is a base class to demultiplex different IEEE 802.11 frames when
     #   parsing.
-    # A IEEE 802.11 header may consists of at least:
+    # A IEEE 802.11 header may consist of at least:
     # * a {#frame_ctrl} ({Types::Int16}),
     # * a {#id}/duration ({Types::Int16le}),
     # * and a {#mac1} ({Eth::MacAddr}).
@@ -133,6 +149,58 @@ module PacketGen
     # * a {#ht_ctrl} ({Types::Int32}),
     # * a {#body} (a {Types::String} or another {Base} class),
     # * a Frame check sequence ({#fcs}, of type {Types::Int32le})
+    #
+    # == Header accessors
+    # As Dot11 header types are defined under Dot11 namespace, Dot11 header accessors
+    # have a specific name. By example, to access to a {Dot11::Beacon} header,
+    # accessor is +#dot11_beacon+.
+    #
+    # == Create Dot11 packets
+    # As {Dot11} is an abstract class, you have to use one of its subclasses to
+    # instanciate a IEEE802.11 header.
+    #
+    # === IEEE802.11 control frames
+    # Control frames may be created this way:
+    #   pkt = PacketGen.gen('Dot11::Control', subtype: 13) # Ack control frame
+    #   pkt.dot11_control     # => PacketGen::Header::Dot11::Control
+    #   # #dot11 is a shortcut for #dot11_control
+    #   pkt.dot11             # => PacketGen::Header::Dot11::Control
+    #
+    # === IEEE802.11 management frames
+    # Management frames may be created this way:
+    #   pkt = PacketGen.gen('Dot11::Management')
+    #   pkt.dot11_management     # => PacketGen::Header::Dot11::Management
+    #   # #dot11 is a shortcut for #dot11_management
+    #   pkt.dot11                # => PacketGen::Header::Dot11::Management
+    # Management frames are usually specialized, AssociationRequest by example:
+    #   pkt.add('Dot11::AssoReq')
+    #   pkt.dot11_assoreq        # => PacketGen::Header::Dot11::AssoReq
+    # Management frames also may contain some elements (see IEEE 802.11 standard):
+    #   pkt.dot11_assoreq.add_elements(type: 'SSID', value: "My SSID")
+    #   pkt.dot11_assoreq.add_elements(type: 'Rates', value: supported_rates)
+    #
+    # === IEEE802.11 data frames
+    # Data frames may be created this way:
+    #   pkt = PacketGen.gen('Dot11::Data')
+    #   pkt.dot11_data     # => PacketGen::Header::Dot11::Data
+    #   # #dot11 is a shortcut for #dot11_data
+    #   pkt.dot11          # => PacketGen::Header::Dot11::Data
+    #
+    # == Parse Dot11 packets
+    # When parsing a Dot11 packet, Dot11 subclass is created from +type+ value.
+    # Dot11 header should then be accessed through +Packet#dot11+, whatever
+    # the frame type is. But, specialized methods also exist: by example,
+    # for a control frame, +Packet#dot11_control+ may also be used.
+    #
+    # == Send Dot11 packets
+    # To send a Dot11 packet, a RadioTap header is needed:
+    #   pkt = PacketGen.gen('RadioTap')
+    #   pkt.add('Dot11::Management', mac1: client, mac2: bssid, mac3: bssid)
+    #   pkt.add('Dot11::Beacon')
+    #   pkt.dot11_beacon.add_element(type: 'SSID', value: 'My SSID')
+    #   pkt.dot11_beacon.add_element(type: 'Rates', value: "\x85\x0c")
+    #   pkt.calc
+    #   pkt.to_w('wlan0')
     # @author Sylvain Daubert
     class Dot11 < Base
 
@@ -205,6 +273,15 @@ module PacketGen
       #  @return [Boolean] to_ds flag from {#frame_ctrl}
       define_bit_fields_on :frame_ctrl,  :subtype, 4, :type, 2, :proto_version, 2,
                             :order, :wep, :md, :pwmngt, :retry, :mf, :from_ds, :to_ds
+
+
+      # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
+      #  @return [Integer]
+      #  @since 2.1.3
+      # @!attribute fragment_number (4-bit field from {#sequence_ctrl})
+      #  @return [Integer]
+      #  @since 2.1.3
+      define_bit_fields_on :sequence_ctrl, :sequence_number, 12, :fragment_number, 4
 
       alias duration id
       # @private
@@ -296,8 +373,19 @@ module PacketGen
       def to_w(iface)
         pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
                                        PCAP_TIMEOUT)
-        str = self.to_s
-        pcap.inject str << [crc32].pack('V')
+        pcap.inject self.to_s
+        pcap.close
+      end
+      
+      # Callback called when a Dot11 header is added to a packet
+      # Here, add +#dot11+ method as a shortcut to existing
+      # +#dot11_(control|management|data)+.
+      # @param [Packet] packet
+      # @return [void]
+      def added_to_packet(packet)
+        unless packet.respond_to? :dot11
+          packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end")
+        end
       end
 
       private
@@ -312,7 +400,7 @@ module PacketGen
           unless @applicable_fields.include? :ht_ctrl
             idx = @applicable_fields.index(:body)
             @applicable_fields[idx, 0] = :ht_ctrl
-            end
+          end
         else
           @applicable_fields -= %i(ht_ctrl)
         end

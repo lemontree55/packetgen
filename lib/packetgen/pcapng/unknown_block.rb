@@ -54,7 +54,7 @@ module PacketGen
         self[:block_len].read io.read(4)
         self[:body].read io.read(self[:block_len].to_i - MIN_SIZE)
         self[:block_len2].read io.read(4)
-        
+
         unless self[:block_len].to_i == self[:block_len2].to_i
           raise InvalidFileError, 'Incoherency in Header Block'
         end
@@ -67,7 +67,7 @@ module PacketGen
       def to_s
         pad_field :body
         recalc_block_len
-        @fields.values.map(&:to_s).join
+        super
       end
 
     end

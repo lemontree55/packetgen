@@ -15,7 +15,14 @@ module BindingHelper
         return false unless bindings
         if bindings.op == :or
           @args.each do |key, value|
-            bresult = bindings.one? { |b| b.key == key && b.value == value }
+            bresult = bindings.one? do |b|
+              case b
+              when PacketGen::Header::Base::Binding
+                b.key == key && b.value == value
+              when PacketGen::Header::Base::ProcBinding
+                b.check?(prev_header.new(@args))
+              end
+            end
             @bad_args_or = { key: key, value: value} unless bresult
             result &&= bresult
             break unless bresult

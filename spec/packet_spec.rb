@@ -1,6 +1,19 @@
 require_relative 'spec_helper'
 
 module PacketGen
+
+  class DissectTest < Header::Base
+    attr_accessor :integer
+
+    define_field :body, Types::String
+
+    def dissect
+      @integer = Integer(self[:body].to_s)
+    end
+  end
+  Header.add_class DissectTest
+  Header::Eth.bind_header DissectTest, ethertype: 0xffff
+
   describe Packet do
 
     describe '.gen' do
@@ -118,6 +131,13 @@ module PacketGen
 
         expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }.
           not_to raise_error
+      end
+
+      it 'uses #dissect from header class when this method exists' do
+        eth = Header::Eth.new(ethertype: 0xffff, body: '12345678')
+        pkt = Packet.parse(eth.to_s)
+        expect(pkt.is? 'DissectTest').to be(true)
+        expect(pkt.dissecttest.integer).to eq(12345678)
       end
     end
 
@@ -265,9 +285,63 @@ module PacketGen
     end
 
     describe '#to_w' do
+      let(:pkt) { Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: 'ff:ff:ff:ff:ff:ff').
+                         add('IP', src: '128.1.2.3', dst: '129.1.2.3') }
+
+      it 'sends a packet on wire', :sudo do
+        Thread.new { sleep 0.1; pkt.to_w('lo') }
+        packets = Packet.capture(iface: 'lo', max: 1,
+                                 filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                 timeout: 2)
+        packet = packets.first
+        expect(packet.is? 'Eth').to be(true)
+        expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
+        expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
+        expect(packet.eth.ethertype).to eq(0x0800)
+        expect(packet.ip.dst).to eq('129.1.2.3')
+      end
+
+      it 'calculates sum and length before sending a packet on wire', :sudo do
+        pkt.body = '123'
+        pkt.ip.id = 0   # to remove randomness on checksum computation
+
+        Thread.new { sleep 0.1; pkt.to_w('lo', calc: true) }
+        packets = Packet.capture(iface: 'lo', max: 1,
+                                 filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                 timeout: 2)
+        packet = packets.first
+        expect(packet.ip.src).to eq('128.1.2.3')
+        expect(packet.ip.dst).to eq('129.1.2.3')
+        expect(packet.ip.length).to eq(23)
+        expect(packet.ip.checksum).to eq(0x75df)
+      end
+
+      it 'sends packet multiple times', :sudo do
+        Thread.new  { sleep 0.1; pkt.to_w('lo', number: 5, interval: 0.1) }
+        packets = Packet.capture(iface: 'lo', max: 6,
+                                 filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                 timeout: 1)
+
+        expect(packets.length).to eq(5)
+      end
+
       it 'raises when first header do not implement #to_w' do
         pkt = Packet.gen('UDP')
         expect { pkt.to_w }.to raise_error(WireError, /don't known how to send/)
+      end
+    end
+
+    describe '#to_f' do
+      before(:each) { @write_file = Tempfile.new('packet') }
+      after(:each) { @write_file.close; @write_file.unlink }
+
+      it 'writes packet as a PcapNG file' do
+        pkt1 = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
+                add('UDP', sport: 45768, dport: 80)
+        pkt1.to_f(@write_file.path)
+
+        pkt2 = Packet.read(@write_file.path).first
+        expect(pkt2).to eq(pkt1)
       end
     end
 

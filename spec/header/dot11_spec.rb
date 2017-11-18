@@ -2,6 +2,35 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
+
+    describe PPI do
+      describe '#calc_length' do
+        it 'computes PPI header length' do
+          ppi = PPI.new
+          ppi.calc_length
+          expect(ppi.length).to eq(8)
+          
+          ppi.ppi_fields = '12345'
+          ppi.calc_length
+          expect(ppi.length).to eq(13)
+        end
+      end
+    end
+
+    describe RadioTap do
+      describe '#calc_length' do
+        it 'computes RadioTap header length' do
+          rt = RadioTap.new
+          rt.calc_length
+          expect(rt.length).to eq(8)
+          
+          rt.radio_fields = '123456'
+          rt.calc_length
+          expect(rt.length).to eq(14)
+        end
+      end
+    end
+
     describe Dot11 do
       let(:ctrl_mngt_file) { File.join(__dir__, 'ieee802.11-join.pcapng') }
       let(:wap_file) { File.join(__dir__, 'ieee802.11-data-wap.pcapng') }
@@ -67,44 +96,48 @@ module PacketGen
           Dot11.has_fcs = true
           expect(pkts.map { |pkt| pkt.headers.last.class }).to eq(classes)
 
-          expect(pkts[0].beacon.timestamp).to eq(0x26bbb9189)
-          expect(pkts[0].beacon.elements.first.human_type).to eq('SSID')
-          expect(pkts[0].beacon.elements.first.value).to eq('martinet3')
-          expect(pkts[1].probereq.elements[1].human_type).to eq('Rates')
-          expect(pkts[1].probereq.elements[1].value).
+          expect(pkts[0].is? 'Dot11::Management').to be(true)
+          expect(pkts[0].dot11_beacon.timestamp).to eq(0x26bbb9189)
+          expect(pkts[0].dot11_beacon.elements.first.human_type).to eq('SSID')
+          expect(pkts[0].dot11_beacon.elements.first.value).to eq('martinet3')
+          expect(pkts[1].is? 'Dot11::Management').to be(true)
+          expect(pkts[1].dot11_probereq.elements[1].human_type).to eq('Rates')
+          expect(pkts[1].dot11_probereq.elements[1].value).
             to eq(PacketGen.force_binary "\x82\x84\x8b\x96\x0c\x12\x18\x24")
-          expect(pkts[3].proberesp.timestamp).to eq(0x26bbcad38)
-          expect(pkts[3].proberesp.beacon_interval).to eq(0x64)
-          expect(pkts[3].proberesp.cap).to eq(0x0411)
-          expect(pkts[3].proberesp.elements[2].human_type).to eq('DSset')
-          expect(pkts[3].proberesp.elements[2].value).to eq("\x0b")
+          expect(pkts[3].is? 'Dot11::Management').to be(true)
+          expect(pkts[3].dot11_proberesp.timestamp).to eq(0x26bbcad38)
+          expect(pkts[3].dot11_proberesp.beacon_interval).to eq(0x64)
+          expect(pkts[3].dot11_proberesp.cap).to eq(0x0411)
+          expect(pkts[3].dot11_proberesp.elements[2].human_type).to eq('DSset')
+          expect(pkts[3].dot11_proberesp.elements[2].value).to eq("\x0b")
           expect(pkts[4].dot11.human_type).to eq('Control')
           expect(pkts[4].dot11.human_subtype).to eq('Ack')
-          expect(pkts[5].is? 'Beacon').to be(true)
           expect(pkts[5].is? 'Dot11::Beacon').to be(true)
+          expect(pkts[6].is? 'Dot11::Management').to be(true)
           expect(pkts[6].is? 'Dot11::Auth').to be(true)
-          expect(pkts[6].auth.algo).to eq(0)
-          expect(pkts[6].auth.seqnum).to eq(1)
-          expect(pkts[6].auth.status).to eq(0)
-          expect(pkts[6].auth.elements.size).to eq(0)
+          expect(pkts[6].dot11_auth.algo).to eq(0)
+          expect(pkts[6].dot11_auth.seqnum).to eq(1)
+          expect(pkts[6].dot11_auth.status).to eq(0)
+          expect(pkts[6].dot11_auth.elements.size).to eq(0)
           expect(pkts[8].is? 'Dot11::Auth').to be(true)
-          expect(pkts[8].auth.seqnum).to eq(2)
-          expect(pkts[8].auth.elements.size).to eq(1)
+          expect(pkts[8].dot11_auth.seqnum).to eq(2)
+          expect(pkts[8].dot11_auth.elements.size).to eq(1)
           expect(pkts[10].is? 'Dot11::AssoReq').to be(true)
-          expect(pkts[10].assoreq.cap).to eq(0x411)
-          expect(pkts[10].assoreq.listen_interval).to eq(10)
-          expect(pkts[10].assoreq.elements.size).to eq(4)
-          expect(pkts[10].assoreq.elements[2].human_type).to eq('ESRates')
+          expect(pkts[10].dot11_assoreq.cap).to eq(0x411)
+          expect(pkts[10].dot11_assoreq.listen_interval).to eq(10)
+          expect(pkts[10].dot11_assoreq.elements.size).to eq(4)
+          expect(pkts[10].dot11_assoreq.elements[2].human_type).to eq('ESRates')
           expect(pkts[12].is? 'Dot11::AssoResp').to be(true)
-          expect(pkts[12].assoresp.cap).to eq(0x411)
-          expect(pkts[12].assoresp.status).to eq(0)
-          expect(pkts[12].assoresp.aid).to eq(0xc004)
-          expect(pkts[12].assoresp.elements.size).to eq(3)
+          expect(pkts[12].dot11_assoresp.cap).to eq(0x411)
+          expect(pkts[12].dot11_assoresp.status).to eq(0)
+          expect(pkts[12].dot11_assoresp.aid).to eq(0xc004)
+          expect(pkts[12].dot11_assoresp.elements.size).to eq(3)
         end
 
         it 'reads key packets' do
           pkt = Packet.read(wap_file)[27]
           expect(pkt.headers.map(&:class)).to eq([RadioTap, Dot11::Data, LLC, SNAP, Dot1x])
+          expect(pkt.dot11).to eq(pkt.dot11_data)
           expect(pkt.dot11.frame_ctrl).to eq(0x0802)
           expect(pkt.dot11.id).to eq(0x2c)
           expect(pkt.dot11.from_ds?).to be(true)
@@ -133,15 +166,15 @@ module PacketGen
       describe '#calc_checksum' do
         before(:each) { @pkt = PcapNG::File.new.read_packets(data_file)[0] }
         it 'calculates checksum' do
-          expected_fcs = @pkt.data.fcs
-          expect(@pkt.data.calc_checksum).to eq(expected_fcs)
+          expected_fcs = @pkt.dot11_data.fcs
+          expect(@pkt.dot11_data.calc_checksum).to eq(expected_fcs)
         end
 
         it 'sets FCS field with calculated value' do
-          expected_fcs = @pkt.data.fcs
-          @pkt.data.fcs = 0
-          @pkt.data.calc_checksum
-          expect(@pkt.data.fcs).to eq(expected_fcs)
+          expected_fcs = @pkt.dot11_data.fcs
+          @pkt.dot11_data.fcs = 0
+          @pkt.dot11_data.calc_checksum
+          expect(@pkt.dot11_data.fcs).to eq(expected_fcs)
         end
       end
 
@@ -171,8 +204,6 @@ module PacketGen
             pkt = Packet.parse(data_str)
             expect(pkt.is? 'Dot11::Data').to be(true)
             expect(pkt.dot11.wep?).to be(false)
-            a1 = pkt.to_s.unpack('C*').map { |v| "%02x" % v }
-            a2 = data_str[0..-5].unpack('C*').map { |v| "%02x" % v }
             expect(pkt.to_s).to eq(data_str[0..-5]) # remove FCS
           ensure
             Dot11.has_fcs = true
@@ -197,6 +228,47 @@ module PacketGen
           (dot11.to_h.keys - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
+        end
+      end
+
+      describe 'building a Dot11 packet' do
+        it 'builds a Dot11::Beacon packet' do
+          expect { PacketGen.gen('Beacon') }.to raise_error(ArgumentError, /^unknown/)
+          pkt = nil
+          expect { pkt = PacketGen.gen('Dot11::Management').add('Dot11::Beacon') }.to_not raise_error
+          expect(pkt.headers.last).to be_a(Dot11::Beacon)
+          
+          expect(pkt.dot11).to eq(pkt.dot11_management)
+          pkt.dot11.sequence_number = 12
+          pkt.dot11.fragment_number = 1
+          expect(pkt.dot11_management.sequence_ctrl).to eq(0xc1)
+
+          expect do
+            pkt.dot11_beacon.add_element(type: 'SSID', value: 'abcd')
+          end.to change { pkt.dot11_beacon.elements.size }.by(1)
+          
+          expect do
+            pkt.dot11_management.add_element(type: 'vendor', value: 'Version 1.2')
+          end.to change { pkt.dot11_beacon.elements.size }.by(1)
+          
+          pkt = PacketGen.gen('Dot11::Management')
+          expect do
+            pkt.dot11.add_element(type: 'vendor', value: 'Version 1.2')
+          end.to raise_error(/add a Dot11::SubMngt/)
+        end
+        
+        it 'builds a IP packet over IEEE 802.11 (no encryption)' do
+          pkt = PacketGen.gen('Dot11::Data', mac1: '00:01:02:03:04:05',
+                              mac2: '06:07:08:09:0a:0b', mac3: '0c:0d:0e:0f:10:11')
+          expect { pkt.add('IP') }.to raise_error(ArgumentError, /no layer assoc/)
+          
+          pkt.add('LLC').add('SNAP').add('IP', src: '192.168.0.1', dst: '192.168.0.2')
+          expect(pkt.dot11.wep?).to be(false)
+          expect(pkt.dot11.type).to eq(2)
+          expect(pkt.llc.dsap).to eq(0xaa)
+          expect(pkt.llc.ssap).to eq(0xaa)
+          expect(pkt.snap.oui).to eq('00:00:00')
+          expect(pkt.snap.proto_id).to eq(0x800)
         end
       end
     end

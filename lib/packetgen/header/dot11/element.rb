@@ -9,6 +9,8 @@ module PacketGen
     class Dot11
 
       # IEEE 802.11 information element
+      #
+      # An {Element} is a piece of data contained in a Dot11 management frame.
       # @author Sylvain Daubert
       class Element < Types::TLV
         # Known element types

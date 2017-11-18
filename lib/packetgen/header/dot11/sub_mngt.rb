@@ -9,6 +9,12 @@ module PacketGen
     class Dot11
 
       # @abstract Base class for all subtype management frames
+      # Subclasses of this class are used to specialize {Management}. A
+      # +SubMngt+ class set +subtype+ field in Dot11 header and may add some
+      # fields.
+      #
+      # All SubMngt subclasses have ability to have {Element}. These elements
+      # may be accessed through {#elements}.
       # @author Sylvain Daubert
       class SubMngt < Base
         # @return [Array<Element>]
@@ -38,11 +44,22 @@ module PacketGen
         # @return [String]
         def inspect
           str = super
-          str << Inspect.dashed_line('Dot11 Elements', level=3)
+          str << Inspect.dashed_line('Dot11 Elements', 3)
           @elements.each do |el|
             str << Inspect.shift_level(4) << el.to_human << "\n"
           end
           str
+        end
+        
+        # Add an {Element} to header
+        # @param [Integer,String] type element type
+        # @param [Object] value element value
+        # @return [self]
+        # @since 2.1.3
+        def add_element(type:, value:)
+          element = Element.new(type: type, value: value)
+          @elements << element
+          self
         end
 
         private
@@ -59,6 +76,12 @@ module PacketGen
       end
 
       # IEEE 802.11 Association Request frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 0.
+      #
+      # Add fields:
+      # * {#cap} ({Types::Int16le}),
+      # * {#listen_interval} ({Types::Int16le}).
       # @author Sylvain Daubert
       class AssoReq < SubMngt
         # @!attribute cap
@@ -72,6 +95,13 @@ module PacketGen
       Management.bind_header AssoReq, op: :and, type: 0, subtype: 0
 
       # IEEE 802.11 Association Response frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 1.
+      #
+      # Add fields:
+      # * {#cap} ({Types::Int16le}),
+      # * {#status} ({Types::Int16le}),
+      # * {#aid} ({Types::Int16le}).
       # @author Sylvain Daubert
       class AssoResp < SubMngt
         # @!attribute cap
@@ -88,6 +118,13 @@ module PacketGen
       Management.bind_header AssoResp, op: :and, type: 0, subtype: 1
 
       # IEEE 802.11 ReAssociation Request frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 2.
+      #
+      # Add fields:
+      # * {#cap} ({Types::Int16le}),
+      # * {#listen_interval} ({Types::Int16le}),
+      # * {#current_ap} ({Eth::MacAddr}).
       # @author Sylvain Daubert
       class ReAssoReq < AssoReq
         # @!attribute current_ap
@@ -98,6 +135,13 @@ module PacketGen
       Management.bind_header ReAssoReq, op: :and, type: 0, subtype: 2
 
       # IEEE 802.11 ReAssociation Response frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 3.
+      #
+      # Add fields:
+      # * {#cap} ({Types::Int16le}),
+      # * {#status} ({Types::Int16le}),
+      # * {#aid} ({Types::Int16le}).
       # @author Sylvain Daubert
       class ReAssoResp < AssoResp
       end
@@ -105,6 +149,10 @@ module PacketGen
       Management.bind_header ReAssoResp, op: :and, type: 0, subtype: 3
 
       # IEEE 802.11 Probe Request frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 4.
+      #
+      # This class adds no field.
       # @author Sylvain Daubert
       class ProbeReq < SubMngt
       end
@@ -112,6 +160,13 @@ module PacketGen
       Management.bind_header ProbeReq, op: :and, type: 0, subtype: 4
 
       # IEEE 802.11 Probe Response frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 5.
+      #
+      # Add fields:
+      # * {#timestamp} ({Types::Int64le}),
+      # * {#beacon_interval} ({Types::Int16le}),
+      # * {#cap} ({Types::Int16le}).
       # @author Sylvain Daubert
       class ProbeResp < SubMngt
         # @!attribute timestamp
@@ -128,6 +183,13 @@ module PacketGen
       Management.bind_header ProbeResp, op: :and, type: 0, subtype: 5
 
       # IEEE 802.11 Beacon frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 8.
+      #
+      # Add fields:
+      # * {#timestamp} ({Types::Int64le}),
+      # * {#interval} ({Types::Int16le}),
+      # * {#cap} ({Types::Int16le}).
       # @author Sylvain Daubert
       class Beacon < SubMngt
         # @!attribute timestamp
@@ -144,12 +206,21 @@ module PacketGen
       Management.bind_header Beacon, op: :and, type: 0, subtype: 8
 
       # IEEE 802.11 ATIM frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 9.
+      #
+      # This class defines no field.
       # @author Sylvain Daubert
       class ATIM < SubMngt; end
       Header.add_class ATIM
       Management.bind_header ATIM, op: :and, type: 0, subtype: 9
 
       # IEEE 802.11 Disassociation frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 10.
+      #
+      # Add fields:
+      # * {#reason} ({Types::Int16le}).
       # @author Sylvain Daubert
       class Disas < SubMngt
         # @!attribute reason
@@ -160,6 +231,13 @@ module PacketGen
       Management.bind_header Disas, op: :and, type: 0, subtype: 10
 
       # IEEE 802.11 Authentication frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 11.
+      #
+      # Add fields:
+      # * {#algo} ({Types::Int16le}),
+      # * {#seqnum} ({Types::Int16le}),
+      # * {#status} ({Types::Int16le}).
       # @author Sylvain Daubert
       class Auth < SubMngt
         # @!attribute algo
@@ -176,6 +254,11 @@ module PacketGen
       Management.bind_header Auth, op: :and, type: 0, subtype: 11
 
       # IEEE 802.11 Deauthentication frame
+      #
+      # Specialize {Dot11::Management} with +subtype+ set to 12.
+      #
+      # Add fields:
+      # * {#reason} ({Types::Int16le}).
       # @author Sylvain Daubert
       class DeAuth < SubMngt
         # @!attribute reason

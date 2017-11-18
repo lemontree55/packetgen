@@ -11,6 +11,7 @@ module PacketGen
         expect(@ub.type.to_i).to eq(0)
         expect(@ub.block_len.to_i).to eq(UnknownBlock::MIN_SIZE)
         expect(@ub.block_len2).to eq(@ub.block_len)
+        expect(@ub.has_options?).to be(false)
       end
 
       context 'when reading' do
@@ -27,6 +28,16 @@ module PacketGen
           end
           expect(@ub.type.to_i).to eq(0x0a0d0d0a)
           expect(@ub.block_len.to_i).to eq(52)
+        end
+      end
+
+      describe '#to_s' do
+        it 'should pad body field' do
+          @ub.type = 42
+          @ub.body = '123'
+
+          str = "\x2a\x00\x00\x00\x10\x00\x00\x00123\x00\x10\x00\x00\x00"
+          expect(@ub.to_s).to eq(PacketGen.force_binary(str))
         end
       end
     end

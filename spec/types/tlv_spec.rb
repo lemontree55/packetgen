@@ -90,6 +90,18 @@ module PacketGen
       end
 
       describe '#to_human' do
+        it 'returns a string for subtypes with a TYPES constant' do
+          tlv = TLVTest.new(type: 1, value: 'abcdef')
+          expect(tlv.to_human).to eq('TLVTest type:one length:6   value:"abcdef"')
+        end
+
+        it 'returns a string for subtypes without a TYPES constant' do
+          tlv = TLV.new
+          expect(tlv.to_human).to eq('TLV type:0 length:0   value:""')
+          tlv.type = 156
+          tlv.value = 'abcd'
+          expect(tlv.to_human).to eq('TLV type:156 length:4   value:"abcd"')
+        end
       end
     end
   end

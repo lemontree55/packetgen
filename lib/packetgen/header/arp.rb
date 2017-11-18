@@ -48,7 +48,7 @@ module PacketGen
       # @!attribute op
       #  16-bit operation code
       #  # @return [Integer]
-      define_field :op, Types::Int16, default: 1
+      define_field :op, Types::Int16Enum, enum: { 'request' => 1, 'reply' => 2 }
       # @!attribute sha
       #  source hardware address
       #  @return [Eth::MacAddr]
@@ -119,4 +119,3 @@ module PacketGen
     Dot1q.bind_header ARP, ethertype: 0x806
   end
 end
-
