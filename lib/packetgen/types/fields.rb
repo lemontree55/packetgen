@@ -155,7 +155,6 @@ module PacketGen
           define << "def #{name}; self[:#{name}]; end\n"
           define << "def #{name}=(val) self[:#{name}].read val; end"
         end
-
         define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
         define.delete(0) if type.instance_methods.include? name
         class_eval define.join("\n")
