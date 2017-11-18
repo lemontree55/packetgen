@@ -43,7 +43,7 @@ module PacketGen
         # @!attribute headers
         #   associated http/1.1 headers
         #   @return [Types::String]
-        define_field :headers, Types::HTTPHeaders
+        define_field :headers, HTTP::Headers
         # @!attribute body 
         #   @return [Types::HTTPHeaders]
         define_field :body, Types::String
@@ -59,21 +59,15 @@ module PacketGen
           self.headers ||= options[:headers]
         end
 
-        # Give it a pretty name, the only way I know how.
-        # @return [String]
-        def protocol_name
-          "HTTP_Response"
-        end
-
         # Read in the HTTP portion of the packet, and parse it. 
         # @return [PacketGen::HTTP::Response]
         def read(str)
           # prepare data to parse
-          str     = str.split("\r\n")
+          arr     = str.split("\r\n")
           headers = [] # header stream
           data    = [] # data stream
           switch  = false
-          str.each do |line|
+          arr.each do |line|
             if line.empty?
               data << line if switch # already done
               switch = true

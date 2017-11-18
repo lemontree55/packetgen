@@ -41,7 +41,7 @@ module PacketGen
         # @!attribute headers
         #   associated http/1.1 headers
         #   @return [Types::HTTPHeaders]
-        define_field :headers, Types::HTTPHeaders 
+        define_field :headers, HTTP::Headers 
 
         # @param [Hash] options
         # @option options [String] :method
@@ -51,12 +51,6 @@ module PacketGen
         def initialize(options={})
           super(options)
           self.headers ||= options[:headers]
-        end
-
-        # Give it a pretty name, the only way I know how.
-        # @return [String]
-        def protocol_name
-          "HTTP_Request"
         end
 
         # Read in the HTTP portion of the packet, and parse it. 

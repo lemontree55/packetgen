@@ -3,5 +3,6 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+require_relative 'http/headers'
 require_relative 'http/request'
 require_relative 'http/response'
