@@ -16,12 +16,15 @@ module PacketGen
 
         # Populate object from a string or directly from a hash.
         # @param [String, Hash]
-        # @return [PacketGen::Types::HTTPHeaders]
+        # @return [self]
         def read(s_or_h)
-          case s_or_h.class.to_s # it, uh ... works
-          when "String"
-            @data = s_or_h.split("\n").map { |h| k, v = h.split(":", 2); [k.downcase.gsub("-", "_").to_sym, v.strip] }.to_h
-          when "Hash"
+          case s_or_h
+          when String
+            @data = s_or_h.split("\n").map do |h| 
+              k, v = h.split(":", 2)
+              [k.downcase.gsub("-", "_").to_sym, v.strip] 
+            end.to_h
+          when Hash
             @data = s_or_h
           end
           self
@@ -40,7 +43,6 @@ module PacketGen
             end
             k = k.join("-")
             k << ": " << v
-            k
           end.join("\r\n") << "\r\n\r\n"
         end
 
@@ -50,8 +52,18 @@ module PacketGen
           @data
         end
 
+        # Read human-readable data to populate header data.
+        # @param [String, Hash]
+        # @return [self]
         def from_human(data)
-          @data = data
+          read(data)
+        end
+
+        # Check if any headers were given.
+        # @return [Boolean]
+        def given?
+          return true unless @data.nil? || @data.empty?
+          false
         end
 
         # Shorcut to the underlying HTTPHeaders data or nil.
