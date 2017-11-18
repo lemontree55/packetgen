@@ -27,7 +27,7 @@ module PacketGen
       #   http_resp.status_mesg = "OK"
       #   http_resp.body        = "this is a body"
       #   http_resp.headers     = "Host: tcpdump.org"     # string or
-      #   http_resp.headers     = { host: "tcpdump.org" } # even a hash
+      #   http_resp.headers     = { "Host": "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
       class Response < Base
