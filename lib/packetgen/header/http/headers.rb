@@ -29,16 +29,20 @@ module PacketGen
           self
         end
 
-        # Get binary string
+        # Get binary string.
         # @return [String]
         def to_s
-          return "\r\n\r\n" if @data.nil? || @data.empty?
+          return "\r\n" if @data.nil? || @data.empty?
+          d = []
           @data.map do |k, v|
-            k << ": " << v
-          end.join("\r\n") << "\r\n\r\n"
+            str = ""
+            str << k << ": " << v
+            d << str
+          end
+          d.join("\r\n") << "\r\n\r\n"
         end
 
-        # Get a human readable string
+        # Get a human readable string.
         # @return [Hash]
         def to_human
           @data
@@ -58,7 +62,7 @@ module PacketGen
           false
         end
 
-        # Shorcut to the underlying HTTPHeaders data or nil.
+        # Shorcut to the underlying Headers data or nil.
         # @return [Hash, nil]
         def data
           @data
