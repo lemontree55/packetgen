@@ -67,8 +67,8 @@ module PacketGen
         def data
           @data
         end
+        alias to_h data
       end
     end
   end
 end
-
