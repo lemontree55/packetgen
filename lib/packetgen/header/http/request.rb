@@ -20,6 +20,9 @@ module PacketGen
       #   # access to HTTP Request header
       #   pkt.http_request # => PacketGen::Header::HTTP::Request
       #
+      # Note: When creating a HTTP Request packet, +sport+ and +dport+
+      # attributes of TCP header are not set.
+      #
       # == HTTP Request attributes
       #	  http_rqst.version = "HTTP/1.1"
       #	  http_rqst.method  = "GET"
