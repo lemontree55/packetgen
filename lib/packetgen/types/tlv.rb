@@ -30,8 +30,7 @@ module PacketGen
       define_field :length, Int8
       # @!attribute value
       #  @return [String]
-      define_field :value, String,
-                   builder: ->(tlv) { String.new(length_from: tlv[:length]) }
+      define_field :value, String
 
       # @param [Hash] options
       # @option options [Integer] :type
@@ -51,6 +50,19 @@ module PacketGen
         self.type = options[:type] if options[:type]
         self.value = options[:value] if options[:value]
         self.length = options[:length] if options[:length]
+      end
+
+      # Populate object from a binary string
+      # @param [String] str
+      # @return [Fields] self
+      def read(str)
+        idx = 0 
+        self[:type].read str[idx, self[:type].sz]
+        idx += self[:type].sz
+        self[:length].read str[idx, self[:length].sz]
+        idx += self[:length].sz
+        self[:value].read str[idx, self.length]
+        self
       end
 
       # @private
