@@ -11,7 +11,6 @@ module PacketGen
       # keys are option type, value are arrays containing option names
       # as strings, and a hash passed to {Option#initialize}.
       DHCPOptions = {
-        0  => ['pad', length: 0],
         1  => ['subnet_mask', length: 4, v: IP::Addr],
         2  => ['time_zone'],
         3  => ['router', length: 4, v: IP::Addr],
@@ -52,20 +51,42 @@ module PacketGen
         71 => ['NNTP_server', length: 4, v: IP::Addr],
         72 => ['WWW_server', length: 4, v: IP::Addr],
         73 => ['finger_server', length: 4, v: IP::Addr],
-        74 => ['IRC_server', length: 4, v: IP::Addr],
-        255 => ['end', length: 0]
+        74 => ['IRC_server', length: 4, v: IP::Addr]
       }
 
-      # @abstract Base class for DHCP options
+      # Class to indicate DHCP options end
+      class End < Types::Int8
+        def initialize(value=255)
+          super
+        end
+        def to_human; self.class.to_s.sub(/.*::/, '').downcase; end
+        alias human_type to_human
+      end
+
+      # Class to indicate padding after DHCP options
+      class Pad < End
+        def initialize(value=0)
+          super
+        end
+      end
+
+      # DHCP option
       # @author Sylvain Daubert
       class Option < Types::TLV
 
         # @private
         alias private_read read
 
+        # Populate object from a binary string
+        # @param [String] str
+        # @return [Option,End,Pad] may return another object than itself
         def read(str)
           read_type = str[0].unpack('C').first
-          if DHCPOptions.has_key?(read_type)
+          if read_type == 0
+            Pad.new.read(str)
+          elsif read_type == 255
+            End.new.read(str)
+          elsif DHCPOptions.has_key?(read_type)
             Option.new(DHCPOptions[read_type][1] || {}).private_read(str)
           else
             super

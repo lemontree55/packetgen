@@ -42,7 +42,7 @@ module PacketGen
           raws = PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'dhcp.pcapng'))
           packets = PcapNG::File.new.read_packets(File.join(__dir__, 'dhcp.pcapng'))
           packets.each_with_index do |pkt, i|
-            expect(pkt.to_s).to eq(raws[i])
+            expect(pkt.to_s).to eq(PacketGen.force_binary raws[i])
           end
         end
       end

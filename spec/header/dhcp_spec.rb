@@ -21,13 +21,11 @@ module PacketGen
 
           dhcp = pkt.dhcp
           expect(dhcp.magic).to eq(0x63825363)
-          expect(dhcp.options.size).to eq(8)
+          expect(dhcp.options.size).to eq(12)
           expect(dhcp.options.first.human_type).to eq('message-type')
           expect(dhcp.options.first.length).to eq(1)
           expect(dhcp.options.first.value).to eq(1)
           expect(dhcp.options.last.human_type).to eq('pad')
-          expect(dhcp.options.last.length).to eq(0)
-          expect(dhcp.options.last.value).to eq('')
         end
       end
     end
