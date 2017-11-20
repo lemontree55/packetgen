@@ -132,7 +132,7 @@ module PacketGen
       #   +:builder+ option is not set.
       # @option options [Object] :default default value
       # @option options [Lambda] :builder lambda to construct this field.
-      #   Parameter to this lambda is the caller object.
+      #   Parameters to this lambda is the caller object and the field type class.
       # @option options [Lambda] :optional define this field as optional. Given lambda
       #   is used to known if this field is present or not. Parameter to this lambda is
       #   the being defined Field object.
@@ -296,7 +296,7 @@ module PacketGen
           type, default, builder, optional, enum, field_options = ary
           default = default.call if default.is_a?(Proc)
           @fields[field] = if builder
-                             builder.call(self)
+                             builder.call(self, type)
                            elsif enum
                              type.new(enum)
                            elsif !field_options.empty?

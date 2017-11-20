@@ -28,8 +28,10 @@ module PacketGen
       def read(str)
         s = str.to_s
         s = case @length_from
-            when Int
+            when Types::Int
               s[0, @length_from.to_i]
+            when Proc
+              s[0, @length_from.call]
             else
               if @static_length.is_a? Integer
                 s[0, @static_length]

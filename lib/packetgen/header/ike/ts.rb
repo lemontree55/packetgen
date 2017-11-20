@@ -234,7 +234,7 @@ module PacketGen
         #  Set of {TrafficSelector}
         #  @return {TrafficSelectors}
         define_field_before :body, :traffic_selectors, TrafficSelectors,
-                            builder: ->(ts) { TrafficSelectors.new(counter: ts[:num_ts]) }
+                            builder: ->(h, t) { t.new(counter: h[:num_ts]) }
         alias :selectors :traffic_selectors
 
         # Populate object from a string

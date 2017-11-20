@@ -17,7 +17,7 @@ module PacketGen
         # @!attribute rdata
         #  @return [Types::String]
         define_field :rdata, Types::String,
-                     builder: ->(rr) { Types::String.new(length_from: rr[:rdlength]) }
+                     builder: ->(rr, t) { t.new(length_from: rr[:rdlength]) }
 
         # @param [DNS] dns
         # @param [Hash] options

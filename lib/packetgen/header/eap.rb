@@ -53,6 +53,7 @@ module PacketGen
     # {EAP::TTLS} or {EAP::FAST} instance. But this instance is still accessible
     # through +Packet#eap+.
     # @author Sylvain Daubert
+    # @since 2.1.4
     class EAP < Base
 
       # EAP known codes

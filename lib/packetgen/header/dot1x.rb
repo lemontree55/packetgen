@@ -66,8 +66,9 @@ module PacketGen
 
       # Calculate and set body length
       # @return [Integer]
+      # @since 2.1.4
       def calc_length
-        self.length = bosy.sz
+        self.length = body.sz
       end
     end
 

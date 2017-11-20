@@ -3,10 +3,6 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
-# PacketGen is a network packet generator and analyzor.
-#
-# @author Sylvain Daubert
-module PacketGen
-  # PacketGen version
-  VERSION = '2.1.4'
-end
+require_relative 'http/headers'
+require_relative 'http/response'
+require_relative 'http/request'

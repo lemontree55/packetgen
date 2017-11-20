@@ -51,7 +51,7 @@ module PacketGen
         end
 
         it 'adds a field with given builder' do
-          FTest.class_eval { define_field :f1, Int8, builder: ->(x) { Int16.new } }
+          FTest.class_eval { define_field :f1, Int8, builder: ->(x,t) { Int16.new } }
           expect(FTest.new[:f1]).to be_a(Int16)
         end
       end

@@ -10,6 +10,7 @@ module PacketGen
       # Extensible Authentication Protocol (EAP) - 
       # {https://tools.ietf.org/html/rfc3748#section-5.4 MD5 challenge}
       # @author Sylvain Daubert
+      # @since 2.1.4
       class MD5 < EAP
         delete_field :body
         # @!attribute value_size
@@ -18,7 +19,7 @@ module PacketGen
         # @!attribute value
         #  @return [::String]
         define_field :value, Types::String,
-                     builder: ->(h) { Types::String.new(length_from: h[:value_size]) }
+                     builder: ->(h, t) { t.new(length_from: h[:value_size]) }
         # @!attribute optional_name
         #  @return [::String]
         define_field :optional_name, Types::String
