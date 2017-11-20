@@ -41,11 +41,13 @@ module PacketGen
       #   Default: {Int8}.
       # @option options [Class] :l {Int} subclass for +:length+ attribute.
       #   Default: {Int8}.
+      # @option options [Class] :v {String} subclass for +:value+ attribute.
+      #   Default: {Types::String}.
       def initialize(options={})
         super
         self[:type] = options[:t].new(type) if options[:t]
         self[:length] = options[:l].new(length) if options[:l]
-        self[:value] = String.new(length_from: self[:length])
+        self[:value] = options[:v].new if options[:v]
         self.type = options[:type] if options[:type]
         self.value = options[:value] if options[:value]
         self.length = options[:length] if options[:length]
@@ -73,13 +75,31 @@ module PacketGen
         end
       end
 
-      # Set +value+ and +length+ fields
-      # @param [::String] str
-      # @return [::String]
-      def value=(str)
-        self.length = str.length
-        self[:value].read str
-        str
+      # Set +value+. May set +length+ if value is a {Types::String}.
+      # @param [::String,Integer] val
+      # @return [::String,Integer]
+      def value=(val)
+        if self[:value].respond_to? :from_human
+          self[:value].from_human val
+        elsif self[:value].is_a? Types::Int
+          self[:value].value = val
+        else
+          self.length = val.length if val.is_a? ::String
+          self[:value].read val
+        end
+        val
+      end
+
+      # Get +value+
+      # @return [Object] depend on +value+ type
+      def value
+        if self[:value].respond_to? :to_human
+          self[:value].to_human
+        elsif self[:value].is_a? Types::Int
+          self[:value].to_i
+        else
+          self[:value]
+        end
       end
 
       # Return human readable type, if TYPES is defined
