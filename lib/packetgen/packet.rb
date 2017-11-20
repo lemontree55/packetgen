@@ -385,7 +385,9 @@ module PacketGen
         hdr = hdr.read(binary_str)
         # First header is found when:
         # * for one known header,
+        # * +#parse?+ is true
         # * it exists a known binding with a upper header
+        next unless hdr.parse?
         search_header(hdr) do
           first_header = hklass.to_s.gsub(/.*::/, '')
         end
@@ -404,6 +406,7 @@ module PacketGen
           str = last_known_hdr.body
           nheader = nh.new
           nheader = nheader.read(str)
+          next unless nheader.parse?
           add_header nheader, parsing: true
           nheader.dissect if nheader.respond_to? :dissect
         end
@@ -413,7 +416,7 @@ module PacketGen
 
     def search_header(hdr)
       hdr.class.known_headers.each do |nh, bindings|
-        if bindings.check?(hdr) and hdr.parse?
+        if bindings.check?(hdr)
           yield nh
           break
         end

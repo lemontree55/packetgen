@@ -5,7 +5,7 @@ module PacketGen
     describe String do
 
       it '#initialize accepts a option hash' do
-        expect { String.new('', length_from: nil) }.to_not raise_error
+        expect { String.new(length_from: nil) }.to_not raise_error
       end
 
       context '#read' do
@@ -19,7 +19,7 @@ module PacketGen
 
         it 'reads only start of given string when length_from option was given' do
           len = Int8.new(6)
-          str = String.new('', length_from: len)
+          str = String.new(length_from: len)
           read_str = (0..15).to_a.pack('C*')
           str.read read_str
           expect(str.sz).to eq(6)

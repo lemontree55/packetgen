@@ -146,7 +146,7 @@ module PacketGen
       # @!attribute options
       #  @return [Types::String]
       define_field :options, Types::String, optional: ->(h) { h.ihl > 5 },
-                   builder: ->(h,t) { t.new('', length_from: ->() { (h.ihl - 5) * 4 }) }
+                   builder: ->(h,t) { t.new(length_from: ->() { (h.ihl - 5) * 4 }) }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String

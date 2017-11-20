@@ -16,10 +16,10 @@ module PacketGen
       # @return [String]
       attr_reader :string
 
-      # @param [::String] str
       # @param [Class] len_type should be a {Int} subclass
-      def initialize(str='', len_type=Int8)
-        @string = Types::String.new(str)
+      # @param [::String] string
+      def initialize(len_type=Int8, string: '')
+        @string = Types::String.new.read(string)
         @length = len_type.new
         calc_length
       end

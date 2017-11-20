@@ -16,9 +16,11 @@ module PacketGen
       # @param [Hash] options
       # @option options [Types::Int,Proc] :length_from object or proc from which
       #   takes length when reading
-      def initialize(str='', options={})
-        super(str)
+      # @option options [Integer] :static_length set a static length for this string
+      def initialize(options={})
+        super()
         @length_from = options[:length_from]
+        @static_length = options[:static_length]
       end
 
       # @param [::String] str
@@ -31,7 +33,11 @@ module PacketGen
             when Proc
               s[0, @length_from.call]
             else
-              s
+              if @static_length.is_a? Integer
+                s[0, @static_length]
+              else
+                s
+              end
             end
         self.replace s
         self
