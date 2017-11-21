@@ -28,6 +28,37 @@ module PacketGen
           expect(dhcp.options.last.human_type).to eq('pad')
         end
       end
+
+      describe '#options' do
+        let(:dhcp) { DHCP.new }
+
+        it 'accepts an option as a hash' do
+          dhcp.options << { type: 'router', value: '10.0.0.1'}
+          expect(dhcp.options.size).to eq(1)
+          expect(dhcp.options.first.type).to eq(3)
+          expect(dhcp.options.first.human_type).to eq('router')
+          expect(dhcp.options.first.length).to eq(4)
+          expect(dhcp.options.first.value).to eq('10.0.0.1')
+        end
+
+        it 'accepts a pad option' do
+          dhcp.options << { type: 'pad' }
+          expect(dhcp.options.size).to eq(1)
+          expect(dhcp.options.first).to be_a(DHCP::Pad)
+          dhcp.options << { type: 0 }
+          expect(dhcp.options.size).to eq(2)
+          expect(dhcp.options.last).to be_a(DHCP::Pad)
+        end
+
+        it 'accepts a end option' do
+          dhcp.options << { type: 'end' }
+          expect(dhcp.options.size).to eq(1)
+          expect(dhcp.options.first).to be_a(DHCP::End)
+          dhcp.options << { type: 255 }
+          expect(dhcp.options.size).to eq(2)
+          expect(dhcp.options.last).to be_a(DHCP::End)
+        end
+      end
     end
   end
 end

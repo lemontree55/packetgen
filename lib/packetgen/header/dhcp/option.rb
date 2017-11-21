@@ -74,6 +74,29 @@ module PacketGen
       # @author Sylvain Daubert
       class Option < Types::TLV
 
+        # Option types
+        TYPES = Hash[DHCPOptions.to_a.map { |type, ary| [type, ary[0]] }]
+
+        # @param [Hash] options
+        # @option options [Integer] :type
+        # @option options [Integer] :length
+        # @option options [String] :value
+        def initialize(options={})
+          super
+          if DHCPOptions.has_key?(self.type)
+            h = DHCPOptions[self.type].last
+            if h.is_a? Hash
+              h.each do |k, v|
+                self.length = v if k == :length
+                if k == :v
+                  self[:value] = v.new
+                  self.value = options[:value] if options[:value]
+                end
+              end
+            end
+          end
+        end
+
         # @private
         alias private_read read
 
