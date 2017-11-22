@@ -8,6 +8,17 @@ module PacketGen
     class DHCP
       
       # Container class for DHCP Options
+      #
+      # == Add DHCP options to an +Options+ instance
+      #   options = PacketGen::Header::DHCP::Options.new
+      #   # Add a lease_time option
+      #   options << { type: 'lease_time', value: 3600 }
+      #   # Add a domain option. Here, use integer type
+      #   options << { type: 15, value: 'example.net'}
+      #   # Add an end option
+      #   options << { type: 'end' }
+      #   # And finish with padding
+      #   options << { type: 'pad' }
       # @author Sylvain Daubert
       class Options < Types::Array
         set_of Option

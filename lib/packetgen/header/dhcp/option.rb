@@ -71,6 +71,13 @@ module PacketGen
       end
 
       # DHCP option
+      #
+      # A DHCP option is a {Types::TLV TLV}, so it has:
+      # * a {#type} ({Types::Int8}),
+      # * a {#length} ({Types::Int8}),
+      # * and a {#value}. Defalt type is {Types::String} but some options
+      #   may use more suitable type (by example, a {IP::Addr} for +router+
+      #   option).
       # @author Sylvain Daubert
       class Option < Types::TLV
 

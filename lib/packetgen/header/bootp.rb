@@ -8,6 +8,33 @@ module PacketGen
     
     # Bootstrap Protocol, {https://tools.ietf.org/html/rfc951
     # RFC 951}
+    #
+    # A BOOTP header consists of:
+    # * an operation code field ({#op} of type {Types::Int8Enum}),
+    # * a hardware address type ({#htype} of type {Types::Int8}),
+    # * a hardware address length ({#hlen} of type {Types::Int8}),
+    # * a {#hops} field ({Types::Int8}),
+    # * a transaction ID ({#xid} of type {Types::Int32}),
+    # * a {#secs} field (){Types::Int16}),
+    # * a {#flags} field (){Types::Int16}):
+    #   * a 1-bit broadcast flag ({#b}),
+    #   * a 15-bit Must Be Zero field ({#mbz}),
+    # * a {#ciaddr} field ({IP::Addr}),
+    # * a {#yiaddr} field ({IP::Addr}),
+    # * a {#siaddr} field ({IP::Addr}),
+    # * a {#giaddr} field ({IP::Addr}),
+    # * a {#chaddr} field (16-byte {Types::String}),
+    # * a {#sname} field (64-byte {Types::CString}),
+    # * a {#file} field (128-byte {Types::CString}),
+    # * and a body ({Types::String}).
+    #
+    # == Create a BOOTP header
+    #   # standalone
+    #   bootp = PacketGen::Header::BOOTP.new
+    #   # in a packet
+    #   pkt = PacketGen.gen('IP').add('BOOTP')
+    #   # access to BOOTP header
+    #   pkt.bootp      # => PacketGen::Header::BOOTP
     # @author Sylvain Daubert
     class BOOTP < Base
       
