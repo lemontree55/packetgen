@@ -32,7 +32,7 @@ module PacketGen
 
       # Ethernet MAC address, as a group of 6 bytes
       # @author Sylvain Daubert
-      class MacAddr < Base
+      class MacAddr < Types::Fields
         # @!attribute a0
         #  @return [Integer] first byte from MacAddr
         define_field :a0, Types::Int8

@@ -47,7 +47,7 @@ module PacketGen
 
       # IPv6 address, as a group of 8 2-byte words
       # @author Sylvain Daubert
-      class Addr < Base
+      class Addr < Types::Fields
 
         # @!attribute a1
         #  1st 2-byte word of IPv6 address

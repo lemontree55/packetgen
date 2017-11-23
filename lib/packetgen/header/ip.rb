@@ -64,7 +64,7 @@ module PacketGen
 
       # IP address, as a group of 4 bytes
       # @author Sylvain Daubert
-      class Addr < Base
+      class Addr < Types::Fields
         # @!attribute a1
         #  @return [Integer] IP address first byte 
         define_field :a1, Types::Int8
