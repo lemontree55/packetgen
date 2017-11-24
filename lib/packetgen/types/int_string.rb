@@ -61,6 +61,12 @@ module PacketGen
         @length.to_s << @string.to_s
       end
 
+      # Get human readable string
+      # @return [::String]
+      def to_human
+        @string.to_s.inspect
+      end
+
       # Set length from internal string length
       # @return [Integer]
       def calc_length

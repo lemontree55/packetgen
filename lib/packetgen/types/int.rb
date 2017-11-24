@@ -64,6 +64,7 @@ module PacketGen
       def to_i
         @value || @default
       end
+      alias to_human to_i
 
       # Convert Int to Float
       # @return [Float]
