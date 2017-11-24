@@ -376,18 +376,20 @@ module PacketGen
         start = 0
         fields.each do |field|
           next unless is_present?(field)
+          obj = nil
           if self[field].respond_to? :width
             width = self[field].width
-            self[field].read str[start, width]
+            obj = self[field].read str[start, width]
             start += width
           elsif self[field].respond_to? :sz
-            self[field].read str[start..-1]
+            obj = self[field].read str[start..-1]
             size = self[field].sz
             start += size
           else
-            self[field].read str[start..-1]
+            obj = self[field].read str[start..-1]
             start = str.size
           end
+          self[field] = obj unless obj == self[field]
         end
 
         self
