@@ -28,9 +28,14 @@ module PacketGen
       end
 
       # @param [Hash] options
-      # @option options [Int] counter Int object used as a counter for this set
+      # @option options [Int] :counter Int object used as a counter for this set
+      # @option options [::Array] :array construct from this array
       def initialize(options={})
-        super()
+        if options[:array]
+          super(options[:array])
+        else
+          super()
+        end
         @counter = options[:counter]
       end
 
@@ -74,6 +79,12 @@ module PacketGen
         push obj
         @counter.read(@counter.to_i + 1) if @counter
         self
+      end
+
+      # Same as {::Array#map}
+      # @return [Array]
+      def map
+        self.class.new(array: super)
       end
 
       # Delete an object from this array. Update associated counter if any
