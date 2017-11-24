@@ -44,8 +44,8 @@ module PacketGen
       #   Default: {Types::String}.
       def initialize(options={})
         super
-        self[:type] = options[:t].new(type) if options[:t]
-        self[:length] = options[:l].new(length) if options[:l]
+        self[:type] = options[:t].new(self.type) if options[:t]
+        self[:length] = options[:l].new(self.length) if options[:l]
         self[:value] = options[:v].new if options[:v]
         self.type = options[:type] if options[:type]
         self.value = options[:value] if options[:value]
