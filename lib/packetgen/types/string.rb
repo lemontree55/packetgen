@@ -44,7 +44,6 @@ module PacketGen
       end
 
       alias sz length
-      alias to_human inspect
     end
   end
 end
