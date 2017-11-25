@@ -30,7 +30,7 @@ module PacketGen
 
         intstr = Types::IntString.new(string: 'abc')
         inspect = Inspect.inspect_attribute('my_str', intstr)
-        expect(inspect).to eq("       IntString       my_str: \"\\x03abc\"\n")
+        expect(inspect).to eq("       IntString       my_str: \"abc\"\n")
       end
     end
 
