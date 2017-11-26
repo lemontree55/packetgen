@@ -59,8 +59,10 @@ module PacketGen
         end
       end
     end
-    
+
     UDP.bind_header DHCPv6, sport: DHCPv6::UDP_CLIENT_PORT, dport: DHCPv6::UDP_SERVER_PORT
     UDP.bind_header DHCPv6, sport: DHCPv6::UDP_SERVER_PORT, dport: DHCPv6::UDP_CLIENT_PORT
   end
 end
+
+require_relative 'dhcpv6/relay'
