@@ -2,18 +2,6 @@ require_relative 'spec_helper'
 
 module PacketGen
 
-  class DissectTest < Header::Base
-    attr_accessor :integer
-
-    define_field :body, Types::String
-
-    def dissect
-      @integer = Integer(self[:body].to_s)
-    end
-  end
-  Header.add_class DissectTest
-  Header::Eth.bind_header DissectTest, ethertype: 0xffff
-
   describe Packet do
 
     describe '.gen' do
@@ -131,13 +119,6 @@ module PacketGen
 
         expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }.
           not_to raise_error
-      end
-
-      it 'uses #dissect from header class when this method exists' do
-        eth = Header::Eth.new(ethertype: 0xffff, body: '12345678')
-        pkt = Packet.parse(eth.to_s)
-        expect(pkt.is? 'DissectTest').to be(true)
-        expect(pkt.dissecttest.integer).to eq(12345678)
       end
     end
 

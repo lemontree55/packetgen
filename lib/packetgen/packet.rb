@@ -408,7 +408,6 @@ module PacketGen
           nheader = nheader.read(str)
           next unless nheader.parse?
           add_header nheader, parsing: true
-          nheader.dissect if nheader.respond_to? :dissect
         end
         decode_packet_bottom_up = (@headers.last != last_known_hdr)
       end
