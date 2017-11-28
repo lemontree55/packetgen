@@ -156,7 +156,7 @@ module PacketGen
 
       # send packets on wire
       def send_packets_on_wire(packets)
-        packets.each { |pkt| pkt.to_w(iface) }
+        packets.each { |pkt| pkt.to_w(@iface) }
       end
 
       # Deactivate spoofing for given target
