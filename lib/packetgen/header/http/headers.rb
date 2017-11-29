@@ -16,7 +16,7 @@ module PacketGen
         end
 
         # Populate object from a string or directly from a hash.
-        # @param [String, Hash]
+        # @param [String, Hash] s_or_h
         # @return [self]
         def read(s_or_h)
           case s_or_h
@@ -51,7 +51,7 @@ module PacketGen
         end
 
         # Read human-readable data to populate header data.
-        # @param [String, Hash]
+        # @param [String, Hash] data
         # @return [self]
         def from_human(data)
           read(data)

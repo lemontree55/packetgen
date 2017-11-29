@@ -11,7 +11,6 @@ module PacketGen
     # @author Sylvain Daubert
     class CString < ::String
 
-      # @param [String] str
       # @param [Hash] options
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})

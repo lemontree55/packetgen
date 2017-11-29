@@ -12,7 +12,6 @@ module PacketGen
     # @author Sylvain Daubert
     class String < ::String
 
-      # @param [String] str
       # @param [Hash] options
       # @option options [Types::Int,Proc] :length_from object or proc from which
       #   takes length when reading
