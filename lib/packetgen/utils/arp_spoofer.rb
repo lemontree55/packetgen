@@ -147,7 +147,7 @@ module PacketGen
         @spoof_thread = Thread.new(@queue, @iface, @timeout, @interval) do |queue, iface, timeout, interval|
           while timeout.nil? or timeout > 0.0 do
             packets = queue.pop unless queue.empty?
-            send_packets_on_wire packets
+            send_packets_on_wire(packets) unless packets.empty?
             timeout -= interval if timeout
             sleep interval
           end
