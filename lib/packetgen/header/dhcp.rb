@@ -36,6 +36,7 @@ module PacketGen
     #   # And finish with padding
     #   dhcp.options << { type: 'pad' }
     # @author Sylvain Daubert
+    # @since 2.2.0
     class DHCP < Base; end
 
     require_relative 'dhcp/option'

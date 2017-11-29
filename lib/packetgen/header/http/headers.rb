@@ -5,6 +5,8 @@
 
 module PacketGen
   module Header
+
+    # @since 2.2.0
     module HTTP 
       # @abstract Base class for HTTP headers.
       # @author Kent 'picat' Gruber

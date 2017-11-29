@@ -36,6 +36,7 @@ module PacketGen
     #   # access to BOOTP header
     #   pkt.bootp      # => PacketGen::Header::BOOTP
     # @author Sylvain Daubert
+    # @since 2.2.0
     class BOOTP < Base
       
       UDP_SERVER_PORT = 67

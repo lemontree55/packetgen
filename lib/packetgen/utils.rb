@@ -101,6 +101,7 @@ module PacketGen
 
     # Man in the middle attack. Capture all packets between two peers on
     # same local network.
+    # @note This method is provided for test purpose.
     # @param [String] target1 IP address of first peer to attack
     # @param [String] target2 IP address of second peer to attack
     # @param [Hash] options
@@ -123,6 +124,7 @@ module PacketGen
     #     end
     #     pkt
     #   end
+    # @since 2.2.0
     def self.mitm(target1, target2, options={})
       options = { iface: PacketGen.default_iface }.merge(options)
 

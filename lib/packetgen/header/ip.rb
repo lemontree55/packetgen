@@ -144,6 +144,7 @@ module PacketGen
       #   @return [Addr] destination IP address
       define_field :dst, Addr, default: '127.0.0.1'
       # @!attribute options
+      #  @since 2.2.0
       #  @return [Types::String]
       define_field :options, Types::String, optional: ->(h) { h.ihl > 5 },
                    builder: ->(h,t) { t.new(length_from: ->() { (h.ihl - 5) * 4 }) }
