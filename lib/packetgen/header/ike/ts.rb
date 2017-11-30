@@ -221,6 +221,8 @@ module PacketGen
         PAYLOAD_TYPE = 44
 
         delete_field :content
+        undef content
+
         # @!attribute num_ts
         #   8-bit Number of TSs
         #   @return [Integer]
