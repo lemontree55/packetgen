@@ -110,8 +110,8 @@ module PacketGen
         sequence :pdu,
                  implicit: SNMP::PDU_GET, constructed: true,
                  content: [integer(:id, value: 0),
-                           enumerated(:error, enum: ERRORS),
-                           integer(:error_index),
+                           enumerated(:error, value: 0, enum: ERRORS),
+                           integer(:error_index, value: 0),
                            model(:varbindlist, VariableBindings)]
       end
 
