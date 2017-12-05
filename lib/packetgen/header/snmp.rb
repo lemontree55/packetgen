@@ -113,11 +113,6 @@ module PacketGen
                            enumerated(:error, enum: ERRORS),
                            integer(:error_index),
                            model(:varbindlist, VariableBindings)]
-
-        # @return [String]
-        def inspect
-          Inspect.inspect_body(to_der, self.class)
-        end
       end
 
       # Class to handle GetNextRequest PDU
@@ -195,11 +190,6 @@ module PacketGen
                            integer(:non_repeaters),
                            integer(:max_repetitions),
                            model(:varbindlist, VariableBindings)]
-
-        # @return [String]
-        def inspect
-          Inspect.inspect_body(to_der, self.class)
-        end
       end
 
       # Class to handle InformRequest PDU
@@ -271,7 +261,14 @@ module PacketGen
         else
           data = self[:data]
           str << Inspect::FMT_ATTR % [data.type, :data, data.chosen_value.type]
-          str << data.chosen_value.inspect
+          str << Inspect.dashed_line('ASN.1 content', 2)
+          str << data.chosen_value.inspect(1)
+          begin
+            str << Inspect.inspect_body(self[:message].to_der, 'ASN.1 DER')
+          rescue StandardError => ex
+            raise unless ex.message =~ /TAG.*not handled/
+          end
+          str
         end
       end
     end
