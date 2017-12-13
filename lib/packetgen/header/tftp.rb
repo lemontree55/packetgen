@@ -11,8 +11,9 @@ module PacketGen
     # * a {#opcode} ({Types::Int16Enum}),
     # * and a body. Its content depends on opcode.
     #
-    # Specialized subclasses exists to handle {TFTP::Request Read/Write Request},
-    # {TFTP::DATA DATA}, {TFTP::ACK ACK} and {TFTP::Error Error} packets.
+    # Specialized subclasses exists to handle {TFTP::RRQ Read Request},
+    # {TFTP::WRQ Write Request}, {TFTP::DATA DATA}, {TFTP::ACK ACK} and
+    # {TFTP::ERROR ERROR} packets.
     #
     # == Create a TFTP header
     #  # standalone
@@ -26,6 +27,22 @@ module PacketGen
     #  tftp.opcode = 'RRQ'
     #  tftp.opcode = 1
     #  tftp.body.read 'this is a body'
+    #
+    # == TFTP parsing
+    # When parsing, only first packet (read or write request) should be decoded
+    # as TFTP packet, as others uses custom UDP ports.
+    #
+    # So, to decode subsequent TFTP packets, a method {#decode!} is provided
+    # for this purpose. This method takes a single array argument. This array
+    # should contain all subsequent TFTP packets (others packet types may also
+    # be included in this array: they won't be modified). +#decode!+ will modify
+    # array in-place by replacing UDP packets by TFTP ones (if decoded as TFTP
+    # packets):
+    #   # packets is an array of packets: TFTP::RRQ, UDP (should be TFTP::DATA), UDP (not a TFTP packet) and UDP (TFTP::ACK)
+    #   packets.map { |pkt| pkt.headers.last.class.to_s }.join(',')  # => TFTP::RRQ,UDP,UDP,UDP
+    #   # Here, decoding TFTP packets
+    #   packets[0].tftp.decode!(packets[1..-1])
+    #   packets.map { |pkt| pkt.headers.last.class.to_s }.join(',')  # => TFTP::RRQ,TFTP::DATA,UDP,TFTP::ACK
     # @author Sylvain Daubert
     class TFTP < Base
 
@@ -76,7 +93,32 @@ module PacketGen
         end
       end
       
-      # Get human readable opcode
+      # Decode subsequent TFTP packets to this one. Packets are modified
+      # in place in +ary+.
+      # @param [Array<Packet>] ary
+      # @return [void]
+      def decode!(ary)
+        client_tid = packet.udp.sport
+        server_tid = nil
+        ary.each do |pkt|
+          if server_tid.nil?
+            next unless pkt.is?('UDP') and pkt.udp.dport == client_tid
+            server_tid = pkt.udp.sport
+          else
+            next unless pkt.is?('UDP')
+            tids = [server_tid, client_tid]
+            ports = [pkt.udp.sport, pkt.udp.dport]
+            next unless (tids - ports).empty?
+          end
+          tftp = Packet.parse(pkt.body, first_header: 'TFTP')
+          udp_dport = pkt.udp.dport
+          pkt.encapsulate tftp
+          # need to fix it as #encapsulate force it to 69
+          pkt.udp.dport = udp_dport
+        end
+      end
+
+       # Get human readable opcode
       # @return [String]
       def human_opcode
         self[:opcode].to_human
