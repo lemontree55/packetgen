@@ -70,7 +70,7 @@ module PacketGen
         expect(packets[3].udp.dport).to eq(3445)
         expect(packets[3].udp.sport).to eq(50618)
         expect(packets[3].tftp.opcode).to eq(4)
-        expect(packets[3].tftp.block_num).to eq(1)
+        expect(packets[3].tftp.block_num).to eq(2)
       end
     end
   end
