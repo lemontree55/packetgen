@@ -14,7 +14,7 @@ module PacketGen
 
       describe '#read' do
         it 'read a DHCP header' do
-          raw = PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'dhcp.pcapng')).first
+          raw = read_raw_packets('dhcp.pcapng').first
           pkt = PacketGen.parse(raw)
           expect(pkt.is? 'BOOTP').to be(true)
           expect(pkt.is? 'DHCP').to be(true)

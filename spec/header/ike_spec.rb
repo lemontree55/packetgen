@@ -129,7 +129,7 @@ module PacketGen
         end
 
         it 'also parses IKE payload' do
-          packets = Packet.read(File.join(__dir__, 'ikev2.pcapng'))
+          packets = read_packets('ikev2.pcapng')
           expect(packets[0].is? 'IKE').to be(true)
           ike0 = packets[0].ike
           expect(ike0.payloads).to be_a(Array)

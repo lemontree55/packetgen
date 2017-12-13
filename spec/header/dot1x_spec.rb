@@ -46,7 +46,7 @@ module PacketGen
           end
 
           it 'decodes a complex string' do
-            packets = Packet.read(File.join(__dir__, 'dot1x.pcapng'))
+            packets = read_packets('dot1x.pcapng')
             expect(packets[0].is? 'Dot1x').to be(true)
             expect(packets[0].dot1x.type).to eq(1)
             expect(packets[0].dot1x.human_type).to eq('Start')
@@ -58,7 +58,7 @@ module PacketGen
           end
           
           it 'only parses Dot1x data, and no Ethernet padding' do
-            pkt = Packet.read(File.join(__dir__, 'dot1x.pcapng'))[3]
+            pkt = read_packets('dot1x.pcapng')[3]
             expect(pkt.to_s.size).to eq(24)
           end
         end

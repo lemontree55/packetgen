@@ -169,7 +169,7 @@ module PacketGen
         end
 
         describe '#read' do
-          before(:all) { @packets = Packet.read(File.join(__dir__, 'dot1x.pcapng')) }
+          before(:all) { @packets = read_packets('dot1x.pcapng') }
 
           it 'decodes complex strings' do
             pkt = @packets[3]

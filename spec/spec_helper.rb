@@ -23,3 +23,11 @@ RSpec.configure do |c|
   c.include EspHelper
   c.include LabelHelper
 end
+
+def read_packets(filename)
+  PacketGen::PcapNG::File.new.read_packets(File.join(__dir__, 'header', filename))
+end
+
+def read_raw_packets(filename)
+  PacketGen::PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'header', filename))
+end

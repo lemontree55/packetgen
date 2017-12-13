@@ -4,7 +4,7 @@ module PacketGen
   module Header
 
     describe SNMP do
-      let(:ber) { PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'snmp.pcapng')) }
+      let(:ber) { read_raw_packets('snmp.pcapng') }
 
       describe 'binding' do
         it 'in UDP packets' do

@@ -4,7 +4,7 @@ module PacketGen
   module Header
 
     describe DNS do
-      let(:dns_pcapng) { File.join(__dir__, 'dns.pcapng') }
+      let(:dns_pcapng) { 'dns.pcapng' }
 
       describe 'binding' do
         it 'in UDP packets' do
@@ -81,7 +81,7 @@ module PacketGen
         end
 
         it 'also sets others sections from a string' do
-          str = PcapNG::File.new.read_packet_bytes(dns_pcapng).last
+          str = read_raw_packets(dns_pcapng).last
           dns.read str[0x3e..-1]
           expect(dns.id).to eq(0xd10)
           expect(dns.u16.to_i).to be(0x8180)
@@ -177,7 +177,7 @@ module PacketGen
 
       describe '#to_s' do
         it 'returns a binary string' do
-          strings = PcapNG::File.new.read_packet_bytes(dns_pcapng)
+          strings = read_raw_packets(dns_pcapng)
           strings.each do |str|
             pkt = Packet.parse(str)
             expect(pkt.is? 'DNS').to be(true)

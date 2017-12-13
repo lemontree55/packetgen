@@ -15,7 +15,7 @@ module PacketGen
 
       describe '#read' do
         it 'read a BOOTP header' do
-          raw = PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'dhcp.pcapng')).first
+          raw = read_raw_packets('dhcp.pcapng').first
           pkt = PacketGen.parse(raw)
           expect(pkt.is? 'BOOTP').to be(true)
           bootp = pkt.bootp
@@ -39,8 +39,8 @@ module PacketGen
 
       describe '#to_s' do
         it 'returns a binary string' do
-          raws = PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'dhcp.pcapng'))
-          packets = PcapNG::File.new.read_packets(File.join(__dir__, 'dhcp.pcapng'))
+          raws = read_raw_packets('dhcp.pcapng')
+          packets = read_packets('dhcp.pcapng')
           packets.each_with_index do |pkt, i|
             expect(pkt.to_s).to eq(PacketGen.force_binary raws[i])
           end
