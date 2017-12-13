@@ -11,6 +11,8 @@ module PacketGen
     class DissectError < ParseError; end
 
     # Simple Network Management Protocol (SNMP)
+    #
+    # See https://github.com/sdaubert/packetgen/wiki/SNMP
     # @author Sylvain Daubert
     # @since 2.0.0
     class SNMP < ASN1Base
@@ -251,6 +253,16 @@ module PacketGen
       # @return [GetRequest]
       def data
         @elements[:data]
+      end
+
+      # shortcut to PDU
+      # @return [GetRequest, Bulk, Trapv1, nil] return `nil` if no CHOICE was done
+      def pdu
+        if data.chosen.nil?
+          nil
+        else
+          data.root.chosen_value
+        end
       end
 
       def inspect
