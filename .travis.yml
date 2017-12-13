@@ -13,5 +13,5 @@ before_script:
   - openssl version
   - ruby -ropenssl -e 'puts OpenSSL::VERSION'
 script:
-  - bundler exec rake
+  - bundle exec rake
   - rvmsudo bundle exec rake spec:sudo
