@@ -50,12 +50,15 @@ module PacketGen
           expect(snmp.community).to eq('public')
           expect(snmp.data.root.chosen).to eq(SNMP::PDU_RESPONSE)
           expect(snmp.data.chosen_value[:id].value).to eq(39)
-          list = snmp.data.chosen_value[:varbindlist]
+          expect(snmp.pdu[:id].value).to eq(39)
+          list = snmp.pdu[:varbindlist]
 
-          expected_list = [{ name: '1.3.6.1.2.1.1.5.0',
-                             value: RASN1::Types::OctetString.new(:os, value: 'B6300').to_der },
-                           { name: '1.3.6.1.2.1.1.6.0',
-                             value: RASN1::Types::OctetString.new(:os, value: "Chandra's cube").to_der }]
+          expected_list = [SNMP::VarBind.new(name: '1.3.6.1.2.1.1.5.0',
+                                            value: RASN1::Types::OctetString.new(:os,
+                                                              value: 'B6300').to_der),
+                           SNMP::VarBind.new(name: '1.3.6.1.2.1.1.6.0',
+                                            value: RASN1::Types::OctetString.new(:os,
+                                                    value: "Chandra's cube").to_der)]
           expect(list.value).to eq(expected_list)
         end
 
@@ -107,14 +110,14 @@ module PacketGen
         it 'returns a binary string' do
           snmp = SNMP.new(version: 'v1')
           snmp.data.chosen = 0
-          snmp.data.chosen_value[:id] = 39
-          snmp.data.chosen_value[:error] = 'no_error'
-          snmp.data.chosen_value[:error_index] = 0
+          snmp.pdu[:id] = 39
+          snmp.pdu[:error] = 'no_error'
+          snmp.pdu[:error_index] = 0
           varlist = snmp.data.chosen_value[:varbindlist]
-          varlist.value << { name: '1.3.6.1.2.1.1.5.0',
-                             value: RASN1::Types::Null.new(:null) }
-          varlist.value << { name: '1.3.6.1.2.1.1.6.0',
-                             value: RASN1::Types::Null.new(:null) }
+          varlist << { name: '1.3.6.1.2.1.1.5.0',
+                       value: RASN1::Types::Null.new(:null) }
+          varlist << { name: '1.3.6.1.2.1.1.6.0',
+                       value: RASN1::Types::Null.new(:null) }
           expect(snmp.to_s).to eq(ber[0][42..-1])
         end
       end
@@ -141,4 +144,3 @@ module PacketGen
     end
   end
 end
-
