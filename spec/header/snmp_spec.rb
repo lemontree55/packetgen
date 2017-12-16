@@ -53,12 +53,12 @@ module PacketGen
           expect(snmp.pdu[:id].value).to eq(39)
           list = snmp.pdu[:varbindlist]
 
+          os1 = RASN1::Types::OctetString.new('B6300')
+          os2 = RASN1::Types::OctetString.new("Chandra's cube")
           expected_list = [SNMP::VarBind.new(name: '1.3.6.1.2.1.1.5.0',
-                                            value: RASN1::Types::OctetString.new(:os,
-                                                              value: 'B6300').to_der),
+                                             value: os1.to_der),
                            SNMP::VarBind.new(name: '1.3.6.1.2.1.1.6.0',
-                                            value: RASN1::Types::OctetString.new(:os,
-                                                    value: "Chandra's cube").to_der)]
+                                             value: os2.to_der)]
           expect(list.value).to eq(expected_list)
         end
 
@@ -115,9 +115,9 @@ module PacketGen
           snmp.pdu[:error_index] = 0
           varlist = snmp.data.chosen_value[:varbindlist]
           varlist << { name: '1.3.6.1.2.1.1.5.0',
-                       value: RASN1::Types::Null.new(:null) }
+                       value: RASN1::Types::Null.new }
           varlist << { name: '1.3.6.1.2.1.1.6.0',
-                       value: RASN1::Types::Null.new(:null) }
+                       value: RASN1::Types::Null.new }
           expect(snmp.to_s).to eq(ber[0][42..-1])
         end
       end

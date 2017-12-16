@@ -36,14 +36,14 @@ module PacketGen
 
     describe '.inspect_asn1_attribute' do
       it 'returns a formatted string for a RASN1::Types::Enumerated' do
-        enum = RASN1::Types::Enumerated.new(:enum, enum: { one: 1, two: 2})
+        enum = RASN1::Types::Enumerated.new(enum: { one: 1, two: 2})
         enum.value = 2
         inspect = Inspect.inspect_asn1_attribute('my_enum', enum)
         expect(inspect).to eq("      ENUMERATED      my_enum: two        (0x02)\n")
       end
 
       it 'returns a formatted string for a RASN1::Types::Integer' do
-        int = RASN1::Types::Integer.new(:int)
+        int = RASN1::Types::Integer.new
         int.value = 12_345_678_901
         inspect = Inspect.inspect_asn1_attribute('my_int', int)
         expect(inspect).to eq("         INTEGER       my_int: 12345678901 (0x02dfdc1c35)\n")
@@ -56,12 +56,12 @@ module PacketGen
       end
 
       it 'returns a formatted string for an other type' do
-        os = RASN1::Types::OctetString.new(:os)
+        os = RASN1::Types::OctetString.new
         os.value = "abcd"
         inspect = Inspect.inspect_asn1_attribute('my_str', os)
         expect(inspect).to eq("    OCTET STRING       my_str: \"abcd\"\n")
 
-        bool = RASN1::Types::Boolean.new(:bool, value: true)
+        bool = RASN1::Types::Boolean.new(true)
         inspect = Inspect.inspect_asn1_attribute('bool', bool)
         expect(inspect).to eq("         BOOLEAN         bool: \"true\"\n")
       end
