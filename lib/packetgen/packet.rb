@@ -235,8 +235,8 @@ module PacketGen
     # Encapulate another packet in +self+
     # @param [Packet] other
     # @param [Boolean] parsing set to +true+ to not update last current header field
-    #    from binding with first other's one. Use only when current heade field as
-    #    its value set accordingly.
+    #    from binding with first other's one. Use only when current header field
+    #    has its value set accordingly.
     # @return [self] +self+ with new headers from +other+
     # @since 1.1.0
     def encapsulate(other, parsing: false)
