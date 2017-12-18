@@ -7,7 +7,11 @@
 PacketGen provides simple ways to generate, send and capture network packets.
 
 ## Installation
-Via RubyGems:
+PacketGen depends on PcapRub, which needs pcap development files to install. On Debian, you have to do:
+
+    $ sudo apt install libpcap-dev
+
+Installation using RubyGems is then easy:
 
     $ gem install packetgen
 
