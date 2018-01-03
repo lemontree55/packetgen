@@ -222,6 +222,13 @@ require_relative 'ip/options'
       def parse?
         version == 4 and ihl >= 5
       end
+
+      # Get binary string. Fixup IHL if needed (IP header has options, and IHL
+      # was not set by user).
+      def to_s
+        self.ihl = 5 + options.sz / 4 if self.ihl == 5
+        super
+      end
     end
 
     self.add_class IP
