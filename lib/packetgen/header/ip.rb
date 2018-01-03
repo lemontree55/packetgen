@@ -60,54 +60,13 @@ module PacketGen
     #  ip.dst = '127.0.0.2'
     #  ip.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IP < Base
+    class IP < Base;end
 
-      # IP address, as a group of 4 bytes
-      # @author Sylvain Daubert
-      class Addr < Types::Fields
-        # @!attribute a1
-        #  @return [Integer] IP address first byte 
-        define_field :a1, Types::Int8
-        # @!attribute a2
-        #  @return [Integer] IP address seconf byte 
-        define_field :a2, Types::Int8
-        # @!attribute a3
-        #  @return [Integer] IP address third byte 
-        define_field :a3, Types::Int8
-        # @!attribute a4
-        #  @return [Integer] IP address fourth byte 
-        define_field :a4, Types::Int8
+require_relative 'ip/addr'
+require_relative 'ip/option'
+require_relative 'ip/options'
 
-        IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
-
-        # Read a dotted address
-        # @param [String] str
-        # @return [self]
-        def from_human(str)
-          return self if str.nil?
-          m = str.match(IPV4_ADDR_REGEX)
-          if m
-            self[:a1].read m[1].to_i
-            self[:a2].read m[2].to_i
-            self[:a3].read m[3].to_i
-            self[:a4].read m[4].to_i
-          end
-          self
-        end
-
-        # Addr in human readable form (dotted format)
-        # @return [String]
-        def to_human
-          fields.map { |f| "#{self[f].to_i}" }.join('.')
-        end
-
-        # Addr as an integer
-        # @return [Integer]
-        def to_i
-          (self.a1 << 24) | (self.a2 << 16) | (self.a3 << 8) |
-            self.a4
-        end
-      end
+    class IP
 
       # IP Ether type
       ETHERTYPE = 0x0800
@@ -146,8 +105,7 @@ module PacketGen
       # @!attribute options
       #  @since 2.2.0
       #  @return [Types::String]
-      define_field :options, Types::String, optional: ->(h) { h.ihl > 5 },
-                   builder: ->(h,t) { t.new(length_from: ->() { (h.ihl - 5) * 4 }) }
+      define_field :options, Options, optional: ->(h) { h.ihl > 5 }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
@@ -171,25 +129,27 @@ module PacketGen
       # Populate object from a binary string
       # @param [String] str
       # @return [Fields] self
-      #def read(str)
-      #  return self if str.nil?
-      #  force_binary str
-      #  self[:u8].read str[0, 1]
-      #  self[:tos].read str[1, 1]
-      #  self[:length].read str[2, 2]
-      #  self[:id].read str[4, 2]
-      #  self[:frag].read str[6, 2]
-      #  self[:ttl].read str[8, 1]
-      #  self[:protocol].read str[9, 1]
-      #  self[:checksum].read str[10, 2]
-      #  self[:src].read str[12, 4]
-      #  self[:dst].read str[16, 4]
-      #  if self.ihl > 5
-      #    opt_size = (self.ihl - 5) * 4
-      #    self[:options].read str[20, opt_size]
-      #  end
-      #  self
-      #end
+      def read(str)
+        return self if str.nil?
+        force_binary str
+        self[:u8].read str[0, 1]
+        self[:tos].read str[1, 1]
+        self[:length].read str[2, 2]
+        self[:id].read str[4, 2]
+        self[:frag].read str[6, 2]
+        self[:ttl].read str[8, 1]
+        self[:protocol].read str[9, 1]
+        self[:checksum].read str[10, 2]
+        self[:src].read str[12, 4]
+        self[:dst].read str[16, 4]
+        opt_size = 0
+        if self.ihl > 5
+          opt_size = (self.ihl - 5) * 4
+          self[:options].read str[20, opt_size]
+        end
+        self[:body].read str[20+opt_size..-1]
+        self
+      end
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]
@@ -260,7 +220,7 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 4
+        version == 4 and ihl >= 5
       end
     end
 
