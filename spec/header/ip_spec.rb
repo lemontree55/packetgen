@@ -94,7 +94,7 @@ module PacketGen
           expect(ip.checksum).to eq(0x0b0c)
           expect(ip.src).to eq('13.14.15.16')
           expect(ip.dst).to eq('17.18.19.20')
-          expect(ip.options).to eq('')
+          expect(ip.options).to eq([])
           expect(ip.body).to eq('body')
         end
 
@@ -105,8 +105,23 @@ module PacketGen
           ip = pkt.ip
           expect(ip.ihl).to eq(11)
           expect(ip).to respond_to(:options)
-          expect(ip.options.size).to eq(24)
+          expect(ip.options.sz).to eq(24)
           expect(ip.body).to be_a(Header::ICMP)
+
+          raw_pkt = PacketGen.gen('IP', src: '192.168.0.1', dst: '192.168.1.2', ihl: 9, protocol: 254).to_s
+          raw_pkt << PacketGen.force_binary("\x01\x83\x07\x04\xc0\xa8\x00\xfe")
+          raw_pkt << PacketGen.force_binary("\x88\x04\x01\x02\x94\x04\x00\x00")
+          raw_pkt << 'body'
+          pkt = PacketGen.parse(raw_pkt, first_header: 'IP')
+          expect(pkt.ip.ihl).to eq(9)
+          expect(pkt.ip.options.size).to eq(4)
+          expect(pkt.ip.options.sz).to eq(16)
+          expect(pkt.ip.options[0]).to be_a(IP::NOP)
+          expect(pkt.ip.options[1]).to be_a(IP::LSRR)
+          expect(pkt.ip.options[1].data[0].to_human).to eq('192.168.0.254')
+          expect(pkt.ip.options[2]).to be_a(IP::SI)
+          expect(pkt.ip.options[2].id).to eq(0x102)
+          expect(pkt.ip.options[3]).to be_a(IP::RA)
         end
       end
 

@@ -26,19 +26,20 @@ module PacketGen
       # @return [String] self
       def read(str)
         s = str.to_s
-        s = case @length_from
-            when Types::Int
-              s[0, @length_from.to_i]
-            when Proc
-              s[0, @length_from.call]
-            else
-              if @static_length.is_a? Integer
-                s[0, @static_length]
-              else
-                s
-              end
-            end
-        self.replace s
+        str_end = case @length_from
+                  when Types::Int
+                    str_end = @length_from.to_i
+                  when Proc
+                    str_end = @length_from.call
+                  else
+                    if @static_length.is_a? Integer
+                      str_end = @static_length
+                    else
+                      str_end = s.size
+                    end
+                  end
+        str_end = 0 if str_end < 0
+        self.replace(s[0, str_end])
         self
       end
 
