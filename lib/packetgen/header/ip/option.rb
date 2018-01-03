@@ -80,11 +80,11 @@ module PacketGen
           super
         end
 
-        # Get binary string. Set {#length} field
+        # Get binary string. Set {#length} field.
         # @return [String]
         def to_s
           if respond_to? :length
-            self.length = super
+            self.length = super.size
           end
           super
         end
