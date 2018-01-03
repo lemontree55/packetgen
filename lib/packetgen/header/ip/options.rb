@@ -37,6 +37,16 @@ module PacketGen
           end
           self
         end
+
+        # Get binary string
+        # @return [String]
+        def to_s
+          str = super
+          if str.length % 4 != 0
+            str += ([0] * (4 - (str.length % 4))).pack('C*')
+          end
+          str
+        end
       end
     end
   end
