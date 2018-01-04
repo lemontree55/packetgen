@@ -74,6 +74,14 @@ module PacketGen
       #  @return [String,Base]
       define_field :body, Types::String
 
+      # @api private
+      # @note This method is used internally by PacketGen and should not be
+      #       directly called
+      def added_to_packet(packet)
+        igmp_idx = packet.headers.size
+        packet.instance_eval "def igmpize() @headers[#{igmp_idx}].igmpize; end"
+      end
+
       # Get human readbale type
       # @return [String]
       def human_type
@@ -94,6 +102,23 @@ module PacketGen
         end
         sum = ~sum & 0xffff
         self[:checksum].value = (sum == 0) ? 0xffff : sum
+      end
+
+      # Fixup IP header according to RFC 2236:
+      # * set TTL to 1,
+      # * add Router Alert option,
+      # * recalculate checksum and length.
+      # This method may be called as:
+      #    # first method
+      #    pkt.igmp.igmpize
+      #    # second method
+      #    pkt.igmpize
+      # @return [void]
+      def igmpize
+        iph = ip_header(self)
+        iph.ttl = 1
+        iph.options << IP::RA.new
+        packet.calc
       end
     end
 

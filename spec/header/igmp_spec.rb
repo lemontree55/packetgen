@@ -82,6 +82,21 @@ module PacketGen
           end
         end
       end
+
+      describe '#igmpize' do
+        it 'fixup IP header' do
+          pkt = PacketGen.gen('IP', src: '75.12.34.56', dst: '224.0.0.1', id: 0)
+          pkt.add('IGMP', type: 0x11)
+          pkt.igmpize
+          expect(pkt.ip.ttl).to eq(1)
+          expect(pkt.ip.options.size).to eq(1)
+          expect(pkt.ip.options[0]).to be_a(IP::RA)
+          expected = "\x46\x00\x00\x20\x00\x00\x00\x00\x01\x02\x6b\x97"
+          expected << "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00"
+          expected << "\x11\x00\xee\xff\x00\x00\x00\x00"
+          expect(pkt.to_s).to eq(PacketGen.force_binary(expected))
+        end
+      end
     end
   end
 end
