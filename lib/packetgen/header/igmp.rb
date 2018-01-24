@@ -25,7 +25,7 @@ module PacketGen
     # * and a {#body} (unused for IGMPv2).
     #
     # A IGMPv3 header may have additionnal fields. These fields are handled by
-    # subclasses.
+    # additional headers (see {IGMP::MQ}).
     #
     # == Create a IGMP header
     #  # standalone
@@ -40,6 +40,24 @@ module PacketGen
     #  icmp.max_resp_time = 20
     #  icmp.checksum = 0x248a
     #  icmp.group_addr = '224.0.0.1'
+    #
+    # == IGMPv3
+    # === Max Resp Time
+    # {#max_resp_time} field of IGMPv3 packets is encoded differently. This
+    # encoding permits to set value up to 31743 (instead of 255 for IGMPv2).
+    #
+    # To handle this encoding, IGMP class provides {#igmpv3_max_resp_time} and
+    # {#igmpv3_max_resp_time=} methods:
+    #   igmp.igmpv3_max_resp_time = 10000
+    #   igmp.max_resp_time          #=> 227
+    #   igmp.igmpv3_max_resp_time   #=> 9728  error due to encoding as a floating point value
+    #
+    # === IGMPv3 Membership Query
+    # With IGMPv3, a Memership Query packet has more fields than with IGMPv2. To
+    # handle those fields, an additional header should be used:
+    #   pkt = PacketGen.gen('IP').add('IGMP', type: 'MembershipQuery').add('IGMP::MQ')
+    #   pkt.igmp      #=> PacketGen::Header::IGMP
+    #   pkt.igmp_mq   #=> PacketGen::Header::IGMP::MQ
     # @author Sylvain Daubert
     class IGMP < Base
 
@@ -155,9 +173,24 @@ module PacketGen
         iph.options << IP::RA.new
         packet.calc
       end
+
+      # Getter for +max_resp_time+ for IGMPv3 packets. Use {.igmpv3_decode}.
+      # @return [Integer]
+      def igmpv3_max_resp_time
+        IGMP.igmpv3_decode max_resp_time
+      end
+
+      # Setter for +max_resp_time+ for IGMPv3 packets. Use {.igmpv3_encode}.
+      # @param [Integer] value
+      # @return [Integer]
+      def igmpv3_max_resp_time=(value)
+        self.max_resp_time = IGMP.igmpv3_encode(value)
+      end
     end
 
     self.add_class IGMP
     IP.bind_header IGMP, op: :and, protocol: IGMP::IP_PROTOCOL, frag: 0, ttl: 1
   end
 end
+
+require_relative 'igmp/mq'
