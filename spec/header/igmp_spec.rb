@@ -97,6 +97,22 @@ module PacketGen
           expect(pkt.to_s).to eq(PacketGen.force_binary(expected))
         end
       end
+
+      context 'IGMPv3' do
+        let(:igmp) { IGMP.new }
+
+        describe '#igmpv3_max_resp_time' do
+          it 'sets IGMPv3 encoded Max Resp Time' do
+            igmp.igmpv3_max_resp_time = 10000
+            expect(igmp.max_resp_time).to eq(0xe3)
+          end
+
+          it 'gets IGMPv3 encoded Max Resp Time' do
+            igmp.igmpv3_max_resp_time = 10000
+            expect(igmp.igmpv3_max_resp_time).to eq(9728)
+          end
+        end
+      end
     end
   end
 end

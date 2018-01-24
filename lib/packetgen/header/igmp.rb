@@ -74,6 +74,41 @@ module PacketGen
       #  @return [String,Base]
       define_field :body, Types::String
 
+      # Encode value for IGMPv3 Max Resp Code and QQIC.
+      # Value may be encoded as a float, so some error may occur.
+      # See RFC 3376 §4.1.1 and §4.1.7.
+      # @param [Integer] value
+      # @return [Integer]
+      def self.igmpv3_encode(value)
+        if value < 128
+          value
+        elsif value > 31743
+          255
+        else
+          exp = 0
+          value >>= 3
+          while value > 31 do
+            exp += 1
+            value >>= 1
+          end
+          0x80 | (exp << 4) | (value & 0xf)
+        end
+      end
+
+      # Decode value for IGMPv3 Max Resp Code and QQIC.
+      # See RFC 3376 §4.1.1 and §4.1.7.
+      # @param [Integer] value
+      # @return [Integer]
+      def self.igmpv3_decode(value)
+        if value < 128
+          value
+        else
+          mant = value & 0xf
+          exp = (value >> 4) & 0x7
+          (0x10 | mant) << (exp + 3)
+        end
+      end
+
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
