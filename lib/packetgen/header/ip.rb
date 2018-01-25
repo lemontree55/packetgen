@@ -163,8 +163,11 @@ require_relative 'ip/options'
         checksum += (self[:src].to_i & 0xffff)
         checksum += self[:dst].to_i >> 16
         checksum += self[:dst].to_i & 0xffff
-        checksum = (checksum & 0xffff) + (checksum >> 16)
-        checksum = ~(checksum % 0xffff ) & 0xffff
+        options.to_s.unpack('n*').each { |x| checksum += x }
+        while checksum > 0xffff do
+          checksum = (checksum & 0xffff) + (checksum >> 16)
+        end
+        checksum = ~checksum & 0xffff
         self[:checksum].value = (checksum == 0) ? 0xffff : checksum
       end
 

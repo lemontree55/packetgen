@@ -97,7 +97,7 @@ module PacketGen
           expect(pkt.ip.ttl).to eq(1)
           expect(pkt.ip.options.size).to eq(1)
           expect(pkt.ip.options[0]).to be_a(IP::RA)
-          expected = "\x46\x00\x00\x20\x00\x00\x00\x00\x01\x02\x6b\x97"
+          expected = "\x46\x00\x00\x20\x00\x00\x00\x00\x01\x02\xd7\x92"
           expected << "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00"
           expected << "\x11\x00\xee\xff\x00\x00\x00\x00"
           expect(pkt.to_s).to eq(PacketGen.force_binary(expected))
