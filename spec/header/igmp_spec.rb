@@ -6,13 +6,7 @@ module PacketGen
     describe IGMP do
       describe 'bindings' do
         it 'in IP packets' do
-          expect(IP).to know_header(IGMP).with(protocol: 2, frag: 0, ttl: 1)
-        end
-      end
-      describe 'V3 bindings' do
-        it 'IGMPv3 extensions' do
-          expect(IGMP).to_not know_header(IGMP::MQ).with(type: 0x11)
-          expect(IGMP).to know_header(IGMP::MQ).with(type: 0x11, body: '0' * 4)
+          expect(IP).to know_header(IGMP).with(protocol: 2, frag: 0, ttl: 1, tos: 0)
         end
       end
 
@@ -101,42 +95,6 @@ module PacketGen
           expected << "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00"
           expected << "\x11\x00\xee\xff\x00\x00\x00\x00"
           expect(pkt.to_s).to eq(PacketGen.force_binary(expected))
-        end
-      end
-
-      context 'IGMPv3' do
-        let(:igmp) { IGMP.new }
-
-        describe '#igmpv3_max_resp_time' do
-          it 'sets IGMPv3 encoded Max Resp Time' do
-            igmp.igmpv3_max_resp_time = 10000
-            expect(igmp.max_resp_time).to eq(0xe3)
-          end
-
-          it 'gets IGMPv3 encoded Max Resp Time' do
-            igmp.igmpv3_max_resp_time = 10000
-            expect(igmp.igmpv3_max_resp_time).to eq(9728)
-          end
-        end
-
-        describe '#parse' do
-          let(:packets) { PacketGen.read(File.join(__dir__, 'igmpv3.pcapng')) }
-          it 'decodes a V3 extended Membership Query' do
-            pkt = packets.first
-            expect(pkt.is? 'IGMP').to be(true)
-            expect(pkt.igmp.type).to eq(0x11)
-            expect(pkt.igmp.group_addr).to eq('224.0.0.9')
-            expect(pkt.is? 'IGMP::MQ').to be(true)
-            expect(pkt.igmp_mq.u8).to eq(0xf)
-            expect(pkt.igmp_mq.flag_s?).to be(true)
-            expect(pkt.igmp_mq.qrv).to eq(7)
-            expect(pkt.igmp_mq.qqic).to eq(0)
-            expect(pkt.igmp_mq.number_of_sources).to eq(1)
-            expect(pkt.igmp_mq.source_addr.size).to eq(1)
-            expect(pkt.igmp_mq.source_addr.first.to_human).to eq('192.168.20.222')
-          end
-
-          it 'decodes a V3 extended Membership Report'
         end
       end
     end

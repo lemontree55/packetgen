@@ -6,7 +6,7 @@
 module PacketGen
   module Header
 
-    # This class supports IGMPv2 (RFC 2236) and IGMPv3 (RFC3376).
+    # This class supports IGMPv2 (RFC 2236).
     #
     # From RFC 2236, a IGMP header has the following format:
     #   0                   1                   2                   3
@@ -24,9 +24,6 @@ module PacketGen
     # * a {#group_addr} field ({Header::IP::Addr} type),
     # * and a {#body} (unused for IGMPv2).
     #
-    # A IGMPv3 header may have additionnal fields. These fields are handled by
-    # additional headers (see {IGMP::MQ}).
-    #
     # == Create a IGMP header
     #  # standalone
     #  igmp = PacketGen::Header::IGMP.new
@@ -40,24 +37,6 @@ module PacketGen
     #  icmp.max_resp_time = 20
     #  icmp.checksum = 0x248a
     #  icmp.group_addr = '224.0.0.1'
-    #
-    # == IGMPv3
-    # === Max Resp Time
-    # {#max_resp_time} field of IGMPv3 packets is encoded differently. This
-    # encoding permits to set value up to 31743 (instead of 255 for IGMPv2).
-    #
-    # To handle this encoding, IGMP class provides {#igmpv3_max_resp_time} and
-    # {#igmpv3_max_resp_time=} methods:
-    #   igmp.igmpv3_max_resp_time = 10000
-    #   igmp.max_resp_time          #=> 227
-    #   igmp.igmpv3_max_resp_time   #=> 9728  error due to encoding as a floating point value
-    #
-    # === IGMPv3 Membership Query
-    # With IGMPv3, a Memership Query packet has more fields than with IGMPv2. To
-    # handle those fields, an additional header should be used:
-    #   pkt = PacketGen.gen('IP').add('IGMP', type: 'MembershipQuery').add('IGMP::MQ')
-    #   pkt.igmp      #=> PacketGen::Header::IGMP
-    #   pkt.igmp_mq   #=> PacketGen::Header::IGMP::MQ
     # @author Sylvain Daubert
     class IGMP < Base
 
@@ -68,8 +47,8 @@ module PacketGen
       TYPES = {
         'MembershipQuery'    => 0x11,
         'MembershipReportv1' => 0x12,
-        'MembershipReport'   => 0x16,
-        'LeaveGroup'         => 0x17
+        'MembershipReportv2' => 0x16,
+        'LeaveGroup'         => 0x17,
       }
 
       # @!attribute type
@@ -91,41 +70,6 @@ module PacketGen
       # @!attribute body
       #  @return [String,Base]
       define_field :body, Types::String
-
-      # Encode value for IGMPv3 Max Resp Code and QQIC.
-      # Value may be encoded as a float, so some error may occur.
-      # See RFC 3376 §4.1.1 and §4.1.7.
-      # @param [Integer] value
-      # @return [Integer]
-      def self.igmpv3_encode(value)
-        if value < 128
-          value
-        elsif value > 31743
-          255
-        else
-          exp = 0
-          value >>= 3
-          while value > 31 do
-            exp += 1
-            value >>= 1
-          end
-          0x80 | (exp << 4) | (value & 0xf)
-        end
-      end
-
-      # Decode value for IGMPv3 Max Resp Code and QQIC.
-      # See RFC 3376 §4.1.1 and §4.1.7.
-      # @param [Integer] value
-      # @return [Integer]
-      def self.igmpv3_decode(value)
-        if value < 128
-          value
-        else
-          mant = value & 0xf
-          exp = (value >> 4) & 0x7
-          (0x10 | mant) << (exp + 3)
-        end
-      end
 
       # @api private
       # @note This method is used internally by PacketGen and should not be
@@ -173,24 +117,10 @@ module PacketGen
         iph.options << IP::RA.new
         packet.calc
       end
-
-      # Getter for +max_resp_time+ for IGMPv3 packets. Use {.igmpv3_decode}.
-      # @return [Integer]
-      def igmpv3_max_resp_time
-        IGMP.igmpv3_decode max_resp_time
-      end
-
-      # Setter for +max_resp_time+ for IGMPv3 packets. Use {.igmpv3_encode}.
-      # @param [Integer] value
-      # @return [Integer]
-      def igmpv3_max_resp_time=(value)
-        self.max_resp_time = IGMP.igmpv3_encode(value)
-      end
     end
 
     self.add_class IGMP
-    IP.bind_header IGMP, op: :and, protocol: IGMP::IP_PROTOCOL, frag: 0, ttl: 1
+    IP.bind_header IGMP, op: :and, protocol: IGMP::IP_PROTOCOL, frag: 0, ttl: 1,
+                   tos: ->(v) { v.nil? ? 0 : v != 0xc0 }
   end
 end
-
-require_relative 'igmp/mq'

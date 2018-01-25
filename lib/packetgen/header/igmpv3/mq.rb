@@ -5,7 +5,7 @@
 
 module PacketGen
   module Header
-    class IGMP
+    class IGMPv3
       # IGMPv3 Membership Query.
       #
       # This is a subpayload for IGMPv3 packets only. This kind of payload is
@@ -13,6 +13,8 @@ module PacketGen
       # neighboring interfaces. Queries has following format:
       #    0                   1                   2                   3
       #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #   |                         Group Address                         |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #   | Resv  |S| QRV |     QQIC      |     Number of Sources (N)     |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -27,6 +29,7 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # Fields are:
+      # * 32-bit {#group_addr} field ({Header::IP::Addr} type),
       # * 4-bit {#resv}, a reserved field,
       # * 1-bit {#flag_s} (Suppress Router-Side Processing),
       # * 3-bit {#qrv} (Querier's Robustness Variable),
@@ -35,6 +38,10 @@ module PacketGen
       # * {#source_addr} field, a {IP::ArrayOfAddr} to handle sources addresses.
       # @author Sylvain Daubert
       class MQ < Base
+        # @!attribute group_addr
+        #  IP Group address
+        #  @return [IP::Addr]
+        define_field :group_addr, IP::Addr, default: '0.0.0.0'
         # @!attribute u8
         #  First 8-bit field, composed of {#resv}, {#flag_s} and {#qqic}
         #  @return [Integer]
@@ -47,7 +54,6 @@ module PacketGen
         #  16-bit Number of Sources in {#source_addr}
         #  @return [Integer]
         define_field :number_of_sources, Types::Int16
-        alias n number_of_sources
 
         # @!attribute source_addr
         #  Array of IP source addresses
@@ -71,7 +77,7 @@ module PacketGen
         #   float encoding is used to encode big values. See {IGMP.igmpv3_decode}.
         # @return [Integer]
         def qqic
-          IGMP.igmpv3_decode self[:qqic].to_i
+          IGMPv3.decode self[:qqic].to_i
         end
 
         # Set QQIC value
@@ -79,13 +85,12 @@ module PacketGen
         # @param [Integer] value
         # @return [Integer]
         def qqic=(value)
-          self[:qqic].value = IGMP.igmpv3_encode(value)
+          self[:qqic].value = IGMPv3.encode(value)
         end
       end
     end
 
-    self.add_class IGMP::MQ
-    IGMP.bind_header IGMP::MQ, op: :and, type: 0x11,
-                     body: ->(v) { v.nil? ? '' : !v.empty? }
+    self.add_class IGMPv3::MQ
+    IGMPv3.bind_header IGMPv3::MQ, type: 0x11
   end
 end
