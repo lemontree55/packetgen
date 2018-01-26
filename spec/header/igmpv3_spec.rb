@@ -125,7 +125,26 @@ module PacketGen
           expect(pkt.igmpv3_mq.source_addr.first.to_human).to eq('192.168.20.222')
         end
 
-        it 'decodes a V3 extended Membership Report'
+        it 'decodes a V3 extended Membership Report' do
+          pkt = packets.last
+          expect(pkt.is? 'IGMPv3').to be(true)
+          expect(pkt.igmpv3.type).to eq(0x22)
+          expect(pkt.igmpv3.max_resp_code).to eq(0)
+          expect(pkt.igmpv3.checksum).to eq(0x276d)
+          expect(pkt.is? 'IGMPv3::MR').to be(true)
+          expect(pkt.igmpv3_mr.reserved).to eq(0)
+          expect(pkt.igmpv3_mr.number_of_gr).to eq(1)
+          expect(pkt.igmpv3_mr.group_records.size).to eq(1)
+          gr = pkt.igmpv3_mr.group_records.first
+          expect(gr).to be_a(IGMPv3::GroupRecord)
+          expect(gr.human_type).to eq('MODE_IS_INCLUDE')
+          expect(gr.aux_data_len).to eq(0)
+          expect(gr.number_of_sources).to eq(1)
+          expect(gr.multicast_addr).to eq('224.0.0.9')
+          expect(gr.source_addr.size).to eq(1)
+          expect(gr.source_addr[0].to_human).to eq('192.168.20.222')
+          expect(gr.aux_data).to eq('')
+        end
       end
     end
   end
