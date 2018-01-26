@@ -37,7 +37,8 @@ module PacketGen
     #  igmp.max_resp_time = 20
     #  igmp.checksum = 0x248a
     #
-    # == Max Resp Code
+    # == IGMPv3 specifics
+    # === Max Resp Code
     # {#max_resp_code} field of IGMPv3 packets is encoded differently than
     # previous versions. This encoding permits to set value up to 31743 (instead
     # of 255 for IGMPv2).
@@ -50,8 +51,15 @@ module PacketGen
     # With IGMPv3, a Membership Query packet has more fields than with IGMPv2. To
     # handle those fields, an additional header should be used:
     #   pkt = PacketGen.gen('IP').add('IGMPv3', type: 'MembershipQuery').add('IGMPv3::MQ')
-    #   pkt.igmpv3      #=> PacketGen::Header::IGMP
-    #   pkt.igmpv3_mq   #=> PacketGen::Header::IGMP::MQ
+    #   pkt.igmpv3      #=> PacketGen::Header::IGMPv3
+    #   pkt.igmpv3_mq   #=> PacketGen::Header::IGMPv3::MQ
+    #
+    # === IGMPv3 Membership Report
+    # With IGMPv3, a Membership Report packet has more fields than with IGMPv2. To
+    # handle those fields, an additional header should be used:
+    #   pkt =  PacketGen.gen('IP').add('IGMPv3', type: 'MembershipQuery').add('IGMPv3::MR')
+    #   pkt.igmpv3      #=> PacketGen::Header::IGMPv3
+    #   pkt.igmpv3_mr  #=> PacketGen::Header::IGMPv3::MR
     # @author Sylvain Daubert
     class IGMPv3 < IGMP
 
