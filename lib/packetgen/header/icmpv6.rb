@@ -52,7 +52,6 @@ module PacketGen
     end
 
     self.add_class ICMPv6
-
     IPv6.bind_header ICMPv6, next: ICMPv6::IP_PROTOCOL
   end
 end

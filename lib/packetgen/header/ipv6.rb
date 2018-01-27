@@ -232,3 +232,24 @@ module PacketGen
     IP.bind_header IPv6, protocol: 41    # 6to4
   end
 end
+
+require_relative 'ipv6/extension'
+
+module PacketGen
+  module Header
+    class IPv6
+      class << self
+        alias old_bind_header bind_header
+
+        # Bind a upper header to IPv6 and its defined extension headers.
+        # @see Base.bind_header
+        def bind_header(header_klass, args={})
+          IPv6.old_bind_header header_klass, args
+          [IPv6::HopByHop].each do |klass|
+            klass.bind_header header_klass, args
+          end
+        end
+      end
+    end
+  end
+end

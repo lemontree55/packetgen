@@ -94,6 +94,17 @@ module PacketGen
           expect(ipv6.dst).to eq('191a:1b1c:1d1e:1f20:2122:2324:2526:2728')
           expect(ipv6.body).to eq('body')
         end
+        
+        it 'parses IPv6 extension headers' do
+          pkt = PacketGen.read(File.join(__dir__, 'mldv2.pcapng'))[0]
+          expect(pkt.is? 'IPv6').to be(true)
+          expect(pkt.is? 'ICMPv6').to be(true)
+          expect(pkt.is? 'IPv6::HopByHop').to be(true)
+          expect(pkt.ipv6_hopbyhop.options.size).to eq(11)
+          ra = pkt.ipv6_hopbyhop.options[6]
+          expect(ra.human_type).to eq('router_alert')
+          expect(ra.value).to eq("\x00\x00")
+        end
       end
 
       describe '#calc_length' do
