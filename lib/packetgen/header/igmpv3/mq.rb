@@ -34,7 +34,7 @@ module PacketGen
       # * 1-bit {#flag_s} (Suppress Router-Side Processing),
       # * 3-bit {#qrv} (Querier's Robustness Variable),
       # * 8-bit {#qqic} (Querier's Query Interval Code),
-      # * 16-bit {#number_of_sources}, also aliased as {#n},
+      # * 16-bit {#number_of_sources},
       # * {#source_addr} field, a {IP::ArrayOfAddr} to handle sources addresses.
       # @author Sylvain Daubert
       class MQ < Base
@@ -43,7 +43,7 @@ module PacketGen
         #  @return [IP::Addr]
         define_field :group_addr, IP::Addr, default: '0.0.0.0'
         # @!attribute u8
-        #  First 8-bit field, composed of {#resv}, {#flag_s} and {#qqic}
+        #  First 8-bit field, composed of {#resv}, {#flag_s} and {#qrv}
         #  @return [Integer]
         define_field :u8, Types::Int8
         # @!attribute qqic
@@ -74,14 +74,14 @@ module PacketGen
 
         # Get QQIC value
         # @note May return a different value from value previously set, as a
-        #   float encoding is used to encode big values. See {IGMP.igmpv3_decode}.
+        #   float encoding is used to encode big values. See {IGMPv3.decode}.
         # @return [Integer]
         def qqic
           IGMPv3.decode self[:qqic].to_i
         end
 
         # Set QQIC value
-        # @note See {IGMP.igmpv3_encode}.
+        # @note See {IGMPv3.encode}.
         # @param [Integer] value
         # @return [Integer]
         def qqic=(value)
