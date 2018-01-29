@@ -148,6 +148,24 @@ module PacketGen
       self
     end
 
+    # Insert a header in packet
+    # @param [Header] prev header after which insert new one
+    # @param [String] protocol protocol to insert
+    # @param [Hash] options protocol specific options
+    # @return [self]
+    # @raise [ArgumentError] unknown protocol
+    def insert(prev, protocol, options={})
+      klass = check_protocol(protocol)
+
+      nxt = prev.body
+      header = klass.new(options)
+      add_header header, previous_header: prev
+      idx = @headers.index(prev) + 1
+      @headers[idx, 0] = header
+      header[:body] = nxt
+      self
+    end
+
     # Check if a protocol header is embedded in packet
     # @return [Boolean]
     # @raise [ArgumentError] unknown protocol
