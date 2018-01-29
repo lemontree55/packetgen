@@ -19,7 +19,7 @@ module PacketGen
         def to_human
           case type
           when 1
-            human_type
+            "pad#{self.sz}"
           else
             "#{human_type}(#{value.to_s.inspect})"
           end
@@ -69,13 +69,14 @@ module PacketGen
           str = super
           case str.size % 8
           when 0
+            return str
           when 7
             # only on byte needed: use pad1 option
             str << [0].pack('C')
           else
             # use padn option
-            len = 8 - (str.size % 8) - 1
-            padn = Option.new(type: 'padn', value: ([0] * len).pack('C*'))
+            len = 8 - (str.size % 8) - 4
+            padn = Option.new(type: 'padn', value: "\x00" * len)
             str << padn.to_s
           end
           str

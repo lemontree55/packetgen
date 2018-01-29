@@ -41,7 +41,7 @@ module PacketGen
         #  Specific options of extension header
         #  @return [String]
         define_field :options, Types::String,
-                     builder: ->(h, t) { t.new(length_from: (h[:length].to_i + 1) * 8 )}
+                     builder: ->(h, t) { t.new(length_from: ->() { h.real_length }) }
         # @!attribute body
         #  @return [String,Base]
         define_field :body, Types::String
@@ -55,7 +55,7 @@ module PacketGen
         # Compute length and set +len+ field
         # @return [Integer]
         def calc_length
-          self.length = (options.sz + 4) / 8
+          self.length = (options.sz + 2) / 8 - 1
         end
       end
     end
