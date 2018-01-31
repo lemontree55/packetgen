@@ -81,6 +81,15 @@ module PacketGen
       # @author Sylvain Daubert
       class ArrayOfAddr < Types::Array
         set_of IPv6::Addr
+        
+        # Push a IPv6 address to the array
+        # @param [String,Addr] addr
+        # @return [self]
+        #   array << '2001:1234::125'
+        def push(addr)
+          addr = addr.is_a?(Addr) ? addr : Addr.new.from_human(addr)
+          super(addr)
+        end
       end
     end
   end

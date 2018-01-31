@@ -11,6 +11,15 @@ module PacketGen
       # @author Sylvain Daubert
       class ArrayOfAddr < Types::Array
         set_of IP::Addr
+        
+        # Push a IP address to the array
+        # @param [String,Addr] addr
+        # @return [self]
+        #   array << '192.168.1.12'
+        def push(addr)
+          addr = addr.is_a?(Addr) ? addr : Addr.new.from_human(addr)
+          super(addr)
+        end
       end
 
       # Base class for IP options
