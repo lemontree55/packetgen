@@ -53,7 +53,7 @@ module PacketGen
         
         # @!attribute group_records
         #  Array of group records
-        #  @return [ArrayOfGroupRecord]
+        #  @return [GroupRecords]
         define_field :group_records, GroupRecords,
                      builder: ->(h, t) { t.new(counter: h[:number_of_gr]) }
       end

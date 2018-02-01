@@ -108,14 +108,14 @@ module PacketGen
         end
       end
 
-      # Getter for +max_resp_time+ for IGMPv3 packets. Use {.igmpv3_decode}.
+      # Getter for +max_resp_time+ for IGMPv3 packets. Use {.decode}.
       # @return [Integer]
       def max_resp_time
         IGMPv3.decode(self[:max_resp_time].value || self[:max_resp_time].default)
       end
       alias max_resp_code max_resp_time
 
-      # Setter for +max_resp_time+ for IGMPv3 packets. Use {.igmpv3_encode}.
+      # Setter for +max_resp_time+ for IGMPv3 packets. Use {.encode}.
       # @param [Integer] value
       # @return [Integer]
       def max_resp_time=(value)
