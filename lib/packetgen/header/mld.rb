@@ -47,6 +47,8 @@ module PacketGen
       #  16-bit MLD Max Response Delay
       #  @return [Integer]
       define_field :max_resp_delay, Types::Int16
+      alias max_resp_code max_resp_delay
+      alias max_resp_code= max_resp_delay=
       # @!attribute reserved
       #  16-bit Reserved field
       #  @return [Integer]
@@ -86,10 +88,13 @@ module PacketGen
         packet.calc
       end
     end
-
-    self.add_class MLD
-    ICMPv6.bind_header MLD, type: 130
-    ICMPv6.bind_header MLD, type: 131
-    ICMPv6.bind_header MLD, type: 132
   end
 end
+
+# Add MLDv2::MLQ before MLD to priorize its decoding
+require_relative 'mldv2'
+
+PacketGen::Header.add_class PacketGen::Header::MLD
+PacketGen::Header::ICMPv6.bind_header PacketGen::Header::MLD, type: 130
+PacketGen::Header::ICMPv6.bind_header PacketGen::Header::MLD, type: 131
+PacketGen::Header::ICMPv6.bind_header PacketGen::Header::MLD, type: 132
