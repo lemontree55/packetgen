@@ -142,6 +142,36 @@ module PacketGen
           end
         end
       end
+
+      describe MLR do
+        describe 'bindings' do
+          it 'in ICMPv6 packets' do
+            expect(ICMPv6).to know_header(MLR).with(type: 143)
+          end
+        end
+
+        describe '#read' do
+          it 'parses a MLDv2::MLR packet' do
+            pkt = PacketGen.read(File.join(__dir__, 'mldv2.pcapng'))[0]
+            expect(pkt.is? 'ICMPv6').to be(true)
+            expect(pkt.is? 'MLDv2::MLR').to be(true)
+            expect(pkt.mldv2_mlr.number_of_mar).to eq(1)
+            expect(pkt.mldv2_mlr.records.size).to eq(1)
+            mar = pkt.mldv2_mlr.records.first
+            expect(mar.type).to eq(1)
+            expect(mar.human_type).to eq('MODE_IS_INCLUDE')
+            expect(mar.aux_data_len).to eq(2)
+            expect(mar.aux_data.size).to eq(8)
+            expect(mar.aux_data).to eq(force_binary("\xde\xad\xbe\xef\xbe\xad\xfe\xed"))
+            expect(mar.number_of_sources).to eq(8)
+            expect(mar.source_addr.size).to eq(8)
+            sources = mar.source_addr.map(&:to_human)
+            expect(sources).to eq(['::', 'ff02::1', '::',
+                                   'ff02::1', 'ff02::1', 'ff02::2',
+                                   '::1', 'ff02::1:ff00:9'])
+          end
+        end
+      end
     end
   end
 end
