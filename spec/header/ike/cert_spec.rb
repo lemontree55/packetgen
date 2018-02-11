@@ -70,7 +70,7 @@ module PacketGen
             cert = Cert.new(next: 2, encoding: 'X509_CERT_SIG', content: 'abcd')
             cert.calc_length
             expected = "\x02\x00\x00\x09\x04abcd"
-            expect(cert.to_s).to eq(PacketGen.force_binary expected)
+            expect(cert.to_s).to eq(force_binary expected)
           end
         end
 

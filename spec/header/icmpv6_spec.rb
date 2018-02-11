@@ -43,7 +43,7 @@ module PacketGen
           expected = "\0\0\0\0\x2a\x01\x0e\x35\x8b\x7f\x9c\x10\x12\x8b" \
                      "\x3c\x32\xc3\xe4\xc0\x1b\x01\x01\x68\xa3\x78\x03" \
                      "\xcc\xb2"
-          expect(icmp.body).to eq(PacketGen.force_binary expected)
+          expect(icmp.body).to eq(force_binary expected)
         end
       end
 

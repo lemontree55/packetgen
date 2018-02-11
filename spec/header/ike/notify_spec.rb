@@ -79,7 +79,7 @@ module PacketGen
                                 spi: 'yz', content: 'abcdefghijkl')
             notify.calc_length
             expected = "\x02\x00\x00\x16\x02\x02\x40\x06yzabcdefghijkl"
-            expect(notify.to_s).to eq(PacketGen.force_binary expected)
+            expect(notify.to_s).to eq(force_binary expected)
           end
         end
 

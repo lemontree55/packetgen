@@ -80,13 +80,13 @@ module PacketGen
             id = IDi.new(next: 2, type: 'IPV6_ADDR', content: IPAddr.new('8000::1').hton)
             id.calc_length
             expected = "\x02\x00\x00\x18\x05\x00\x00\x00\x80" + "\0" * 14 + "\x01"
-            expect(id.to_s).to eq(PacketGen.force_binary expected)
+            expect(id.to_s).to eq(force_binary expected)
 
             name = OpenSSL::X509::Name.parse('/CN=toto/DC=tata').to_der
             id = IDi.new(next: 2, type: 'DER_ASN1_DN', content: name)
             id.calc_length
             expected = "\x02\x00\x00\x2f\x09\x00\x00\x00" + name
-            expect(id.to_s).to eq(PacketGen.force_binary expected)
+            expect(id.to_s).to eq(force_binary expected)
           end
         end
 

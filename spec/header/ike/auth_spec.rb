@@ -71,7 +71,7 @@ module PacketGen
             auth = Auth.new(next: 2, method: 'PASSWORD', content: 'abcd')
             auth.calc_length
             expected = "\x02\x00\x00\x0c\x0c\x00\x00\x00abcd"
-            expect(auth.to_s).to eq(PacketGen.force_binary expected)
+            expect(auth.to_s).to eq(force_binary expected)
           end
         end
 

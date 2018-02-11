@@ -169,13 +169,13 @@ module PacketGen
         end
 
         it 'which may be parsed' do
-          f.read(PacketGen.force_binary("\x80\x00\x00\x00\x01\x23\x45\x67"))
+          f.read(force_binary("\x80\x00\x00\x00\x01\x23\x45\x67"))
           expect(f.present?).to be(true)
           expect(f.optional).to eq(0x1234567)
         end
 
         it 'which may be not parsed' do
-          f.read(PacketGen.force_binary("\x00\x00\x00\x00\x01\x23\x45\x67"))
+          f.read(force_binary("\x00\x00\x00\x00\x01\x23\x45\x67"))
           expect(f.present?).to be(false)
           expect(f.optional).to eq(0)
         end
@@ -183,13 +183,13 @@ module PacketGen
         it 'which may be serialized' do
           f.present = true
           f.optional = 0x89abcdef
-          expect(f.to_s).to eq(PacketGen.force_binary("\x80\x00\x00\x00\x89\xab\xcd\xef"))
+          expect(f.to_s).to eq(force_binary("\x80\x00\x00\x00\x89\xab\xcd\xef"))
         end
 
         it 'which may be not serialized' do
           f.present = false
           f.optional = 0x89abcdef
-          expect(f.to_s).to eq(PacketGen.force_binary("\x00\x00\x00\x00"))
+          expect(f.to_s).to eq(force_binary("\x00\x00\x00\x00"))
         end
       end
     end

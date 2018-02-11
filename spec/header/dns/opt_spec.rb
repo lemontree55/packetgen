@@ -93,7 +93,7 @@ module PacketGen
             opt = OPT.new(dns, name: 'example.net', udp_size: 512, version: 10)
             expected_str = [7, 'example', 3, 'net', 0, 41, 512, 0xa0000, 0].
                            pack('CA7CA3CnnNn')
-            expect(opt.to_s).to eq(PacketGen.force_binary expected_str)
+            expect(opt.to_s).to eq(force_binary expected_str)
           end
         end
 

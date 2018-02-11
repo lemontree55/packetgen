@@ -118,7 +118,7 @@ module PacketGen
           esp.spi = 1
           esp.sn = 2
           expected = [1, 2].pack('N2') + 'body' + "\x00" * 2
-          expect(esp.to_s).to eq(PacketGen.force_binary expected)
+          expect(esp.to_s).to eq(force_binary expected)
         end
       end
       
@@ -240,7 +240,7 @@ module PacketGen
 
             black_pkt.esp.decrypt! get_cipher('gcm', :decrypt, key), salt: salt
             expect(black_pkt.esp.pad_length).to eq(2)
-            expect(black_pkt.esp.padding).to eq(PacketGen.force_binary("\xff\xff"))
+            expect(black_pkt.esp.padding).to eq(force_binary("\xff\xff"))
           end
 
           it 'encrypts a payload with given padding length' do
@@ -277,8 +277,8 @@ module PacketGen
 
             black_pkt.esp.decrypt! get_cipher('gcm', :decrypt, key), salt: salt
             expect(black_pkt.esp.pad_length).to eq(15)
-            expect(black_pkt.esp.padding).to eq(PacketGen.force_binary("\xff" * 15))
-            expect(black_pkt.body[-9..-1]).to eq(PacketGen.force_binary("\xff" * 9))
+            expect(black_pkt.esp.padding).to eq(force_binary("\xff" * 15))
+            expect(black_pkt.body[-9..-1]).to eq(force_binary("\xff" * 9))
           end
         end
 
@@ -326,8 +326,8 @@ module PacketGen
             cipher = get_cipher('gcm', :decrypt, key)
             expect(pkt.esp.decrypt!(cipher, salt: salt)).to be(true)
             expect(pkt.esp.tfc.length).to eq(916)
-            expect(pkt.esp.tfc).to eq(PacketGen.force_binary("\x00" * 916))
-            expect(pkt.esp.padding).to eq(PacketGen.force_binary("\x01\x02"))
+            expect(pkt.esp.tfc).to eq(force_binary("\x00" * 916))
+            expect(pkt.esp.padding).to eq(force_binary("\x01\x02"))
             expect(pkt.esp.body.to_s).to eq(red_pkt.ip.to_s)
           end
 

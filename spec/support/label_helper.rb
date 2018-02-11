@@ -4,6 +4,6 @@ module LabelHelper
     labels.each do |label|
       str << [label.length].pack('C') << label
     end
-    PacketGen.force_binary(str << "\x00")
+    force_binary(str << "\x00")
   end
 end

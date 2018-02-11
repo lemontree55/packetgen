@@ -61,7 +61,7 @@ module PacketGen
         it 'returns a binary string' do
           igmp = IGMPv3.new(type: 'MembershipQuery', max_resp_time: 20)
           igmp.calc_checksum
-          expected = PacketGen.force_binary("\x11\x14\xee\xeb")
+          expected = force_binary("\x11\x14\xee\xeb")
           expect(igmp.to_s).to eq(expected)
         end
       end
@@ -89,7 +89,7 @@ module PacketGen
           expected = "\x46\xc0\x00\x1c\x00\x00\x00\x00\x01\x02\xd6\xd6"
           expected << "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00"
           expected << "\x11\x00\xee\xff"
-          expect(pkt.to_s).to eq(PacketGen.force_binary(expected))
+          expect(pkt.to_s).to eq(force_binary(expected))
         end
       end
 

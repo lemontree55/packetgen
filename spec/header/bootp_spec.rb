@@ -31,7 +31,7 @@ module PacketGen
           expect(bootp.siaddr).to eq('0.0.0.0')
           expect(bootp.giaddr).to eq('0.0.0.0')
           chaddr = "\x00\v\x82\x01\xFCB\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-          expect(bootp.chaddr).to eq(PacketGen.force_binary chaddr)
+          expect(bootp.chaddr).to eq(force_binary chaddr)
           expect(bootp.sname).to eq('')
           expect(bootp.file).to eq('')
         end
@@ -42,7 +42,7 @@ module PacketGen
           raws = read_raw_packets('dhcp.pcapng')
           packets = read_packets('dhcp.pcapng')
           packets.each_with_index do |pkt, i|
-            expect(pkt.to_s).to eq(PacketGen.force_binary raws[i])
+            expect(pkt.to_s).to eq(force_binary raws[i])
           end
         end
       end

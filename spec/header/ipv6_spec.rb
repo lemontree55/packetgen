@@ -166,7 +166,7 @@ module PacketGen
         end
 
         it 'sends a IPv6 header on wire', :sudo, :notravis do
-          body = PacketGen.force_binary("\x00" * 64)
+          body = force_binary("\x00" * 64)
           pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
                 add('UDP', sport: 35535, dport: 65535, body: body)
           pkt.calc
@@ -194,7 +194,7 @@ module PacketGen
           ipv6.calc_length
           expected = "\x60\x00\x00\x00\x00\x04\x00\x40"
           expected << ("\x00" * 15 + "\x01") * 2 << 'body'
-          PacketGen.force_binary expected
+          force_binary expected
           expect(ipv6.to_s).to eq(expected)
         end
       end

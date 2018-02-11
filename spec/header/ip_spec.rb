@@ -109,8 +109,8 @@ module PacketGen
           expect(ip.body).to be_a(Header::ICMP)
 
           raw_pkt = PacketGen.gen('IP', src: '192.168.0.1', dst: '192.168.1.2', ihl: 9, protocol: 254).to_s
-          raw_pkt << PacketGen.force_binary("\x01\x83\x07\x04\xc0\xa8\x00\xfe")
-          raw_pkt << PacketGen.force_binary("\x88\x04\x01\x02\x94\x04\x00\x00")
+          raw_pkt << force_binary("\x01\x83\x07\x04\xc0\xa8\x00\xfe")
+          raw_pkt << force_binary("\x88\x04\x01\x02\x94\x04\x00\x00")
           raw_pkt << 'body'
           pkt = PacketGen.parse(raw_pkt, first_header: 'IP')
           expect(pkt.ip.ihl).to eq(9)
@@ -197,7 +197,7 @@ module PacketGen
         end
 
         it 'sends a IP header on wire', :sudo do
-          body = PacketGen.force_binary("\x00" * 64)
+          body = force_binary("\x00" * 64)
           pkt = Packet.gen('IP').add('UDP', sport: 35535, dport: 65535, body: body)
           pkt.calc
           Thread.new { sleep 0.1; pkt.ip.to_w('lo') }
@@ -222,7 +222,7 @@ module PacketGen
         idx = [ip.id].pack('n')
         expected = "\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
                    "\x7f\x00\x00\x01\x7f\x00\x00\x01"
-        expect(ip.to_s).to eq(PacketGen.force_binary expected)
+        expect(ip.to_s).to eq(force_binary expected)
       end
     end
 

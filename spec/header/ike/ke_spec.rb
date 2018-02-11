@@ -51,7 +51,7 @@ module PacketGen
             ke = KE.new(next: 1, group: 'ECP256', content: 'abcdefghijkl')
             ke.calc_length
             expected = "\x01\x00\x00\x14\x00\x13\x00\x00abcdefghijkl"
-            expect(ke.to_s).to eq(PacketGen.force_binary expected)
+            expect(ke.to_s).to eq(force_binary expected)
           end
         end
 

@@ -35,4 +35,3 @@ end
 def force_binary(str)
   PacketGen.force_binary(str)
 end
-

@@ -134,13 +134,13 @@ module PacketGen
             ts = TrafficSelector.new(protocol: 'igmp', start_addr: '42.23.5.89',
                                      end_addr: '42.23.5.89')
             expected = "\x07\x02\x00\x10\x00\x00\xff\xff\x2a\x17\x05\x59\x2a\x17\x05\x59"
-            expect(ts.to_s).to eq(PacketGen.force_binary expected)
+            expect(ts.to_s).to eq(force_binary expected)
 
             ts = TrafficSelector.new(protocol: 'udp', ports: 64..65,
                                      start_addr: '2a00::1', end_addr: '2a00::2')
             expected = "\x08\x11\x00\x28\x00\x40\x00\x41"
             expected << IPAddr.new('2a00::1').hton << IPAddr.new('2a00::2').hton
-            expect(ts.to_s).to eq(PacketGen.force_binary expected)
+            expect(ts.to_s).to eq(force_binary expected)
           end
         end
 
@@ -190,7 +190,7 @@ module PacketGen
             pkt = PacketGen.read(File.join(__dir__, '..', 'ikev2.pcapng'))[2]
             pkt.ike_sk.decrypt! cipher, salt: sk_ei[32..35], icv_length: 16, parse: false
             str = pkt.ike_sk.body
-            idx =  str.index(PacketGen.force_binary "\x2d\x00\x00\x18")
+            idx =  str.index(force_binary "\x2d\x00\x00\x18")
             tsi = TSi.new.read(str[idx, 0x18])
             expect(tsi.next).to eq(45)
             expect(tsi.flags).to eq(0)
@@ -207,7 +207,7 @@ module PacketGen
             tsi = TSi.new(next: 2, num_ts: 22)
             tsi.calc_length
             expected = "\x02\x00\x00\x08\x16\x00\x00\x00"
-            expect(tsi.to_s).to eq(PacketGen.force_binary expected)
+            expect(tsi.to_s).to eq(force_binary expected)
           end
         end
 

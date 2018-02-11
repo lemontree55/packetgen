@@ -79,7 +79,7 @@ module PacketGen
             rr = RR.new(dns, name: 'example.net')
             expected_str = generate_label_str(%w(example net))
             expected_str << [1, 1, 0, 0].pack('nnNn')
-            expect(rr.to_s).to eq(PacketGen.force_binary expected_str)
+            expect(rr.to_s).to eq(force_binary expected_str)
           end
         end
 

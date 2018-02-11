@@ -102,7 +102,7 @@ module PacketGen
           expected << "\x84\x00\x7b\xaa"
           expected << "\x00\x00\x00\x00"
           expected << "\x00" * 16
-          expect(pkt.to_s).to eq(PacketGen.force_binary(expected))
+          expect(pkt.to_s).to eq(force_binary(expected))
         end
       end
     end

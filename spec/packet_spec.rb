@@ -330,7 +330,7 @@ module PacketGen
       it 'returns a binary string from complete packet' do
         pkt = Packet.gen('Eth', dst: '00:01:02:03:04:05').add('IP')
         idx = [pkt.ip.id].pack('n')
-        expected = PacketGen.force_binary("\x00\x01\x02\x03\x04\x05" \
+        expected = force_binary("\x00\x01\x02\x03\x04\x05" \
                                           "\x00\x00\x00\x00\x00\x00\x08\x00" \
                                           "\x45\x00\x00\x14#{idx}\x00\x00" \
                                           "\x40\x00\x00\x00" \

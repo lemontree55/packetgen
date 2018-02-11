@@ -46,7 +46,7 @@ module PacketGen
             nonce = Nonce.new(next: 2, content: 'abcdefghijkl')
             nonce.calc_length
             expected = "\x02\x00\x00\x10abcdefghijkl"
-            expect(nonce.to_s).to eq(PacketGen.force_binary expected)
+            expect(nonce.to_s).to eq(force_binary expected)
           end
         end
 

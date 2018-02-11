@@ -49,7 +49,7 @@ module PacketGen
           let(:gre) { GRE.new}
 
           it 'sets header from a string' do
-            str = PacketGen.force_binary("\xff" + (0..14).to_a.pack('C*')) + 'body'
+            str = force_binary("\xff" + (0..14).to_a.pack('C*')) + 'body'
             gre.read str
             expect(gre.c?).to be(true)
             expect(gre.k?).to be(true)
@@ -63,7 +63,7 @@ module PacketGen
           end
 
           it 'does not set not-present optional fields' do
-            str = PacketGen.force_binary("\xa0" + (1..15).to_a.pack('C*')) + 'body'
+            str = force_binary("\xa0" + (1..15).to_a.pack('C*')) + 'body'
             gre.read str
             expect(gre.c?).to be(true)
             expect(gre.k?).to be(true)
@@ -111,7 +111,7 @@ module PacketGen
             gre.key = 0xacacacac
             gre.seqnum = 0x53535353
             gre.body = 'body'
-            expected_str = PacketGen.force_binary("\xb0\x00\x08\x00\xca\xfe\x00\x00" \
+            expected_str = force_binary("\xb0\x00\x08\x00\xca\xfe\x00\x00" \
                                                   "\xac\xac\xac\xac\x53\x53\x53\x53" \
                                                   'body')
             expect(gre.to_s).to eq(expected_str)
@@ -123,7 +123,7 @@ module PacketGen
             gre.key = 0xacacacac
             gre.seqnum = 0x53535353
             gre.body = 'body'
-            expected_str = PacketGen.force_binary("\x30\x00\x08\x00" \
+            expected_str = force_binary("\x30\x00\x08\x00" \
                                                   "\xac\xac\xac\xac\x53\x53\x53\x53" \
                                                   'body')
             expect(gre.to_s).to eq(expected_str)

@@ -20,7 +20,7 @@ module PacketGen
       describe '#read' do
         it 'reads a CString' do
           cs = CString.new
-          cs.read PacketGen.force_binary("abcd\x00")
+          cs.read force_binary("abcd\x00")
           expect(cs.sz).to eq(5)
           expect(cs.length).to eq(4)
           expect(cs).to eq('abcd')
@@ -28,7 +28,7 @@ module PacketGen
 
         it 'reads a CString with static length' do
           cs = CString.new(static_length: 8)
-          cs.read PacketGen.force_binary("abcd\x00\x00\x00\x00")
+          cs.read force_binary("abcd\x00\x00\x00\x00")
           expect(cs.sz).to eq(8)
           expect(cs.length).to eq(4)
           expect(cs).to eq('abcd')
@@ -40,7 +40,7 @@ module PacketGen
         it 'generates a null-terminated string' do
           cs = CString.new
           cs.read 'This is a String'
-          expect(cs.to_s).to eq(PacketGen.force_binary("This is a String\x00"))
+          expect(cs.to_s).to eq(force_binary("This is a String\x00"))
           expect(cs.length).to eq(16)
           expect(cs.sz).to eq(17)
         end
@@ -48,7 +48,7 @@ module PacketGen
         it 'gets binary form for CString with previously forced length' do
           cs = CString.new(static_length: 20)
           cs.read 'This is a String'
-          expect(cs.to_s).to eq(PacketGen.force_binary("This is a String\x00\x00\x00\x00"))
+          expect(cs.to_s).to eq(force_binary("This is a String\x00\x00\x00\x00"))
           expect(cs.length).to eq(16)
           expect(cs.sz).to eq(20)
           

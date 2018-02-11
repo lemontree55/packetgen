@@ -104,7 +104,7 @@ module PacketGen
           udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
           udp.calc_length
           expected_str = "\x00" * 4 + "\x00\x0c\x00\x00\x00\x01\x02\x03"
-          expect(udp.to_s).to eq(PacketGen.force_binary expected_str)
+          expect(udp.to_s).to eq(force_binary expected_str)
         end
       end
       

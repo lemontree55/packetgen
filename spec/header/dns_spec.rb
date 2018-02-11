@@ -206,7 +206,7 @@ module PacketGen
           expected_str = "\x00" * 5 + "\x01" + "\x00" * 6 +
                          generate_label_str(%w(www example org)) +
                          "\x00\x01\x00\x01"
-          expect(dns.to_s).to eq(PacketGen.force_binary expected_str)
+          expect(dns.to_s).to eq(force_binary expected_str)
         end
 
         it 'may add a RR to answer section' do
@@ -217,7 +217,7 @@ module PacketGen
                          generate_label_str(%w(www example org)) +
                          "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" +
                          "\x00" * 14 + "\x01"
-          expect(dns.to_s).to eq(PacketGen.force_binary expected_str)
+          expect(dns.to_s).to eq(force_binary expected_str)
         end
       end
     end
