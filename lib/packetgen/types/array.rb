@@ -46,6 +46,7 @@ module PacketGen
           obj = klass.new.read(str)
           self.push obj
           str.slice!(0, obj.sz)
+          break if @counter and self.size == @counter.to_i
         end
         self
       end
