@@ -56,13 +56,19 @@ module PacketGen
       # @author Sylvain Daubert
       class DUID_LLT < DUID
         delete_field :body
+        undef body
+        undef body=
+
+        # Base time for time computation
+        BASE_TIME = Time.utc(2000, 1, 1)
         
         define_field :htype, Types::Int16, default: 1
-        define_field :time, Types::Int32, default: (Time.now - Time.utc(2000, 1, 1)).to_i
+        define_field :time, Types::Int32, default: (Time.now - BASE_TIME).to_i
         define_field :link_addr, Eth::MacAddr
 
         def to_human
-          "DUID_LLT<#{time},#{link_addr}>"
+          real_time = BASE_TIME + self.time
+          "DUID_LLT<#{real_time},#{link_addr}>"
         end
       end
 
@@ -70,7 +76,9 @@ module PacketGen
       # @author Sylvain Daubert
       class DUID_EN < DUID
         delete_field :body
-        
+        undef body
+        undef body=
+
         define_field :en, Types::Int32
         define_field :identifier, Types::String
 
@@ -83,12 +91,14 @@ module PacketGen
       # @author Sylvain Daubert
       class DUID_LL < DUID
         delete_field :body
-        
+        undef body
+        undef body=
+
         define_field :htype, Types::Int16, default: 1
         define_field :link_addr, Eth::MacAddr
 
         def to_human
-          "DUID_LL<#{link_addr}"
+          "DUID_LL<#{link_addr}>"
         end
       end
     end

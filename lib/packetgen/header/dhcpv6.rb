@@ -58,6 +58,12 @@ module PacketGen
           super
         end
       end
+
+      # Get human readable message type
+      # @return [String]
+      def human_msg_type
+        self[:msg_type].to_human
+      end
     end
 
     UDP.bind_header DHCPv6, sport: DHCPv6::UDP_CLIENT_PORT, dport: DHCPv6::UDP_SERVER_PORT
