@@ -90,7 +90,7 @@ module PacketGen
         end
       end
       
-      # Class to handle series of {MAR}.
+      # Class to handle series of {McastAddressRecord}.
       # @author Sylvain Daubert
       class McastAddressRecords < Types::Array
         set_of McastAddressRecord

@@ -39,7 +39,7 @@ module PacketGen
       # MLR fields are:
       # * {#reserved} ({Types::Int16}),
       # * {#number_of_mar} (number of mcast address records, {Types::Int16}),
-      # * {#records} ({McastAddrRecords}).
+      # * {#records} ({McastAddressRecords}).
       # @author Sylvain Daubert
       class MLR < Base
         # @!attribute reserved
@@ -47,7 +47,7 @@ module PacketGen
         # @return [Integer]
         define_field :reserved, Types::Int16, default: 0
         # @!attribute number_of_mar
-        #  16-bit Number of group records in {#group_records}
+        #  16-bit Number of group records in {#records}
         #  @return [Integer]
         define_field :number_of_mar, Types::Int16, default: 0
         

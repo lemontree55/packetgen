@@ -11,7 +11,7 @@ module PacketGen
       # Encode value for MLDv2 Max Resp Code.
       # Value may be encoded as a float, so some error may occur.
       # See RFC 3810 §5.1.3
-      # @param [Integer] value3
+      # @param [Integer] value value to encode
       # @return [Integer]
       def self.encode(value)
         if value < 32768
@@ -31,7 +31,7 @@ module PacketGen
 
       # Decode value for MLDv2 Max Resp Code.
       # See RFC 3810 §5.1.3
-      # @param [Integer] value
+      # @param [Integer] value value to decode
       # @return [Integer]
       def self.decode(value)
         if value < 32768
