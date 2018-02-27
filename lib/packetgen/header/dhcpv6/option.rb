@@ -71,6 +71,9 @@ module PacketGen
         end
 
         def initialize(options={})
+          if self.class.const_defined?(:TYPE) and options[:type].nil?
+            options[:type] = self.class.const_get(:TYPE)
+          end
           if options[:data]
             options[:length] = options[:data].to_s.size
           end
@@ -124,27 +127,30 @@ module PacketGen
       end
       
       class ClientID < Option
+        # Option type value
+        TYPE = 1
+
         delete_field :data
         undef data
         define_field :duid, DUID
         
-        def initialize(options={})
-          super({type: 1}.merge(options))
-        end
-
+        # Get human-readable data (DUID)
+        # @return [String]
         def human_data
           self[:duid].to_human
         end
       end
 
       class ServerID < ClientID
-        def initialize(options={})
-          super({type: 2}.merge(options))
-        end
+        # Option type value
+        TYPE = 2
       end
 
       # DHCPv6 Identity Association for Non-temporary Addresses Option
       class IANA < Option
+        # Option type value
+        TYPE = 3
+
         delete_field :data
         undef data
         define_field :iaid, Types::Int32
@@ -153,10 +159,6 @@ module PacketGen
         define_field :options, Types::String,
                      builder: ->(h,t) { t.new length_from: ->() { h[:length].to_i - 12 } }
 
-        def initialize(options={})
-          super({type: 3, length: 12}.merge(options))
-        end
-
         def human_data
           "%#x,%u,%u" % [iaid, t1, t2]
         end
@@ -164,15 +166,14 @@ module PacketGen
 
       # DHCPv6 Identity Association for Temporary Addresses Option
       class IATA < Option
+        # Option type value
+        TYPE = 4
+
         delete_field :data
         undef data
         define_field :iaid, Types::Int32
         define_field :options, Types::String,
                      builder: ->(h,t) { t.new length_from: ->() { h[:length].to_i - 4 } }
-
-        def initialize(options={})
-          super({type: 4, length: 4}.merge(options))
-        end
 
         def human_data
           "%#x" % iaid
@@ -181,6 +182,9 @@ module PacketGen
 
       # DHCPv6 IA Address option
       class IAAddr < Option
+        # Option type value
+        TYPE = 5
+
         delete_field :data
         undef data
         define_field :ipv6, IPv6::Addr
@@ -188,10 +192,6 @@ module PacketGen
         define_field :valid_lifetime, Types::Int32
         define_field :options, Types::String,
                      builder: ->(h,t) { t.new length_from: ->() { h[:length].to_i - 24 } }
-
-        def initialize(options={})
-          super({type: 5, length: 24}.merge(options))
-        end
 
         def human_data
           "#{ipv6},#{preferred_lifetime},#{valid_lifetime}"
@@ -206,12 +206,12 @@ module PacketGen
 
       # DHCPv6 Option Request Option
       class ORO < Option
+        # Option type value
+        TYPE = 6
+
         delete_field :data
         undef data
         define_field :options, RequestedOptions
-        def initialize(options={})
-          super({type: 6}.merge(options))
-        end
         
         def read(str)
           self[:type].read str[0, 2]
@@ -227,13 +227,12 @@ module PacketGen
       
       # DHCPv6 Preference option
       class Preference < Option
+        # Option type value
+        TYPE = 7
+
         delete_field :data
         undef data
         define_field :value, Types::Int8
-        
-        def initialize(options={})
-          super({type: 7}.merge(options))
-        end
         
         def human_data
           value.to_s
@@ -242,14 +241,13 @@ module PacketGen
       
       # DHCPv6 Elapsed Time option
       class ElapsedTime < Option
+        # Option type value
+        TYPE = 8
+
         delete_field :data
         undef data
         define_field :value, Types::Int16
-        
-        def initialize(options={})
-          super({type: 8}.merge(options))
-        end
-        
+
         def human_data
           value.to_s
         end
@@ -257,21 +255,19 @@ module PacketGen
       
       # DHCPv6 Relay Message option
       class RelayMessage < Option
-        def initialize(options={})
-          super({type: 9}.merge(options))
-        end
+        # Option type value
+        TYPE = 9
       end
 
       # DHCPv6 Server Unicast option
       class ServerUnicast < Option
+        # Option type value
+        TYPE = 12
+
         delete_field :data
         undef data
         define_field :addr, IPv6::Addr
 
-        def initialize(options={})
-          super({type: 12}.merge(options))
-        end
-        
         def human_data
           addr
         end
@@ -279,19 +275,17 @@ module PacketGen
 
       # DHCPv6 Status Code option
       class StatusCode < ElapsedTime
-        def initialize(options={})
-          super({type: 13}.merge(options))
-        end
+        # Option type value
+        TYPE = 13
       end
       
       # DHCPv6 Rapid Commit option
       class RapidCommit < Option
+        # Option type value
+        TYPE = 14
+
         delete_field :data
         undef data
-
-        def initialize(options={})
-          super({type: 14}.merge(options))
-        end
       end
     end
   end
