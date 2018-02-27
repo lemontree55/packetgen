@@ -18,7 +18,6 @@ module PacketGen
           expect(pkt.is? 'DHCPv6').to be(true)
 
           dhcpv6 = pkt.dhcpv6
-          p dhcpv6
           expect(dhcpv6.msg_type).to eq(1)
           expect(dhcpv6.human_msg_type).to eq('SOLLICIT')
           expect(dhcpv6.transaction_id).to eq(0x100874)

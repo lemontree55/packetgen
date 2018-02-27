@@ -6,18 +6,15 @@
 module PacketGen
   module Header
     class DHCPv6
-      # Container class for DHCPv6 Options
+      # Container class for DHCPv6 {Option options}.
       #
       # == Add DHCPv6 options to an +Options+ instance
       #   options = PacketGen::Header::DHCP::Options.new
-      #   # Add a lease_time option
-      #   options << { type: 'lease_time', value: 3600 }
-      #   # Add a domain option. Here, use integer type
-      #   options << { type: 15, value: 'example.net'}
-      #   # Add an end option
-      #   options << { type: 'end' }
-      #   # And finish with padding
-      #   options << { type: 'pad' }
+      #   # Add an ElapsedTime option
+      #   options << { type: 'ElapsedTime', value: 3600 }
+      #   # Add a ClientID. Here, use integer type
+      #   duid = PacketGen::Header::DHCPv6::DUID_LL.new(link_addr: '08:00:27:fe:8f:95')
+      #   options << { type: 1, duid: duid }
       # @author Sylvain Daubert
       class Options < Types::Array
         set_of DHCPv6::Option

@@ -9,6 +9,7 @@ module PacketGen
       # DHCPv6 Relay agent / server header
       # @author Sylvain Daubert
       class Relay < Base
+        # DHCPv6 Relay message types
         MESSAGE_TYPES = {
           'RELAY-FORW' => 12,
           'RELAY-REPL' => 13

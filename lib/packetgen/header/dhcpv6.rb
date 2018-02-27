@@ -8,6 +8,36 @@ module PacketGen
     
     # Dynamic Host Configuration Protocol for IPv6, {https://tools.ietf.org/html/rfc3315 
     # RFC 3315}
+    #
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |    msg-type   |               transaction-id                  |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                                                               |
+    #   .                            options                            .
+    #   .                           (variable)                          .
+    #   |                                                               |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    # A DHCPv6 header is made of:
+    # * a {#msg_type} field ({Types::Int8Enum}),
+    # * a {#transaction_id} field ({Types::Int24}),
+    # * and an {#options} field ({DHCPv6::Options}).
+    #
+    # == Create a DHCPv6 header
+    #   # standalone
+    #  dhcpv6 = PacketGen::Header::DHCPv6.new(msg_type: 'SOLLICIT')
+    #  # in a packet
+    #  pkt = PacketGen.gen('IPv6').add('DHCPv6', msg_type: 'SOLLICIT')
+    #  # access to DHCPv6 header from packet
+    #  pkt.dhcpv6    #=> PacketGen::Header::DHCPv6
+    #
+    # == Add options
+    # DHCPv6 options are defined by subclasses of {DHCPv6::Option}.
+    #
+    # Options may be added by pushing a hash to {#options}:
+    #   dhcpv6 = PacketGen::Header::DHCPv6.new(msg_type: 'SOLLICIT')
+    #   dhcpv6.options << { type: 'Preference', value: 1 }
     # @author Sylvain Daubert
     class DHCPv6 < Base;end
 
@@ -16,9 +46,12 @@ module PacketGen
     require_relative 'dhcpv6/options'
 
     class DHCPv6 
+      # DHCPv6 UDP client port
       UDP_CLIENT_PORT = 546
+      # DHCPv6 UDP client port
       UDP_SERVER_PORT = 547
-      
+
+      # DHCPv6 message types
       MESSAGE_TYPES = {
         'SOLLICIT'            => 1,
         'ADVERTISE'           => 2,

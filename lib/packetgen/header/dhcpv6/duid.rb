@@ -16,12 +16,15 @@ module PacketGen
           'DUID-LL'  => 3
         }
 
+        # @!attribute type
+        #  16-bit DUID type
+        #  @return [Integer]
         define_field :type, Types::Int16Enum, enum: TYPES
+        # @!attribute body
+        #  @abstract replaced by specific fields in subclasses
+        #  DUID data.
+        #  @return [String]
         define_field :body, Types::String
-        
-        def initialize(options={})
-          super
-        end
 
         alias private_read read
         private :private_read
@@ -46,7 +49,9 @@ module PacketGen
             private_read str
           end
         end
-        
+
+        # Get human-readable DUID description
+        # @return [String]
         def to_human
           "DUID<#{type},#{body.inspect}>"
         end
@@ -61,14 +66,34 @@ module PacketGen
 
         # Base time for time computation
         BASE_TIME = Time.utc(2000, 1, 1)
-        
+
+        # @!attribute htype
+        #  16-bit hardware protocol type
+        #  @return [Integer]
         define_field :htype, Types::Int16, default: 1
+        # @!attribute time
+        #  32-bit time information
+        #  @return [Time]
         define_field :time, Types::Int32, default: (Time.now - BASE_TIME).to_i
+        # @!attribute link_addr
+        #  @return [Eth::MacAddr]
         define_field :link_addr, Eth::MacAddr
 
+        # @return [Time]
+        def time
+          BASE_TIME + self[:time].to_i
+        end
+
+        # @param [Time] time
+        # @return [Time]
+        def time=(time)
+          self[:time].value = time - BASE_TIME
+        end
+
+        # Get human-readable DUID description
+        # @return [String]
         def to_human
-          real_time = BASE_TIME + self.time
-          "DUID_LLT<#{real_time},#{link_addr}>"
+          "DUID_LLT<#{time},#{link_addr}>"
         end
       end
 
@@ -79,9 +104,16 @@ module PacketGen
         undef body
         undef body=
 
+        # @!attribute en
+        #  32-bit entreprise number
+        #  @return [Integer]
         define_field :en, Types::Int32
+        # @!attribute identifier
+        #  @return [String]
         define_field :identifier, Types::String
 
+        # Get human-readable DUID description
+        # @return [String]
         def to_human
           "DUID_EN<%#x,%s>" % [en, identifier]
         end
@@ -94,9 +126,16 @@ module PacketGen
         undef body
         undef body=
 
+        # @!attribute htype
+        #  16-bit hardware protocol type
+        #  @return [Integer]
         define_field :htype, Types::Int16, default: 1
+        # @!attribute link_addr
+        #  @return [Eth::MacAddr]
         define_field :link_addr, Eth::MacAddr
 
+        # Get human-readable DUID description
+        # @return [String]
         def to_human
           "DUID_LL<#{link_addr}>"
         end
