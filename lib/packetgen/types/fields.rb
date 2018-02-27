@@ -306,7 +306,9 @@ module PacketGen
                            end
 
           value = options[field] || default
-          if type < Types::Enum
+          if value.class <= type
+            @fields[field] = value
+          elsif type < Types::Enum
             case value
             when ::String
               @fields[field].value = value
