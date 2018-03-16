@@ -1,0 +1,179 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
+module PacketGen
+  module Header
+    
+    # This class supports OSPFv2 (RFC 2328).
+    # A OSPFv2 header has the following format:
+    #
+    #        0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |   Version #   |     Type      |         Packet length         |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                          Router ID                            |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                           Area ID                             |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |           Checksum            |             AuType            |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                       Authentication                          |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                       Authentication                          |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #
+    # An OSPFv2 header consists of:
+    # * a {#version} field ({Types::Int8}),
+    # * a {#type} field ({Types::Int8Enum}),
+    # * a {#length} field ({Types::Int16}). The length includes the header,
+    # * a {#router_id} field ({Types::Int32}),
+    # * an {#area_id} field ({Types::Int32}),
+    # * a {#checksum} field ({Types::Int16}),
+    # * an {#au_type} field ({Types::Int16Enum}),
+    # * an {#authentication} field ({Types::Int64}),
+    # * and a {#body} ({Types::String}).
+    #
+    # == Create an OSPFv2 header
+    #
+    # == OSPFv2 attributes
+    #
+    # == OSPFv2 body
+    #
+    # @author Sylvain Daubert
+    class OSPFv2 < Base
+      
+      # IP protocol number for OSPF
+      IP_PROTOCOL = 89
+      
+      # OSPF packet types
+      TYPES    = {
+        'HELLO'          => 1,
+        'DB_DESCRIPTION' => 2,
+        'LS_REQUEST'     => 3,
+        'LS_UPDATE'      => 4,
+        'LS_ACK'         => 5
+      }
+
+      # Authentication types
+      AU_TYPES = {
+        'NO_AUTH'         => 0,
+        'PASSWORD'        => 1,
+        'CRYPTO'          => 2,
+        'CRYPTO_WITH_ESN' => 3
+      }
+
+      # @!attribute version
+      #  8-bit OSPF version
+      #  @return [Integer]
+      define_field :version, Types::Int8, default: 2
+      # @!attribute type
+      #  8-bit OSPF packet type. Types are defined in {TYPES}.
+      #  @return [Integer]
+      define_field :type, Types::Int8Enum, enum: TYPES
+      # @!attribute length
+      #  16-bit OSPF packet length
+      #  @return [Integer]
+      define_field :length, Types::Int16
+      # @!attribute router_id
+      #  32-bit router ID
+      #  @return [Integer]
+      define_field :router_id, Types::Int32
+      # @!attribute area_id
+      #  32-bit area ID
+      #  @return [Integer]
+      define_field :area_id, Types::Int32
+      # @!attribute checksum
+      #  16-bit OSPF packet checksum
+      #  @return [Integer]
+      define_field :checksum, Types::Int16
+      # @!attribute au_type
+      #  16-bit authentication type. Types are defined in {AU_TYPES}.
+      #  @return [Integer]
+      define_field :au_type, Types::Int16Enum, enum: AU_TYPES
+      # @!attribute authentication
+      #  64-bit authentication data
+      #  @return [Integer]
+      define_field :authentication, Types::Int64
+      # @!attribute body
+      #  @return [String,Base]
+      define_field :body, Types::String
+
+      # @api private
+      # @note This method is used internally by PacketGen and should not be
+      #       directly called
+      def added_to_packet(packet)
+        ospf_idx = packet.headers.size
+        packet.instance_eval "def ospfize(**kwargs) @headers[#{ospf_idx}].ospfize(**kwargs); end"
+      end
+
+      # Compute checksum and set +checksum+ field
+      # @return [Integer]
+      def calc_checksum
+        # #authentication field is not used in checksum calculation,
+        # so force it to 0 before checksumming
+        saved_auth = self.authentication
+        self.authentication = 0
+
+        sum = IP.sum16(self)
+        self.checksum = IP.reduce_checksum(sum)
+
+        # Restore #authentication value
+        self.authentication = saved_auth
+
+        self.checksum
+      end
+
+      # Get human-readable type
+      # @return [String]
+      def human_type
+        self[:type].to_human
+      end
+
+      # Get human-readable AU type
+      # @return [String]
+      def human_au_type
+        self[:au_type].to_human
+      end
+
+      # Compute length and set +length+ field
+      # @return [Integer]
+      def calc_length
+        self[:length].value = Base.calculate_and_set_length(self)
+      end
+
+      # Fixup IP header according to RFC 2328:
+      # * set TOS field to 0xc0,
+      # * optionally sets destination address,
+      # * set TTL to 1 if destination is a mcast address.
+      # This method may be called as:
+      #    # first method
+      #    pkt.ospfv2.ospfize
+      #    # second method
+      #    pkt.ospfize
+      # @param [String,Symbol,nil] dst destination address. May be a dotted IP
+      #   address (by example '224.0.0.5') or a Symbol (:all_spf_routers or
+      #   :all_d_routers)
+      # @return [void]
+      def ospfize(dst: nil)
+        ip = ip_header(self)
+        ip.tos = 0xc0
+        dst = case dst
+              when :all_spf_routers
+                '224.0.0.5'
+              when :all_d_routers
+                '224.0.0.6'
+              else
+                dst
+              end
+        ip.dst = dst unless dst.nil?
+        ip.ttl = 1 if ip[:dst].mcast?
+      end
+    end
+
+    self.add_class OSPFv2
+    IP.bind_header OSPFv2, protocol: OSPFv2::IP_PROTOCOL
+  end
+end

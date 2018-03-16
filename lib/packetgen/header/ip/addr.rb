@@ -52,6 +52,12 @@ module PacketGen
           (self.a1 << 24) | (self.a2 << 16) | (self.a3 << 8) |
             self.a4
         end
+
+        # Return true if this address is a multicast one
+        # @return [Boolean]
+        def mcast?
+          self.a1 >= 224 && self.a1 <= 239
+        end
       end
     end
   end
