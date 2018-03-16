@@ -53,7 +53,7 @@ module PacketGen
         version == 0 and length >= 8
       end
 
-      # Calculate length field
+      # Calculate header length
       # @return [Integer] calculated length
       # @since 2.1.3
       def calc_length
@@ -114,7 +114,7 @@ module PacketGen
         version == 0 and length >= 8
       end
       
-      # Calculate length field
+      # Calculate header length
       # @return [Integer] calculated length
       # @since 2.1.3
       def calc_length

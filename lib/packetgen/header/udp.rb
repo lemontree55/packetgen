@@ -90,7 +90,7 @@ module PacketGen
       # Compute length and set +length+ field
       # @return [Integer]
       def calc_length
-        self[:length].value = self.sz
+        Base.calculate_and_set_length self
       end
     end
 

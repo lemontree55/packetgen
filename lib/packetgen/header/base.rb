@@ -185,6 +185,20 @@ module PacketGen
         self.new.protocol_name
       end
 
+      # Helper method to calculate length of +hdr+ and set its +length+ field.
+      # To be used by +#calc_length+ in Base subclasses.
+      # @param [Base] hdr
+      # @param [Boolean] header_in_size if +true+ header is included in length,
+      #   if +false+, only +body+ is taken into account
+      def self.calculate_and_set_length(hdr, header_in_size: true)
+        length = if header_in_size
+                   hdr.sz
+                 else
+                   hdr.body.sz
+                 end
+        hdr.length = length
+      end
+
       # @api private
       # Get knwon headers
       # @return [Hash] keys: header classes, values: hashes

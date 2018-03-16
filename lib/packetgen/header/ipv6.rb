@@ -90,7 +90,7 @@ module PacketGen
       # Compute length and set +len+ field
       # @return [Integer]
       def calc_length
-        self.length = body.sz
+        Base.calculate_and_set_length self, header_in_size: false
       end
 
       # Get IPv6 part of pseudo header checksum.

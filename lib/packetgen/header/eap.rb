@@ -207,7 +207,7 @@ module PacketGen
       # Calculate length field from content
       # @return [Integer]
       def calc_length
-        self.length = sz
+        Base.calculate_and_set_length self
       end
 
       # Say is this EAP header has {#type} field

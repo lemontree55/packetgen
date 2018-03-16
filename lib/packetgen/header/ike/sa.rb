@@ -268,7 +268,7 @@ module PacketGen
         # Compute length and set {#length} field
         # @return [Integer] new length
         def calc_length
-          self[:length].value = sz
+          Base.calculate_and_set_length self
         end
 
         # Get a human readable string
@@ -443,7 +443,7 @@ module PacketGen
         # @return [Integer] new length
         def calc_length
           transforms.each { |t| t.calc_length }
-          self[:length].value = sz
+          Base.calculate_and_set_length self
         end
 
         # Get a human readable string

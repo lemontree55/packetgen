@@ -67,6 +67,8 @@ module PacketGen
         # Compute length and set {#length} field
         # @return [Integer] new length
         def calc_length
+          # Here, #body is next payload, so body size should not be taken in
+          # account (payload's real body is #content).
           self[:length].value = sz - body.sz
         end
       end

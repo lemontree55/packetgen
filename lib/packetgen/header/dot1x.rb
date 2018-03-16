@@ -68,7 +68,7 @@ module PacketGen
       # @return [Integer]
       # @since 2.1.4
       def calc_length
-        self.length = body.sz
+        Base.calculate_and_set_length self, header_in_size: false
       end
     end
 
