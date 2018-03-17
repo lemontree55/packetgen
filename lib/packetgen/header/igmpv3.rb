@@ -126,12 +126,7 @@ module PacketGen
       # Compute checksum and set +checksum+ field
       # @return [Integer]
       def calc_checksum
-        sum = (type << 8) | max_resp_code
-
-        payload = body.to_s
-        payload << "\x00" unless payload.size % 2 == 0
-        payload.unpack('n*').each { |x| sum += x; }
-
+        sum = IP.sum16(self)
         self.checksum = IP.reduce_checksum(sum)
       end
     end

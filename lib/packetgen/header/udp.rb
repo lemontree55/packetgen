@@ -72,14 +72,8 @@ module PacketGen
         ip = ip_header(self)
         sum = ip.pseudo_header_checksum
         sum += IP_PROTOCOL
-        sum += length
-        sum += sport
-        sum += dport
-        sum += length
-        payload = body.to_s
-        payload << "\x00" unless payload.size % 2 == 0
-        payload.unpack('n*').each { |x| sum += x }
-
+        sum += self.sz
+        sum += IP.sum16(self)
         self.checksum = IP.reduce_checksum(sum)
       end
 

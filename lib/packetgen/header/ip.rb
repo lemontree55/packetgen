@@ -126,6 +126,27 @@ require_relative 'ip/options'
       #   @return [Integer] 13-bit fragment offset
       define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
 
+      # Helper method to compute sum of 16-bit words. Used to compute IP-style
+      # checksums.
+      # @param [#to_s] hdr header or other object on which calculates a sum
+      #   of 16-bit words.
+      # @return [Integer]
+      def IP.sum16(hdr)
+        old_checksum = nil
+        if hdr.respond_to? :checksum=
+          old_checksum = hdr.checksum
+          hdr.checksum = 0
+        end
+
+        data = hdr.to_s
+        data << "\x00" if data.size % 2 == 1
+        sum = data.unpack('n*').reduce(:+)
+
+        hdr.checksum = old_checksum if old_checksum
+        
+        sum
+      end
+
       # Helper method to reduce an IP checksum.
       # This method:
       # * checks a checksum is not greater than 0xffff. If it is,
@@ -170,6 +191,8 @@ require_relative 'ip/options'
       # Compute checksum and set +checksum+ field
       # @return [Integer]
       def calc_checksum
+        # Checksum is only on header, so cannot use IP.sum16,
+        # which also calcultes checksum on #body.
         checksum = (self[:u8].to_i << 8) | self.tos
         checksum += self.length
         checksum += self.id

@@ -188,10 +188,7 @@ module PacketGen
         sum = ip_header(self).pseudo_header_checksum
         sum += IP_PROTOCOL
         sum += self.sz
-        str = self.to_s
-        str << "\x00" if str.length % 2 == 1
-        sum += str.unpack('n*').reduce(:+)
-
+        sum += IP.sum16(self)
         self.checksum = IP.reduce_checksum(sum)
       end
 

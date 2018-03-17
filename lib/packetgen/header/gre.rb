@@ -68,10 +68,7 @@ module PacketGen
       # Compute checksum and set +checksum+ field
       # @return [Integer]
       def calc_checksum
-        self.checksum = 0
-        str = to_s
-        str << "\x00" if str.length % 2 == 1
-        sum = str.unpack('n*').reduce(:+)
+        sum = IP.sum16(self)
         self.checksum = IP.reduce_checksum(sum)
       end
     end
