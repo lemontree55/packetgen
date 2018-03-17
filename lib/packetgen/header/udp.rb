@@ -80,11 +80,7 @@ module PacketGen
         payload << "\x00" unless payload.size % 2 == 0
         payload.unpack('n*').each { |x| sum += x }
 
-        while sum > 0xffff do
-          sum = (sum & 0xffff) + (sum >> 16)
-        end
-        sum = ~sum & 0xffff
-        self[:checksum].value = (sum == 0) ? 0xffff : sum
+        self.checksum = IP.reduce_checksum(sum)
       end
 
       # Compute length and set +length+ field

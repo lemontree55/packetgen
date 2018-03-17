@@ -126,6 +126,22 @@ require_relative 'ip/options'
       #   @return [Integer] 13-bit fragment offset
       define_bit_fields_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
 
+      # Helper method to reduce an IP checksum.
+      # This method:
+      # * checks a checksum is not greater than 0xffff. If it is,
+      #   reduces it.
+      # * inverts reduced value.
+      # * forces value to 0xffff if computed value is 0.
+      # @param [Integer] checksum checksum to reduce
+      # @return [Integer] reduced checksum
+      def IP.reduce_checksum(checksum)
+        while checksum > 0xffff do
+          checksum = (checksum & 0xffff) + (checksum >> 16)
+        end
+        checksum = ~checksum & 0xffff
+        (checksum == 0) ? 0xffff : checksum
+      end
+
       # Populate object from a binary string
       # @param [String] str
       # @return [Fields] self
@@ -164,11 +180,7 @@ require_relative 'ip/options'
         checksum += self[:dst].to_i >> 16
         checksum += self[:dst].to_i & 0xffff
         options.to_s.unpack('n*').each { |x| checksum += x }
-        while checksum > 0xffff do
-          checksum = (checksum & 0xffff) + (checksum >> 16)
-        end
-        checksum = ~checksum & 0xffff
-        self[:checksum].value = (checksum == 0) ? 0xffff : checksum
+        self[:checksum].value = IP.reduce_checksum(checksum)
       end
 
       # Compute length and set +length+ field

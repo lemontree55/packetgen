@@ -192,11 +192,7 @@ module PacketGen
         str << "\x00" if str.length % 2 == 1
         sum += str.unpack('n*').reduce(:+)
 
-        while sum > 0xffff do
-          sum = (sum & 0xffff) + (sum >> 16)
-        end
-        sum = ~sum & 0xffff
-        self[:checksum].value = (sum == 0) ? 0xffff : sum
+        self.checksum = IP.reduce_checksum(sum)
       end
 
       # Compute header length and set +data_offset+ field
