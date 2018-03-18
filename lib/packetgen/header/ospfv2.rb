@@ -9,7 +9,7 @@ module PacketGen
     # This class supports OSPFv2 (RFC 2328).
     # A OSPFv2 header has the following format:
     #
-    #        0                   1                   2                   3
+    #    0                   1                   2                   3
     #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #   |   Version #   |     Type      |         Packet length         |
@@ -121,6 +121,42 @@ module PacketGen
       define_field :body, Types::String
 
       # @api private
+      # Helper class method to define an OSPFv2 options field.
+      # @param [Base] hdr header on which define a OSPFv2 options field
+      # @return [void]
+      # @!macro [attach] define_options
+      #  @!attribute options
+      #    8-bit options field. Handle {#mt_flag}, {#e_flag}, {#mc_flag},
+      #    {#n_flag}, {#l_flag}, {#dc_flag}, {#o_flag} and {#dn_flag}.
+      #    @return [Integer]
+      #  @!attribute dn_flag
+      #    @return [Boolean]
+      #  @!attribute o_flag
+      #    @return [Boolean]
+      #  @!attribute dc_flag
+      #    This bit describes the router's handling of demand circuits.
+      #    @return [Boolean]
+      #  @!attribute l_flag
+      #    This specifies if a LLS Data block is present.
+      #    @return [Boolean]
+      #  @!attribute n_flag
+      #    This bit specifies if NSSA is supported.
+      #    @return [Boolean]
+      #  @!attribute mc_flag
+      #    This bit describes whether IP multicast datagrams are forwarded.
+      #    @return [Boolean]
+      #  @!attribute e_flag
+      #    This bit describes the way AS-external-LSAs are flooded.
+      #    @return [Boolean]
+      #  @!attribute mt_flag
+      #    @return [Boolean]
+      def self.define_options(hdr)
+        hdr.define_field :options, Types::Int8
+        hdr.define_bit_fields_on :options, :dn_flag, :o_flag, :dc_flag, :l_flag,
+                                 :n_flag, :mc_flag, :e_flag, :mt_flag
+      end
+
+      # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
       def added_to_packet(packet)
@@ -196,3 +232,5 @@ module PacketGen
     IP.bind_header OSPFv2, protocol: OSPFv2::IP_PROTOCOL
   end
 end
+
+require_relative 'ospfv2/hello'
