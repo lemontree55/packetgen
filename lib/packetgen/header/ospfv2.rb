@@ -37,10 +37,29 @@ module PacketGen
     # * and a {#body} ({Types::String}).
     #
     # == Create an OSPFv2 header
+    #   # standalone
+    #   ospf = PacketGen::Header::OSPFv2.new
+    #   # in a packet
+    #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2')
+    #   # make IP header correct for OSPF
+    #   pkt.ospfize
+    #   # or make it correct with specific destination address
+    #   pkt.ospfize(dst: :all_spf_routers)
+    #   # access to OSPF header
+    #   pkt.ospf    # => PacketGen::Header::OSPFv2
     #
     # == OSPFv2 attributes
+    #  ospf.version              # => 2
+    #  ospf.type = 'LS_ACK'      # or 5
+    #  ospf.length = 154
+    #  ospf.router_id = 0xc0a80001
+    #  ospf.area_id = 1
+    #  ospf.checksum = 0xabcd
+    #  ospf.au_type = 'NO_AUTH'  # or 0
+    #  ospf.authentication = 0
     #
     # == OSPFv2 body
+    # OSPFv2 {#body} should contain OSPF payload for given {#type}.
     #
     # @author Sylvain Daubert
     class OSPFv2 < Base
