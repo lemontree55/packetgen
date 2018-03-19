@@ -234,3 +234,5 @@ module PacketGen
 end
 
 require_relative 'ospfv2/hello'
+require_relative 'ospfv2/lsa'
+require_relative 'ospfv2/db_description'

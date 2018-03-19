@@ -146,30 +146,76 @@ module PacketGen
       end
     end
 
-    describe OSPFv2::Hello do
-      describe '#parse' do
-        it 'parses a real packet' do
-          packets = PacketGen.read(PCAP)
-          ospf = packets[0].ospfv2
-          expect(ospf.type).to eq(1)
-          expect(ospf.body).to be_a(OSPFv2::Hello)
+    describe OSPFv2 do
+      let(:packets) { PacketGen.read(PCAP) }
 
-          hello = ospf.body
-          expect(hello.network_mask).to eq('255.255.255.0')
-          expect(hello.hello_interval).to eq(10)
-          expect(hello.options).to eq(2)
-          expect(hello.e_flag?).to be(true)
-          %w(mt mc n l dc o dn).each do |attr|
-            expect(hello.send("#{attr}_flag?")).to be(false)
+      describe OSPFv2::Hello do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[0].ospfv2
+            expect(ospf.type).to eq(1)
+            expect(ospf.body).to be_a(OSPFv2::Hello)
+
+            hello = ospf.body
+            expect(hello.network_mask).to eq('255.255.255.0')
+            expect(hello.hello_interval).to eq(10)
+            expect(hello.options).to eq(2)
+            expect(hello.e_opt?).to be(true)
+            %w(mt mc n l dc o dn).each do |attr|
+              expect(hello.send("#{attr}_opt?")).to be(false)
+            end
+            expect(hello.priority).to eq(1)
+            expect(hello.dead_interval).to eq(40)
+            expect(hello.designated_router).to eq('192.168.170.8')
+            expect(hello.backup_designated_router).to eq('0.0.0.0')
+            expect(hello.neighbors.size).to eq(0)
+
+            expect(packets[1].ospfv2_hello.neighbors.size).to eq(1)
+            expect(packets[1].ospfv2_hello.neighbors[0].to_human).to eq('192.168.170.2')
           end
-          expect(hello.priority).to eq(1)
-          expect(hello.dead_interval).to eq(40)
-          expect(hello.designated_router).to eq('192.168.170.8')
-          expect(hello.backup_designated_router).to eq('0.0.0.0')
-          expect(hello.neighbors.size).to eq(0)
+        end
+      end
 
-          expect(packets[1].ospfv2_hello.neighbors.size).to eq(1)
-          expect(packets[1].ospfv2_hello.neighbors[0].to_human).to eq('192.168.170.2')
+      describe OSPFv2::DbDescription do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[2].ospfv2
+            expect(ospf.type).to eq(2)
+            expect(ospf.body).to be_a(OSPFv2::DbDescription)
+            
+            dbd = ospf.body
+            expect(dbd.mtu).to eq(1500)
+            expect(dbd.options).to eq(2)
+            expect(dbd.flags).to eq(2)
+            expect(dbd.seqnum).to eq(0x4177a97e)
+            expect(dbd.lsas.size).to eq(7)
+            expect(dbd.lsas[0].human_type).to eq('Router')
+            expect(dbd.lsas[0].age).to eq(1)
+            expect(dbd.lsas[0].options).to eq(2)
+            expect(dbd.lsas[0].link_state_id).to eq('192.168.170.3')
+            expect(dbd.lsas[0].advertising_router).to eq('192.168.170.3')
+            expect(dbd.lsas[0].seqnum).to eq(0x80000001)
+            expect(dbd.lsas[0].checksum).to eq(0x3a9c)
+            expect(dbd.lsas[0].length).to eq(48)
+
+            expect(dbd.lsas[1].human_type).to eq('AS-External')
+            expect(dbd.lsas[1].age).to eq(2)
+            expect(dbd.lsas[1].options).to eq(2)
+            expect(dbd.lsas[1].link_state_id).to eq('80.212.16.0')
+            expect(dbd.lsas[1].advertising_router).to eq('192.168.170.2')
+            expect(dbd.lsas[1].seqnum).to eq(0x80000001)
+            expect(dbd.lsas[1].checksum).to eq(0x2a49)
+            expect(dbd.lsas[1].length).to eq(36)
+
+            expect(dbd.lsas[6].human_type).to eq('AS-External')
+            expect(dbd.lsas[6].age).to eq(2)
+            expect(dbd.lsas[6].options).to eq(2)
+            expect(dbd.lsas[6].link_state_id).to eq('192.168.172.0')
+            expect(dbd.lsas[6].advertising_router).to eq('192.168.170.2')
+            expect(dbd.lsas[6].seqnum).to eq(0x80000001)
+            expect(dbd.lsas[6].checksum).to eq(0x3341)
+            expect(dbd.lsas[6].length).to eq(36)
+          end
         end
       end
     end
