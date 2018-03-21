@@ -425,7 +425,7 @@ module PacketGen
       # Return object as a hash
       # @return [Hash] keys: attributes, values: attribute values
       def to_h
-        Hash[fields.map { |f| [f, @fields[f]] }]
+        Hash[fields.map { |f| [f, @fields[f].to_human] }]
       end
 
       # Used to set body as value of body object.
