@@ -59,7 +59,7 @@ module PacketGen
       # @return [String]
       def to_human
         idx = self.index(0.chr) || self.sz
-        self[0, idx].inspect
+        self[0, idx]
       end
     end
   end
