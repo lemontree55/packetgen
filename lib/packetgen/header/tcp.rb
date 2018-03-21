@@ -7,7 +7,7 @@ module PacketGen
     # * a sequence number ({#seqnum}, {Types::Int32} type),
     # * an acknownledge number ({#acknum}, +Int32+ type),
     # * a 16-bit field ({#u16}, +Int16+ type) composed of:
-    #   * a 4-bit {#data_offset} value,
+    #   * a 4-bit {#data_offset} self[attr],
     #   * a 3-bit {#reserved} field,
     #   * a 9-bit {#flags} field,
     # * a {#window} field (+Int16+ type),
@@ -44,7 +44,7 @@ module PacketGen
     # {#options} TCP attribute is a {Options}. {Option} may added to it:
     #  tcph.options << PacketGen::Header::TCP::MSS.new(1250)
     # or:
-    #  tcph.options << { opt: 'MSS', value: 1250 }
+    #  tcph.options << { opt: 'MSS', self[attr]: 1250 }
     # @author Sylvain Daubert
     class TCP < Base
     end
@@ -205,9 +205,9 @@ module PacketGen
       def inspect
         str = Inspect.dashed_line(self.class, 2)
         shift = Inspect.shift_level(2)
-        to_h.each do |attr, value|
+        fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
+          str << Inspect.inspect_attribute(attr, self[attr], 2)
           if attr == :u16
             doff = Inspect.int_dec_hex(data_offset, 1)
             str << shift + Inspect::FMT_ATTR % ['', 'data_offset', doff]

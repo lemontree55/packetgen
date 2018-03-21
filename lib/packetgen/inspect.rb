@@ -53,6 +53,8 @@ module PacketGen
               "%-10s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
             elsif value.is_a?(Types::Int) or value.is_a?(Integer)
               int_dec_hex(value, value.sz * 2)
+            elsif value.is_a?(String)
+              value.to_s.inspect
             elsif value.respond_to? :to_human
               value.to_human
             else

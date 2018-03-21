@@ -243,7 +243,7 @@ module PacketGen
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
-        to_h.each do |attr, value|
+        fields.each do |attr|
           if attr == :u16
             flags = [:qr, :aa, :tc, :rd, :ra].select! { |attr| send "#{attr}?" }.
                     map(&:to_s).join(',')
@@ -256,7 +256,7 @@ module PacketGen
             str << Inspect.shift_level(2)
             str << Inspect::FMT_ATTR % ['Integer', 'rcode', rcode]
           else
-            str << Inspect.inspect_attribute(attr, value, 2)
+            str << Inspect.inspect_attribute(attr, self[attr], 2)
           end
         end
         str

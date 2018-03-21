@@ -185,7 +185,7 @@ module PacketGen
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
-        to_h.each do |attr, value|
+        fields.each do |attr|
           next if attr == :body
           case attr
           when :flags
@@ -194,14 +194,14 @@ module PacketGen
               str_flags << (send("flag_#{flag}?") ? flag.upcase : '.')
             end
             str << Inspect.shift_level(2)
-            str << Inspect::FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr,
+            str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
                                         str_flags]
           when :exchange_type
             str << Inspect.shift_level(2)
-            str << Inspect::FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr,
+            str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
                                         human_exchange_type]
           else
-            str << Inspect.inspect_attribute(attr, value, 2)
+            str << Inspect.inspect_attribute(attr, self[attr], 2)
           end
         end
         str
