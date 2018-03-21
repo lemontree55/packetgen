@@ -76,7 +76,7 @@ require_relative 'ip/options'
       #  @return [Integer] first byte of IP header.
       define_field :u8, Types::Int8, default: 0x45
       # @!attribute tos
-      #   @return [Integer] 8-bit Type of Service value
+      #   @return [Integer] 8-bit Type of Service self[attr]
       define_field :tos, Types::Int8, default: 0
       # @!attribute length
       #   @return [Integer] 16-bit IP total length
@@ -88,10 +88,10 @@ require_relative 'ip/options'
       #   @return [Integer] 16-bit frag word
       define_field :frag, Types::Int16, default: 0
       # @!attribute ttl
-      #   @return [Integer] 8-bit Time To Live value
+      #   @return [Integer] 8-bit Time To Live self[attr]
       define_field :ttl, Types::Int8, default: 64
       # @!attribute protocol
-      #   @return [Integer] 8-bit upper protocol value
+      #   @return [Integer] 8-bit upper protocol self[attr]
       define_field :protocol, Types::Int8
       # @!attribute checksum
       #   @return [Integer] 16-bit IP header checksum
@@ -151,8 +151,8 @@ require_relative 'ip/options'
       # This method:
       # * checks a checksum is not greater than 0xffff. If it is,
       #   reduces it.
-      # * inverts reduced value.
-      # * forces value to 0xffff if computed value is 0.
+      # * inverts reduced self[attr].
+      # * forces self[attr] to 0xffff if computed self[attr] is 0.
       # @param [Integer] checksum checksum to reduce
       # @return [Integer] reduced checksum
       def IP.reduce_checksum(checksum)
@@ -236,9 +236,9 @@ require_relative 'ip/options'
       def inspect
         str = Inspect.dashed_line(self.class, 2)
         shift = Inspect.shift_level(2)
-        to_h.each do |attr, value|
+        fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, value, 2)
+          str << Inspect.inspect_attribute(attr, self[attr], 2)
           if attr == :u8
             str << shift + Inspect::FMT_ATTR % ['', 'version', version]
             str << shift + Inspect::FMT_ATTR % ['', 'ihl', ihl]
