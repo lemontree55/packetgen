@@ -218,6 +218,40 @@ module PacketGen
           end
         end
       end
+      describe OSPFv2::LSRequest do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[3].ospfv2
+            expect(ospf.type).to eq(3)
+            expect(ospf.body).to be_a(OSPFv2::LSRequest)
+            
+            lsr = ospf.body
+            expect(lsr.lsrs.size).to eq(7)
+            expected = [{ type: 'Router',
+                          link_state_id: '192.168.170.3',
+                          advertising_router: '192.168.170.3'},
+                          { type: 'AS-External',
+                            link_state_id: '80.212.16.0',
+                            advertising_router: '192.168.170.2'},
+                          { type: 'AS-External',
+                            link_state_id: '148.121.171.0',
+                            advertising_router: '192.168.170.2'},
+                          { type: 'AS-External',
+                            link_state_id: '192.130.120.0',
+                            advertising_router: '192.168.170.2'},
+                          { type: 'AS-External',
+                            link_state_id: '192.168.0.0',
+                            advertising_router: '192.168.170.2'},
+                          { type: 'AS-External',
+                            link_state_id: '192.168.1.0',
+                            advertising_router: '192.168.170.2'},
+                          { type: 'AS-External',
+                            link_state_id: '192.168.172.0',
+                            advertising_router: '192.168.170.2'}]
+            expect(lsr.lsrs.map(&:to_h)).to eq(expected)
+          end
+        end
+      end
     end
   end
 end

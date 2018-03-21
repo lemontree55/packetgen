@@ -236,3 +236,4 @@ end
 require_relative 'ospfv2/hello'
 require_relative 'ospfv2/lsa'
 require_relative 'ospfv2/db_description'
+require_relative 'ospfv2/ls_request'
