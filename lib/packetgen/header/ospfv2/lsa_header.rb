@@ -25,9 +25,9 @@ module PacketGen
       #
       # == About LSA headers
       # LSA headers are used as-is in {DbDescription} payload. But this class
-      # is also a base class for different LSA class, as {RouterLSA}.
+      # is also a base class for different LSA class, as {LSARouter}.
       # @author Sylvain Daubert
-      class LSA < Types::Fields
+      class LSAHeader < Types::Fields
         # LSA Types
         TYPES = {
           'Router'       => 1,
@@ -104,10 +104,10 @@ module PacketGen
       end
 
       # This class defines a specialized {Types::Array array} to handle series
-      # of {LSA LSAs}.
+      # of {LSAHeader LSA headers}.
       # @author Sylvain Daubert
-      class ArrayOfLSA < Types::Array
-        set_of LSA
+      class ArrayOfLSAHeader < Types::Array
+        set_of LSAHeader
       end
     end
   end

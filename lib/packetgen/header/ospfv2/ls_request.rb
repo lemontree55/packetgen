@@ -16,7 +16,7 @@ module PacketGen
         # @!attribute type
         #  The type of the LSA to request.
         #  @return [Integer]
-        define_field :type, Types::Int32Enum, enum: LSA::TYPES
+        define_field :type, Types::Int32Enum, enum: LSAHeader::TYPES
         # @!attribute link_state_id
         #  This field identifies the portion of the internet environment
         #  that is being described by the LSA to request.

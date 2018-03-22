@@ -62,8 +62,8 @@ module PacketGen
         
         # @!attribute lsas
         #  Array of LSA headers
-        #  @return [ArrayOfLSA]
-        define_field :lsas, ArrayOfLSA
+        #  @return [ArrayOfLSAHeader]
+        define_field :lsas, ArrayOfLSAHeader
       end
     end
 
