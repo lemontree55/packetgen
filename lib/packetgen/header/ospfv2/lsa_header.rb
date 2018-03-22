@@ -101,6 +101,10 @@ module PacketGen
         def human_type
           self[:type].to_human
         end
+
+        def to_human
+          "LSA<#{human_type},#{link_state_id},#{advertising_router}>"
+        end
       end
 
       # This class defines a specialized {Types::Array array} to handle series
