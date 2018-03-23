@@ -78,15 +78,17 @@ module PacketGen
 
           c0 = c1 = 0
           bytes = to_s[2..-1].unpack('C*')
-          size = sz - 2
           bytes.each do |byte|
-            c0 = (c0 + byte) % 256
-            c1 = (c1 + c0) % 256
+            c0 += byte
+            c1 += c0
           end
+          c0 %= 255
+          c1 %= 255
           
-          x = -c1 + (size - 14) * c0
-          y = c1 - (size - 14 + 1) * c0
-          
+          x = ((sz - 16 - 1) * c0 - c1) % 255
+          x += 255 if x <= 0
+          y = 255*2 - c0 - x
+          y -= 255 if y > 255
           self.checksum = (x << 8) | y
         end
 

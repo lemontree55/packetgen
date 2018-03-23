@@ -176,6 +176,18 @@ module PacketGen
         end
       end
 
+      describe OSPFv2::LSAHeader do
+        describe '#calc_checksum' do
+          it 'calculates Fletcher-16 checksum' do
+            lsa = packets[4].ospfv2_lsupdate.lsas.first
+            checksum = lsa.checksum
+            lsa.checksum = 0xffff
+            lsa.calc_checksum
+            expect(lsa.checksum).to eq(checksum)
+          end
+        end
+      end
+
       describe OSPFv2::DbDescription do
         describe '#parse' do
           it 'parses a real packet' do
