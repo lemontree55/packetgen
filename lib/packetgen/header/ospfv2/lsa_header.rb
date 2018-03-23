@@ -104,8 +104,15 @@ module PacketGen
           self[:type].to_human
         end
 
+        # @return [String]
         def to_human
           "LSA<#{human_type},#{link_state_id},#{advertising_router}>"
+        end
+
+        # Extract header from current LSA
+        # @return [LSAHeader]
+        def to_lsa_header
+          LSAHeader.new(self.to_h)
         end
       end
 
