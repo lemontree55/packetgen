@@ -179,7 +179,7 @@ module PacketGen
       describe OSPFv2::LSAHeader do
         describe '#calc_checksum' do
           it 'calculates Fletcher-16 checksum' do
-            lsa = packets[4].ospfv2_lsupdate.lsas.first
+            lsa = packets[5].ospfv2_lsupdate.lsas.first
             checksum = lsa.checksum
             lsa.checksum = 0xffff
             lsa.calc_checksum
@@ -230,6 +230,7 @@ module PacketGen
           end
         end
       end
+
       describe OSPFv2::LSRequest do
         describe '#parse' do
           it 'parses a real packet' do
@@ -261,6 +262,71 @@ module PacketGen
                             link_state_id: '192.168.172.0',
                             advertising_router: '192.168.170.2'}]
             expect(lsr.lsrs.map(&:to_h)).to eq(expected)
+          end
+        end
+      end
+
+      describe OSPFv2::LSUpdate do
+        let(:ospf) { packets[5].ospfv2 }
+
+        describe '#parse' do
+          it 'parses a real packet with a Network LSA' do
+            expect(ospf.type).to eq(4)
+            expect(ospf.body).to be_a(OSPFv2::LSUpdate)
+
+            lsu = ospf.body
+            expect(lsu.lsas_count).to eq(1)
+            expect(lsu.lsas.size).to eq(1)
+            lsa = lsu.lsas.first
+            expect(lsa.human_type).to eq('Network')
+            expect(lsa.netmask).to eq('255.255.255.0')
+            expect(lsa.routers[0].to_human).to eq('192.168.170.3')
+            expect(lsa.routers[1].to_human).to eq('192.168.170.8')
+          end
+
+          it 'parses a real packet with a Router and AS-External LSAs' do
+            ospf = packets[4].ospfv2
+            expect(ospf.type).to eq(4)
+            expect(ospf.body).to be_a(OSPFv2::LSUpdate)
+
+            lsu = ospf.body
+            expect(lsu.lsas_count).to eq(7)
+            expect(lsu.lsas.size).to eq(7)
+
+            lsa = lsu.lsas.first
+            expect(lsa.human_type).to eq('Router')
+            expect(lsa.link_count).to eq(2)
+            expect(lsa.links[0].type).to eq(3)
+            expect(lsa.links[0].tos_count).to eq(0)
+            expect(lsa.links[0].metric).to eq(10)
+            expect(lsa.links[0].id).to eq('192.168.170.0')
+            expect(lsa.links[0].data).to eq('255.255.255.0')
+            expect(lsa.links[0].tos).to be_empty
+
+            lsa = lsu.lsas[1]
+            expect(lsa.human_type).to eq('AS-External')
+            expect(lsa.netmask).to eq('255.255.255.255')
+            expect(lsa.externals.size).to eq(1)
+            expect(lsa.externals[0].e_flag?).to be(true)
+            expect(lsa.externals[0].tos).to eq(0)
+            expect(lsa.externals[0].forwarding_addr).to eq('0.0.0.0')
+            expect(lsa.externals[0].ext_route_tag).to eq(0)
+          end
+        end
+
+        describe '#to_lsa_header' do
+          it 'extract header from LSA' do
+            lsa = ospf.body.lsas.first
+            lsah = lsa.to_lsa_header
+            expect(lsah).to be_a(OSPFv2::LSAHeader)
+            expect(lsah.age).to eq(lsa.age)
+            expect(lsah.options).to eq(lsa.options)
+            expect(lsah.type).to eq(lsa.type)
+            expect(lsah.link_state_id).to eq(lsa.link_state_id)
+            expect(lsah.advertising_router).to eq(lsa.advertising_router)
+            expect(lsah.seqnum).to eq(lsa.seqnum)
+            expect(lsah.checksum).to eq(lsa.checksum)
+            expect(lsah.length).to eq(lsa.length)
           end
         end
       end
