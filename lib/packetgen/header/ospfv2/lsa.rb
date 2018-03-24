@@ -18,7 +18,7 @@ module PacketGen
                      builder: ->(h,t) { t.new(length_from: ->() { h.length - 20 }) }
       end
 
-      # This class handles TOS metrics in for {Link links} in a {LSARouter
+      # This class handles TOS metrics for {Link links} in a {LSARouter
       # LSA router payload}.
       # @author Sylvain Daubert
       class TosMetric < Types::Fields
@@ -40,6 +40,10 @@ module PacketGen
           "TOS<type:#{type},metric:#{tos_metric}>"
         end
       end
+
+      # This class defines a specialized {Types::Array array} to handle series
+      # of {TosMetric TOS metrics}.
+      # @author Sylvain Daubert
       class ArrayOfTosMetric < Types::Array
         set_of TosMetric
       end
@@ -72,11 +76,21 @@ module PacketGen
           "Link<type:#{type},metric:#{metric},id:#{id},data:#{data}>"
         end
       end
+
+      # This class defines a specialized {Types::Array array} to handle series
+      # of {Link Links}.
+      # @author Sylvain Daubert
       class ArrayOfLink < Types::Array
         set_of Link
       end
 
       # This class handles LSA Router payloads.
+      #
+      # A LSA router payload is composed of:
+      # * a header (see methods inherited from {LSAHeader}),
+      # * a 16-bit flag word {#u16} ({Types::Int16}),
+      # * a 16-bit {#link_count} field ({Types::Int16}),
+      # * an array of {#links} ({ArrayOfLink}).
       # @author Sylvain Daubert
       class LSARouter < LSAHeader
         # @attribute u16
@@ -101,17 +115,24 @@ module PacketGen
       end
 
       # This class handles LSA Network payloads.
+      #
+      # A LSA network payload is composed of:
+      # * a header (see methods inherited from {LSAHeader}),
+      # * a 32-bit {#netmask} field ({IP::Addr}),
+      # * an array of router addresses ({#routers}, {IP::ArrayOfAddr}).
       # @author Sylvain Daubert
       class LSANetwork < LSAHeader
         # @!attribute netmask
         #  @return [IP::Addr]
         define_field :netmask, IP::Addr
-        # @attributes routers
+        # @!attribute routers
         #  List of routers in network
         #  @return [IP::ArrayOfAddr]
         define_field :routers, IP::ArrayOfAddr
       end
 
+      # This class handles external links in {LSAASExternal LSA AS-External payloads}.
+      # @author Sylvain Daubert
       class External < Types::Fields
         # @!attribute u8
         #  @return [Integer]
@@ -132,24 +153,33 @@ module PacketGen
         #  @return [Integer]
         define_bit_fields_on :u8, :e_flag, :tos, 7
       end
+
+      # This class defines a specialized {Types::Array array} to handle series
+      # of {External Externals}.
+      # @author Sylvain Daubert
       class ArrayOfExternal < Types::Array
         set_of External
       end
 
       # This class handles LSA AS-External payloads.
+      #
+      # A LSA network payload is composed of:
+      # * a header (see methods inherited from {LSAHeader}),
+      # * a 32-bit {#netmask} field ({IP::Addr}),
+      # * an array of external destinations ({#externals}, {ArrayOfExternal}).
       # @author Sylvain Daubert
       class LSAASExternal < LSAHeader
         # @!attribute netmask
         #  @return [IP::Addr]
         define_field :netmask, IP::Addr
-        # @attributes externals
+        # @!attribute externals
         #  List of external destinations
         #  @return [ArrayOfExternal]
         define_field :externals, ArrayOfExternal
       end
 
       # This class defines a specialized {Types::Array array} to handle series
-      # of {LSA LSAs}. It recognizes known LSA types and inferred correct type.
+      # of {LSA LSAs}. It recognizes known LSA types and infers correct type.
       # @author Sylvain Daubert
       class ArrayOfLSA < Types::Array
         set_of LSA

@@ -58,7 +58,7 @@ module PacketGen
       #   |                     Advertising Router                        |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #   |                              ...                              |
-      # This paylod is implemented has a unique field: {#lsrs}, which is an
+      # This paylod is implemented as a unique field: {#lsrs}, which is an
       # {ArrayOfLSR} object.
       # @author Sylvain Daubert
       class LSRequest < Base

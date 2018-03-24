@@ -23,6 +23,8 @@ module PacketGen
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #   |                              ...                              |
+      # This paylod is implemented as a unique field: {#lsas}, which is an
+      # {ArrayOfLSAHeader} object.
       # @author Sylvain Daubert
       class LSAck < Base
         # @!attribute lsas

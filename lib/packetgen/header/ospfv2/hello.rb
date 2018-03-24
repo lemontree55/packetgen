@@ -28,7 +28,7 @@ module PacketGen
       # A HELLO payload consists of:
       # * a {#network_mask} field ({IP::Addr}),
       # * a {#hello_interval} field ({Types::Int16}),
-      # * an {#options} field ({Options}),
+      # * an {#options} field ({Types::Int8}),
       # * a {#priority} field ({Types::Int8}),
       # * a {#dead_interval} field ({Types::Int32}),
       # * a {#designated_router} field ({IP::Addr}),
