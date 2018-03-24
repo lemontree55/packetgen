@@ -201,16 +201,16 @@ module PacketGen
 
       # Fixup IP header according to RFC 2328:
       # * set TOS field to 0xc0,
-      # * optionally sets destination address,
+      # * optionally set destination address,
       # * set TTL to 1 if destination is a mcast address.
       # This method may be called as:
-      #    # first method
+      #    # first way
       #    pkt.ospfv2.ospfize
-      #    # second method
+      #    # second way
       #    pkt.ospfize
       # @param [String,Symbol,nil] dst destination address. May be a dotted IP
-      #   address (by example '224.0.0.5') or a Symbol (:all_spf_routers or
-      #   :all_d_routers)
+      #   address (by example '224.0.0.5') or a Symbol (+:all_spf_routers+ or
+      #   +:all_d_routers+)
       # @return [void]
       def ospfize(dst: nil)
         ip = ip_header(self)
@@ -239,3 +239,4 @@ require_relative 'ospfv2/lsa'
 require_relative 'ospfv2/db_description'
 require_relative 'ospfv2/ls_request'
 require_relative 'ospfv2/ls_update'
+require_relative 'ospfv2/ls_ack'
