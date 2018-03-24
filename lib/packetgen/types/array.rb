@@ -40,6 +40,7 @@ module PacketGen
       def read(str)
         clear
         return self if str.nil?
+        return self if @counter and @counter.to_i == 0
         force_binary str
         klass = self.class.class_eval { @klass }
         while str.length > 0
