@@ -75,6 +75,12 @@ module PacketGen
         def to_a
           @fields.values
         end
+
+        # Return true if this address is a multicast one
+        # @return [Boolean]
+        def mcast?
+          self.a1 & 0xff00 == 0xff00
+        end
       end
 
       # Class to handle series of IPv6 addresses
