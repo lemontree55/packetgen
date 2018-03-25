@@ -105,7 +105,7 @@ module PacketGen
       # Helper class method to define an OSPFv3 options field.
       # @param [Base] hdr header on which define a OSPFv3 options field
       # @return [void]
-      # @!macro [attach] define_options
+      # @!macro [attach] define_ospfv3_options
       #  @!attribute options
       #    24-bit options field. Handle {#v6_opt}, {#e_opt}, {#x_opt},
       #    {#n_opt}, {#r_opt} and {#dc_opt}.
@@ -200,7 +200,7 @@ module PacketGen
   end
 end
 
-#require_relative 'ospfv3/hello'
+require_relative 'ospfv3/hello'
 #require_relative 'ospfv3/lsa_header'
 #require_relative 'ospfv3/lsa'
 #require_relative 'ospfv3/db_description'

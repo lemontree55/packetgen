@@ -141,5 +141,38 @@ module PacketGen
         end
       end
     end
+
+    describe OSPFv3 do
+      let(:packets) { PacketGen.read(OSPFv3_PCAP) }
+
+      describe OSPFv3::Hello do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[0].ospfv3
+            expect(ospf.type).to eq(1)
+            expect(ospf.body).to be_a(OSPFv3::Hello)
+
+            hello = ospf.body
+            expect(hello.interface_id).to eq(5)
+            expect(hello.priority).to eq(1)
+            expect(hello.options).to eq(0x000013)
+            expect(hello.r_opt?).to be(true)
+            expect(hello.e_opt?).to be(true)
+            expect(hello.v6_opt?).to be(true)
+            %w(x n dc).each do |attr|
+              expect(hello.send("#{attr}_opt?")).to be(false)
+            end
+            expect(hello.hello_interval).to eq(10)
+            expect(hello.dead_interval).to eq(40)
+            expect(hello.designated_router).to eq('0.0.0.0')
+            expect(hello.backup_designated_router).to eq('0.0.0.0')
+            expect(hello.neighbors.size).to eq(0)
+
+            expect(packets[1].ospfv3_hello.neighbors.size).to eq(1)
+            expect(packets[1].ospfv3_hello.neighbors[0].to_human).to eq('2.2.2.2')
+          end
+        end
+      end
+    end
   end
 end
