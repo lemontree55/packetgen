@@ -149,6 +149,7 @@ module PacketGen
         describe '#parse' do
           it 'parses a real packet' do
             ospf = packets[0].ospfv3
+            expect(ospf.version).to eq(3)
             expect(ospf.type).to eq(1)
             expect(ospf.body).to be_a(OSPFv3::Hello)
 
@@ -170,6 +171,59 @@ module PacketGen
 
             expect(packets[1].ospfv3_hello.neighbors.size).to eq(1)
             expect(packets[1].ospfv3_hello.neighbors[0].to_human).to eq('2.2.2.2')
+          end
+        end
+      end
+
+      #describe OSPFv3::LSAHeader do
+      #  describe '#calc_checksum' do
+      #    it 'calculates Fletcher-16 checksum' do
+      #      lsa = packets[5].ospfv3_lsupdate.lsas.first
+      #      checksum = lsa.checksum
+      #      lsa.checksum = 0xffff
+      #      lsa.calc_checksum
+      #      expect(lsa.checksum).to eq(checksum)
+      #    end
+      #  end
+      #end
+
+      describe OSPFv3::DbDescription do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[2].ospfv3
+            expect(ospf.type).to eq(2)
+            expect(ospf.body).to be_a(OSPFv3::DbDescription)
+
+            dbd = ospf.body
+            expect(dbd.options).to eq(0x13)
+            expect(dbd.mtu).to eq(1500)
+            expect(dbd.flags).to eq(2)
+            expect(dbd.seqnum).to eq(7494)
+            expect(dbd.lsas.size).to eq(7)
+            expect(dbd.lsas[0].age).to eq(39)
+            expect(dbd.lsas[0].type).to eq(0x2001)
+            expect(dbd.lsas[0].human_type).to eq('Router')
+            expect(dbd.lsas[0].link_state_id).to eq('0.0.0.0')
+            expect(dbd.lsas[0].advertising_router).to eq('1.1.1.1')
+            expect(dbd.lsas[0].seqnum).to eq(0x80000002)
+            expect(dbd.lsas[0].checksum).to eq(0xd13a)
+            expect(dbd.lsas[0].length).to eq(24)
+
+            expect(dbd.lsas[1].age).to eq(40)
+            expect(dbd.lsas[1].human_type).to eq('Inter-Area-Prefix')
+            expect(dbd.lsas[1].link_state_id).to eq('0.0.0.0')
+            expect(dbd.lsas[1].advertising_router).to eq('1.1.1.1')
+            expect(dbd.lsas[1].seqnum).to eq(0x80000001)
+            expect(dbd.lsas[1].checksum).to eq(0x0ebd)
+            expect(dbd.lsas[1].length).to eq(36)
+
+            expect(dbd.lsas[6].age).to eq(34)
+            expect(dbd.lsas[6].human_type).to eq('Intra-Area-Prefix')
+            expect(dbd.lsas[6].link_state_id).to eq('0.0.0.0')
+            expect(dbd.lsas[6].advertising_router).to eq('1.1.1.1')
+            expect(dbd.lsas[6].seqnum).to eq(0x80000001)
+            expect(dbd.lsas[6].checksum).to eq(0xe8d2)
+            expect(dbd.lsas[6].length).to eq(44)
           end
         end
       end

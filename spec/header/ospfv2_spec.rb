@@ -194,7 +194,7 @@ module PacketGen
             ospf = packets[2].ospfv2
             expect(ospf.type).to eq(2)
             expect(ospf.body).to be_a(OSPFv2::DbDescription)
-            
+
             dbd = ospf.body
             expect(dbd.mtu).to eq(1500)
             expect(dbd.options).to eq(2)
