@@ -227,6 +227,38 @@ module PacketGen
           end
         end
       end
+
+      describe OSPFv3::LSRequest do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[3].ospfv3
+            expect(ospf.type).to eq(3)
+            expect(ospf.body).to be_a(OSPFv3::LSRequest)
+            
+            lsr = ospf.body
+            expect(lsr.lsrs.size).to eq(6)
+            expected = [{ type: 'Router',
+                          link_state_id: '0.0.0.0',
+                          advertising_router: '2.2.2.2'},
+                          { type: 'Inter-Area-Prefix',
+                            link_state_id: '0.0.0.3',
+                            advertising_router: '2.2.2.2'},
+                          { type: 'Inter-Area-Prefix',
+                            link_state_id: '0.0.0.2',
+                            advertising_router: '2.2.2.2'},
+                          { type: 'Inter-Area-Prefix',
+                            link_state_id: '0.0.0.1',
+                            advertising_router: '2.2.2.2'},
+                          { type: 'Inter-Area-Prefix',
+                            link_state_id: '0.0.0.0',
+                            advertising_router: '2.2.2.2'},
+                          { type: 'Link',
+                            link_state_id: '0.0.0.5',
+                            advertising_router: '2.2.2.2'}]
+            expect(lsr.lsrs.map(&:to_h)).to eq(expected)
+          end
+        end
+      end
     end
   end
 end
