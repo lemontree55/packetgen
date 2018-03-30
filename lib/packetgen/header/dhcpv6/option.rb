@@ -3,6 +3,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# frozen_string_literal: true
+
 module PacketGen
   module Header
     class DHCPv6
@@ -119,7 +121,7 @@ module PacketGen
         # Get a human-readable string for this option
         # @return [String]
         def to_human
-          str = "#{human_type}:"
+          str = "#{human_type}:".dup
           if respond_to? :human_data and human_data.size > 0
             str << human_data
           elsif !self[:data].nil?

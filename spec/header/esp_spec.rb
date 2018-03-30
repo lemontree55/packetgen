@@ -199,7 +199,7 @@ module PacketGen
             key = [key.to_s(16)].pack('H*')
             salt = [0xe6971987.to_s(16)].pack('H*')
             cipher = get_cipher('gcm', :encrypt, key)
-            iv = "\xD9\xD2\x1F\xCE\xDA\xE0Uj"
+            iv = force_binary("\xD9\xD2\x1F\xCE\xDA\xE0Uj")
             black_pkt.esp.encrypt! cipher, iv, salt: salt, tfc: true, tfc_size: 1000
             expect(black_pkt.esp.to_s).to eq(esp_pkt.esp.to_s)
           end
@@ -220,7 +220,7 @@ module PacketGen
             pkt.esp.decrypt!(cipher, salt: salt, esn: 0)
 
             cipher = get_cipher('gcm', :encrypt, key)
-            iv = "\xAB\r\xE6M\x84E\xF7V"
+            iv = force_binary("\xAB\r\xE6M\x84E\xF7V")
             pkt.esp.encrypt! cipher, iv, salt: salt, esn: 0
             expect(pkt.to_s).to eq(expected_pkt.to_s)
           end

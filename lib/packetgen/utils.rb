@@ -2,6 +2,8 @@
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
+
+# frozen_string_literal: true
 require_relative 'config'
 require_relative 'utils/arp_spoofer'
 
@@ -135,10 +137,10 @@ module PacketGen
       my_mac = Config.instance.hwaddr(options[:iface])
       my_ip = Config.instance.ipaddr(options[:iface])
       capture = Capture.new(iface: options[:iface],
-                            filter: "((ip src #{target1} and not ip dst #{my_ip}) or" +
-                                    " (ip src #{target2} and not ip dst #{my_ip}) or"+
-                                    " (ip dst #{target1} and not ip src #{my_ip}) or"+
-                                    " (ip dst #{target2} and not ip src #{my_ip}))"+
+                            filter: "((ip src #{target1} and not ip dst #{my_ip}) or" \
+                                    " (ip src #{target2} and not ip dst #{my_ip}) or" \
+                                    " (ip dst #{target1} and not ip src #{my_ip}) or" \
+                                    " (ip dst #{target2} and not ip src #{my_ip}))" \
                                     " and ether dst #{my_mac}")
 
       spoofer.start_all

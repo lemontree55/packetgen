@@ -1,3 +1,10 @@
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
+# frozen_string_literal: true
+
 module PacketGen
   module Header
 
@@ -189,7 +196,7 @@ module PacketGen
           next if attr == :body
           case attr
           when :flags
-            str_flags = ''
+            str_flags = ''.dup
             %w(r v i).each do |flag|
               str_flags << (send("flag_#{flag}?") ? flag.upcase : '.')
             end

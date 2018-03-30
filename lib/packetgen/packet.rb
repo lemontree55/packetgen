@@ -3,6 +3,8 @@
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
+
+# frozen_string_literal: true
 require 'pcaprub'
 
 module PacketGen
@@ -377,7 +379,7 @@ module PacketGen
         if bindings.nil?
           bindings = prev_header.class.known_headers[header.class.superclass]
           if bindings.nil?
-            msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. "
+            msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. ".dup
             msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
             msg << "#{prev_header.method_name}_proto_field: "
             msg << "value_for_#{header.method_name})"

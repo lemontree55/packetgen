@@ -3,6 +3,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# frozen_string_literal: true
+
 module PacketGen
   module Header
     module HTTP
@@ -76,7 +78,7 @@ module PacketGen
           raise FormatError, "Missing #method."  if self.method.empty?
           raise FormatError, "Missing #path."    if self.path.empty?
           raise FormatError, "Missing #version." if self.version.empty?
-          str = "" # build 'dat string
+          str = "".dup # build 'dat string
           str << self[:method] << " " << self[:path] << " " << self[:version] << "\r\n" << self[:headers].to_s
         end
       end

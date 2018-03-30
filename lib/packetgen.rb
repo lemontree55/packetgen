@@ -3,6 +3,8 @@
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
+
+# frozen_string_literal: true
 require 'packetgen/version'
 
 # PacketGen is a network packet generator and analyzor.
@@ -64,7 +66,7 @@ module PacketGen
   # @param [String] str
   # @return [String] binary encoded string
   def self.force_binary(str)
-    str.force_encoding Encoding::BINARY
+    str.dup.force_encoding(Encoding::BINARY)
   end
 
   # Get default network interface (ie. first non-loopback declared interface)

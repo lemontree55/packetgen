@@ -3,6 +3,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# frozen_string_literal: true
+
 module PacketGen
 
   # {Inspect} module provides methods to help writing +inspect+
@@ -27,7 +29,7 @@ module PacketGen
 
     # @return [String]
     def self.shift_level(level=1)
-      '  ' + '  ' * level
+      '  ' * (level + 1)
     end
 
     # @param [#to_i] value

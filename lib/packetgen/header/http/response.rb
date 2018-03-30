@@ -3,6 +3,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# frozen_string_literal: true
+
 module PacketGen
   module Header
     module HTTP
@@ -100,7 +102,7 @@ module PacketGen
           raise FormatError, "Missing #status_code." if self.status_code.empty?
           raise FormatError, "Missing #status_mesg." if self.status_mesg.empty?
           raise FormatError, "Missing #version."     if self.version.empty? 
-          str = "" # build 'dat string
+          str = "".dup # build 'dat string
           str << self[:version] << " " << self[:status_code] << " " << self[:status_mesg] << "\r\n" 
           if self[:headers].given?
             str << self[:headers].to_s 
