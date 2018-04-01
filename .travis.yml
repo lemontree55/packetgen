@@ -1,11 +1,20 @@
 language: ruby
 sudo: required
 rvm:
-  - 2.2.10
-  - 2.3.7
-  - 2.4.4
-  - 2.5.1
+  - 2.2
+  - 2.3
+  - 2.4
+  - 2.5
 
+matrix:
+  # allow 2.5 to fail until Travis CI is fixed.
+  # See travis-ci/travis-ci#8969
+  allow_failures:
+  - rvm: 2.5
+
+before_install:
+  # work around https://github.com/travis-ci/travis-ci/issues/8969
+  - travis_retry gem update --system
 install:
   - sudo apt-get update -qq
   - sudo apt-get install libpcap-dev -qq
