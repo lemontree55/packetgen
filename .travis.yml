@@ -6,6 +6,12 @@ rvm:
   - 2.4
   - 2.5
 
+matrix:
+  # allow 2.5 to fail until Travis CI is fixed.
+  # See travis-ci/travis-ci#8969
+  allow_failures:
+  - rvm: 2.5
+
 before_install:
   # work around https://github.com/travis-ci/travis-ci/issues/8969
   - travis_retry gem update --system
