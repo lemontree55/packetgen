@@ -184,6 +184,15 @@ module PacketGen
       class ArrayOfLSA < Types::Array
         set_of LSA
         
+        # @param [Hash] options
+        # @option options [Types::Int] counter Int object used as a counter for this set
+        # @option options [Boolean] only_headers if +true+, only {LSAHeader LSAHeaders}
+        #  will be added to this array.
+        def initialize(options={})
+          super()
+          @only_headers = options[:only_headers] || false
+        end
+
         # Populate object from a string
         # @param [String] str
         # @return [self]
@@ -194,8 +203,10 @@ module PacketGen
           force_binary str
           while str.length > 0
             lsa = LSAHeader.new.read(str)
-            klass = get_lsa_class_by_human_type(lsa.human_type)
-            lsa = klass.new.read(str[0...lsa.length])
+            if !@only_headers
+              klass = get_lsa_class_by_human_type(lsa.human_type)
+              lsa = klass.new.read(str[0...lsa.length])
+            end
             self.push lsa
             str.slice!(0, lsa.sz)
             break if @counter and self.size == @counter.to_i
@@ -210,13 +221,17 @@ module PacketGen
             raise ArgumentError, "hash should have :type key"
           end
           
-          klass = case hsh[:type]
-                  when String
-                    get_lsa_class_by_human_type(hsh[:type])
-                  when Integer
-                    get_lsa_class_by_human_type(LSAHeader::TYPES.key(hsh[:type]))
+          klass = if @only_headers
+                    LSAHeader
                   else
-                    LSA
+                    case hsh[:type]
+                    when String
+                      get_lsa_class_by_human_type(hsh[:type])
+                    when Integer
+                      get_lsa_class_by_human_type(LSAHeader::TYPES.key(hsh[:type]))
+                    else
+                      LSA
+                    end
                   end
           klass.new(hsh)
         end
