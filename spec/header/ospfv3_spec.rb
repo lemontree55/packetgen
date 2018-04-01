@@ -175,17 +175,70 @@ module PacketGen
         end
       end
 
-      #describe OSPFv3::LSAHeader do
-      #  describe '#calc_checksum' do
-      #    it 'calculates Fletcher-16 checksum' do
-      #      lsa = packets[5].ospfv3_lsupdate.lsas.first
-      #      checksum = lsa.checksum
-      #      lsa.checksum = 0xffff
-      #      lsa.calc_checksum
-      #      expect(lsa.checksum).to eq(checksum)
-      #    end
-      #  end
-      #end
+      describe OSPFv3::LSAHeader do
+        let(:lsa) { packets[5].ospfv3_lsupdate.lsas.first }
+
+        describe '#calc_checksum' do
+          it 'calculates Fletcher-16 checksum' do
+            checksum = lsa.checksum
+            lsa.checksum = 0xffff
+            lsa.calc_checksum
+            expect(lsa.checksum).to eq(checksum)
+          end
+        end
+
+        describe '#calc_length' do
+          it 'calculates LSA length' do
+            lsa = OSPFv3::LSARouter.new
+            lsa.calc_length
+            expect(lsa.length).to eq(24)
+          end
+        end
+
+        describe '#to_human' do
+          it 'gives a human-readable string' do
+            expect(lsa.to_human).to eq('LSA<Link,0.0.0.5,2.2.2.2>')
+          end
+        end
+
+        describe '#to_lsa_header' do
+          it 'returns only header of a given LSA' do
+            lsah = lsa.to_lsa_header
+            expect(lsah).to be_a(OSPFv3::LSAHeader)
+            lsa_hash = lsa.to_h
+            lsa_hash.delete(:body)
+            expect(lsah.to_h).to eq(lsa_hash)
+          end
+        end
+      end
+
+      describe OSPFv3::ArrayOfLSA do
+        describe '#push' do
+          let(:ary) { OSPFv3::ArrayOfLSA.new }
+
+          it 'adds correct LSA class' do
+            ary << { type: 'Router' }
+            ary << { type: 'Network' }
+            ary << { type: 'Intra-Area-Prefix' }
+            ary << { type: 0x8008 }
+            result = ary.map(&:class)
+            expect(result).to eq([OSPFv3::LSARouter, OSPFv3::LSANetwork,
+                                  OSPFv3::LSAIntraAreaPrefix, OSPFv3::LSA])
+          end
+
+          it 'only adds headers when array was created with only_headers option' do
+            ary = OSPFv3::ArrayOfLSA.new(only_headers: true)
+            ary << { type: 'Router' }
+            ary << { type: 'Network' }
+            result = ary.map(&:class)
+            expect(result).to eq([OSPFv3::LSAHeader] * 2)
+          end
+
+          it 'raises if no type was given' do
+            expect { ary << {} }.to raise_error(ArgumentError)
+          end
+        end
+      end
 
       describe OSPFv3::DbDescription do
         describe '#parse' do
