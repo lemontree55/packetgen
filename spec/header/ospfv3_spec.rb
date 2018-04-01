@@ -175,6 +175,22 @@ module PacketGen
         end
       end
 
+      describe OSPFv3::IPv6Prefix do
+        describe '#from_human' do
+          it 'populates prefix from a string' do
+            prefix = OSPFv3::IPv6Prefix.new
+            prefix.from_human('2ac0:1::/60')
+            expect(prefix.length).to eq(60)
+            expect(prefix.options).to eq(0)
+            expect(prefix.prefix.map(&:to_i)).to eq([0x2ac0_0001, 0])
+
+            prefix.from_human('2ac0:1::')
+            expect(prefix.length).to eq(128)
+            expect(prefix.prefix.map(&:to_i)).to eq([0x2ac0_0001] + [0] * 3)
+          end
+        end
+      end
+
       describe OSPFv3::LSAHeader do
         let(:lsa) { packets[5].ospfv3_lsupdate.lsas.first }
 

@@ -74,11 +74,19 @@ module PacketGen
         # @return [void]
         def from_human(str)
           pfx, len = str.split('/')
+          len = (len || 128).to_i
           addr = IPv6::Addr.new.from_human(pfx)
           ary_size = (len + 31) / 32
-          ary = addr.to_a[0...ary_size]
-          ary.each { |v| self.prefix << v }
-          self.length = len || 128
+          ary = addr.to_a[0...ary_size*2]
+          self.prefix.clear
+          ary.each_with_index do |v, i|
+            if i % 2 == 0
+              self.prefix << v
+            else
+              self.prefix.last.value = (self.prefix.last.to_i << 16) | v.to_i
+            end
+          end
+          self.length = len
         end
       end
       
