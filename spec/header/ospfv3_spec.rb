@@ -256,6 +256,95 @@ module PacketGen
                             link_state_id: '0.0.0.5',
                             advertising_router: '2.2.2.2'}]
             expect(lsr.lsrs.map(&:to_h)).to eq(expected)
+            expect(lsr.lsrs[0].to_human).to eq('LSR<Router,0.0.0.0,2.2.2.2>')
+          end
+        end
+      end
+
+      describe OSPFv3::LSUpdate do
+        before(:each) do
+          @lsup = OSPFv3::LSUpdate.new
+          @lsup.lsas << { type: 'Router', age: 36, link_state_id: '0.0.0.1',
+                          advertising_router: '1.1.1.1', sequence_number: 1 }
+          @lsup.lsas << { type: 'Network', age: 36, link_state_id: '0.0.0.1',
+                          advertising_router: '1.1.1.1', sequence_number: 1 }
+        end
+
+        describe '#calc_checksum' do
+          it 'calculates checksum of all LSAs' do
+            expect(@lsup.lsas_count).to eq(2)
+
+            @lsup.calc_checksum
+            expect(@lsup.lsas[0].checksum).to_not eq(0)
+            expect(@lsup.lsas[1].checksum).to_not eq(0)
+          end
+        end
+
+        describe '#calc_length' do
+          it 'calculates length of all LSAs' do
+            @lsup.lsas[0].links << { type: 1, metric: 10, interface_id: 1,
+                                     neighbor_interface_id: 1,
+                                     neighbor_router_id: '1.1.1.1' }
+            @lsup.calc_length
+            expect(@lsup.lsas[0].length).to eq(40)
+            expect(@lsup.lsas[1].length).to eq(24)
+          end
+        end
+
+        describe '#parse' do
+          let(:ospf) { packets[4].ospfv3 }
+
+          it 'parses a real packet with a Router LSA' do
+            expect(ospf.type).to eq(4)
+            expect(ospf.body).to be_a(OSPFv3::LSUpdate)
+
+            lsu = ospf.body
+            expect(lsu.lsas_count).to eq(4)
+            expect(lsu.lsas.size).to eq(4)
+            lsa = lsu.lsas.last
+            expect(lsa.human_type).to eq('Router')
+            expect(lsa.flags).to eq(1)
+            expect(lsa.nt_flag?).to eq(false)
+            expect(lsa.v_flag?).to eq(false)
+            expect(lsa.e_flag?).to eq(false)
+            expect(lsa.b_flag?).to eq(true)
+            expect(lsa.options).to eq(0x33)
+            expect(lsa.dc_opt?).to eq(true)
+            expect(lsa.r_opt?).to eq(true)
+            expect(lsa.n_opt?).to eq(false)
+            expect(lsa.x_opt?).to eq(false)
+            expect(lsa.e_opt?).to eq(true)
+            expect(lsa.v6_opt?).to eq(true)
+            expect(lsa.links.size).to eq(1)
+            expect(lsa.links[0].to_human).to eq('Link<type:2,metric:10,id:5,neighbor_id:5,neighbor_router:1.1.1.1>')
+          end
+
+          it 'parses a real packet with a Network LSA' do
+            lsu = ospf.body
+            lsa = lsu.lsas.first
+            expect(lsa.human_type).to eq('Network')
+            expect(lsa.reserved).to eq(0)
+            expect(lsa.options).to eq(0x33)
+            expect(lsa.routers.size).to eq(2)
+            expect(lsa.routers[0].to_human).to eq('1.1.1.1')
+            expect(lsa.routers[1].to_human).to eq('2.2.2.2')
+          end
+
+          it 'parses a real packet with a Intra-Area-Prefix LSA' do
+            lsu = ospf.body
+            lsa = lsu.lsas[1]
+            expect(lsa.human_type).to eq('Intra-Area-Prefix')
+            expect(lsa.prefix_count).to eq(1)
+            expect(lsa.prefixes.size).to eq(1)
+            expect(lsa.ref_ls_type).to eq(0x2002)
+            expect(lsa.ref_link_state_id).to eq('0.0.0.5')
+            expect(lsa.ref_advertising_router).to eq('1.1.1.1')
+            expect(lsa.prefixes.first.length).to eq(64)
+            expect(lsa.prefixes.first.options).to eq(0)
+            expect(lsa.prefixes.first.reserved).to eq(0)
+            prefix = lsa.prefixes.first.prefix.map(&:to_i)
+            expect(prefix).to eq([0x20010db8, 0x12])
+            expect(lsa.prefixes.first.to_human).to eq('2001:db8:0:12::/64')
           end
         end
       end

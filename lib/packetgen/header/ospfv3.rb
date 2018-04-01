@@ -45,7 +45,7 @@ module PacketGen
     #   pkt.ospf    # => PacketGen::Header::OSPFv3
     #
     # == OSPFv3 attributes
-    #  ospf.version              # => 2
+    #  ospf.version              # => 3
     #  ospf.type = 'LS_ACK'      # or 5
     #  ospf.length = 154
     #  ospf.router_id = 0xc0a80001
@@ -200,10 +200,11 @@ module PacketGen
   end
 end
 
-require_relative 'ospfv3/hello'
+require_relative 'ospfv3/ipv6_prefix'
 require_relative 'ospfv3/lsa_header'
-#require_relative 'ospfv3/lsa'
+require_relative 'ospfv3/lsa'
+require_relative 'ospfv3/hello'
 require_relative 'ospfv3/db_description'
 require_relative 'ospfv3/ls_request'
-#require_relative 'ospfv3/ls_update'
+require_relative 'ospfv3/ls_update'
 #require_relative 'ospfv3/ls_ack'
