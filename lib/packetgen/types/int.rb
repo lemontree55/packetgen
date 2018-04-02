@@ -151,7 +151,7 @@ module PacketGen
       def to_s
         up8 = to_i >> 16
         down16 = to_i & 0xffff
-        if @endian == :little
+        if @endian == :big
           [up8, down16].pack('Cn')
         else
           [down16, up8].pack('vC')
