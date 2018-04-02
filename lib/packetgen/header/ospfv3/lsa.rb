@@ -146,6 +146,37 @@ module PacketGen
                      builder: ->(h, t) { t.new(counter: h[:prefix_count]) }
       end
 
+      # This class handles OSPFv3 LSA Link payloads.
+      #
+      # A Link payloads is composed of:
+      # * a 8-bit {#router_priority} field ({Types::Int8}),
+      # * a 24-bit {#options} field ({Types::Int24}),
+      # * a 128-bit IPv6 {#interface_addr} ({IPv6::Addr}),
+      # * a 32-bit {#prefix_count} field ({Types::Int32}),
+      # * and an array of {IPv6Prefix} ({#prefixes}, {ArrayOfIPv6Prefix}).
+      # @author Sylvain Daubert
+      class LSALink < LSAHeader
+        # @!attribute router_priority
+        #  The Router Priority of the interface attaching the originating
+        #  router to the link.
+        #  @return [Integer]
+        define_field :router_priority, Types::Int8
+        # @!macro define_ospfv3_options
+        OSPFv3.define_options(self)
+        # @!attribute interface_addr
+        #  The originating router's link-local interface address on the link.
+        #  @return [String]
+        define_field :interface_addr, IPv6::Addr
+        # @!attribute prefix_count
+        #  The number of IPv6 address prefixes contained in the LSA.
+        #  @return [Integer]
+        define_field :prefix_count, Types::Int32
+        # @!attribute prefixes
+        #  List of IPv6 prefixes to be associated with the link.
+        #  @return [ArrayOfIPv6Prefix]
+        define_field :prefixes, ArrayOfIPv6Prefix
+      end
+
       # This class defines a specialized {Types::Array array} to handle series
       # of {LSA LSAs} or {LSAHeader LSAHeaders}. It recognizes known LSA types
       # and infers correct type.

@@ -222,7 +222,9 @@ module PacketGen
             lsah = lsa.to_lsa_header
             expect(lsah).to be_a(OSPFv3::LSAHeader)
             lsa_hash = lsa.to_h
-            lsa_hash.delete(:body)
+            %i(router_priority options interface_addr prefix_count prefixes).each do |attr|
+              lsa_hash.delete(attr)
+            end
             expect(lsah.to_h).to eq(lsa_hash)
           end
         end
@@ -414,6 +416,27 @@ module PacketGen
             prefix = lsa.prefixes.first.prefix.map(&:to_i)
             expect(prefix).to eq([0x20010db8, 0x12])
             expect(lsa.prefixes.first.to_human).to eq('2001:db8:0:12::/64')
+          end
+
+          it 'parses a real packet with a Link LSA' do
+            ospf = packets[5].ospfv3
+            expect(ospf.human_type).to eq('LS_UPDATE')
+            lsu = packets[5].ospfv3_lsupdate
+            expect(lsu.lsas_count).to eq(1)
+            expect(lsu.lsas.size).to eq(1)
+
+            lsa = lsu.lsas.first
+            expect(lsa.checksum).to eq(0x350b)
+            expect(lsa.router_priority).to eq(1)
+            expect(lsa.options).to eq(0x33)
+            expect(lsa.interface_addr).to eq('fe80::2')
+            expect(lsa.prefix_count).to eq(1)
+            expect(lsa.prefixes.size).to eq(1)
+            expect(lsa.prefixes[0].length).to eq(64)
+            expect(lsa.prefixes[0].options).to eq(0)
+            ary = lsa.prefixes[0].prefix.map(&:to_i)
+            expect(ary).to eq([0x2001_0db8, 0x0000_0012])
+            expect(lsa.prefixes[0].to_human).to eq('2001:db8:0:12::/64')
           end
         end
       end

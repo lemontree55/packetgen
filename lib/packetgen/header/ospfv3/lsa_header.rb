@@ -76,9 +76,9 @@ module PacketGen
         # @return [Integer]
         def calc_checksum
           self.checksum = 0
+          bytes = to_s[2..-1].unpack('C*')
 
           c0 = c1 = 0
-          bytes = to_s[2..-1].unpack('C*')
           bytes.each do |byte|
             c0 += byte
             c1 += c0
@@ -88,7 +88,7 @@ module PacketGen
           
           x = ((sz - 16 - 1) * c0 - c1) % 255
           x += 255 if x <= 0
-          y = 255*2 - c0 - x
+          y = 255 * 2 - c0 - x
           y -= 255 if y > 255
           self.checksum = (x << 8) | y
         end
