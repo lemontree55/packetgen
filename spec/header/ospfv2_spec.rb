@@ -177,13 +177,38 @@ module PacketGen
       end
 
       describe OSPFv2::LSAHeader do
+        let(:lsa) { packets[5].ospfv2_lsupdate.lsas.first }
+
         describe '#calc_checksum' do
           it 'calculates Fletcher-16 checksum' do
-            lsa = packets[5].ospfv2_lsupdate.lsas.first
             checksum = lsa.checksum
             lsa.checksum = 0xffff
             lsa.calc_checksum
             expect(lsa.checksum).to eq(checksum)
+          end
+        end
+
+        describe '#calc_length' do
+          it 'calculates LSA length' do
+            lsa = OSPFv2::LSARouter.new
+            lsa.calc_length
+            expect(lsa.length).to eq(24)
+          end
+        end
+
+        describe '#to_human' do
+          it 'gives a human-readable string' do
+            expect(lsa.to_human).to eq('LSA<Network,192.168.170.8,192.168.170.8>')
+          end
+        end
+
+        describe '#to_lsa_header' do
+          it 'returns only header of a given LSA' do
+            lsah = lsa.to_lsa_header
+            expect(lsah).to be_a(OSPFv2::LSAHeader)
+            lsa_hash = lsa.to_h
+            %i(netmask routers).each { |sym| lsa_hash.delete(sym) }
+            expect(lsah.to_h).to eq(lsa_hash)
           end
         end
       end
