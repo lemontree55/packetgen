@@ -27,7 +27,8 @@ module PacketGen
         #  @return [Integer]
         define_field :length, Types::Int8
         # @!attribute options
-        #  Prefix capabilities
+        #  Prefix capabilities. See also capability bits: {#dn_opt}, {#p_opt},
+        #  {#la_opt} and {#nu_opt}.
         #  @return [Options]
         define_field :options, Types::Int8
         # @!attribute reserved
@@ -35,7 +36,7 @@ module PacketGen
         #  @return [Integer]
         define_field :reserved, Types::Int16
         # @!attribute prefix
-        #  IPv6 Prefix
+        #  IPv6 Prefix as an array of 32-bit words
         #  @return [Prefix]
         define_field :prefix, ArrayOfInt32
 

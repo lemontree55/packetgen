@@ -71,7 +71,7 @@ module PacketGen
         OSPFv3.define_options(self)
         # @attribute links
         #  @return [ArrayOfLink]
-        define_field :links, ArrayOfLink, builder: ->(h, t) { t.new(counter: h[:link_count]) }
+        define_field :links, ArrayOfLink
 
         # @!attribute nt_flag
         #  @return [Boolean]

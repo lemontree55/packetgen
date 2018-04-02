@@ -29,6 +29,38 @@ module PacketGen
       #   |                                                                |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
       #   |                              ...                               |
+      #
+      # A DB description payload is composed of:
+      # * a 8-bit {#zero} field ({Types::Int8}),
+      # * a 24-bit {#options} field ({Types::Int24}),
+      # * a 16-bit {#mtu} field ({Types::Int16}),
+      # * a 16-bit {#flags} field ({Types::Int16}). Supported flags are:
+      #   * {i_flag},
+      #   * {m_flag},
+      #   * {ms_flag},
+      # * a 32-bit {#sequence_number} field ({Types::Int32}),
+      # * and an array of {LSAHeader LSAHeaders} ({#lsas}, {ArrayOfLSA}).
+      #
+      # == Create a DbDescription payload
+      #   # standalone
+      #   dbd = PacketGen::Header::OSPFv3::DbDescription.new
+      #   # in a packet
+      #   pkt = PacketGen.gen('IPv6', src: source_ip).add('OSPFv3').add('OSPFv3::DbDescription')
+      #   # access to DbDescription payload
+      #   pkt.ospfv3_dbdescription    # => PacketGen::Header::OSPFv3::DbDescription
+      #
+      # == DbDescription attributes
+      #   dbd.zero = 0
+      #   # set options. Options may also be set one by one with #v6_opt, #e_opt,
+      #   # #n_opt, #r_opt and #dc_opt
+      #   dbd.options = 0x33
+      #   dbd.mtu = 1500
+      #   dbd.flags = 0
+      #   dbd.seqnum = 0x800001
+      #   # add a LSA Router header
+      #   dbd.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42, checksum: 0x1234, length: 56 }
+      #   # a header may also be set from an existing lsa
+      #   dbd.lsas << existing_lsa.to_lsa_header
       # @author Sylvain Daubert
       class DbDescription < Base
 
@@ -49,13 +81,13 @@ module PacketGen
         #  @return [Integer]
         define_field :flags, Types::Int16
         # @!attribute i_flag
-        #  Init bit
+        #  Init bit from {#flags} field
         #  @return [Boolean]
         # @!attribute m_flag
-        #  More bit
+        #  More bit from {#flags} field
         #  @return [Boolean]
         # @!attribute ms_flag
-        #  Master/Slave bit
+        #  Master/Slave bit from {#flags} field
         #  @return [Boolean]
         define_bit_fields_on :flags, :zz, 13, :i_flag, :m_flag, :ms_flag
 

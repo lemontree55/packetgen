@@ -24,11 +24,11 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # == About LSA headers
-      # LSA headers are used as-is in {DbDescription} payload. But this class
-      # is also a base class for different LSA class, as {LSARouter}.
+      # LSA headers are used as-is in {DbDescription} and {LSAck} payloads.
+      # But this class is also a base class for different LSA class, as {LSARouter}.
       # @author Sylvain Daubert
       class LSAHeader < Types::Fields
-        # LSA Types
+        # LSA known types
         TYPES = {
           'Router'            => 0x2001,
           'Network'           => 0x2002,
