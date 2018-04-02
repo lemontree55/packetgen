@@ -5,14 +5,14 @@
 
 module PacketGen
   module Header
-    class OSPFv2
+    class OSPFv3
 
-      # This class handles {OSPFv2 OSPFv2} LSA header. A LSA header has the
+      # This class handles {OSPFv3 OSPFv3} LSA header. A LSA header has the
       # following format:
       #   0                   1                   2                   3
       #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      #  |            LS age             |    Options    |    LS type    |
+      #  |           LS Age              |           LS Type             |
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #  |                        Link State ID                          |
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -24,29 +24,30 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # == About LSA headers
-      # LSA headers are used as-is in {DbDescription} payload. But this class
-      # is also a base class for different LSA class, as {LSARouter}.
+      # LSA headers are used as-is in {DbDescription} and {LSAck} payloads.
+      # But this class is also a base class for different LSA class, as {LSARouter}.
       # @author Sylvain Daubert
       class LSAHeader < Types::Fields
-        # LSA Types
+        # LSA known types
         TYPES = {
-          'Router'       => 1,
-          'Network'      => 2,
-          'Summary-IP'   => 3,
-          'Summary-ABSR' => 4,
-          'AS-External'  => 5
+          'Router'            => 0x2001,
+          'Network'           => 0x2002,
+          'Inter-Area-Prefix' => 0x2003,
+          'Inter-Area-Router' => 0x2004,
+          'AS-External'       => 0x4005,
+          'NSSA'              => 0x2007,
+          'Link'              => 0x0008,
+          'Intra-Area-Prefix' => 0x2009
         }
 
         # @!attribute age
         #  The time in seconds since the LSA was originated.
         #  @return [Integer]
         define_field :age, Types::Int16
-        # @!macro define_options
-        OSPFv2.define_options(self)
         # @!attribute type
         #  The type of the LSA.
         #  @return [Integer]
-        define_field :type, Types::Int8Enum, enum: TYPES
+        define_field :type, Types::Int16Enum, enum: TYPES
         # @!attribute link_state_id
         #  This field identifies the portion of the internet environment
         #  that is being described by the LSA.
@@ -87,7 +88,7 @@ module PacketGen
           
           x = ((sz - 16 - 1) * c0 - c1) % 255
           x += 255 if x <= 0
-          y = 255*2 - c0 - x
+          y = 255 * 2 - c0 - x
           y -= 255 if y > 255
           self.checksum = (x << 8) | y
         end

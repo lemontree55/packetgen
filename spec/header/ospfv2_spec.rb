@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
 
-PCAP = File.join(__dir__, 'ospfv2.pcapng')
+OSPFv2_PCAP = File.join(__dir__, 'ospfv2.pcapng')
 
 module PacketGen
   module Header
@@ -63,7 +63,7 @@ module PacketGen
         end
 
         it 'reads an OSPFv2 header from a real packet' do
-          raw_pkt             = PcapNG::File.new.read_packet_bytes(PCAP)[0]
+          raw_pkt             = PcapNG::File.new.read_packet_bytes(OSPFv2_PCAP)[0]
           pkt                 = Packet.parse(raw_pkt)
 
           expect(pkt.is? 'IP').to be(true)
@@ -85,7 +85,7 @@ module PacketGen
 
       describe '#calc_checksum' do
         it 'calculates OSPFv2 packet checksum' do
-          pkt                 = PcapNG::File.new.read_packets(PCAP)[0]
+          pkt                 = PcapNG::File.new.read_packets(OSPFv2_PCAP)[0]
           pkt.ospfv2.checksum = 0xffff
           pkt.calc_checksum
           expect(pkt.ospfv2.checksum).to eq(0x273b)
@@ -147,7 +147,7 @@ module PacketGen
     end
 
     describe OSPFv2 do
-      let(:packets) { PacketGen.read(PCAP) }
+      let(:packets) { PacketGen.read(OSPFv2_PCAP) }
 
       describe OSPFv2::Hello do
         describe '#parse' do
@@ -194,7 +194,7 @@ module PacketGen
             ospf = packets[2].ospfv2
             expect(ospf.type).to eq(2)
             expect(ospf.body).to be_a(OSPFv2::DbDescription)
-            
+
             dbd = ospf.body
             expect(dbd.mtu).to eq(1500)
             expect(dbd.options).to eq(2)
