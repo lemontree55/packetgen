@@ -31,7 +31,7 @@ module PacketGen
         # @!attribute lsas
         #  Array of {LSA LSAs}
         #  @return [ArrayOfLSA]
-        define_field :lsas, ArrayOfLSA, builder: ->(h, t) { t.new(count: h[:lsas_count]) }
+        define_field :lsas, ArrayOfLSA, builder: ->(h, t) { t.new(counter: h[:lsas_count]) }
         
         # Calculate checksums of all LSAs
         # @return [void]
