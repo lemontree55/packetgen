@@ -20,16 +20,16 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # It is composed of:
-      # * a 16-bit {#zero} field,
+      # * a 16-bit {#reserved} field,
       # * a 16-bit {#type} field,
       # * a 32-bit {#link_state_id} field,
       # * and a 32-bit {#advertising_router} field.
       # @author Sylvain Daubert
       class LSR < Types::Fields
-        # @!attribute zero
-        #  zero field.
+        # @!attribute reserved
+        #  reserved field.
         #  @return [Integer]
-        define_field :zero, Types::Int16, default: 0
+        define_field :reserved, Types::Int16, default: 0
         # @!attribute type
         #  The type of the LSA to request.
         #  @return [Integer]

@@ -13,9 +13,9 @@ module PacketGen
         # @!attribute type
         #  @return [Integer]
         define_field :type, Types::Int8
-        # @!attribute zero
+        # @!attribute reserved
         #  @return [Integer]
-        define_field :zero, Types::Int8, default: 0
+        define_field :reserved, Types::Int8, default: 0
         # @!attribute metric
         #  @return [Integer]
         define_field :metric, Types::Int16

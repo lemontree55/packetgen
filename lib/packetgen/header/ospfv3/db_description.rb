@@ -31,7 +31,7 @@ module PacketGen
       #   |                              ...                               |
       #
       # A DB description payload is composed of:
-      # * a 8-bit {#zero} field ({Types::Int8}),
+      # * a 8-bit {#reserved} field ({Types::Int8}),
       # * a 24-bit {#options} field ({Types::Int24}),
       # * a 16-bit {#mtu} field ({Types::Int16}),
       # * a 16-bit {#flags} field ({Types::Int16}). Supported flags are:
@@ -64,10 +64,10 @@ module PacketGen
       # @author Sylvain Daubert
       class DbDescription < Base
 
-        # @!attribute mtu
+        # @!attribute reserved
         #  8-bit zero field before {#options} one
         #  @return [Integer]
-        define_field :zero, Types::Int8, default: 0
+        define_field :reserved, Types::Int8, default: 0
 
         # @!macro define_options
         OSPFv3.define_options(self)

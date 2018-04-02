@@ -23,7 +23,7 @@ module PacketGen
           expect(ospf.area_id).to eq(0)
           expect(ospf.checksum).to eq(0)
           expect(ospf.instance_id).to eq(0)
-          expect(ospf.zero).to eq(0)
+          expect(ospf.reserved).to eq(0)
         end
 
         it 'accepts options' do
@@ -57,7 +57,7 @@ module PacketGen
           expect(ospf.area_id).to eq(0x090a0b0c)
           expect(ospf.checksum).to eq(0x0d0e)
           expect(ospf.instance_id).to eq(0x0f)
-          expect(ospf.zero).to eq(0x10)
+          expect(ospf.reserved).to eq(0x10)
         end
 
         it 'reads an OSPFv3 header from a real packet' do
@@ -309,23 +309,29 @@ module PacketGen
             lsr = ospf.body
             expect(lsr.lsrs.size).to eq(6)
             expected = [{ type: 'Router',
+                          reserved: 0,
                           link_state_id: '0.0.0.0',
                           advertising_router: '2.2.2.2'},
-                          { type: 'Inter-Area-Prefix',
-                            link_state_id: '0.0.0.3',
-                            advertising_router: '2.2.2.2'},
-                          { type: 'Inter-Area-Prefix',
-                            link_state_id: '0.0.0.2',
-                            advertising_router: '2.2.2.2'},
-                          { type: 'Inter-Area-Prefix',
-                            link_state_id: '0.0.0.1',
-                            advertising_router: '2.2.2.2'},
-                          { type: 'Inter-Area-Prefix',
-                            link_state_id: '0.0.0.0',
-                            advertising_router: '2.2.2.2'},
-                          { type: 'Link',
-                            link_state_id: '0.0.0.5',
-                            advertising_router: '2.2.2.2'}]
+                        { type: 'Inter-Area-Prefix',
+                          reserved: 0,
+                          link_state_id: '0.0.0.3',
+                          advertising_router: '2.2.2.2'},
+                        { type: 'Inter-Area-Prefix',
+                          reserved: 0,
+                          link_state_id: '0.0.0.2',
+                          advertising_router: '2.2.2.2'},
+                        { type: 'Inter-Area-Prefix',
+                          reserved: 0,
+                          link_state_id: '0.0.0.1',
+                          advertising_router: '2.2.2.2'},
+                        { type: 'Inter-Area-Prefix',
+                          reserved: 0,
+                          link_state_id: '0.0.0.0',
+                          advertising_router: '2.2.2.2'},
+                        { type: 'Link',
+                          reserved: 0,
+                          link_state_id: '0.0.0.5',
+                          advertising_router: '2.2.2.2'}]
             expect(lsr.lsrs.map(&:to_h)).to eq(expected)
             expect(lsr.lsrs[0].to_human).to eq('LSR<Router,0.0.0.0,2.2.2.2>')
           end

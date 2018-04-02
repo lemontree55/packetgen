@@ -29,7 +29,7 @@ module PacketGen
     # * an {#area_id} field ({Types::Int32}),
     # * a {#checksum} field ({Types::Int16}),
     # * an {#instance_id} field ({Types::Int8}),
-    # * a {#zero} field ({Types::Int8}),
+    # * a {#reserved} field ({Types::Int8}),
     # * and a {#body} ({Types::String}).
     #
     # == Create an OSPFv3 header
@@ -97,10 +97,10 @@ module PacketGen
       #  8-bit instance ID.
       #  @return [Integer]
       define_field :instance_id, Types::Int8
-      # @!attribute zero
-      #  8-bit zero field.
+      # @!attribute reserved
+      #  8-bit reserved field.
       #  @return [Integer]
-      define_field :zero, Types::Int8, default: 0
+      define_field :reserved, Types::Int8, default: 0
       # @!attribute body
       #  @return [String,Base]
       define_field :body, Types::String
