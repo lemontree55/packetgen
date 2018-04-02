@@ -25,6 +25,19 @@ module PacketGen
       #   |                              ...                              |
       # This paylod is implemented as a unique field: {#lsas}, which is an
       # {ArrayOfLSAHeader} object.
+      #
+      # == Create a LSAck payload
+      #   # standalone
+      #   lsack = PacketGen::Header::OSPFv2::LSAck.new
+      #   # in a packet
+      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::LSAck')
+      #   # access to LSAck payload
+      #   lasck = pkt.ospfv2_lsack    # => PacketGen::Header::OSPFv2::LSAck
+      #
+      # == Adding LSA headers to a LSAck payload
+      #   lsack.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42, checksum: 0x1234, length: 56 }
+      #   # a header may also be set from an existing lsa
+      #   lasck.lsas << existing_lsa.to_lsa_header
       # @author Sylvain Daubert
       class LSAck < Base
         # @!attribute lsas

@@ -22,6 +22,24 @@ module PacketGen
       # This paylod is implemented with two fields:
       # * {#lsas_count}, a {Types::Int32} field,
       # * and {#lsas}, an {ArrayOfLSA} object.
+      #
+      # == Create a LSUpdate payload
+      #   # standalone
+      #   lsu = PacketGen::Header::OSPFv2::LSUpdate.new
+      #   # in a packet
+      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::LSUpdate')
+      #   # make IP header correct for OSPF
+      #   pkt.ospfize
+      #   # access to LSUpdate payload
+      #   lsu = pkt.ospfv2_lsupdate    # => PacketGen::Header::OSPFv2::LSUpdate
+      #
+      # == Add LSAs to a LSUpdate payload
+      # Adding LSAs with {ArrayOfLSA#<< ArrayOfLSA#<<} automagically update
+      # {#lsas_count}. To not update it, use {ArrayOfLSA#push ArrayOfLSA#push}.
+      #   lsu.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42 }
+      #   lsu.lsas_count     #=> 1
+      #   # add a link to Router LSA
+      #   lsu.lsas.first.links << { type: 1, metric: 10, id: '1.1.1.1' }
       # @author Sylvain Daubert
       class LSUpdate < Base
         # @!attribute lsas_count

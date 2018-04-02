@@ -35,6 +35,27 @@ module PacketGen
       # * a {#backup_designated_router} field ({IP::Addr}),
       # * a {#neighbors} array containing neighbors as {IP::Addr}.
       #
+      # == Create a HELLO payload
+      #   # standalone
+      #   hello = PacketGen::Header::OSPFv2::Hello.new
+      #   # in a packet
+      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::Hello')
+      #   # make IP header correct for OSPF
+      #   pkt.ospfize
+      #   # access to Hello payload
+      #   pkt.ospfv2_hello    # => PacketGen::Header::OSPFv2::Hello
+      #
+      # == HELLO attributes
+      #   hello.network_mask = '255.255.255.0'
+      #   hello.hello_interval = 10
+      #   hello.options = 0
+      #   hello.priority = 1
+      #   hello.dead_interval = 300
+      #   hello.designated_router = '10.0.0.1'
+      #   hello.backup_designated_router = '0.0.0.0'
+      #   # set neighbors identifiers
+      #   hello.neighbors << '10.0.1.1'
+      #   hello.neighbors << '10.0.2.1'
       # @author Sylvain Daubert
       class Hello < Base
         # @!attribute network_mask

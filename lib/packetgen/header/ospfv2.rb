@@ -46,7 +46,7 @@ module PacketGen
     #   # or make it correct with specific destination address
     #   pkt.ospfize(dst: :all_spf_routers)
     #   # access to OSPF header
-    #   pkt.ospf    # => PacketGen::Header::OSPFv2
+    #   pkt.ospfv2    # => PacketGen::Header::OSPFv2
     #
     # == OSPFv2 attributes
     #  ospf.version              # => 2
@@ -59,7 +59,12 @@ module PacketGen
     #  ospf.authentication = 0
     #
     # == OSPFv2 body
-    # OSPFv2 {#body} should contain OSPF payload for given {#type}.
+    # OSPFv2 {#body} should contain OSPF payload for given {#type}:
+    # * {OSPFv2::Hello},
+    # * {OSPFv2::DbDescription},
+    # * {OSPFv2::LSRequest},
+    # * {OSPFv2::LSUpdate},
+    # * or {OSPFv2::LSAck}.
     #
     # @author Sylvain Daubert
     class OSPFv2 < Base

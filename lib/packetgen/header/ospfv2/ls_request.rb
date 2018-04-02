@@ -60,6 +60,19 @@ module PacketGen
       #   |                              ...                              |
       # This paylod is implemented as a unique field: {#lsrs}, which is an
       # {ArrayOfLSR} object.
+      #
+      # == Create a LSRequest payload
+      #   # standalone
+      #   lsr = PacketGen::Header::OSPFv2::LSRequest.new
+      #   # in a packet
+      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::LSRequest')
+      #   # make IP header correct for OSPF
+      #   pkt.ospfize
+      #   # access to LSRequest payload
+      #   pkt.ospfv2_lsrequest    # => PacketGen::Header::OSPFv2::LSRequest
+      #
+      # == Add LSA requests to a LSRequest
+      #   lsr.lsrs << { type: 'Router', link_state_id: '0.0.0.1', advertising_router: '1.1.1.1'}
       # @author Sylvain Daubert
       class LSRequest < Base
         # @!attribute lsrs

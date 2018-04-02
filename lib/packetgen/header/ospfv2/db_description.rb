@@ -27,6 +27,36 @@ module PacketGen
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #   |                              ...                              |
+      #
+      # A DB description payload is composed of:
+      # * a 16-bit {#mtu} field ({Types::Int16}),
+      # * a 8-bit {#options} field ({Types::Int8}),
+      # * a 8-bit {#flags} field ({Types::Int8}). Supported flags are:
+      #   * {i_flag},
+      #   * {m_flag},
+      #   * {ms_flag},
+      # * a 32-bit {#sequence_number} field ({Types::Int32}),
+      # * and an array of {LSAHeader LSAHeaders} ({#lsas}, {ArrayOfLSA}).
+      #
+      # == Create a DbDescription payload
+      #   # standalone
+      #   dbd = PacketGen::Header::OSPFv2::DbDescription.new
+      #   # in a packet
+      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::DbDescription')
+      #   # access to DbDescription payload
+      #   pkt.ospfv2_dbdescription    # => PacketGen::Header::OSPFv2::DbDescription
+      #
+      # == DbDescription attributes
+      #   dbd.mtu = 1500
+      #   # set options. Options may also be set one by one with {#mt_opt},
+      #   # {#e_opt}, {#mc_opt}, {#n_opt}, {#l_opt}, {#dc_opt}, {#o_opt} and {#dn_opt}
+      #   dbd.options = 0
+      #   dbd.flags = 0
+      #   dbd.seqnum = 0x800001
+      #   # add a LSA Router header
+      #   dbd.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42, checksum: 0x1234, length: 56 }
+      #   # a header may also be set from an existing lsa
+      #   dbd.lsas << existing_lsa.to_lsa_header
       # @author Sylvain Daubert
       class DbDescription < Base
         # @!attribute mtu
