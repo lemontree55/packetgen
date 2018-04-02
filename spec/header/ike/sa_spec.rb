@@ -92,7 +92,7 @@ module PacketGen
 
       describe Transform do
         before(:each) do
-          @str = "\x03\x00\x00\f\x01\x00\x00\x14\x80\x0E\x01\x00"
+          @str = force_binary("\x03\x00\x00\f\x01\x00\x00\x14\x80\x0E\x01\x00")
           @trans = Transform.new.read(@str)
         end
 

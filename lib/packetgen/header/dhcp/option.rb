@@ -3,6 +3,9 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# frozen_string_literal: true
+
+
 module PacketGen
   module Header
     class DHCP

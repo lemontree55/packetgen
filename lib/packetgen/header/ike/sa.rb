@@ -1,4 +1,11 @@
 # coding: utf-8
+# This file is part of PacketGen
+# See https://github.com/sdaubert/packetgen for more informations
+# Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
+# This program is published under MIT license.
+
+# frozen_string_literal: true
+
 module PacketGen
   module Header
     class IKE
@@ -274,7 +281,7 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          h = "#{human_type}(#{human_id}"
+          h = "#{human_type}(#{human_id}".dup
           h << ",#{attributes.to_human}" if attributes.size > 0
           h << ')'
         end
@@ -449,7 +456,7 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          str = "##{num} #{human_protocol}"
+          str = "##{num} #{human_protocol}".dup
           case spi_size
           when 4
             str << "(spi:0x%08x)" % Types::Int32.new.read(spi).to_i
