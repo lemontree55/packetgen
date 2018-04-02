@@ -70,7 +70,7 @@ module PacketGen
         # @!attribute lsas
         #  Array of LSA headers
         #  @return [ArrayOfLSAHeader]
-        define_field :lsas, ArrayOfLSAHeader
+        define_field :lsas, ArrayOfLSA, builder: ->(h,t) { t.new(only_headers: true) }
       end
     end
 

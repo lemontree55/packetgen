@@ -440,6 +440,23 @@ module PacketGen
           end
         end
       end
+
+      describe OSPFv3::LSAck do
+        describe '#parse' do
+          it 'parses a real packet' do
+            ospf = packets[6].ospfv3
+            expect(ospf.type).to eq(5)
+            expect(ospf.body).to be_a(OSPFv3::LSAck)
+
+            lsack = ospf.body
+            expect(lsack.lsas.size).to eq(6)
+            lsack.lsas.each { |lsa| expect(lsa).to be_a(OSPFv3::LSAHeader) }
+            
+            types = lsack.lsas.map(&:human_type)
+            expect(types).to eq(%w(Router) + %w(Inter-Area-Prefix) * 4 + %w(Link))
+          end
+        end
+      end
     end
   end
 end

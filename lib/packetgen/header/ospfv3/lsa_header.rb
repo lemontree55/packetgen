@@ -116,13 +116,6 @@ module PacketGen
           LSAHeader.new(self.to_h)
         end
       end
-
-      # This class defines a specialized {Types::Array array} to handle series
-      # of {LSAHeader LSA headers}.
-      # @author Sylvain Daubert
-      class ArrayOfLSAHeader < Types::Array
-        set_of LSAHeader
-      end
     end
   end
 end
