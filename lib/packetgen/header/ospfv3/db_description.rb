@@ -50,7 +50,7 @@ module PacketGen
       #   pkt.ospfv3_dbdescription    # => PacketGen::Header::OSPFv3::DbDescription
       #
       # == DbDescription attributes
-      #   dbd.zero = 0
+      #   dbd.reserved = 0
       #   # set options. Options may also be set one by one with #v6_opt, #e_opt,
       #   # #n_opt, #r_opt and #dc_opt
       #   dbd.options = 0x33
