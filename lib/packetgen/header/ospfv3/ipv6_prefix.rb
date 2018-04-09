@@ -8,12 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-      # Array of 32-bit words.
-      # @author Sylvain Daubert
-      class ArrayOfInt32 < Types::Array
-        set_of Types::Int32
-      end
-
       # This class handles IPv6 prefixes, as defined in RFC 5340 §A.4.1.
       # A IPv6 prefix consists of:
       # * a 8-bit {#length} field (length of the prefix, in bits),
@@ -39,7 +33,7 @@ module PacketGen
         # @!attribute prefix
         #  IPv6 Prefix as an array of 32-bit words
         #  @return [Prefix]
-        define_field :prefix, ArrayOfInt32
+        define_field :prefix, Types::ArrayOfInt32
 
         # @!attribute dn_opt
         #  This bit controls an inter-area-prefix-LSAs or AS-external-LSAs
