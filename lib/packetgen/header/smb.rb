@@ -149,8 +149,40 @@ module PacketGen
                            :flags2_is_long_name, :flags2_rsv,
                            :flags2_security_signature_required, :flags2_compresses,
                            :flags2_signature, :flags2_eas, :flags2_long_names
+
+      # Common blocks used for unsupported SMB messages.
+      #
+      # {Blocks} handles parameter block and data block. Parameter block is
+      # composed of:
+      # * a 8-bit {#word_count} field,
+      # * a {#words} field, an array of {Types::Int16le}.
+      # Data block is composed of:
+      # * a 16-bit {#byte_count} field,
+      # * a {#bytes} field, an array of {Types::Int8}.
+      # @author Sylvain Daubert
+      class Blocks < Base
+        # @!attribute word_count
+        #  The size, in 2-byte words, of the {#words} field.
+        #  @return [Integer]
+        define_field :word_count, Types::Int8
+        # @!attribute words
+        #  The message-specific parameters structure.
+        #  @return [Types::ArrayOfInt16le]
+        define_field :words, Types::ArrayOfInt16le, builder: ->(h,t) { t.new(counter: h[:word_count]) }
+        # @!attribute byte_count
+        #  The size, in 2 bytes, of the {#bytes} field.
+        #  @return [Integer]
+        define_field :byte_count, Types::Int16le
+        # @!attribute bytes
+        #  The message-specific data structure.
+        #  @return [Types::ArrayOfInt8]
+        define_field :bytes, Types::ArrayOfInt8, builder: ->(h,t) { t.new(counter: h[:byte_count]) }
+      end
     end
     self.add_class SMB
+    self.add_class SMB::Blocks
+
     NetBIOS::Session.bind_header SMB, body: ->(val) { val.nil? ? SMB::MARKER : val[0..3] == SMB::MARKER }
+    SMB.bind_header SMB::Blocks
   end
 end
