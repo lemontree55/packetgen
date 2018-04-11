@@ -14,7 +14,8 @@ matrix:
 
 before_install:
   # work around https://github.com/travis-ci/travis-ci/issues/8969
-  - travis_retry gem update --system
+  - gem update --system
+  - gem install bundler
 install:
   - sudo apt-get update -qq
   - sudo apt-get install libpcap-dev -qq
