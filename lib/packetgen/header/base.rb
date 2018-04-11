@@ -151,7 +151,8 @@ module PacketGen
       #   Header1.bind_header Header3, field1: 43, field2: 43
       #   Header1.bind_header Header4, op: :and, field1: 43, field2: 43
       #   Header1.bind_header Header5, field1: ->(v) { v.nil? ? 128 : v > 127 }
-      #   Header1.bind_header Header6, proc: ->(pkt) { pkt.header1.field1 == 1 && pkt.header1.body[0..1] == "\x00\x00" }
+      #   Header1.bind_header Header6, procs: [->(hdr) { hdr.field1 = 1 }
+      #                                        ->(hdr) { hdr.field1 == 1 && hdr.body[0..1] == "\x00\x00" }]
       # @param [Class] header_klass header class to bind to current class
       # @param [Hash] args current class fields and their value when +header_klass+
       #  is embedded in current class. Given value may be a lambda, whose alone argument
@@ -162,6 +163,10 @@ module PacketGen
       #  operation on this binding. By default, +:op+ is +:or+ (at least one binding
       #  must match to parse it). It also may be set to +:and+ (all bindings must match
       #  to parse it).
+      #  
+      #  Special key +procs+ may be used to set 2 lambdas, the former to set
+      #  fields, the former to check bindings. This may be used when multiple and
+      #  non-trivial checks should be made.
       # @return [void]
       def self.bind_header(header_klass, args={})
         op = args.delete(:op) || :or
