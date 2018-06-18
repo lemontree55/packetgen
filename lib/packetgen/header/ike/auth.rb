@@ -138,7 +138,7 @@ module PacketGen
                Transform::PRF_HMAC_SHA2_256, Transform::PRF_HMAC_SHA2_384,
                Transform::PRF_HMAC_SHA2_512
             digestname = Transform.constants.grep(/PRF_/).
-                         select { |c| Transform.const_get(c) == type }.first.
+                         detect { |c| Transform.const_get(c) == type }.
                          to_s.sub(/^PRF_HMAC_/, '').sub(/2_/, '')
             digest = OpenSSL::Digest.const_get(digestname).new
           else
