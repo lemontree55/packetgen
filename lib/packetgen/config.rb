@@ -26,7 +26,7 @@ module PacketGen
       begin
         default_iface = Pcap.lookupdev
       rescue PCAPRUB::BindingError
-        default_iface = NetworkInterface.interfaces.select { |i| i =~ /lo/ }.first
+        default_iface = NetworkInterface.interfaces.detect { |i| i =~ /lo/ }
       end
       @default_iface = default_iface
       @hwaddr = {}

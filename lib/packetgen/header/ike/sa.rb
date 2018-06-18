@@ -83,8 +83,7 @@ module PacketGen
         # @return [String]
         def to_human
           name = self.class.constants.grep(/TYPE_/).
-                 select { |c| self.class.const_get(c) == (type & 0x7fff) }.
-                 first || "attr[#{type & 0x7fff}]"
+                  detect { |c| self.class.const_get(c) == (type & 0x7fff) } || "attr[#{type & 0x7fff}]"
           name = name.to_s.sub(/TYPE_/, '')
           "#{name}=#{value}"
         end
@@ -300,8 +299,7 @@ module PacketGen
         # @return [String]
         def human_id
           name = self.class.constants.grep(/#{human_type}_/).
-                 select { |c| self.class.const_get(c) == id }.
-                 first || "ID=#{id}"
+                 detect { |c| self.class.const_get(c) == id } || "ID=#{id}"
            name.to_s.sub(/#{human_type}_/, '')
         end
 
@@ -470,8 +468,7 @@ module PacketGen
         # @return [String]
         def human_protocol
           name = IKE.constants.grep(/PROTO/).
-                 select { |c| IKE.const_get(c) == protocol }.
-                 first || "proto #{protocol}"
+                 detect { |c| IKE.const_get(c) == protocol } || "proto #{protocol}"
           name.to_s.sub(/PROTO_/, '')
         end
 
