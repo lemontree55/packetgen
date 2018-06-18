@@ -149,8 +149,7 @@ module PacketGen
         # @return [String]
         def human_protocol
           name = IKE.constants.grep(/PROTO/).
-                 select { |c| IKE.const_get(c) == protocol }.
-                 first || "proto #{protocol}"
+                 detect { |c| IKE.const_get(c) == protocol } || "proto #{protocol}"
           name.to_s.sub(/PROTO_/, '')
         end
 
