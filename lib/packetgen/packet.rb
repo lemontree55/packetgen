@@ -179,7 +179,7 @@ module PacketGen
     # Recalculate all packet checksums
     # @return [void]
     def calc_checksum
-      @headers.reverse.each do |header|
+      @headers.reverse_each do |header|
         header.calc_checksum if header.respond_to? :calc_checksum
       end
     end
