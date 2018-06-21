@@ -4,5 +4,6 @@
 # This program is published under MIT license.
 
 require_relative 'http/headers'
+require_relative 'http/verbs'
 require_relative 'http/response'
 require_relative 'http/request'
