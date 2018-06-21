@@ -8,7 +8,7 @@
 module PacketGen
   module Header
     module HTTP
-      # An HTTP/1.1 Request packet consits of:
+      # An HTTP/1.1 Request packet consists of:
       # * the http method ({Types::String}).
       # * the path ({Types::String}).
       # * the version ({Types::String}).
@@ -61,8 +61,10 @@ module PacketGen
         # Read in the HTTP portion of the packet, and parse it. 
         # @return [PacketGen::HTTP::Request]
         def read(str)
-          # prepare data to parse
-          str = str.split("\n").map(&:strip).reject(&:empty?)
+          str = str.chars.select(&:valid_encoding?).join unless str.valid_encoding? 
+          vrb = HTTP::VERBS.detect { |verb| str.include?(verb) }
+          str = vrb + str.split(vrb)[-1]
+          str = str.split("\n").map(&:strip).reject! { |x| x.empty? || x.size <= 1 }
           first_line = str.shift.split
           self[:method]  = first_line[0]
           self[:path]    = first_line[1]
@@ -85,6 +87,6 @@ module PacketGen
     end
 
     self.add_class HTTP::Request 
-    TCP.bind_header HTTP::Request, body: ->(b) { /^(CONNECT|DELETE|GET|HEAD|OPTIONS|PATCH|POST|PUT)/ =~ b }
+    TCP.bind_header HTTP::Request, body: ->(b) { /(CONNECT|DELETE|GET|HEAD|OPTIONS|PATCH|POST|PUT)/ =~ b.chars.select(&:valid_encoding?).join }
   end
 end
