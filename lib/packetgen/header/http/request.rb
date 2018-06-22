@@ -47,6 +47,9 @@ module PacketGen
         #   associated http/1.1 headers
         #   @return [HTTP::Headers]
         define_field :headers, HTTP::Headers 
+        # @!attribute body 
+        #   @return [Types::String]
+        define_field :body, Types::String
 
         # @param [Hash] options
         # @option options [String] :method
@@ -61,16 +64,23 @@ module PacketGen
         # Read in the HTTP portion of the packet, and parse it. 
         # @return [PacketGen::HTTP::Request]
         def read(str)
-          str = str.chars.select(&:valid_encoding?).join unless str.valid_encoding? 
+          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
           vrb = HTTP::VERBS.detect { |verb| str.include?(verb) }
           str = vrb + str.split(vrb)[-1]
-          str = str.split("\n").map(&:strip).reject! { |x| x.empty? || x.size <= 1 }
+          str = str.split("\n").map(&:strip)
           first_line = str.shift.split
           self[:method]  = first_line[0]
           self[:path]    = first_line[1]
           self[:version] = first_line[2]
-          headers = str.join("\n")
+          # requests can sometimes have a payload
+          if data_index = str.find_index("")
+            data    = str[data_index+1..-1].join("\n")
+            headers = str[0..data_index-1].join("\n")
+          else
+            headers = str.join("\n")
+          end
           self[:headers].read(headers)
+          self[:body] = data
           self
         end
 
@@ -81,12 +91,12 @@ module PacketGen
           raise FormatError, "Missing #path."    if self.path.empty?
           raise FormatError, "Missing #version." if self.version.empty?
           str = "".dup # build 'dat string
-          str << self[:method] << " " << self[:path] << " " << self[:version] << "\r\n" << self[:headers].to_s
+          str << self[:method] << " " << self[:path] << " " << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
         end
       end
     end
 
     self.add_class HTTP::Request 
-    TCP.bind_header HTTP::Request, body: ->(b) { /(CONNECT|DELETE|GET|HEAD|OPTIONS|PATCH|POST|PUT)/ =~ b.chars.select(&:valid_encoding?).join }
+    TCP.bind_header HTTP::Request, body: ->(b) { HTTP::REQUEST_REGEX =~ b.chars.select(&:valid_encoding?).join }
   end
 end
