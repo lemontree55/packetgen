@@ -40,9 +40,7 @@ module PacketGen
           return "\r\n" if @data.nil? || @data.empty?
           d = []
           @data.map do |k, v|
-            str = ""
-            str << k << ": " << v
-            d << str
+            d << k + ": " + v
           end
           d.join("\r\n") << "\r\n\r\n"
         end
