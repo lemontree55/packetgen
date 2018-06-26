@@ -67,7 +67,7 @@ module PacketGen
         # Read in the HTTP portion of the packet, and parse it. 
         # @return [PacketGen::HTTP::Response]
         def read(str)
-          str     = str.chars.select(&:valid_encoding?).join unless str.valid_encoding?
+          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
           arr     = str.split("\r\n")
           headers = [] # header stream
           data    = [] # data stream
