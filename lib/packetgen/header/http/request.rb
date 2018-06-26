@@ -67,7 +67,7 @@ module PacketGen
           str = str.bytes.map!(&:chr).join unless str.valid_encoding?
           vrb = HTTP::VERBS.detect { |verb| str.include?(verb) }
           str = vrb + str.split(vrb)[-1]
-          str = str.split("\n").map(&:strip)
+          str = str.split("\n").map(&:chomp)
           first_line = str.shift.split
           self[:method]  = first_line[0]
           self[:path]    = first_line[1]
