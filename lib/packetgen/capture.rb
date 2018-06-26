@@ -5,6 +5,8 @@
 
 # frozen_string_literal: true
 
+require 'interfacez'
+
 module PacketGen
 
   # Capture packets from wire
@@ -42,11 +44,7 @@ module PacketGen
     #    each packet.
     # @since 2.0.0 remove old 1.x API
     def initialize(options={})
-      begin
-        @iface = Pcap.lookupdev
-      rescue PCAPRUB::BindingError
-        @iface = 'lo'
-      end
+      @iface = Interfacez.default || Interfacez.loopback
 
       @packets     = []
       @raw_packets = []
