@@ -65,6 +65,14 @@ module PacketGen
             expect(http_req.version).to eq("HTTP/1.1") 
             expect(http_req.headers).to eq({"User-Agent" => "dummy/1.0"}) 
           end
+          it 'parses weird http request data from a string with invalid encoding' do
+            http_req.read("GET / HTTP/1.1\r\nUser-Agent: dummy/1.0\r\n\r\n\r\xD1")
+            expect(http_req.method).to eq("GET") 
+            expect(http_req.path).to eq("/") 
+            expect(http_req.version).to eq("HTTP/1.1") 
+            expect(http_req.headers).to eq({"User-Agent" => "dummy/1.0"}) 
+            expect(http_req.body.bytes).to eq("\r\xD1".bytes) 
+          end
         end
 
         describe '#inspect' do
