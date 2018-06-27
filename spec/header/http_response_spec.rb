@@ -73,6 +73,14 @@ module PacketGen
             expect(http_resp.status_mesg).to eq("OK")
             expect(http_resp.headers).to eq({"Host"=>"tcpdump.org", "dogs"=>"lol"})
           end
+          it 'parses weird http response data from a string with invalid encoding' do
+            http_resp.read("HTTP/1.1 200 OK\r\nHost: tcpdump.org\r\ndogs: lol\r\n\r\n\r\xD1")	
+            expect(http_resp.version).to eq("HTTP/1.1")
+            expect(http_resp.status_code).to eq("200")
+            expect(http_resp.status_mesg).to eq("OK")
+            expect(http_resp.headers).to eq({"Host"=>"tcpdump.org", "dogs"=>"lol"})
+            expect(http_resp.body.bytes).to eq("\r\xD1".bytes)
+          end
         end
 
         describe '#inspect' do

@@ -24,9 +24,10 @@ module PacketGen
           case s_or_h
           when String
             @data = s_or_h.split("\n").map do |h| 
+              next unless h.include?(":")
               k, v = h.split(":", 2)
               [k, v.strip] 
-            end.to_h
+            end.reject(&:nil?).to_h
           when Hash
             @data = s_or_h
           end
@@ -39,9 +40,7 @@ module PacketGen
           return "\r\n" if @data.nil? || @data.empty?
           d = []
           @data.map do |k, v|
-            str = ""
-            str << k << ": " << v
-            d << str
+            d << k + ": " + v
           end
           d.join("\r\n") << "\r\n\r\n"
         end

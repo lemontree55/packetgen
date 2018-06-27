@@ -8,7 +8,7 @@
 module PacketGen
   module Header
     module HTTP
-      # An HTTP/1.1 Response packet consits of:
+      # An HTTP/1.1 Response packet consists of:
       # * the version ({Types::String}).
       # * the status code ({Types::String}).
       # * the status message ({Types::String}).
@@ -67,7 +67,7 @@ module PacketGen
         # Read in the HTTP portion of the packet, and parse it. 
         # @return [PacketGen::HTTP::Response]
         def read(str)
-          # prepare data to parse
+          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
           arr     = str.split("\r\n")
           headers = [] # header stream
           data    = [] # data stream
@@ -113,6 +113,6 @@ module PacketGen
     end
 
     self.add_class HTTP::Response
-    TCP.bind_header HTTP::Response, body: ->(b) { /^HTTP\/1\.1\s\d{3,}\s.+/ =~ b }
+    TCP.bind_header HTTP::Response, body: ->(b) { /^HTTP\/1\.1\s\d{3,}\s.+/ =~ b.chars.select(&:valid_encoding?).join }
   end
 end
