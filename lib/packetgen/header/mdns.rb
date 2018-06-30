@@ -65,7 +65,7 @@ module PacketGen
       #       directly called
       def added_to_packet(packet)
         mdns_idx = packet.headers.size
-        packet.instance_eval "def mdnsize(**kwargs) @headers[#{mdns_idx}].mdnsize(**kwargs); end"
+        packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end"
       end
     end
     
