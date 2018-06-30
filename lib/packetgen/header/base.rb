@@ -288,6 +288,19 @@ module PacketGen
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
         iph
       end
+
+      # @api private
+      # Get link layer header from given header
+      # @param [Header] header
+      # @return [Header]
+      # @raise FormatError no link layer header in packet
+      # @raise FormatError +header+ not in a packet
+      def ll_header(header)
+        hid = header_id(header)
+        llh = packet.headers[0...hid].reverse.find { |h| h.is_a? Eth or h.is_a? Dot11 }
+        raise FormatError, 'no link layer header in packet' if llh.nil?
+        llh
+      end
     end
   end
 end

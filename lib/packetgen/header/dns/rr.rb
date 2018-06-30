@@ -55,7 +55,8 @@ module PacketGen
         def human_rdata
           str = self[:rdata].inspect
 
-          if self.rrclass == CLASSES['IN']
+          # Need to mask: mDNS uses leftmost bit as a flag (CACHE FLUSH)
+          if self.rrclass & 0x7fff == CLASSES['IN']
             case type
             when TYPES['A'], TYPES['AAAA']
               str = IPAddr.new_ntoh(self[:rdata]).to_s
@@ -63,7 +64,7 @@ module PacketGen
           end
 
           name = Name.new
-          name.dns = @dns
+          name.dns = self[:name].dns
           case type
           when TYPES['NS'], TYPES['PTR'], TYPES['CNAME']
             str = name.read(self[:rdata]).to_human
@@ -81,9 +82,27 @@ module PacketGen
             pref = Types::Int16.new.read(self[:rdata][0, 2])
             exchange = name.read(self[:rdata][2..-1]).to_human
             str = '%u %s' % [pref.to_i, exchange]
+          when TYPES['SRV']
+            priority = Types::Int16.new.read(self[:rdata][0, 2])
+            weight = Types::Int16.new.read(self[:rdata][2, 2])
+            port = Types::Int16.new.read(self[:rdata][4, 2])
+            target = name.read(self[:rdata][6, self[:rdata].size]).to_human
+            str = "#{priority.to_i} #{weight.to_i} #{port.to_i} #{target}"
           end
 
           str
+        end
+
+        def human_rrclass
+        # Get human readable class
+        # @return [String]
+          if self[:name].dns.is_a? MDNS
+            str = self.class::CLASSES.key(self.rrclass & 0x7fff) || "0x%04x" % (self.rrclass & 0x7fff)
+            str += ' CACHE-FLUSH' if self.rrclass & 0x8000 > 0
+            str
+          else
+            self.class::CLASSES.key(self.rrclass) || "0x%04x" % self.rrclass
+          end
         end
 
         # @return [String]

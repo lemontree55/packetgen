@@ -99,6 +99,27 @@ module PacketGen
             expect(rr.human_rdata).to eq(ip)
           end
 
+          %w(NS PTR CNAME).each do |type|
+            it 'handles IN/#{type} records' do
+              rr.type = type
+              rr.rdata = generate_label_str(%w(example net))
+              expect(rr.human_rdata).to eq('example.net.')
+            end
+          end
+
+          it 'handles IN/MX records' do
+            rr.type = 'MX'
+            rr.rdata = [10].pack('n') + generate_label_str(%w(example net))
+            expect(rr.human_rdata).to eq('10 example.net.')
+          end
+
+          it 'handles IN/SRV records' do
+            str = [1, 2, 12345].pack('n*') + generate_label_str(%w(example net))
+            rr.type = 'SRV'
+            rr.rdata = str
+            expect(rr.human_rdata).to eq("1 2 12345 example.net.")
+          end
+
           it 'returns quotted binary string for others records' do
             data = File.read('/dev/random', 25)
             rr.rrclass = 'CH'
