@@ -70,6 +70,8 @@ module PacketGen
               break if label.length == 0 or str[start..-1].length == 0
             end
           end
+          # force resolution of compressed names
+          name_from_pointer
           self
         end
 
