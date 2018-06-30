@@ -81,6 +81,12 @@ module PacketGen
             pref = Types::Int16.new.read(self[:rdata][0, 2])
             exchange = name.read(self[:rdata][2..-1]).to_human
             str = '%u %s' % [pref.to_i, exchange]
+          when TYPES['SRV']
+            priority = Types::Int16.new.read(self[:rdata][0, 2])
+            weight = Types::Int16.new.read(self[:rdata][2, 2])
+            port = Types::Int16.new.read(self[:rdata][4, 2])
+            target = name.read(self[:rdata][6, self[:rdata].size]).to_human
+            str = "#{priority.to_i} #{weight.to_i} #{port.to_i} #{target}"
           end
 
           str

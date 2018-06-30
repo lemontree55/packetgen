@@ -32,6 +32,7 @@ module PacketGen
           'MX'       => 15,
           'TXT'      => 16,
           'AAAA'     => 28,
+          'SRV'      => 33,
           'NAPTR'    => 35,
           'KX'       => 36,
           'CERT'     => 37,
