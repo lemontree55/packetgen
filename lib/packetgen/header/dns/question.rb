@@ -110,12 +110,21 @@ module PacketGen
         # Get human readable class
         # @return [String]
         def human_rrclass
-          self.class::CLASSES.key(self.rrclass) || "0x%04x" % self.rrclass
+          if self[:name].dns.is_a? MDNS
+            self.class::CLASSES.key(self.rrclass & 0x7fff) || "0x%04x" % (self.rrclass & 0x7fff)
+          else
+            self.class::CLASSES.key(self.rrclass) || "0x%04x" % self.rrclass
+          end
         end
 
         # @return [String]
         def to_human
-          "#{human_type} #{human_rrclass} #{name}"
+          if self[:name].dns.is_a? MDNS
+            unicast_bit = (self.rrclass & 0x8000 == 0x8000) ? 'QU' : 'QM'
+            "#{human_type} #{human_rrclass} #{unicast_bit} #{name}"
+          else
+            "#{human_type} #{human_rrclass} #{name}"
+          end
         end
       end
     end

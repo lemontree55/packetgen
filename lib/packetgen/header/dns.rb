@@ -269,12 +269,6 @@ module PacketGen
         end
         str
       end
-
-      private
-
-      def boolean2integer(bool)
-        bool ? 1 : 0
-      end
     end
 
     self.add_class DNS
