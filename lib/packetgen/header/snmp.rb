@@ -251,6 +251,19 @@ module PacketGen
 
       define_attributes :version, :community
 
+      # @param [Hash] options
+      # @option options [Integer,String] :version
+      # @option options [String] :community
+      # @option options [Integer] :chosen_pdu Set PDU type
+      # @option options [Hash] :pdu Set PDU content
+      def initialize(options={})
+        super
+        data.chosen = options[:chosen_pdu] if options[:chosen_pdu]
+        if options[:pdu]
+          data.root.value[data.chosen] = data.root.chosen_value.class.new(options[:pdu])
+        end
+      end
+
       # accessor to data payload
       # @return [GetRequest]
       def data
