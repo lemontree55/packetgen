@@ -16,7 +16,8 @@ module PacketGen
     # A default method is defined by {Array}: it calls constructor of class defined
     # by {.set_of}.
     # @author Sylvain Daubert
-    class Array < ::Array
+    class Array
+      include Enumerable
 
       # Separator used in {#to_human}.
       # May be ovverriden by subclasses
@@ -32,26 +33,86 @@ module PacketGen
       # @param [Hash] options
       # @option options [Int] counter Int object used as a counter for this set
       def initialize(options={})
-        super()
         @counter = options[:counter]
+        @array = []
       end
 
-      # Populate object from a string
-      # @param [String] str
-      # @return [self]
-      def read(str)
-        clear
-        return self if str.nil?
-        return self if @counter and @counter.to_i == 0
-        force_binary str
-        klass = self.class.class_eval { @klass }
-        while str.length > 0
-          obj = klass.new.read(str)
-          self.push obj
-          str.slice!(0, obj.sz)
-          break if @counter and self.size == @counter.to_i
+      # Initialize array for copy:
+      # * duplicate internal array.
+      def initialize_copy(other)
+        @array = @array.dup
+      end
+
+      # Return the element at +index+.
+      # @param [integer] index
+      # @return [Object]
+      def [](index)
+        @array[index]
+      end
+
+      def ==(other)
+        case other
+        when Array
+          @array == other.to_a
+        else
+          @array == other
         end
-        self
+      end
+
+      # Clear array.
+      # @return [void]
+      def clear
+        @array.clear
+      end
+
+      # Clear array. Reset associated counter, if any.
+      # @return [void]
+      def clear!
+        @array.clear
+        @counter.read(0) if @counter
+      end
+
+      # Delete an object from this array. Update associated counter if any
+      # @param [Object] obj
+      # @return [Object] deleted object
+      def delete(obj)
+        deleted = @array.delete(obj)
+        @counter.read(@counter.to_i - 1) if @counter && deleted
+        deleted
+      end
+
+      # Delete element at +index+.
+      # @param [Integer] index
+      # @return [Object,nil] deleted object
+      def delete_at(index)
+        deleted = @array.delete_at(index)
+        @counter.read(@counter.to_i - 1) if @counter && deleted
+        deleted
+      end
+
+      # Calls the given block once for each element in self, passing that
+      # element as a parameter. Returns the array itself.
+      # @return [Array]
+      def each
+        @array.each { |el| yield el }
+      end
+
+      # Return +true+ if contains no element.
+      # @return [Booelan]
+      def empty?
+        @array.empty?
+      end
+
+      # Return first element
+      # @return [Object]
+      def first
+        @array.first
+      end
+
+      # Return last element.
+      # @return [Object]
+      def last
+        @array.last
       end
 
       # @abstract depend on private method +#record_from_hash+ which should be
@@ -66,7 +127,8 @@ module PacketGen
               else
                 obj
               end
-        super(obj)
+        @array << obj
+        self
       end
 
       # @abstract depend on private method +#record_from_hash+ which should be
@@ -80,31 +142,53 @@ module PacketGen
         self
       end
 
-      # Delete an object from this array. Update associated counter if any
-      # @param [Object] obj
-      # @return [Object] deleted object
-      def delete(obj)
-        deleted = super
-        @counter.read(@counter.to_i - 1) if @counter && deleted
-        deleted
+      # Populate object from a string
+      # @param [String] str
+      # @return [self]
+      def read(str)
+        clear
+        return self if str.nil?
+        return self if @counter and @counter.to_i == 0
+        force_binary str
+        klass = self.class.class_eval { @klass }
+        while str.length > 0
+          obj = klass.new.read(str)
+          @array << obj
+          str.slice!(0, obj.sz)
+          break if @counter and self.size == @counter.to_i
+        end
+        self
       end
 
-      # Get binary string
-      # @return [String]
-      def to_s
-        map(&:to_s).join
+      # Get number of element in array
+      # @return [Integer]
+      def size
+        @array.size
       end
-
-      # Get a human readable string
-      # @return [String]
-      def to_human
-        map(&:to_human).join(self.class::HUMAN_SEPARATOR)
-      end
+      alias :length :size
 
       # Get size in bytes
       # @return [Integer]
       def sz
         to_s.size
+      end
+
+      # Return an Array
+      # @return [::Array]
+      def to_a
+        @array
+      end
+
+      # Get binary string
+      # @return [String]
+      def to_s
+        @array.map(&:to_s).join
+      end
+
+      # Get a human readable string
+      # @return [String]
+      def to_human
+        @array.map(&:to_human).join(self.class::HUMAN_SEPARATOR)
       end
 
       # Force binary encoding for +str+

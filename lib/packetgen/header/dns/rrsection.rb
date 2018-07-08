@@ -17,8 +17,8 @@ module PacketGen
         # @param [DNS] dns
         # @param [Types::Int] counter
         def initialize(dns, counter)
+          super(counter: counter)
           @dns = dns
-          @counter = counter
         end
 
         # Read RR section from a string
@@ -32,7 +32,7 @@ module PacketGen
             rr = RR.new(@dns).read(str)
             rr = OPT.new(@dns).read(str) if rr.has_type?('OPT')
             str.slice!(0, rr.sz)
-            self.push rr
+            push rr
           end
           self
         end
