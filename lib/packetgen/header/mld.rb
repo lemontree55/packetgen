@@ -44,6 +44,7 @@ module PacketGen
     #  pkt.mld.max_resp_delay = 20
     #  pkt.mld.group_addr = '::'
     # @author Sylvain Daubert
+    # @since 2.4.0
     class MLD < Base
       # @!attribute max_resp_delay
       #  16-bit MLD Max Response Delay

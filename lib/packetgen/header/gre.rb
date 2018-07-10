@@ -21,6 +21,7 @@ module PacketGen
     #  |                 Sequence Number (Optional)                    |
     #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # @author Sylvain Daubert
+    # @since 2.1.0
     class GRE < Base
 
       # IP protocol number for GRE

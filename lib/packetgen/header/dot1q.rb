@@ -19,6 +19,7 @@ module PacketGen
     #   # Create a IP packet in VLAN #43
     #   pkt = PacketGen.gen('Eth').add('Dot1q', vid: 43).add('IP')
     # @author Sylvain Daubert
+    # @since 1.4.0
     class Dot1q < Base
       # @!attribute tci
       #  @return [Integer] 16-bit Tag Control Information

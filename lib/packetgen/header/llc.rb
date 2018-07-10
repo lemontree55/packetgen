@@ -17,6 +17,7 @@ module PacketGen
     # * a {#control} ({Types::Int8}),
     # * and a {#body} (a {Types::String} or another {Base} class).
     # @author Sylvain Daubert
+    # @since 1.4.0
     class LLC < Base
       # @!attribute dsap
       #  @return [Integer] 8-bit dsap value
@@ -41,6 +42,7 @@ module PacketGen
     # * a {#proto_id} ({Types::Int16}),
     # * and a {#body} (a {Types::String} or another {Base} class).
     # @author Sylvain Daubert
+    # @since 1.4.0
     class SNAP < Base
       # @!attribute oui
       #  @return [Types::OUI]

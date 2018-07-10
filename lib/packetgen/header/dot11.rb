@@ -12,6 +12,7 @@ module PacketGen
 
     # PPI (Per-Packet Information) packet
     #@author Sylvain Daubert
+    # @since 1.4.0
     class PPI < Base
       # @!attribute version
       #  @return [Integer] 8-bit PPI version
@@ -76,6 +77,7 @@ module PacketGen
 
     # Radiotap header (see http://www.radiotap.org/)
     # @author Sylvain Daubert
+    # @since 1.4.0
     class RadioTap < Base
       # @!attribute version
       #  @return [Integer] 8-bit version
@@ -204,6 +206,7 @@ module PacketGen
     #   pkt.calc
     #   pkt.to_w('wlan0')
     # @author Sylvain Daubert
+    # @since 1.4.0
     class Dot11 < Base
 
       # Frame types

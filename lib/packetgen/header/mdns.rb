@@ -12,6 +12,7 @@ module PacketGen
     # Multicast DNS.
     #
     # See {DNS} for header format.
+    # @since 2.6.0
     # @author Sylvain Daubert
     class MDNS < DNS
       # Port number for mDNS over UDP

@@ -40,6 +40,7 @@ module PacketGen
     #  icmp.checksum = 0x248a
     #  icmp.group_addr = '224.0.0.1'
     # @author Sylvain Daubert
+    # @since 2.4.0
     class IGMP < Base
 
       # IGMP internet protocol number

@@ -63,6 +63,7 @@ module PacketGen
     # * {OSPFv3::LSUpdate},
     # * or {OSPFv3::LSAck}.
     # @author Sylvain Daubert
+    # @since 2.5.0
     class OSPFv3 < Base
       
       # IP protocol number for OSPF

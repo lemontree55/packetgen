@@ -41,6 +41,7 @@ module PacketGen
     #   dhcpv6 = PacketGen::Header::DHCPv6.new(msg_type: 'SOLLICIT')
     #   dhcpv6.options << { type: 'Preference', value: 1 }
     # @author Sylvain Daubert
+    # @since 2.5.0
     class DHCPv6 < Base;end
 
     require_relative 'dhcpv6/duid'

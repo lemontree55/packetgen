@@ -9,6 +9,7 @@ module PacketGen
   module Header
     # Module to group all NetBIOS headers
     # @author Sylvain Daubert
+    # @since 2.5.1
     module NetBIOS
       # NetBIOS Session Service messages.
       # @author Sylvain Daubert

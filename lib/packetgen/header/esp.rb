@@ -66,6 +66,7 @@ module PacketGen
     #
     #  pkt.esp.decrypt! cipher, intmode: hmac    # => true if ICV check OK
     # @author Sylvain Daubert
+    # @since 1.2.0
     class ESP < Base
       include Crypto
 

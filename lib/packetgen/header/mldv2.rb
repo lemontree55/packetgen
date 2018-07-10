@@ -9,6 +9,7 @@ module PacketGen
   module Header
     # This module contains all MLDv2 specific classes.
     # @author Sylvain Daubert
+    # @since 2.4.0
     module MLDv2
       # Encode value for MLDv2 Max Resp Code.
       # Value may be encoded as a float, so some error may occur.

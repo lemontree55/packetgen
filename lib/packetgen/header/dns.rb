@@ -92,6 +92,7 @@ module PacketGen
     #  # add an option to OPT record
     #  dns.ar.last.options << PacketGen::Header::DNS::Option.new(code: 48, length: 2, data: "12")
     # @author Sylvain Daubert
+    # @since 1.3.0
     class DNS < Base
     end
   end

@@ -15,6 +15,7 @@ module PacketGen
     #    Subclasses may define magic methods:
     #    * {#parse?}.
     # @author Sylvain Daubert
+    # @since 2.0.0
     class ASN1Base < RASN1::Model
 
       # Reference on packet which owns this header

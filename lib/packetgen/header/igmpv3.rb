@@ -63,6 +63,7 @@ module PacketGen
     #   pkt.igmpv3      #=> PacketGen::Header::IGMPv3
     #   pkt.igmpv3_mr  #=> PacketGen::Header::IGMPv3::MR
     # @author Sylvain Daubert
+    # @since 2.4.0
     class IGMPv3 < IGMP
 
       # Known types

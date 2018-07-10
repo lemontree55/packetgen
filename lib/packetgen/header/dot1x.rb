@@ -21,6 +21,7 @@ module PacketGen
     #   pkt2.dot1x.type = 'EAP Packet'
     #   pkt2.dot1x.body.read 'body'
     # @author Sylvain Daubert
+    # @since 1.4.0
     class Dot1x < Base
 
       # IEEE 802.1x Ether type

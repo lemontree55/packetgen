@@ -46,6 +46,7 @@ module PacketGen
     #   packets[0].tftp.decode!(packets[1..-1])
     #   packets.map { |pkt| pkt.headers.last.class.to_s }.join(',')  # => TFTP::RRQ,TFTP::DATA,UDP,TFTP::ACK
     # @author Sylvain Daubert
+    # @since 2.3.0
     class TFTP < Base
 
       # Known opcodes

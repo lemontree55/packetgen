@@ -69,6 +69,7 @@ module PacketGen
     # * or {OSPFv2::LSAck}.
     #
     # @author Sylvain Daubert
+    # @since 2.5.0
     class OSPFv2 < Base
       
       # IP protocol number for OSPF

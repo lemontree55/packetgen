@@ -37,7 +37,7 @@ module PacketGen
 
     @added_header_classes = {}
 
-    # Get known header classes
+    # List all available headers.
     # @return [Array<Class>]
     def self.all
       return @header_classes if @header_classes
