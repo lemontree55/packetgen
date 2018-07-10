@@ -37,44 +37,48 @@ module PacketGen
 
     @added_header_classes = {}
 
-    # List all available headers.
-    # @return [Array<Class>]
-    def self.all
-      return @header_classes if @header_classes
-      @header_classes = @added_header_classes.values
-    end
+    class << self
 
-    # Add a foreign header class to known header classes. This is
-    # needed by {Packet.gen} and {Packet#add}.
-    # @param [Class] klass a header class
-    # @return [void]
-    # @since 1.1.0
-    def self.add_class(klass)
-      protocol_name = klass.new.protocol_name
-      @added_header_classes[protocol_name] = klass
-      @header_classes = nil
-    end
+      # List all available headers.
+      # @return [Array<Class>]
+      def all
+        return @header_classes if @header_classes
+        @header_classes = @added_header_classes.values
+      end
+      alias list all
 
-    # Remove a foreign header (previously added by {.add_header_class}
-    # from known header classes.
-    # @param [Class] klass
-    # @return [void]
-    # @since 1.1.0
-    def self.remove_class(klass)
-      protocol_name = klass.new.protocol_name
-      @added_header_classes.delete protocol_name
-      @header_classes = nil
-    end
+      # Add a foreign header class to known header classes. This is
+      # needed by {Packet.gen} and {Packet#add}.
+      # @param [Class] klass a header class
+      # @return [void]
+      # @since 1.1.0
+      def add_class(klass)
+        protocol_name = klass.new.protocol_name
+        @added_header_classes[protocol_name] = klass
+        @header_classes = nil
+      end
 
-    # Get header class from its name
-    # @param [String] name
-    # @return [Class,nil]
-    # @since 1.1.0
-    def self.get_header_class_by_name(name)
-      if Header.const_defined? name
-        Header.const_get name
-      else
-        @added_header_classes[name]
+      # Remove a foreign header (previously added by {.add_header_class}
+      # from known header classes.
+      # @param [Class] klass
+      # @return [void]
+      # @since 1.1.0
+      def remove_class(klass)
+        protocol_name = klass.new.protocol_name
+        @added_header_classes.delete protocol_name
+        @header_classes = nil
+      end
+
+      # Get header class from its name
+      # @param [String] name
+      # @return [Class,nil]
+      # @since 1.1.0
+      def get_header_class_by_name(name)
+        if Header.const_defined? name
+          Header.const_get name
+        else
+          @added_header_classes[name]
+        end
       end
     end
   end
