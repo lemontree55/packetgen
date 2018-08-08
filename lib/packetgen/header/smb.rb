@@ -96,7 +96,7 @@ module PacketGen
       # @!attribute flags_reserved
       #  @return [Boolean]
       # @!attribute flags_rbuf_avail
-      #  Obsoleste.
+      #  Obsolete.
       #  @return [Boolean]
       # @!attribute flags_locknread
       #  When set in SMB_COM_NEGOTIATE response, the server supports
@@ -157,7 +157,7 @@ module PacketGen
       # * a 8-bit {#word_count} field,
       # * a {#words} field, an array of {Types::Int16le}.
       # Data block is composed of:
-      # * a 16-bit {#byte_count} field,
+      # * a little endian 16-bit {#byte_count} field,
       # * a {#bytes} field, an array of {Types::Int8}.
       # @author Sylvain Daubert
       class Blocks < Base
@@ -170,7 +170,7 @@ module PacketGen
         #  @return [Types::ArrayOfInt16le]
         define_field :words, Types::ArrayOfInt16le, builder: ->(h,t) { t.new(counter: h[:word_count]) }
         # @!attribute byte_count
-        #  The size, in 2 bytes, of the {#bytes} field.
+        #  The size, in bytes, of the {#bytes} field.
         #  @return [Integer]
         define_field :byte_count, Types::Int16le
         # @!attribute bytes
