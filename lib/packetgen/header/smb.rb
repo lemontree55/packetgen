@@ -17,7 +17,7 @@ module PacketGen
         'echo'           => 0x2b,
         'negotiate'      => 0x72,
         'nt_create_andx' => 0xa2
-      }
+      }.freeze
 
       # SMB marker, on start of header
       MARKER = PacketGen.force_binary("\xffSMB")
@@ -145,7 +145,7 @@ module PacketGen
       #  @return [Boolean]
       define_bit_fields_on :flags2, :flags2_unicode, :flags2_ntstatus,
                            :flags2_paging_io, :flags2_dfs, :flags2_extended_security,
-                           :flags2_reparse_path, :flags2_reserved, 3, 
+                           :flags2_reparse_path, :flags2_reserved, 3,
                            :flags2_is_long_name, :flags2_rsv,
                            :flags2_security_signature_required, :flags2_compresses,
                            :flags2_signature, :flags2_eas, :flags2_long_names
@@ -168,7 +168,7 @@ module PacketGen
         # @!attribute words
         #  The message-specific parameters structure.
         #  @return [Types::ArrayOfInt16le]
-        define_field :words, Types::ArrayOfInt16le, builder: ->(h,t) { t.new(counter: h[:word_count]) }
+        define_field :words, Types::ArrayOfInt16le, builder: ->(h, t) { t.new(counter: h[:word_count]) }
         # @!attribute byte_count
         #  The size, in bytes, of the {#bytes} field.
         #  @return [Integer]
@@ -176,7 +176,7 @@ module PacketGen
         # @!attribute bytes
         #  The message-specific data structure.
         #  @return [Types::ArrayOfInt8]
-        define_field :bytes, Types::ArrayOfInt8, builder: ->(h,t) { t.new(counter: h[:byte_count]) }
+        define_field :bytes, Types::ArrayOfInt8, builder: ->(h, t) { t.new(counter: h[:byte_count]) }
       end
     end
     self.add_class SMB
