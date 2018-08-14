@@ -264,7 +264,7 @@ module PacketGen
               end
               METHODS
             else
-                class_eval <<-METHODS
+              class_eval <<-METHODS
               def #{field}
                 (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
               end

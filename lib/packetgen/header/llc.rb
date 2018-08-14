@@ -32,7 +32,7 @@ module PacketGen
       define_field :body, Types::String
     end
     self.add_class LLC
-    Dot11::Data.bind_header LLC, op: :and, type: 2, :wep? => false
+    Dot11::Data.bind_header LLC, op: :and, type: 2, wep?: false
 
     # Sub-Network Access Protocol
     #

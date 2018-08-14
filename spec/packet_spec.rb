@@ -298,7 +298,10 @@ module PacketGen
       end
 
       it 'sends packet multiple times', :sudo do
-        Thread.new  { sleep 0.1; pkt.to_w('lo', number: 5, interval: 0.1) }
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo', number: 5, interval: 0.1)
+        end
         packets = Packet.capture(iface: 'lo', max: 5,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 1)

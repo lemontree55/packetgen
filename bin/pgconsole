@@ -8,7 +8,7 @@ use_pry = false
 begin
   require 'pry'
   use_pry = true
-  puts "use Pry!"
+  puts 'use Pry!'
 rescue LoadError
   require 'irb'
   require 'irb/completion'
@@ -29,7 +29,7 @@ class PgConsole
   Utils.singleton_methods.each do |m|
     define_method m, Utils.method(m).to_proc
   end
-  
+
   def get_binding
     binding
   end
@@ -57,11 +57,11 @@ else
   irb = IRB::Irb.new(IRB::WorkSpace.new(PgConsole.new.get_binding))
   IRB.conf[:MAIN_CONTEXT] = irb.context
   irb.context.auto_indent_mode = true
-  irb.context.prompt_i = "pg> "
-  irb.context.prompt_s = "pg* "
-  irb.context.prompt_c = "pg* "
+  irb.context.prompt_i = 'pg> '
+  irb.context.prompt_s = 'pg* '
+  irb.context.prompt_c = 'pg* '
 
-  trap("SIGINT") do
+  trap('SIGINT') do
     irb.signal_handle
   end
 

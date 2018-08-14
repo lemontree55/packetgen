@@ -14,6 +14,10 @@ Style/EvalWithLocation:
   Enabled: false
 Style/FormatString:
   EnforcedStyle: percent
+Style/FormatStringToken:
+  EnforcedStyle: unannotated
+Style/PerlBackrefs:
+  Enabled: false
 Style/RedundantSelf:
   Enabled: false
 Style/StructInheritance:

@@ -1,5 +1,6 @@
 # coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'packetgen/version'
 
@@ -10,8 +11,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Sylvain Daubert']
   spec.email         = ['sylvain.daubert@laposte.net']
 
-  spec.summary       = %q{Network packet generator and analyzor}
-  #spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.summary       = 'Network packet generator and analyzor'
+  # spec.description   = %q{TODO: Write a longer description or delete this line.}
   spec.homepage      = 'https://github.com/sdaubert/packetgen'
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
@@ -23,8 +24,8 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.2.0'
 
-  spec.add_dependency 'pcaprub', '~>0.12.4'
   spec.add_dependency 'interfacez', '~>1.0'
+  spec.add_dependency 'pcaprub', '~>0.12.4'
   spec.add_dependency 'rasn1', '~>0.5', '>= 0.6.3'
 
   spec.add_development_dependency 'bundler', '~> 1.7'

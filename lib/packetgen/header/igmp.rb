@@ -50,7 +50,7 @@ module PacketGen
         'MembershipReportv1' => 0x12,
         'MembershipReportv2' => 0x16,
         'LeaveGroup'         => 0x17,
-       }.freeze
+      }.freeze
 
       # @!attribute type
       #  8-bit IGMP Type

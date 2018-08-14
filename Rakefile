@@ -2,17 +2,17 @@ require 'bundler/gem_tasks'
 require 'rspec/core/rake_task'
 require 'yard'
 
-task :default => :spec
+task default: :spec
 
 RSpec::Core::RakeTask.new do |t|
   t.rspec_opts = '-t ~sudo'
 end
 RSpec::Core::RakeTask.new('spec:sudo') do |t|
-  if ENV['TRAVIS']
-    t.rspec_opts = '-t sudo -t ~notravis'
-  else
-    t.rspec_opts = '-t sudo'
-  end
+  t.rspec_opts = if ENV['TRAVIS']
+                   '-t sudo -t ~notravis'
+                 else
+                   '-t sudo'
+                 end
 end
 
 YARD::Rake::YardocTask.new do |t|
