@@ -2,12 +2,10 @@
 
 module PacketGen
   module Header
-
     # Mixin for cryptographic classes
     # @api private
     # @author Sylvain Daubert
     module Crypto
-
       # Cryptographic error
       class Error < PacketGen::Error; end
 
@@ -16,11 +14,11 @@ module PacketGen
       # @param [OpenSSL::HMAC] intg
       # @return [void]
       def set_crypto(conf, intg)
-        @conf, @intg = conf, intg
-        if conf.authenticated?
-          # #auth_tag_len only supported from ruby 2.4.0
-          @conf.auth_tag_len = @trunc if @conf.respond_to? :auth_tag_len
-        end
+        @conf = conf
+        @intg = intg
+        return unless conf.authenticated?
+        # #auth_tag_len only supported from ruby 2.4.0
+        @conf.auth_tag_len = @trunc if @conf.respond_to? :auth_tag_len
       end
 
       # Get confidentiality mode name
@@ -34,7 +32,7 @@ module PacketGen
       # Say if crypto modes permit authentication
       # @return [Boolean]
       def authenticated?
-        @conf.authenticated? or !!@intg
+        @conf.authenticated? || !@intg.nil?
       end
 
       def authenticate!

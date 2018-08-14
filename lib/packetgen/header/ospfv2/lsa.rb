@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv2
-
       # This class handles unsupported {OSPFv2 OSPFv2} LSA payloads.
       # A LSA payload is a {LSAHeader} with a {#body} field.
       # @author Sylvain Daubert
@@ -17,7 +16,7 @@ module PacketGen
         #  LSA body
         #  @return [String]
         define_field :body, Types::String,
-                     builder: ->(h,t) { t.new(length_from: ->() { h.length - 20 }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h.length - 20 }) }
       end
 
       # This class handles TOS metrics for {Link links} in a {LSARouter
@@ -71,7 +70,7 @@ module PacketGen
         # @!attribute tos
         #  Additionnal TOS metrics
         #  @return [ArrayOfTosMetric]
-        define_field :tos, ArrayOfTosMetric, builder: ->(h,t) { t.new(counter: h[:tos_count]) }
+        define_field :tos, ArrayOfTosMetric, builder: ->(h, t) { t.new(counter: h[:tos_count]) }
 
         # @return [String]
         def to_human
@@ -106,7 +105,7 @@ module PacketGen
         # @attribute links
         #  @return [ArrayOfLink]
         define_field :links, ArrayOfLink, builder: ->(h, t) { t.new(counter: h[:link_count]) }
-        
+
         # @attribute v_flag
         #  @return [Boolean]
         # @attribute e_flag
@@ -148,7 +147,7 @@ module PacketGen
         # @!attribute ext_route_tag
         #  @return [Integer]
         define_field :ext_route_tag, Types::Int32
-        
+
         # @!attribute e_flag
         #  @return [Boolean]
         # @!attribute tos
@@ -185,7 +184,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ArrayOfLSA < Types::Array
         set_of LSA
-        
+
         # @param [Hash] options
         # @option options [Types::Int] counter Int object used as a counter for this set
         # @option options [Boolean] only_headers if +true+, only {LSAHeader LSAHeaders}
@@ -201,17 +200,17 @@ module PacketGen
         def read(str)
           clear
           return self if str.nil?
-          return self if @counter and @counter.to_i == 0
+          return self if @counter && @counter.to_i.zero?
           force_binary str
-          while str.length > 0
+          until str.empty?
             lsa = LSAHeader.new.read(str)
-            if !@only_headers
+            unless @only_headers
               klass = get_lsa_class_by_human_type(lsa.human_type)
               lsa = klass.new.read(str[0...lsa.length])
             end
             self.push lsa
             str.slice!(0, lsa.sz)
-            break if @counter and self.size == @counter.to_i
+            break if @counter && (self.size == @counter.to_i)
           end
           self
         end
@@ -219,10 +218,10 @@ module PacketGen
         private
 
         def record_from_hash(hsh)
-          unless hsh.has_key? :type
-            raise ArgumentError, "hash should have :type key"
+          unless hsh.key? :type
+            raise ArgumentError, 'hash should have :type key'
           end
-          
+
           klass = if @only_headers
                     LSAHeader
                   else
@@ -239,7 +238,7 @@ module PacketGen
         end
 
         def get_lsa_class_by_human_type(htype)
-          klassname = "LSA#{htype.to_s.gsub(/-/, '')}"
+          klassname = "LSA#{htype.to_s.delete('-')}"
           if OSPFv2.const_defined? klassname
             OSPFv2.const_get klassname
           else

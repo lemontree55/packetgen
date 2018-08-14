@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # Extensible Authentication Protocol (EAP),
     # {https://tools.ietf.org/html/rfc3748 RFC 3748}
     #
@@ -57,15 +56,14 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.1.4
     class EAP < Base
-
       # EAP known codes
       CODES = {
         'Request'   => 1,
         'Response'  => 2,
         'Success'   => 3,
         'Failure'   => 4
-      }
-      
+      }.freeze
+
       # EAP known request/response types
       TYPES = {
         'Identity'           => 1,
@@ -79,7 +77,7 @@ module PacketGen
         'EAP-FAST'           => 43,
         'Expanded Types'     => 254,
         'Experimental Use'   => 255
-      }
+      }.freeze
 
       # @!attribute code
       #  @return [Integer] 8-bit EAP code
@@ -92,70 +90,65 @@ module PacketGen
       # @!attribute length
       #  @return [Integer] 16-bit length of EAP packet
       define_field :length, Types::Int16, default: 4
-      
+
       # @!attribute type
       #  This field is present only for Request or Response packets,
       #  with type different from Expanded Types (254).
       #  @return [Integer] 8-bit request or response type
-      define_field :type, Types::Int8Enum, enum: TYPES, 
+      define_field :type, Types::Int8Enum, enum: TYPES,
                    optional: ->(eap) { eap.has_type? }
-                   
+
       # @!attribute vendor_id
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 24-bit vendor ID
       define_field :vendor_id, Types::Int24,
-                   optional: ->(eap) { eap.has_type? and eap.type == 254 }
-      
+                   optional: ->(eap) { eap.has_type? && (eap.type == 254) }
+
       # @!attribute vendor_type
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 32-bit vendor type
       define_field :vendor_type, Types::Int32,
-                   optional: ->(eap) { eap.has_type? and eap.type == 254 }
+                   optional: ->(eap) { eap.has_type? && (eap.type == 254) }
 
       # @!attribute body
       #  @return [Types::String, Header::Base]
       define_field :body, Types::String
-      
+
       # @return [EAP]
       def initialize(options={})
         super
         calc_length if options[:length].nil?
       end
-      
+
       # @private
       alias old_read read
-      
+
       # Populate object from a binary string
       # @param [String] str
       # @return [Dot11] may return a subclass object if a more specific class
       #   may be determined
       def read(str)
-        if self.class == EAP
-          super str
-
-          if has_type?
-            obj = case self.type
-                  when 4
-                    EAP::MD5.new.read(str)
-                  when 13
-                    EAP::TLS.new.read(str)
-                  when 21
-                    EAP::TTLS.new.read(str)
-                  when 43
-                    EAP::FAST.new.read(str)
-                  else
-                    self
-                  end
-            return obj
-          else
-            return self
-          end
+        super str
+        return self unless self.class == EAP
+        if has_type?
+          obj = case self.type
+                when 4
+                  EAP::MD5.new.read(str)
+                when 13
+                  EAP::TLS.new.read(str)
+                when 21
+                  EAP::TTLS.new.read(str)
+                when 43
+                  EAP::FAST.new.read(str)
+                else
+                  self
+                end
+          obj
         else
-          super str
+          self
         end
-        self
       end
 
       # Get human readable code
@@ -163,7 +156,7 @@ module PacketGen
       def human_code
         self[:code].to_human
       end
-      
+
       # Get human readable type
       # @return [String]
       # @raise [ParseError] not a Request nor a Response packet
@@ -171,41 +164,41 @@ module PacketGen
         raise ParseError, 'not a Request nor a Response' unless has_type?
         self[:type].to_human
       end
-      
+
       # Is packet a request?
       # @return [Boolean]
       def request?
         code == CODES['Request']
       end
-      
+
       # Is packet a response?
       # @return [Boolean]
       def response?
         code == CODES['Response']
       end
-      
+
       # Is packet a success?
       # @return [Boolean]
       def success?
         code == CODES['Success']
       end
-      
+
       # Is packet a failure?
       # @return [Boolean]
       def failure?
         code == CODES['Failure']
       end
-      
+
       # Return an array of desired authentication types from a Nak packet
       # @return [Array<Integer>]
       # @raise [ParseError] not a Nak packet
       def desired_auth_type
-        if code != 2 and type != 3
+        if (code != 2) && (type != 3)
           raise ParseError, 'not a Nak response'
         end
         body.to_s.unpack('C*')
       end
-      
+
       # Calculate length field from content
       # @return [Integer]
       def calc_length
@@ -215,7 +208,7 @@ module PacketGen
       # Say is this EAP header has {#type} field
       # @return [Boolean]
       def has_type?
-        [1,2].include?(self.code)
+        [1, 2].include?(self.code)
       end
 
       # Callback called when a EAP header is added to a packet
@@ -224,12 +217,11 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        unless packet.respond_to? :eap
-          packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end")
-        end
+        return if packet.respond_to? :eap
+        packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end")
       end
     end
-    
+
     Dot1x.bind_header EAP, type: 0
   end
 end

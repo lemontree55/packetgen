@@ -7,7 +7,6 @@
 
 module PacketGen
   module Types
-
     # @abstract Set of fields
     # This class is a base class to define headers or anything else with a binary
     # format containing multiple fields.
@@ -93,7 +92,6 @@ module PacketGen
     #   offset subfield from +frag+ field.
     # @author Sylvain Daubert
     class Fields
-
       # @private
       @ordered_fields = []
       # @private
@@ -149,10 +147,10 @@ module PacketGen
         elsif type < Types::Int
           define << "def #{name}; self[:#{name}].to_i; end"
           define << "def #{name}=(val) self[:#{name}].read val; end"
-        elsif type.instance_methods.include? :to_human and
-           type.instance_methods.include? :from_human
-           define << "def #{name}; self[:#{name}].to_human; end"
-           define << "def #{name}=(val) self[:#{name}].from_human val; end"
+        elsif type.instance_methods.include?(:to_human) &&
+              type.instance_methods.include?(:from_human)
+          define << "def #{name}; self[:#{name}].to_human; end"
+          define << "def #{name}=(val) self[:#{name}].from_human val; end"
         else
           define << "def #{name}; self[:#{name}]; end\n"
           define << "def #{name}=(val) self[:#{name}].read val; end"
@@ -179,12 +177,11 @@ module PacketGen
       # @see .define_field
       def self.define_field_before(other, name, type, options={})
         define_field name, type, options
-        unless other.nil?
-          @ordered_fields.delete name
-          idx = @ordered_fields.index(other)
-          raise ArgumentError, "unknown #{other} field" if idx.nil?
-          @ordered_fields[idx, 0] = name
-        end
+        return if other.nil?
+        @ordered_fields.delete name
+        idx = @ordered_fields.index(other)
+        raise ArgumentError, "unknown #{other} field" if idx.nil?
+        @ordered_fields[idx, 0] = name
       end
 
       # Define a field, after another one
@@ -197,12 +194,11 @@ module PacketGen
       # @see .define_field
       def self.define_field_after(other, name, type, options={})
         define_field name, type, options
-        unless other.nil?
-          @ordered_fields.delete name
-          idx = @ordered_fields.index(other)
-          raise ArgumentError, "unknown #{other} field" if idx.nil?
-          @ordered_fields[idx+1, 0] = name
-        end
+        return if other.nil?
+        @ordered_fields.delete name
+        idx = @ordered_fields.index(other)
+        raise ArgumentError, "unknown #{other} field" if idx.nil?
+        @ordered_fields[idx + 1, 0] = name
       end
 
       # Delete a previously defined field
@@ -256,7 +252,7 @@ module PacketGen
             clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
 
             if size == 1
-              class_eval <<-EOM
+              class_eval <<-METHODS
               def #{field}?
                 val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
                 val != 0
@@ -266,9 +262,9 @@ module PacketGen
                 self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
                 self[:#{attr}].value |= val << #{shift}
               end
-              EOM
+              METHODS
             else
-                class_eval <<-EOM
+                class_eval <<-METHODS
               def #{field}
                 (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
               end
@@ -276,7 +272,7 @@ module PacketGen
                 self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
                 self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
               end
-              EOM
+              METHODS
             end
 
             @bit_fields << field
@@ -321,8 +317,8 @@ module PacketGen
             @fields[field].read(value)
           elsif type <= Types::String
             @fields[field].read(value)
-          else
-            @fields[field].from_human(value) if @fields[field].respond_to? :from_human
+          elsif @fields[field].respond_to? :from_human
+            @fields[field].from_human(value)
           end
 
           @optional_fields[field] = optional if optional
@@ -361,7 +357,7 @@ module PacketGen
       # Say if this field is optional
       # @return [Boolean]
       def is_optional?(field)
-        @optional_fields.has_key? field
+        @optional_fields.key? field
       end
 
       # Say if an optional field is present
@@ -414,8 +410,8 @@ module PacketGen
       # Return object as a binary string
       # @return [String]
       def to_s
-        fields.select { |f| is_present?(f) }.
-          map! { |f| force_binary @fields[f].to_s }.join
+        fields.select { |f| is_present?(f) }
+              .map! { |f| force_binary @fields[f].to_s }.join
       end
 
       # Size of object as binary string
@@ -436,7 +432,7 @@ module PacketGen
       # @raise [BodyError] no body on given object
       # @raise [ArgumentError] cannot cram +body+ in +:body+ field
       def body=(value)
-        raise BodyError, 'no body field'  unless @fields.has_key? :body
+        raise BodyError, 'no body field' unless @fields.key? :body
         case body
         when ::String
           self[:body].read value

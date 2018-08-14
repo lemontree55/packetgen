@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # A UDP header consists of:
     # * a source port field ({#sport}, {Types::Int16} type),
     # * a destination port field ({#dport}, +Int16+ type),
@@ -32,7 +31,6 @@ module PacketGen
     #
     # @author Sylvain Daubert
     class UDP < Base
-
       # IP protocol number for UDP
       IP_PROTOCOL = 17
 

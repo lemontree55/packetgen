@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # This class handles {OSPFv3 OSPFv3} HELLO packets payload. The HELLO
       # payload has the following format:
       #    0                   1                   2                   3
@@ -97,7 +96,7 @@ module PacketGen
         define_field :neighbors, IP::ArrayOfAddr
       end
     end
-    
+
     self.add_class OSPFv3::Hello
     OSPFv3.bind_header OSPFv3::Hello, type: OSPFv3::TYPES['HELLO']
   end

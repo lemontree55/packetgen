@@ -8,7 +8,6 @@
 
 module PacketGen
   module Header
-
     # DNS: Domain Name Service
     #
     # A DNS packet consists of a header:
@@ -120,7 +119,7 @@ module PacketGen
         'status' => 2,
         'notify' => 4,
         'update' => 5
-      }
+      }.freeze
 
       # DNS Response codes
       RCODES = {
@@ -131,7 +130,7 @@ module PacketGen
         'name-error'      => 3,
         'not-implemented' => 4,
         'refused'         => 5
-      }
+      }.freeze
 
       # @!attribute id
       #  @return [Integer]
@@ -153,16 +152,16 @@ module PacketGen
       define_field :arcount, Types::Int16
       # @!attribute qd
       #  @return [QDSection]
-      define_field :qd, QDSection, builder: ->(h,t) { t.new(h, h[:qdcount]) }
+      define_field :qd, QDSection, builder: ->(h, t) { t.new(h, h[:qdcount]) }
       # @!attribute an
       #  @return [RRSection]
-      define_field :an, RRSection, builder: ->(h,t) { t.new(h, h[:ancount]) }
+      define_field :an, RRSection, builder: ->(h, t) { t.new(h, h[:ancount]) }
       # @!attribute ns
       #  @return [RRSection]
-      define_field :ns, RRSection, builder: ->(h,t) { t.new(h, h[:nscount]) }
+      define_field :ns, RRSection, builder: ->(h, t) { t.new(h, h[:nscount]) }
       # @!attribute ar
       #  @return [RRSection]
-      define_field :ar, RRSection, builder: ->(h,t) { t.new(h, h[:arcount]) }
+      define_field :ar, RRSection, builder: ->(h, t) { t.new(h, h[:arcount]) }
 
       # @!attribute qr
       #   @return [Boolean] query (+false+) or response (+true+)
@@ -254,8 +253,8 @@ module PacketGen
         str = Inspect.dashed_line(self.class, 2)
         fields.each do |attr|
           if attr == :u16
-            flags = [:qr, :aa, :tc, :rd, :ra].select! { |attr| send "#{attr}?" }.
-                    map(&:to_s).join(',')
+            flags = %i[qr aa tc rd ra].select! { |flag| send "#{flag}?" }
+                                      .map(&:to_s).join(',')
             str << Inspect.shift_level(2)
             str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
             opcode = '%-10s (%u)' % [OPCODES.key(self.opcode), self.opcode]

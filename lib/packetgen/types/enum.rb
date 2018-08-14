@@ -8,7 +8,6 @@
 
 module PacketGen
   module Types
-
     # @abstract Base enum class to handle binary integers with limited
     #   authorized values
     # An {Enum} type is used to handle an {Int} field with limited
@@ -31,7 +30,6 @@ module PacketGen
     # @since 2.1.3
     # @author Sylvain Daubert
     class Enum < Int
-
       # @return [Hash]
       attr_reader :enum
 
@@ -55,17 +53,17 @@ module PacketGen
                when NilClass
                  nil
                when ::String
-                 raise ArgumentError, "#{v.inspect} not in enumeration" unless @enum.has_key? v
+                 raise ArgumentError, "#{v.inspect} not in enumeration" unless @enum.key? v
                  @enum[v]
                else
-                 raise ArgumentError, "#{v.inspect} not in enumeration" unless @enum.has_value? v
+                 raise ArgumentError, "#{v.inspect} not in enumeration" unless @enum.value? v
                  v
                end
         @value = ival
       end
 
       # To handle human API: set value from a String
-      alias :from_human :value=
+      alias from_human value=
 
       # Get human readable value (enum name)
       # @return [String]

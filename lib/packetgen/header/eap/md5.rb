@@ -8,8 +8,7 @@
 module PacketGen
   module Header
     class EAP
-
-      # Extensible Authentication Protocol (EAP) - 
+      # Extensible Authentication Protocol (EAP) -
       # {https://tools.ietf.org/html/rfc3748#section-5.4 MD5 challenge}
       # @author Sylvain Daubert
       # @since 2.1.4

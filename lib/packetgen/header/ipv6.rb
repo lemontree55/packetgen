@@ -5,11 +5,11 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'ipaddr'
 
 module PacketGen
   module Header
-
     # A IPv6 header consists of:
     # * a first 32-bit word ({#u32}, of {Types::Int32} type) composoed of:
     #   * a 4-bit {#version} field,
@@ -45,7 +45,7 @@ module PacketGen
     #  ipv6.dst = '2001:1234:5678:abcd::123'
     #  ipv6.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IPv6 < Base;end
+    class IPv6 < Base; end
 
     require_relative 'ipv6/addr'
 
@@ -103,7 +103,7 @@ module PacketGen
         self[:dst].to_a.each { |word| sum += word.to_i }
         sum
       end
-      
+
       # Send IPv6 packet on wire.
       #
       # When sending packet at IPv6 level, +version+, +flow_label+ and +length+
@@ -165,7 +165,7 @@ module PacketGen
     Eth.bind_header IPv6, ethertype: IPv6::ETHERTYPE
     SNAP.bind_header IPv6, proto_id: IPv6::ETHERTYPE
     Dot1q.bind_header IPv6, ethertype: IPv6::ETHERTYPE
-    IP.bind_header IPv6, protocol: 41    # 6to4
+    IP.bind_header IPv6, protocol: 41 # 6to4
   end
 end
 

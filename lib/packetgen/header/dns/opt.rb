@@ -4,12 +4,12 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require_relative 'option'
 
 module PacketGen
   module Header
     class DNS
-
       # OPT pseudo-RR. Used by Extended DNS (EDNS(0), cf. RFC 6891).
       #
       # a OPT record may contain zero or more {Option options} in its {#rdata}.
@@ -43,68 +43,68 @@ module PacketGen
           self.do = options[:do] unless options[:do].nil?
         end
 
-        # @overload ext_rcode=(v)
-        #  Setter for upper 8 bits of extended 12-bit RCODE
-        #  @param [Integer] v
-        #  @return [Integer]
+        # @overload ext_rcode=(value)
+        #   Setter for upper 8 bits of extended 12-bit RCODE
+        #   @param [Integer] value
+        #   @return [Integer]
         # @overload ext_rcode
-        #  Getter for upper 8 bits of extended 12-bit RCODE
-        #  @return [Integer]
+        #   Getter for upper 8 bits of extended 12-bit RCODE
+        #   @return [Integer]
         # @return [Integer]
-        def ext_rcode=(v=nil)
-          if v
+        def ext_rcode=(value=nil)
+          if value
             self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~(0xff << 24))
-            self[:ttl].value |= (v & 0xff) << 24
+            self[:ttl].value |= (value & 0xff) << 24
           end
           (self[:ttl].to_i >> 24) & 0xff
         end
         alias ext_rcode ext_rcode=
 
-        # @overload version=(v)
-        #  Setter EDNS version
-        #  @param [Integer] v
-        #  @return [Integer]
+        # @overload version=(ver)
+        #   Setter EDNS version
+        #   @param [Integer] ver
+        #   @return [Integer]
         # @overload version
-        #  Getter for EDNS version
-        #  @return [Integer]
+        #   Getter for EDNS version
+        #   @return [Integer]
         # @return [Integer]
-        def version=(v=nil)
-          if v
+        def version=(ver=nil)
+          if ver
             self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~(0xff << 16))
-            self[:ttl].value |= (v & 0xff) << 16
+            self[:ttl].value |= (ver & 0xff) << 16
           end
           (self[:ttl].to_i >> 16) & 0xff
         end
         alias version version=
 
-        # @overload do=(v)
+        # @overload do=(value)
         #  Setter EDNS do
-        #  @param [Boolean] v
+        #  @param [Boolean] value
         #  @return [Boolean]
         # @overload do?
         #  Getter for EDNS do
         #  @return [Boolean]
         # @return [Boolean]
-        def do=(v=nil)
-          b = v ? 1 : 0
-          unless v.nil?
+        def do=(value=nil)
+          b = value ? 1 : 0
+          unless value.nil?
             self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~(1 << 15))
             self[:ttl].value |= (b & 1) << 15
           end
-          ((self[:ttl].to_i >> 15) & 1) == 1 ? true : false
+          ((self[:ttl].to_i >> 15) & 1) == 1
         end
-        alias :do? :do=
+        alias do? do=
 
-        # @overload z=(v)
-        #  @param [Integer] v
+        # @overload z=(value)
+        #  @param [Integer] value
         #  @return [Integer]
         # @overload z
         #  @return [Integer]
         # @return [Integer]
-        def z=(v=nil)
-          if v
+        def z=(value=nil)
+          if value
             self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~0x7fff)
-            self[:ttl].value |= v & 0x7fff
+            self[:ttl].value |= value & 0x7fff
           end
           self[:ttl].to_i & 0x7fff
         end

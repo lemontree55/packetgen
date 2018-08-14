@@ -8,7 +8,6 @@
 
 module PacketGen
   module Header
-
     # Dissect error
     class DissectError < ParseError; end
 
@@ -18,7 +17,6 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.0.0
     class SNMP < ASN1Base
-
       # Agents listen to this port
       UDP_PORT1 = 161
       # Configuration sinks listen to this port
@@ -34,26 +32,27 @@ module PacketGen
       PDU_TRAPv2   = 7
       PDU_REPORT   = 8
 
-      ERRORS = { 'no_error'              => 0,
-                 'too_big'               => 1,
-                 'no_such_name'          => 2,
-                 'bad_value'             => 3,
-                 'read_only'             => 4,
-                 'generic_error'         => 5,
-                 'no_access'             => 6,
-                 'wrong_type'            => 7,
-                 'wrong_length'          => 8,
-                 'wrong_encoding'        => 9,
-                 'wrong_value'           => 10,
-                 'no_creation'           => 11,
-                 'inconsistent_value'    => 12,
-                 'ressource_unavailable' => 13,
-                 'commit_failed'         => 14,
-                 'undo_failed'           => 15,
-                 'authorization_error'   => 16,
-                 'not_writable'          => 17,
-                 'inconsistent_name'     => 18
-               }
+      ERRORS = {
+        'no_error'              => 0,
+        'too_big'               => 1,
+        'no_such_name'          => 2,
+        'bad_value'             => 3,
+        'read_only'             => 4,
+        'generic_error'         => 5,
+        'no_access'             => 6,
+        'wrong_type'            => 7,
+        'wrong_length'          => 8,
+        'wrong_encoding'        => 9,
+        'wrong_value'           => 10,
+        'no_creation'           => 11,
+        'inconsistent_value'    => 12,
+        'ressource_unavailable' => 13,
+        'commit_failed'         => 14,
+        'undo_failed'           => 15,
+        'authorization_error'   => 16,
+        'not_writable'          => 17,
+        'inconsistent_name'     => 18
+      }.freeze
 
       # Class to handle SNMP VarBind
       #  VarBind ::= SEQUENCE {
@@ -76,10 +75,10 @@ module PacketGen
 
       # Class to handle GetRequest PDU
       #  GetRequest-PDU ::= [0] IMPLICIT PDU
-      #  
+      #
       #  PDU ::= SEQUENCE {
       #              request-id INTEGER (-214783648..214783647),
-      #  
+      #
       #              error-status                -- sometimes ignored
       #                  INTEGER {
       #                      noError(0),
@@ -102,10 +101,10 @@ module PacketGen
       #                      notWritable(17),
       #                      inconsistentName(18)
       #                  },
-      #          
+      #
       #              error-index                 -- sometimes ignored
       #                  INTEGER (0..max-bindings),
-      #          
+      #
       #              variable-bindings           -- values are sometimes ignored
       #                  VarBindList
       #          }
@@ -177,7 +176,7 @@ module PacketGen
 
       # Class to handle Bulk PDU
       #  GetBulkRequest-PDU ::= [5] IMPLICIT BulkPDU
-      #  
+      #
       #  BulkPDU ::=                         -- must be identical in
       #        SEQUENCE {                    -- structure to PDU
       #            request-id      INTEGER (-214783648..214783647),
@@ -259,9 +258,8 @@ module PacketGen
       def initialize(options={})
         super
         data.chosen = options[:chosen_pdu] if options[:chosen_pdu]
-        if options[:pdu]
-          data.root.value[data.chosen] = data.root.chosen_value.class.new(options[:pdu])
-        end
+        return unless options[:pdu]
+        data.root.value[data.chosen] = data.root.chosen_value.class.new(options[:pdu])
       end
 
       # accessor to data payload

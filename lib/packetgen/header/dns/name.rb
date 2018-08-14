@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class DNS
-
       # DNS Name, defined as a suite of labels. A label is of type {Types::IntString}.
       # @author Sylvain Daubert
       class Name < Types::Array
-
         # Mask to decode a pointer on another label
         POINTER_MASK = 0xc000
 
@@ -56,7 +54,7 @@ module PacketGen
 
           force_binary str
           start = 0
-          while true
+          loop do
             index = str[start, 2].unpack('n').first
             if pointer? index
               # Pointer on another label
@@ -67,7 +65,7 @@ module PacketGen
               label.read(str[start..-1])
               start += label.sz
               self << label
-              break if label.length == 0 or str[start..-1].length == 0
+              break if label.length.zero? || str[start..-1].length.zero?
             end
           end
           # force resolution of compressed names
@@ -101,7 +99,7 @@ module PacketGen
         def name_from_pointer
           return nil unless @pointer
           return @pointer_name if @pointer_name
-          
+
           index = @pointer.unpack('n').first
           mask = ~POINTER_MASK & 0xffff
           ptr = index & mask
@@ -110,7 +108,7 @@ module PacketGen
           @pointer_name = name.read(self.dns.to_s[ptr..-1]).to_human
         end
 
-        def record_from_hash(hsh)
+        def record_from_hash(_hsh)
           raise NotImplementedError, "not supported by #{self.class}"
         end
       end

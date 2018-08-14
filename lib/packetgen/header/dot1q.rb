@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # IEEE 802.1Q VLAN tagging
     #
     # A VLAN tag consists of:

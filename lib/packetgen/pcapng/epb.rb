@@ -7,7 +7,6 @@
 
 module PacketGen
   module PcapNG
-
     # {EPB} represents a Enhanced Packet Block (EPB) of a pcapng file.
     #
     # == EPB Definition
@@ -23,9 +22,8 @@ module PacketGen
     #   Int32   :block_len2
     # @author Sylvain Daubert
     class EPB < Block
-
       # Minimum EPB size
-      MIN_SIZE     = 8*4
+      MIN_SIZE = 8 * 4
 
       # @return [:little, :big]
       attr_accessor :endian
@@ -84,11 +82,11 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        if str_or_io.respond_to? :read
-          io = str_or_io
-        else
-          io = StringIO.new(force_binary(str_or_io.to_s))
-        end
+        io = if str_or_io.respond_to? :read
+               str_or_io
+             else
+               StringIO.new(force_binary(str_or_io.to_s))
+             end
         return self if io.eof?
 
         self[:type].read io.read(4)
@@ -124,7 +122,6 @@ module PacketGen
         super
       end
 
-
       private
 
       def ts_resol
@@ -134,8 +131,6 @@ module PacketGen
           @interface.ts_resol
         end
       end
-
     end
-
   end
 end

@@ -7,12 +7,16 @@
 
 module PacketGen
   module Header
-
     # @since 2.2.0
-    module HTTP 
+    module HTTP
       # @abstract Base class for HTTP headers.
       # @author Kent 'picat' Gruber
       class Headers
+        # Underlying Headers data (or nil).
+        # @return [Hash, nil]
+        attr_reader :data
+        alias to_h data
+
         def initialize
           @data = nil
         end
@@ -23,10 +27,10 @@ module PacketGen
         def read(s_or_h)
           case s_or_h
           when String
-            @data = s_or_h.split("\n").map do |h| 
-              next unless h.include?(":")
-              k, v = h.split(":", 2)
-              [k, v.strip] 
+            @data = s_or_h.split("\n").map do |h|
+              next unless h.include?(':')
+              k, v = h.split(':', 2)
+              [k, v.strip]
             end.reject(&:nil?).to_h
           when Hash
             @data = s_or_h
@@ -40,7 +44,7 @@ module PacketGen
           return "\r\n" if @data.nil? || @data.empty?
           d = []
           @data.map do |k, v|
-            d << k + ": " + v
+            d << k + ': ' + v
           end
           d.join("\r\n") << "\r\n\r\n"
         end
@@ -64,13 +68,6 @@ module PacketGen
           return true unless @data.nil? || @data.empty?
           false
         end
-
-        # Shorcut to the underlying Headers data or nil.
-        # @return [Hash, nil]
-        def data
-          @data
-        end
-        alias to_h data
       end
     end
   end

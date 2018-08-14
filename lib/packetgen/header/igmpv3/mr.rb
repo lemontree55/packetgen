@@ -4,6 +4,7 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require_relative 'group_record'
 
 module PacketGen
@@ -12,7 +13,7 @@ module PacketGen
       # IGMPv3 Membership Report.
       #
       # This is a subpayload for IGMPv3 packets only. This kind of payload is
-      # sent by IP systems to report (to neighboring routers) the current multicast 
+      # sent by IP systems to report (to neighboring routers) the current multicast
       # reception state, or changes in the multicast reception state, of their
       # interfaces. Reports have the following format:
       #    0                   1                   2                   3
@@ -52,7 +53,7 @@ module PacketGen
         #  16-bit Number of group records in {#group_records}
         #  @return [Integer]
         define_field :number_of_gr, Types::Int16, default: 0
-        
+
         # @!attribute group_records
         #  Array of group records
         #  @return [GroupRecords]

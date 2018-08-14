@@ -7,8 +7,7 @@
 
 module PacketGen
   module Header
-    
-    # Dynamic Host Configuration Protocol, {https://tools.ietf.org/html/rfc2131 
+    # Dynamic Host Configuration Protocol, {https://tools.ietf.org/html/rfc2131
     # RFC 2131}
     #
     # A DHCP header is quite simple. It is composed of:
@@ -54,14 +53,14 @@ module PacketGen
       # @!attribute options
       #   @return [DHCP::Options]
       define_field :options, DHCP::Options
-      
+
       # differentiate from BOOTP by checking presence of DHCP magic
       # @return [Boolean]
       def parse?
         self.magic == DHCP_MAGIC
       end
     end
-    
+
     BOOTP.bind_header DHCP
   end
 end

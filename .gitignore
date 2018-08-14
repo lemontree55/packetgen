@@ -8,5 +8,6 @@
 /spec/reports/
 /tmp/
 /vendor/
+/.vscode/
 *~
 tags

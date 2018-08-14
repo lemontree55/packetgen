@@ -15,7 +15,7 @@ module PacketGen
         TYPES = {
           1 => 'padn',
           5 => 'router_alert'
-        }
+        }.freeze
 
         # @return [String]
         def to_human
@@ -27,7 +27,7 @@ module PacketGen
           end
         end
       end
-      
+
       # Special option pad1, for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
       class Pad1 < Types::Fields
@@ -40,7 +40,7 @@ module PacketGen
           'pad1'
         end
       end
-      
+
       # Array of {Option}, for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
       class Options < Types::Array
@@ -54,11 +54,9 @@ module PacketGen
           return self if str.nil?
           force_binary str
           klass = self.class.class_eval { @klass }
-          while str.length > 0
+          until str.empty?
             obj = klass.new.read(str)
-            if obj.type == 0
-              obj = Pad1.new.read(str)
-            end
+            obj = Pad1.new.read(str) if obj.type.zero?
             self.push obj
             str.slice!(0, obj.sz)
           end
@@ -127,7 +125,7 @@ module PacketGen
         end
       end
     end
-    
+
     self.add_class IPv6::HopByHop
     IPv6.bind_header IPv6::HopByHop, next: 0
   end

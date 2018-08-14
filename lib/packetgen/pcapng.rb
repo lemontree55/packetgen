@@ -4,15 +4,14 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'stringio'
 
 module PacketGen
-
   # Module to handle PCAP-NG file format.
   # See http://xml2rfc.tools.ietf.org/cgi-bin/xml2rfc.cgi?url=https://raw.githubusercontent.com/pcapng/pcapng/master/draft-tuexen-opsawg-pcapng.xml&modeAsFormat=html/ascii&type=ascii
   # @author Sylvain Daubert
   module PcapNG
-
     # Section Header Block type number
     SHB_TYPE = Types::Int32.new(0x0A0D0D0A, :little)
     # Interface Description Block type number
@@ -44,11 +43,8 @@ module PacketGen
     class Error < PacketGen::Error; end
     # Invalid PcapNG file error
     class InvalidFileError < Error; end
-
   end
-
 end
-
 
 require_relative 'pcapng/block.rb'
 require_relative 'pcapng/unknown_block.rb'

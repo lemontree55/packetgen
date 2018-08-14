@@ -8,7 +8,6 @@
 
 module PacketGen
   module Types
-
     # Class to handle Type-Length-Value attributes
     #
     # TLV fields handles three subfields:
@@ -64,7 +63,7 @@ module PacketGen
       # @param [String] str
       # @return [Fields] self
       def read(str)
-        idx = 0 
+        idx = 0
         self[:type].read str[idx, self[:type].sz]
         idx += self[:type].sz
         self[:length].read str[idx, self[:length].sz]
@@ -86,11 +85,9 @@ module PacketGen
         when Integer
           self.old_type = val
         else
-          unless has_human_types?
-            raise TypeError, 'need an Integer'
-          end
+          raise TypeError, 'need an Integer' unless has_human_types?
           new_val = self.class::TYPES.key(val.to_s)
-          raise ArgumentError, "unknown #{val.to_s} type" if new_val.nil?
+          raise ArgumentError, "unknown #{val} type" if new_val.nil?
           self.old_type = new_val
         end
       end
@@ -139,13 +136,13 @@ module PacketGen
         name = self.class.to_s.gsub(/.*::/, '')
         @typestr ||= if has_human_types?
                        types = self.class::TYPES.values
-                       "%-#{types.max { |a,b| a.length <=> b.length }.size}s"
+                       "%-#{types.max_by(&:length).size}s"
                      else
-                       "%s"
+                       '%s'
                      end
-        @lenstr ||= "%-#{(2**(self[:length].width*8) - 1).to_s.size}u"
-        "#{name} type:#@typestr length:#@lenstr value:#{value.inspect}" % [human_type,
-                                                                           length]
+        @lenstr ||= "%-#{(2**(self[:length].width * 8) - 1).to_s.size}u"
+        "#{name} type:#{@typestr} length:#{@lenstr} value:#{value.inspect}" % [human_type,
+                                                                               length]
       end
 
       private

@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class DNS
-
       # Define a DNS Question Section
       # @author Sylvain Daubert
       class QDSection < RRSection
@@ -32,7 +31,7 @@ module PacketGen
           clear
           return self if str.nil?
           force_binary str
-          while str.length > 0 and self.size < @counter.to_i
+          while !str.empty? && (self.size < @counter.to_i)
             question = Question.new(@dns).read(str)
             str.slice!(0, question.sz)
             self.push question

@@ -1,0 +1,24 @@
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+Lint/EmptyWhen:
+  Enabled: false
+Lint/Void:
+  Enabled: false
+Metrics:
+  Enabled: false
+Style/AsciiComments:
+  Enabled: false
+Style/Encoding:
+  Enabled: false
+Style/EvalWithLocation:
+  Enabled: false
+Style/FormatString:
+  EnforcedStyle: percent
+Style/RedundantSelf:
+  Enabled: false
+Style/StructInheritance:
+  Enabled: false
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+Style/TrailingCommaInHashLiteral:
+  Enabled: false

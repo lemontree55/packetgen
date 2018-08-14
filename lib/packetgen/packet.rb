@@ -5,10 +5,10 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'pcaprub'
 
 module PacketGen
-
   # An object of type {Packet} handles a network packet. This packet may contain
   # multiple protocol headers, starting from MAC layer or from Network (OSI) layer.
   #
@@ -107,17 +107,15 @@ module PacketGen
     # @author Sylvain Daubert
     # @author Kent Gruber
     def self.read(filename)
-      begin
-        PcapNG::File.new.read_packets filename
-      rescue => e
-        raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
-        packets = []
-        PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
-          next unless packet = PacketGen.parse(packet.to_s)
-          packets << packet
-        end
-        packets
+      PcapNG::File.new.read_packets filename
+    rescue StandardError => e
+      raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
+      packets = []
+      PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
+        next unless (packet = PacketGen.parse(packet.to_s))
+        packets << packet
       end
+      packets
     end
 
     # Write packets to +filename+
@@ -225,7 +223,7 @@ module PacketGen
     def to_f(filename)
       PcapNG::File.new.array_to_file(filename: filename, array: [self])
     end
-    alias :write :to_f
+    alias write to_f
 
     # send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
@@ -277,9 +275,9 @@ module PacketGen
         raise FormatError, 'header not in packet!' if idx.nil?
 
         prev_header = idx > 0 ? @headers[idx - 1] : nil
-        next_header = (idx+1) < @headers.size ? @headers[idx + 1] : nil
+        next_header = (idx + 1) < @headers.size ? @headers[idx + 1] : nil
         @headers.delete_at(idx)
-        if prev_header and next_header
+        if prev_header && next_header
           add_header(next_header, previous_header: prev_header)
         end
       end
@@ -329,7 +327,7 @@ module PacketGen
 
     # Dup +@headers+ instance variable. Internally used by +#dup+ and +#clone+
     # @return [void]
-    def initialize_copy(other)
+    def initialize_copy(_other)
       @headers = @headers.dup
     end
 
@@ -386,15 +384,15 @@ module PacketGen
             raise ArgumentError, msg
           end
         end
-        bindings.set(prev_header) if !bindings.empty? and !parsing
+        bindings.set(prev_header) if !bindings.empty? && !parsing
         prev_header[:body] = header
       end
       header.packet = self
       @headers << header unless previous_header
-      unless respond_to? header.method_name
-        self.instance_eval "def #{header.method_name}(arg=nil);" \
-                           "header(#{header.class}, arg); end"
-      end
+
+      return if respond_to? header.method_name
+      self.instance_eval "def #{header.method_name}(arg=nil);" \
+                         "header(#{header.class}, arg); end"
     end
 
     def guess_first_header(binary_str)
@@ -418,7 +416,7 @@ module PacketGen
 
     def decode_bottom_up
       decode_packet_bottom_up = true
-      while decode_packet_bottom_up do
+      while decode_packet_bottom_up
         last_known_hdr = @headers.last
         break unless last_known_hdr.respond_to? :body
         break if last_known_hdr.body.empty?

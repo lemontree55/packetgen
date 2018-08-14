@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # Transform attribute.
       #                        1                   2                   3
       #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -24,7 +23,6 @@ module PacketGen
       # or a TV format (AF=1).
       # @author Sylvain Daubert
       class Attribute < Types::Fields
-
         TYPE_KEY_LENGTH = 14
 
         # @!attribute type
@@ -82,8 +80,8 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          name = self.class.constants.grep(/TYPE_/).
-                  detect { |c| self.class.const_get(c) == (type & 0x7fff) } || "attr[#{type & 0x7fff}]"
+          name = self.class.constants.grep(/TYPE_/)
+                     .detect { |c| self.class.const_get(c) == (type & 0x7fff) } || "attr[#{type & 0x7fff}]"
           name = name.to_s.sub(/TYPE_/, '')
           "#{name}=#{value}"
         end
@@ -127,7 +125,6 @@ module PacketGen
       #  trans.attributes << { type: 14, value: 128 }
       # @author Sylvain Daubert
       class Transform < Types::Fields
-
         TYPES = {
           'ENCR' => 1,
           'PRF'  => 2,
@@ -281,14 +278,14 @@ module PacketGen
         # @return [String]
         def to_human
           h = "#{human_type}(#{human_id}".dup
-          h << ",#{attributes.to_human}" if attributes.size > 0
+          h << ",#{attributes.to_human}" unless attributes.empty?
           h << ')'
         end
 
         # Get human-readable type
         # @return [String]
         def human_type
-          if self[:type].enum.has_value? self.type
+          if self[:type].enum.value? self.type
             self[:type].to_human
           else
             "type[#{self.type}]"
@@ -298,9 +295,9 @@ module PacketGen
         # Get human-readable ID
         # @return [String]
         def human_id
-          name = self.class.constants.grep(/#{human_type}_/).
-                 detect { |c| self.class.const_get(c) == id } || "ID=#{id}"
-           name.to_s.sub(/#{human_type}_/, '')
+          name = self.class.constants.grep(/#{human_type}_/)
+                     .detect { |c| self.class.const_get(c) == id } || "ID=#{id}"
+          name.to_s.sub(/#{human_type}_/, '')
         end
 
         # Say if this transform is the last one (from {#last} field)
@@ -311,8 +308,6 @@ module PacketGen
             true
           when 3
             false
-          else
-            nil
           end
         end
       end
@@ -360,7 +355,6 @@ module PacketGen
       #  proposal.transforms << { type: 'ENCR', id: '3DES' }
       # @author Sylvain Daubert
       class SAProposal < Types::Fields
-
         # @!attribute last
         #  8-bit last substructure. Specifies whether or not this is the
         #  last Proposal Substructure in the SA. This field has a value of 0
@@ -410,7 +404,7 @@ module PacketGen
         define_field :transforms, Transforms, builder: ->(h, t) { t.new(counter: h[:num_trans]) }
 
         def initialize(options={})
-          if options[:spi] and options[:spi_size].nil?
+          if options[:spi] && options[:spi_size].nil?
             options[:spi_size] = options[:spi].size
           end
           super
@@ -423,12 +417,12 @@ module PacketGen
         # @return [Integer]
         def protocol=(value)
           proto = case value
-               when Integer
-                 value
-               else
-                 c = IKE.constants.grep(/PROTO_#{value}/).first
-                 c ? IKE.const_get(c) : nil
-               end
+                  when Integer
+                    value
+                  else
+                    c = IKE.constants.grep(/PROTO_#{value}/).first
+                    c ? IKE.const_get(c) : nil
+                  end
           raise ArgumentError, "unknown protocol #{value.inspect}" unless proto
           self[:protocol].value = proto
         end
@@ -447,7 +441,7 @@ module PacketGen
         # Compute length and set {#length} field
         # @return [Integer] new length
         def calc_length
-          transforms.each { |t| t.calc_length }
+          transforms.each(&:calc_length)
           Base.calculate_and_set_length self
         end
 
@@ -457,9 +451,9 @@ module PacketGen
           str = "##{num} #{human_protocol}".dup
           case spi_size
           when 4
-            str << "(spi:0x%08x)" % Types::Int32.new.read(spi).to_i
+            str << '(spi:0x%08x)' % Types::Int32.new.read(spi).to_i
           when 8
-            str << "(spi:0x%016x)" % Types::Int64.new.read(spi).to_i
+            str << '(spi:0x%016x)' % Types::Int64.new.read(spi).to_i
           end
           str << ":#{transforms.to_human}"
         end
@@ -467,8 +461,8 @@ module PacketGen
         # Get protocol name
         # @return [String]
         def human_protocol
-          name = IKE.constants.grep(/PROTO/).
-                 detect { |c| IKE.const_get(c) == protocol } || "proto #{protocol}"
+          name = IKE.constants.grep(/PROTO/)
+                    .detect { |c| IKE.const_get(c) == protocol } || "proto #{protocol}"
           name.to_s.sub(/PROTO_/, '')
         end
 
@@ -481,8 +475,6 @@ module PacketGen
             true
           when 2
             false
-          else
-            nil
           end
         end
       end
@@ -533,7 +525,6 @@ module PacketGen
       #   pkt.calc_length
       # @author Sylvain Daubert
       class SA < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 33
 
@@ -553,14 +544,14 @@ module PacketGen
           hlen = self.class.new.sz
           plen = length - hlen
           proposals.read str[hlen, plen]
-          body.read str[hlen+plen..-1]
+          body.read str[hlen + plen..-1]
           self
         end
 
         # Compute length and set {#length} field
         # @return [Integer] new length
         def calc_length
-          proposals.each { |p| p.calc_length }
+          proposals.each(&:calc_length)
           super
         end
       end

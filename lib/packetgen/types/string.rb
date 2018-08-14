@@ -8,12 +8,10 @@
 
 module PacketGen
   module Types
-
     # This class is just like regular String. It only adds {#read} and {#sz} methods
     # to be compatible with others {Types}.
     # @author Sylvain Daubert
     class String < ::String
-
       # @param [Hash] options
       # @option options [Types::Int,Proc] :length_from object or proc from which
       #   takes length when reading
@@ -30,14 +28,14 @@ module PacketGen
         s = str.to_s
         str_end = case @length_from
                   when Types::Int
-                    str_end = @length_from.to_i
+                    @length_from.to_i
                   when Proc
-                    str_end = @length_from.call
+                    @length_from.call
                   else
                     if @static_length.is_a? Integer
-                      str_end = @static_length
+                      @static_length
                     else
-                      str_end = s.size
+                      s.size
                     end
                   end
         str_end = 0 if str_end < 0

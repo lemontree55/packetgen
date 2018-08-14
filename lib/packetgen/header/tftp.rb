@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # A TFTP (Trivial File Transfer Protocol,
     # {https://tools.ietf.org/html/rfc1350 RFC 1350}) header consists of:
     # * a {#opcode} ({Types::Int16Enum}),
@@ -48,7 +47,6 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.3.0
     class TFTP < Base
-
       # Known opcodes
       OPCODES = {
         'RRQ'   => 1,
@@ -56,22 +54,22 @@ module PacketGen
         'DATA'  => 3,
         'ACK'   => 4,
         'Error' => 5
-      }
+      }.freeze
 
       # @!attribute opcode
       #   16-bit operation code
       #   @return [Integer]
       define_field :opcode, Types::Int16Enum, enum: OPCODES
-      
+
       # @!attribute body
       #   @return [String]
       define_field :body, Types::String
-      
+
       def initialize(options={})
         type = protocol_name.sub(/^.*::/, '')
         opcode = OPCODES[type]
-        if self.class != TFTP and !opcode.nil?
-          super({opcode: opcode}.merge(options))
+        if (self.class != TFTP) && !opcode.nil?
+          super({ opcode: opcode }.merge(options))
         else
           super
         end
@@ -86,7 +84,7 @@ module PacketGen
       def read(str)
         if self.instance_of? TFTP
           super
-          if OPCODES.values.include? opcode
+          if OPCODES.value? opcode
             TFTP.const_get(human_opcode).new.read str
           else
             self
@@ -95,7 +93,7 @@ module PacketGen
           old_read str
         end
       end
-      
+
       # Decode subsequent TFTP packets to this one. Packets are modified
       # in place in +ary+.
       # @param [Array<Packet>] ary
@@ -105,7 +103,7 @@ module PacketGen
         server_tid = nil
         ary.each do |pkt|
           if server_tid.nil?
-            next unless pkt.is?('UDP') and pkt.udp.dport == client_tid
+            next unless pkt.is?('UDP') && (pkt.udp.dport == client_tid)
             server_tid = pkt.udp.sport
           else
             next unless pkt.is?('UDP')
@@ -121,7 +119,7 @@ module PacketGen
         end
       end
 
-       # Get human readable opcode
+      # Get human readable opcode
       # @return [String]
       def human_opcode
         self[:opcode].to_human
@@ -133,16 +131,15 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        unless packet.respond_to? :tftp
-          packet.instance_eval("def tftp(arg=nil); header(#{self.class}, arg); end")
-        end
+        return if packet.respond_to? :tftp
+        packet.instance_eval("def tftp(arg=nil); header(#{self.class}, arg); end")
       end
 
       # TFTP Read Request header
       class RRQ < TFTP
         delete_field :body
         undef body
-        
+
         # @!attribute filename
         #   Filename to access
         #   @return [String]
@@ -169,7 +166,7 @@ module PacketGen
       class ACK < TFTP
         delete_field :body
         undef body
-        
+
         # @!attribute block_num
         #   16-bit block number
         #   @return [Integer]

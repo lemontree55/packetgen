@@ -40,7 +40,6 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class GroupRecord < Types::Fields
-
         # Known record types
         RECORD_TYPES = {
           'MODE_IS_INCLUDE'        => 1,
@@ -49,7 +48,7 @@ module PacketGen
           'CHANGE_TO_EXCLUDE_MODE' => 4,
           'ALLOW_NEW_SOURCES'      => 5,
           'BLOCK_OLD_SOURCES'      => 6
-        }
+        }.freeze
 
         # @!attribute type
         #  8-bit record type
@@ -76,7 +75,7 @@ module PacketGen
         # @!attribute aux_data
         #  @return [String]
         define_field :aux_data, Types::String,
-                     builder: ->(h, t) { t.new(length_from: ->() { h[:aux_data_len].to_i * 4 }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
 
         def human_type
           self[:type].to_human
@@ -86,12 +85,12 @@ module PacketGen
           "#{human_type}(ma:#{multicast_addr}|src:#{source_addr.to_human})"
         end
       end
-      
+
       # Class to handle series of {GroupRecord}.
       # @author Sylvain Daubert
       class GroupRecords < Types::Array
         set_of GroupRecord
-        
+
         # Separator used in {#to_human}.
         HUMAN_SEPARATOR = ';'
       end

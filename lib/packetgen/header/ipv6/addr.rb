@@ -5,6 +5,7 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'ipaddr'
 
 module PacketGen
@@ -13,7 +14,6 @@ module PacketGen
       # IPv6 address, as a group of 8 2-byte words
       # @author Sylvain Daubert
       class Addr < Types::Fields
-
         # @!attribute a1
         #  1st 2-byte word of IPv6 address
         #  @return [Integer]
@@ -89,7 +89,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ArrayOfAddr < Types::Array
         set_of IPv6::Addr
-        
+
         # Push a IPv6 address to the array
         # @param [String,Addr] addr
         # @return [self]

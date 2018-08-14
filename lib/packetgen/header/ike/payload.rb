@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class IKE
-
       # Base class for IKE payloads. This class may also be used for unknown payloads.
       #
       # This class handles generic IKE payload header:

@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class EAP
-
       # Extensible Authentication Protocol (EAP) - Flexible Authentication variable
       # Secure Tunneling, {https://tools.ietf.org/html/rfc4851 RFC 4851}
       #

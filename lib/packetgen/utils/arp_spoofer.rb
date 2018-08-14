@@ -4,11 +4,11 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'thread'
 
 module PacketGen
   module Utils
-
     # @note This class is provided for test purpose.
     # Utility class to make ARP spoofing.
     #   spoofer = PacketGen::Utils::ARPSpoofer.new
@@ -23,7 +23,6 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.1.3
     class ARPSpoofer
-
       # @param [Integer,Float,nil] timeout spoof will happen for this amount
       #  of time
       # @param [Integer,Float] interval time between 2 ARP packets
@@ -51,7 +50,7 @@ module PacketGen
       #  an ARP request is made to get it.
       # @return [void]
       def add(target_ip, spoofed_ip, options={})
-        @targets[target_ip] = options.merge({spoofed_ip: spoofed_ip, active: false})
+        @targets[target_ip] = options.merge(spoofed_ip: spoofed_ip, active: false)
       end
 
       # Remove target from spoofer.
@@ -104,7 +103,7 @@ module PacketGen
           activate target_ip
         end
       end
-      
+
       # Stop spoofing on all targets.
       # @return [void]
       def stop_all
@@ -117,11 +116,8 @@ module PacketGen
       # @param [String] target_ip target IP address
       # @return [Boolean,nil]
       def active?(target_ip)
-        if @targets.has_key?(target_ip)
-          @targets[target_ip][:active]
-        else
-          nil
-        end
+        return unless @targets.key?(target_ip)
+        @targets[target_ip][:active]
       end
 
       # Wait for spoofing to finish. Wait forever if no +timeout+ options
@@ -138,16 +134,14 @@ module PacketGen
       def activate(target_ip)
         @arp_packets[target_ip] = make_arp_packet(target_ip)
         @queue << @arp_packets.values
-        unless @spoof_thread
-          create_spoof_thread
-        end
+        create_spoof_thread unless @spoof_thread
         @targets[target_ip][:active] = true
       end
-      
+
       # Create spoof thread
       def create_spoof_thread
-        @spoof_thread = Thread.new(@queue, @iface, @timeout, @interval) do |queue, iface, timeout, interval|
-          while timeout.nil? or timeout > 0.0 do
+        @spoof_thread = Thread.new(@queue, @timeout, @interval) do |queue, timeout, interval|
+          while timeout.nil? || timeout > 0.0
             packets = queue.pop unless queue.empty?
             send_packets_on_wire(packets) unless packets.empty?
             timeout -= interval if timeout
@@ -184,9 +178,9 @@ module PacketGen
 
         target_mac = params[:target_mac] || Utils.arp(target_ip)
 
-        Packet.gen('Eth', dst: target_mac, src: mac).
-               add('ARP', op: 'reply', sha: mac, spa: params[:spoofed_ip],
-                   tha: target_mac, tpa: target_ip)
+        Packet.gen('Eth', dst: target_mac, src: mac)
+              .add('ARP', op: 'reply', sha: mac, spa: params[:spoofed_ip],
+                          tha: target_mac, tpa: target_ip)
       end
     end
   end

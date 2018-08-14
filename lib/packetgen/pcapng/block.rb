@@ -7,11 +7,9 @@
 
 module PacketGen
   module PcapNG
-
     # @abstract Base class for all block types
     # @author Sylvain Daubert
     class Block < Types::Fields
-
       # @return [:little, :big]
       attr_accessor :endian
 
@@ -35,7 +33,7 @@ module PacketGen
       # Has this block option?
       # @return [Boolean]
       def has_options?
-        @fields.has_key?(:options) && @fields[:options].sz > 0
+        @fields.key?(:options) && @fields[:options].sz > 0
       end
 
       # Calculate block length and update :block_len and block_len2 fields
@@ -50,7 +48,7 @@ module PacketGen
       # @return [void]
       def pad_field(*fields)
         fields.each do |field|
-          unless @fields[field].size % 4 == 0
+          unless (@fields[field].size % 4).zero?
             @fields[field] << "\x00" * (4 - (@fields[field].size % 4))
           end
         end
@@ -63,11 +61,11 @@ module PacketGen
       # @param [:little, :big] e
       # @return [:little, :big] returns e
       def set_endianness(e)
-        unless [:little, :big].include? e
+        unless %i[little big].include? e
           raise ArgumentError, "unknown endianness for #{self.class}"
         end
         @endian = e
-        @fields.each { |f_, v| v.endian = e if v.is_a?(Types::Int) }
+        @fields.each { |_f, v| v.endian = e if v.is_a?(Types::Int) }
         e
       end
 

@@ -8,12 +8,10 @@
 
 module PacketGen
   module Types
-
     # Base integer class to handle binary integers
     # @abstract
     # @author Sylvain Daubert
     class Int
-
       # Integer value
       # @return [Integer]
       attr_accessor :value
@@ -135,17 +133,17 @@ module PacketGen
       # @return [self]
       def read(value)
         return self if value.nil?
-        @value =  if value.is_a?(Integer)
-                    value.to_i
-                  else
-                    up8 = down16 = 0
-                    if @endian == :big
-                      up8, down16 = value.to_s.unpack('Cn')
-                    else
-                      down16, up8 = value.to_s.unpack('vC')
-                    end
-                    (up8 << 16) | down16
-                  end
+        @value = if value.is_a?(Integer)
+                   value.to_i
+                 else
+                   up8 = down16 = 0
+                   if @endian == :big
+                     up8, down16 = value.to_s.unpack('Cn')
+                   else
+                     down16, up8 = value.to_s.unpack('vC')
+                   end
+                   (up8 << 16) | down16
+                 end
         self
       end
 

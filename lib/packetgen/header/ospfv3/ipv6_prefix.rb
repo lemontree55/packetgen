@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # Array of 32-bit words.
       # @author Sylvain Daubert
       class ArrayOfInt32 < Types::Array
@@ -64,13 +63,13 @@ module PacketGen
         # @return [String]
         def to_human
           ary = prefix.map(&:to_i).map do |v|
-            "#{((v>>16) & 0xffff).to_s(16)}:#{(v & 0xffff).to_s(16)}"
+            "#{((v >> 16) & 0xffff).to_s(16)}:#{(v & 0xffff).to_s(16)}"
           end
           pfx = ary.join(':')
-          pfx += '::' if prefix.size < (128/32)
-          "#{IPAddr.new(pfx).to_s}/#{length}"
+          pfx += '::' if prefix.size < (128 / 32)
+          "#{IPAddr.new(pfx)}/#{length}"
         end
-        
+
         # Set prefix from a human-readable string. This method cannot set
         # {#options} field.
         # @param [String] str
@@ -80,10 +79,10 @@ module PacketGen
           len = (len || 128).to_i
           addr = IPv6::Addr.new.from_human(pfx)
           ary_size = (len + 31) / 32
-          ary = addr.to_a[0...ary_size*2]
+          ary = addr.to_a[0...ary_size * 2]
           self.prefix.clear
           ary.each_with_index do |v, i|
-            if i % 2 == 0
+            if i.even?
               self.prefix << v
             else
               self.prefix.last.value = (self.prefix.last.to_i << 16) | v.to_i
@@ -92,7 +91,7 @@ module PacketGen
           self.length = len
         end
       end
-      
+
       # Array of {IPv6Prefix}
       # @author Sylvain Daubert
       class ArrayOfIPv6Prefix < Types::Array

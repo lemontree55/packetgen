@@ -26,28 +26,28 @@ module PacketGen
       # attributes of TCP header are not set.
       #
       # == HTTP Request attributes
-      #	  http_rqst.version = "HTTP/1.1"
-      #	  http_rqst.method  = "GET"
-      #	  http_rqst.path    = "/meow.html"
+      #   http_rqst.version = "HTTP/1.1"
+      #   http_rqst.method  = "GET"
+      #   http_rqst.path    = "/meow.html"
       #   http_rqst.headers = "Host: tcpdump.org"     # string or
-      #	  http_rqst.headers = { "Host": "tcpdump.org" } # even a hash
+      #   http_rqst.headers = { "Host": "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
       class Request < Base
         # @!attribute method
         #   @return [Types::String]
         define_field :method,  Types::String
-        # @!attribute path 
+        # @!attribute path
         #   @return [Types::String]
         define_field :path,    Types::String
-        # @!attribute version 
+        # @!attribute version
         #   @return [Types::String]
-        define_field :version, Types::String, default: "HTTP/1.1"
+        define_field :version, Types::String, default: 'HTTP/1.1'
         # @!attribute headers
         #   associated http/1.1 headers
         #   @return [HTTP::Headers]
-        define_field :headers, HTTP::Headers 
-        # @!attribute body 
+        define_field :headers, HTTP::Headers
+        # @!attribute body
         #   @return [Types::String]
         define_field :body, Types::String
 
@@ -61,7 +61,7 @@ module PacketGen
           self.headers ||= options[:headers]
         end
 
-        # Read in the HTTP portion of the packet, and parse it. 
+        # Read in the HTTP portion of the packet, and parse it.
         # @return [PacketGen::HTTP::Request]
         def read(str)
           str = str.bytes.map!(&:chr).join unless str.valid_encoding?
@@ -73,9 +73,9 @@ module PacketGen
           self[:path]    = first_line[1]
           self[:version] = first_line[2]
           # requests can sometimes have a payload
-          if data_index = str.find_index("")
-            data    = str[data_index+1..-1].join("\n")
-            headers = str[0..data_index-1].join("\n")
+          if (data_index = str.find_index(''))
+            data    = str[data_index + 1..-1].join("\n")
+            headers = str[0..data_index - 1].join("\n")
           else
             headers = str.join("\n")
           end
@@ -87,16 +87,16 @@ module PacketGen
         # String representation of data.
         # @return [String]
         def to_s
-          raise FormatError, "Missing #method."  if self.method.empty?
-          raise FormatError, "Missing #path."    if self.path.empty?
-          raise FormatError, "Missing #version." if self.version.empty?
-          str = "".dup # build 'dat string
-          str << self[:method] << " " << self[:path] << " " << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
+          raise FormatError, 'Missing #method.'  if self.method.empty?
+          raise FormatError, 'Missing #path.'    if self.path.empty?
+          raise FormatError, 'Missing #version.' if self.version.empty?
+          str = ''.dup # build 'dat string
+          str << self[:method] << ' ' << self[:path] << ' ' << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
         end
       end
     end
 
-    self.add_class HTTP::Request 
+    self.add_class HTTP::Request
     TCP.bind_header HTTP::Request, body: ->(b) { HTTP::REQUEST_REGEX =~ b.chars.select(&:valid_encoding?).join }
   end
 end

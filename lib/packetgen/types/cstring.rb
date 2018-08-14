@@ -8,11 +8,9 @@
 
 module PacketGen
   module Types
-
     # This class handles null-terminated strings (aka C strings).
     # @author Sylvain Daubert
     class CString < ::String
-
       # @param [Hash] options
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
@@ -24,9 +22,7 @@ module PacketGen
       # @return [String] self
       def read(str)
         s = str.to_s
-        if @static_length.is_a? Integer
-          s = s[0, @static_length]
-        end
+        s = s[0, @static_length] if @static_length.is_a? Integer
         idx = s.index(0.chr)
         s = s[0, idx] unless idx.nil?
         self.replace s

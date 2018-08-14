@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # Generic Routing Encapsulation (RFC 2784 and 2890)
     #                       1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 3 3
     #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -23,7 +22,6 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.1.0
     class GRE < Base
-
       # IP protocol number for GRE
       IP_PROTOCOL = 47
 

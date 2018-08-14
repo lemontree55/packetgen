@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-    
     # This class supports OSPFv2 (RFC 2328).
     # A OSPFv2 header has the following format:
     #
@@ -71,18 +70,17 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.5.0
     class OSPFv2 < Base
-      
       # IP protocol number for OSPF
       IP_PROTOCOL = 89
-      
+
       # OSPF packet types
-      TYPES    = {
+      TYPES = {
         'HELLO'          => 1,
         'DB_DESCRIPTION' => 2,
         'LS_REQUEST'     => 3,
         'LS_UPDATE'      => 4,
         'LS_ACK'         => 5
-      }
+      }.freeze
 
       # Authentication types
       AU_TYPES = {
@@ -90,7 +88,7 @@ module PacketGen
         'PASSWORD'        => 1,
         'CRYPTO'          => 2,
         'CRYPTO_WITH_ESN' => 3
-      }
+      }.freeze
 
       # @!attribute version
       #  8-bit OSPF version

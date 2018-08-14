@@ -15,8 +15,8 @@ module PacketGen
         MESSAGE_TYPES = {
           'RELAY-FORW' => 12,
           'RELAY-REPL' => 13
-        }
-        
+        }.freeze
+
         # @!attribute msg_type
         #   8-bit message type
         #   @return [Integer]

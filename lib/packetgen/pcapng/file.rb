@@ -7,11 +7,9 @@
 
 module PacketGen
   module PcapNG
-
     # PcapNG::File is a complete Pcap-NG file handler.
     # @author Sylvain Daubert
     class File
-
       # Known link types
       KNOWN_LINK_TYPES = {
         LINKTYPE_ETHERNET => 'Eth',
@@ -64,20 +62,17 @@ module PacketGen
         end
 
         ::File.open(fname, 'rb') do |f|
-          while !f.eof? do
-            parse_section(f)
-          end
+          parse_section(f) until f.eof?
         end
 
-        if blk
-          count = 0
-          @sections.each do |section|
-            section.interfaces.each do |intf|
-              intf.packets.each { |pkt| count += 1; yield pkt }
-            end
+        return unless blk
+        count = 0
+        @sections.each do |section|
+          section.interfaces.each do |intf|
+            intf.packets.each { |pkt| count += 1; yield pkt }
           end
-          count
         end
+        count
       end
 
       # Give an array of raw packets (raw data from packets).
@@ -143,7 +138,7 @@ module PacketGen
       # Return the object as a String
       # @return [String]
       def to_s
-        @sections.map { |section| section.to_s }.join
+        @sections.map(&:to_s).join
       end
 
       # Clear the contents of the Pcapng::File.
@@ -173,9 +168,9 @@ module PacketGen
         @sections.each do |section|
           section.interfaces.each do |itf|
             if options[:keep_timestamps] || options[:keep_ts]
-              ary.concat itf.packets.map { |pkt| { pkt.timestamp => pkt.data.to_s } }
+              ary.concat(itf.packets.map { |pkt| { pkt.timestamp => pkt.data.to_s } })
             else
-              ary.concat itf.packets.map { |pkt| pkt.data.to_s}
+              ary.concat(itf.packets.map { |pkt| pkt.data.to_s })
             end
           end
         end
@@ -188,29 +183,28 @@ module PacketGen
       #   the packets are appended to the file, rather than overwriting it
       # @return [Array] array of 2 elements: filename and size written
       def to_file(filename, options={})
-        mode = ''
-        if options[:append] and ::File.exists? filename
-          mode = 'ab'
-        else
-          mode = 'wb'
-        end
-        ::File.open(filename, mode) {|f| f.write(self.to_s)}
+        mode = if options[:append] && ::File.exist?(filename)
+                 'ab'
+               else
+                 'wb'
+               end
+        ::File.open(filename, mode) { |f| f.write(self.to_s) }
         [filename, self.to_s.size]
       end
-      alias_method :to_f, :to_file
+      alias to_f to_file
 
       # Shorthand method for writing to a file.
       # @param [#to_s] filename
       # @return [Array] see return value from {#to_file}
       def write(filename='out.pcapng')
-        self.to_file(filename.to_s, :append => false)
+        self.to_file(filename.to_s, append: false)
       end
 
       # Shorthand method for appending to a file.
       # @param [#to_s] filename
       # @return [Array] see return value from {#to_file}
       def append(filename='out.pcapng')
-        self.to_file(filename.to_s, :append => true)
+        self.to_file(filename.to_s, append: true)
       end
 
       # @overload array_to_file(ary)
@@ -235,12 +229,12 @@ module PacketGen
         when Hash
           filename = options[:filename] || options[:file]
           ary = options[:array] || options[:arr]
-          unless ary.kind_of? Array
+          unless ary.is_a? Array
             raise ArgumentError, ':array parameter needs to be an array'
           end
           ts = options[:timestamp] || options[:ts] || Time.now
           ts_inc = options[:ts_inc] || 1
-          append = !!options[:append]
+          append = !options[:append].nil?
         when Array
           ary = options
           ts = Time.now
@@ -253,7 +247,7 @@ module PacketGen
 
         section = SHB.new
         @sections << section
-        itf = IDB.new(:endian => section.endian)
+        itf = IDB.new(endian: section.endian)
         classify_block section, itf
 
         ary.each_with_index do |pkt, i|
@@ -270,23 +264,22 @@ module PacketGen
           this_ts = (this_ts / itf.ts_resol).to_i
           this_tsh = this_ts >> 32
           this_tsl = this_ts & 0xffffffff
-          this_pkt = EPB.new(:endian       => section.endian,
-                             :interface_id => 0,
-                             :tsh          => this_tsh,
-                             :tsl          => this_tsl,
-                             :cap_len      => this_cap_len,
-                             :orig_len     => this_cap_len,
-                             :data         => this_data)
+          this_pkt = EPB.new(endian:       section.endian,
+                             interface_id: 0,
+                             tsh:          this_tsh,
+                             tsl:          this_tsl,
+                             cap_len:      this_cap_len,
+                             orig_len:     this_cap_len,
+                             data:         this_data)
           classify_block section, this_pkt
         end
 
         if filename
-          self.to_f(filename, :append => append)
+          self.to_f(filename, append: append)
         else
           self
         end
       end
-
 
       private
 
@@ -304,19 +297,19 @@ module PacketGen
         if shb.section_len.to_i != 0xffffffffffffffff
           # Section length is defined
           section = StringIO.new(io.read(shb.section_len.to_i))
-          while !section.eof? do
+          until section.eof?
             shb = @sections.last
             type = Types::Int32.new(0, shb.endian).read(section.read(4))
             section.seek(-4, IO::SEEK_CUR)
-            block = parse(type, section, shb)
+            parse(type, section, shb)
           end
         else
           # section length is undefined
-          while !io.eof?
+          until io.eof?
             shb = @sections.last
             type = Types::Int32.new(0, shb.endian).read(io.read(4))
             io.seek(-4, IO::SEEK_CUR)
-            block = parse(type, io, shb)
+            parse(type, io, shb)
           end
         end
       end
@@ -327,11 +320,11 @@ module PacketGen
       # @param [SHB] shb header of current section
       # @return [void]
       def parse(type, io, shb)
-        types = PcapNG.constants(false).select { |c| c.to_s =~ /_TYPE/ }.
-          map { |c| [PcapNG.const_get(c).to_i, c] }
+        types = PcapNG.constants(false).select { |c| c.to_s =~ /_TYPE/ }
+                      .map { |c| [PcapNG.const_get(c).to_i, c] }
         types = Hash[types]
 
-        if types.has_key?(type.to_i)
+        if types.key?(type.to_i)
           klass = PcapNG.const_get(types[type.to_i].to_s.gsub(/_TYPE/, '').to_sym)
           block = klass.new(endian: shb.endian)
         else

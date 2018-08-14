@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # This class handles links in a {LSARouter OSPFv3 LSA router payload}.
       # @author Sylvain Daubert
       class Link < Types::Fields
@@ -53,7 +52,7 @@ module PacketGen
         #  LSA body
         #  @return [String]
         define_field :body, Types::String,
-                     builder: ->(h,t) { t.new(length_from: ->() { h.length - 20 }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h.length - 20 }) }
       end
 
       # This class handles OSPFv3 LSA Router payloads.
@@ -185,7 +184,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ArrayOfLSA < Types::Array
         set_of LSA
-        
+
         # @param [Hash] options
         # @option options [Types::Int] counter Int object used as a counter for this set
         # @option options [Boolean] only_headers if +true+, only {LSAHeader LSAHeaders}
@@ -201,17 +200,17 @@ module PacketGen
         def read(str)
           clear
           return self if str.nil?
-          return self if @counter and @counter.to_i == 0
+          return self if @counter && @counter.to_i.zero?
           force_binary str
-          while str.length > 0
+          until str.empty?
             lsa = LSAHeader.new.read(str)
-            if !@only_headers
+            unless @only_headers
               klass = get_lsa_class_by_human_type(lsa.human_type)
               lsa = klass.new.read(str[0...lsa.length])
             end
             self.push lsa
             str.slice!(0, lsa.sz)
-            break if @counter and self.size == @counter.to_i
+            break if @counter && (self.size == @counter.to_i)
           end
           self
         end
@@ -219,10 +218,10 @@ module PacketGen
         private
 
         def record_from_hash(hsh)
-          unless hsh.has_key? :type
-            raise ArgumentError, "hash should have :type key"
+          unless hsh.key? :type
+            raise ArgumentError, 'hash should have :type key'
           end
-          
+
           klass = if @only_headers
                     LSAHeader
                   else
@@ -239,7 +238,7 @@ module PacketGen
         end
 
         def get_lsa_class_by_human_type(htype)
-          klassname = "LSA#{htype.to_s.gsub(/-/, '')}"
+          klassname = "LSA#{htype.to_s.delete('-')}"
           if OSPFv3.const_defined? klassname
             OSPFv3.const_get klassname
           else

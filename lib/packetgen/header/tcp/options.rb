@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class TCP
-
       # Container for TCP options in {TCP TCP header}.
       # @author Sylvain Daubert
       class Options < Types::Array
-
         # Get {Option} subclasses
         # @return [Array<Class>]
         def self.option_classes
@@ -69,7 +67,7 @@ module PacketGen
         private
 
         def record_from_hash(hsh)
-          if hsh.has_key? :opt
+          if hsh.key? :opt
             klassname = hsh.delete(:opt)
             if TCP.const_defined?(klassname)
               klass = TCP.const_get(klassname)

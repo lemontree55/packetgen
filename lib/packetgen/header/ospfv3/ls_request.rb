@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # This class handle LSA requests, as used in {LSRequest} payloads.
       # The LSA request payload has the following format:
       #   0                   1                   2                   3
@@ -57,7 +56,7 @@ module PacketGen
           "LSR<#{human_type},#{link_state_id},#{advertising_router}>"
         end
       end
-      
+
       # This class defines a specialized {Types::Array array} to handle series
       # of {LSR LSRs}.
       # @author Sylvain Daubert

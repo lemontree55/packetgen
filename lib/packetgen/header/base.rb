@@ -7,13 +7,11 @@
 
 module PacketGen
   module Header
-
     # @abstract Base class for all header types.
     #    Subclasses may define magic methods:
     #    * {#parse?}.
     # @author Sylvain Daubert
     class Base < Types::Fields
-
       # @api private
       # Simple class to handle a header association
       class Binding < Struct.new(:key, :value)
@@ -50,7 +48,6 @@ module PacketGen
       # @api private
       # Class to handle a header association from procs
       class ProcBinding
-
         # @param [Array<Proc>] procs first proc is used to set fields, second proc is
         #  used to check binding
         def initialize(procs)
@@ -85,10 +82,12 @@ module PacketGen
         attr_accessor :bindings
 
         # @param [:or, :and] op
+        # rubocop:disable Naming/UncommunicativeMethodParamName
         def initialize(op)
           @op = op
           @bindings = []
         end
+        # rubocop:enable Naming/UncommunicativeMethodParamName
 
         # @param [Object] arg
         # @return [Bindings] self
@@ -155,18 +154,18 @@ module PacketGen
       #                                        ->(hdr) { hdr.field1 == 1 && hdr.body[0..1] == "\x00\x00" }]
       # @param [Class] header_klass header class to bind to current class
       # @param [Hash] args current class fields and their value when +header_klass+
-      #  is embedded in current class. Given value may be a lambda, whose alone argument
-      #  is the value extracted from header field (or +nil+ when lambda is used to set
-      #  field while adding a header).
+      #   is embedded in current class. Given value may be a lambda, whose alone argument
+      #   is the value extracted from header field (or +nil+ when lambda is used to set
+      #   field while adding a header).
       #
-      #  If multiple fields are given, a special key +:op+ may be given to set parse
-      #  operation on this binding. By default, +:op+ is +:or+ (at least one binding
-      #  must match to parse it). It also may be set to +:and+ (all bindings must match
-      #  to parse it).
-      #  
-      #  Special key +procs+ may be used to set 2 lambdas, the former to set
-      #  fields, the former to check bindings. This may be used when multiple and
-      #  non-trivial checks should be made.
+      #   If multiple fields are given, a special key +:op+ may be given to set parse
+      #   operation on this binding. By default, +:op+ is +:or+ (at least one binding
+      #   must match to parse it). It also may be set to +:and+ (all bindings must match
+      #   to parse it).
+      #
+      #   Special key +procs+ may be used to set 2 lambdas, the former to set
+      #   fields, the former to check bindings. This may be used when multiple and
+      #   non-trivial checks should be made.
       # @return [void]
       def self.bind_header(header_klass, args={})
         op = args.delete(:op) || :or
@@ -177,11 +176,11 @@ module PacketGen
           bindings = @known_headers[header_klass]
         end
         args.each do |key, value|
-          if key == :procs
-            bindings << ProcBinding.new(value)
-          else
-            bindings << Binding.new(key, value)
-          end
+          bindings << if key == :procs
+                        ProcBinding.new(value)
+                      else
+                        Binding.new(key, value)
+                      end
         end
       end
 
@@ -189,7 +188,7 @@ module PacketGen
       # @return [String]
       # @since 2.0.0
       def self.protocol_name
-        self.new.protocol_name
+        new.protocol_name
       end
 
       # Helper method to calculate length of +hdr+ and set its +length+ field.
@@ -253,14 +252,13 @@ module PacketGen
         added_to_packet(packet)
         @packet
       end
-      
+
       # @abstract This method is called when a header is added to a packet.
       #   This base method does nothing but may be overriden by subclasses.
       # @param [Packet] packet packet to which self is added
       # @return [void]
       # @since 2.1.4
-      def added_to_packet(packet)
-      end
+      def added_to_packet(packet) end
 
       # @api private
       # Get +header+ id in packet headers array
@@ -284,7 +282,7 @@ module PacketGen
       # @raise FormatError +header+ not in a packet
       def ip_header(header)
         hid = header_id(header)
-        iph = packet.headers[0...hid].reverse.find { |h| h.is_a? IP or h.is_a? IPv6 }
+        iph = packet.headers[0...hid].reverse.find { |h| h.is_a?(IP) || h.is_a?(IPv6) }
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
         iph
       end
@@ -297,7 +295,7 @@ module PacketGen
       # @raise FormatError +header+ not in a packet
       def ll_header(header)
         hid = header_id(header)
-        llh = packet.headers[0...hid].reverse.find { |h| h.is_a? Eth or h.is_a? Dot11 }
+        llh = packet.headers[0...hid].reverse.find { |h| h.is_a?(Eth) || h.is_a?(Dot11) }
         raise FormatError, 'no link layer header in packet' if llh.nil?
         llh
       end

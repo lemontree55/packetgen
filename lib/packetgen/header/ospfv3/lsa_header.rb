@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # This class handles {OSPFv3 OSPFv3} LSA header. A LSA header has the
       # following format:
       #   0                   1                   2                   3
@@ -40,7 +39,7 @@ module PacketGen
           'NSSA'              => 0x2007,
           'Link'              => 0x0008,
           'Intra-Area-Prefix' => 0x2009
-        }
+        }.freeze
 
         # @!attribute age
         #  The time in seconds since the LSA was originated.
@@ -73,7 +72,7 @@ module PacketGen
         #  Length of the LSA, including the header.
         #  @return [Integer]
         define_field :length, Types::Int16
-        
+
         # Compute and set Fletcher-16 checksum on LSA
         # @return [Integer]
         def calc_checksum
@@ -87,7 +86,7 @@ module PacketGen
           end
           c0 %= 255
           c1 %= 255
-          
+
           x = ((sz - 16 - 1) * c0 - c1) % 255
           x += 255 if x <= 0
           y = 255 * 2 - c0 - x

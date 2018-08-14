@@ -7,7 +7,6 @@
 
 module PacketGen
   module PcapNG
-
     # {SPB} represents a Section Simple Packet Block (SPB) of a pcapng file.
     #
     # == Pcapng::SPB Definition
@@ -18,9 +17,8 @@ module PacketGen
     #   Int32   :block_len2
     # @author Sylvain Daubert
     class SPB < Block
-
       # Minimum SPB size
-      MIN_SIZE     = 4*4
+      MIN_SIZE = 4 * 4
 
       # @return [:little, :big]
       attr_accessor :endian
@@ -61,11 +59,11 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        if str_or_io.respond_to? :read
-          io = str_or_io
-        else
-          io = StringIO.new(force_binary(str_or_io.to_s))
-        end
+        io = if str_or_io.respond_to? :read
+               str_or_io
+             else
+               StringIO.new(force_binary(str_or_io.to_s))
+             end
         return self if io.eof?
 
         self[:type].read io.read(4)
@@ -73,11 +71,11 @@ module PacketGen
         self[:orig_len].read io.read(4)
         # Take care of IDB snaplen
         # CAUTION: snaplen == 0 -> no capture limit
-        if interface and interface.snaplen.to_i > 0
-          data_len = [self[:orig_len].to_i, interface.snaplen.to_i].min
-        else
-          data_len = self[:orig_len].to_i
-        end
+        data_len = if interface && (interface.snaplen.to_i > 0)
+                     [self[:orig_len].to_i, interface.snaplen.to_i].min
+                   else
+                     self[:orig_len].to_i
+                   end
         data_pad_len = (4 - (data_len % 4)) % 4
         self[:data].read io.read(data_len)
         io.read data_pad_len
@@ -95,8 +93,6 @@ module PacketGen
         recalc_block_len
         super
       end
-
     end
-
   end
 end

@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv2
-
       # This class handles {OSPFv2 OSPFv2} DB description packets payload.
       # The DB description payload has the following format:
       #    0                   1                   2                   3
@@ -91,11 +90,11 @@ module PacketGen
         define_field :sequence_number, Types::Int32
         alias seqnum sequence_number
         alias seqnum= sequence_number=
-        
+
         # @!attribute lsas
         #  Array of LSA headers
         #  @return [ArrayOfLSAHeader]
-        define_field :lsas, ArrayOfLSA, builder: ->(h, t) { t.new(only_headers: true) }
+        define_field :lsas, ArrayOfLSA, builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end
 

@@ -8,12 +8,10 @@
 require 'interfacez'
 
 module PacketGen
-
   # Capture packets from wire
   # @author Sylvain Daubert
   # @author Kent 'picat' Gruber
   class Capture
-
     # Default snaplen to use if :snaplen option not defined.
     DEFAULT_SNAPLEN = 0xffff
 
@@ -69,10 +67,10 @@ module PacketGen
             packet = Packet.parse(packet_data)
             @packets << packet
             yield packet if block_given?
-          else
-            yield packet_data if block_given?
+          elsif block_given?
+            yield packet_data
           end
-          break if @max and @raw_packets.size >= @max
+          break if @max && @raw_packets.size >= @max
         end
       end
       @cap_thread.join(@timeout)
@@ -93,9 +91,9 @@ module PacketGen
       @max = options[:max] if options[:max]
       @filter = options[:filter] if options[:filter]
       @timeout = options[:timeout] if options[:timeout]
-      @promisc = options[:promisc] if options.has_key? :promisc
+      @promisc = options[:promisc] if options.key? :promisc
       @snaplen = options[:snaplen] if options[:snaplen]
-      @parse = options[:parse] if options.has_key? :parse
+      @parse = options[:parse] if options.key? :parse
       @iface = options[:iface] if options[:iface]
     end
 

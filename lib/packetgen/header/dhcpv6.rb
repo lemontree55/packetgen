@@ -7,8 +7,7 @@
 
 module PacketGen
   module Header
-    
-    # Dynamic Host Configuration Protocol for IPv6, {https://tools.ietf.org/html/rfc3315 
+    # Dynamic Host Configuration Protocol for IPv6, {https://tools.ietf.org/html/rfc3315
     # RFC 3315}
     #
     #    0                   1                   2                   3
@@ -42,13 +41,13 @@ module PacketGen
     #   dhcpv6.options << { type: 'Preference', value: 1 }
     # @author Sylvain Daubert
     # @since 2.5.0
-    class DHCPv6 < Base;end
+    class DHCPv6 < Base; end
 
     require_relative 'dhcpv6/duid'
     require_relative 'dhcpv6/option'
     require_relative 'dhcpv6/options'
 
-    class DHCPv6 
+    class DHCPv6
       # DHCPv6 UDP client port
       UDP_CLIENT_PORT = 546
       # DHCPv6 UDP client port
@@ -66,9 +65,9 @@ module PacketGen
         'RELEASE'             => 8,
         'DECLINE'             => 9,
         'RECONFIGURE'         => 10,
-        'INFORMATION-REQUEST' =>  11
-      }
-      
+        'INFORMATION-REQUEST' => 11
+      }.freeze
+
       # @!attribute msg_type
       #   8-bit message type
       #   @return [Integer]
@@ -86,7 +85,7 @@ module PacketGen
       # @return [DHCPv6,DHCPv6::Relay]
       def read(str)
         msg_type = Types::Int8.new.read(str)
-        
+
         case msg_type
         when 12, 13
           DHCPv6::Relay.new.read(str)

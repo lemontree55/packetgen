@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class EAP
-
       # Extensible Authentication Protocol (EAP) - TLS,
       # {https://tools.ietf.org/html/rfc5216 RFC 5216}
       #
@@ -22,7 +21,7 @@ module PacketGen
         # @!attribute flags
         #  @return [Integer] 8-bit flags
         define_field_before :body, :flags, Types::Int8
-        
+
         # @!attribute l
         #  Say if length field is included. Defined on {#flags} field.
         #  @return [Boolean]
@@ -33,17 +32,17 @@ module PacketGen
         #  If set, this message is a TLS-Start. Defined on {#flags} field.
         #  @return [Boolean]
         define_bit_fields_on :flags, :l, :m, :s, :reserved, 5
-        alias :length_present? :l?
-        alias :more_fragments? :m?
-        alias :tls_start? :s?
-        
+        alias length_present? l?
+        alias more_fragments? m?
+        alias tls_start? s?
+
         # @!attribute tls_length
         #  TLS message length. This field provides the total length of the
         #  TLS message or set of messages that is being fragmented. So, it
         #  cannot be automatically calculated (no +#calc_length+ method).
         #  @return [Integer] 32-bit TLS length
         define_field_before :body, :tls_length, Types::Int32,
-                     optional: ->(h) { h.l? }
+                            optional: ->(h) { h.l? }
 
         # @return [EAP::TLS]
         def initialize(options={})
@@ -58,11 +57,11 @@ module PacketGen
             next unless is_present?(attr)
             if attr == :flags
               shift = Inspect.shift_level(2)
-              value = %i(l m s).map { |f| send("#{f}?") ? f.to_s : '.' }.join
+              value = %i[l m s].map { |f| send("#{f}?") ? f.to_s : '.' }.join
               value = '%-10s (0x%02x)' % [value, self.flags]
-              str << shift 
+              str << shift
               str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''),
-                                         attr, value]
+                                          attr, value]
             else
               str << Inspect.inspect_attribute(attr, self[attr], 2)
             end

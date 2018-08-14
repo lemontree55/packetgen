@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class TCP
-
       # Base class to describe a TCP option
       # @author Sylvain Daubert
       class Option < Base
-
         # EOL option value
         EOL_KIND       = 0
         # NOP option value
@@ -53,9 +51,9 @@ module PacketGen
           case options[:value]
           when Integer
             klass = case self[:length].to_i
-                    when 3; Types::Int8
-                    when 4; Types::Int16
-                    when 6; Types::Int32
+                    when 3 then Types::Int8
+                    when 4 then Types::Int16
+                    when 6 then Types::Int32
                     else
                       raise ArgumentError, 'impossible length'
                     end
@@ -77,9 +75,7 @@ module PacketGen
           self[:kind].read str[0, 1]
           if str[1, 1]
             self[:length].read str[1, 1]
-            if str[2, 1] && length > 2
-              self[:value].read str[2, length - 2]
-            end
+            self[:value].read str[2, length - 2] if str[2, 1] && length > 2
           end
           self
         end
@@ -113,7 +109,7 @@ module PacketGen
         # @return [String]
         def to_human
           str = self.class == Option ? "unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
-          if length > 2 and self[:value].to_s.size > 0
+          if (length > 2) && !self[:value].to_s.empty?
             str << ":#{self[:value].to_s.inspect}"
           end
           str

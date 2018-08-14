@@ -8,7 +8,6 @@
 
 module PacketGen
   module Header
-
     # Multicast DNS.
     #
     # See {DNS} for header format.
@@ -17,7 +16,7 @@ module PacketGen
     class MDNS < DNS
       # Port number for mDNS over UDP
       UDP_PORT = 5353
-      
+
       # Fixup IP header according to RFC 6762:
       # * set ethernet multicast address to +01:00:5E:00:00:FB+ (for IPv4)
       #   or +33:33:00:00:00:FB+ (for IPv6),
@@ -60,7 +59,7 @@ module PacketGen
           mac.from_human('33:33:00:00:00:FB')
         end
       end
-      
+
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
@@ -69,7 +68,7 @@ module PacketGen
         packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end"
       end
     end
-    
+
     self.add_class MDNS
     UDP.bind_header MDNS, dport: MDNS::UDP_PORT, sport: MDNS::UDP_PORT
   end

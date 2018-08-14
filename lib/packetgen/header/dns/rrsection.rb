@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class DNS
-
       # Define a DNS Ressource Record Section
       # @author Sylvain Daubert
       class RRSection < Types::Array
-
         # @api private
         # @param [DNS] dns
         # @param [Types::Int] counter
@@ -28,7 +26,7 @@ module PacketGen
           clear
           return self if str.nil?
           force_binary str
-          while str.length > 0 and self.size < @counter.to_i
+          while !str.empty? && (self.size < @counter.to_i)
             rr = RR.new(@dns).read(str)
             rr = OPT.new(@dns).read(str) if rr.has_type?('OPT')
             str.slice!(0, rr.sz)
@@ -40,7 +38,7 @@ module PacketGen
         private
 
         def record_from_hash(hsh)
-          if hsh.has_key? :rtype
+          if hsh.key? :rtype
             case hsh.delete(:rtype)
             when 'Question'
               Question.new(@dns, hsh)

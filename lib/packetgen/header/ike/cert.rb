@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Certificate payloads.
       #
       # A Cert payload consists of the IKE generic payload header (see {Payload})
@@ -37,7 +36,6 @@ module PacketGen
       #   pkt.calc_length
       # @author Sylvain Daubert
       class Cert < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 37
 

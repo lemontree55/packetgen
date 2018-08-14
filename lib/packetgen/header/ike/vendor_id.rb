@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Vendor ID payloads, as defined in RFC 7296 §3.12.
       #
       # A Vendor ID payload contains a generic payload header (see {Payload})
@@ -30,7 +29,6 @@ module PacketGen
       #   pkt.add('IKE::VendorID', data: "abcdefgh")
       # @author Sylvain Daubert
       class VendorID < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 43
       end

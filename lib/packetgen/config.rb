@@ -4,12 +4,12 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'socket'
 require 'singleton'
 require 'interfacez'
 
 module PacketGen
-
   # Config class to provide +config+ object to pgconsole
   # @author Sylvain Daubert
   # @author Kent 'picat' Gruber
@@ -41,14 +41,14 @@ module PacketGen
     def hwaddr(iface=nil)
       @hwaddr[iface || @default_iface]
     end
-    
+
     # Get IP address for given network interface
     # @param [String,nil] iface network interface. If +nil+, use default one.
     # @return [String]
     def ipaddr(iface=nil)
       @ipaddr[iface || @default_iface]
     end
-        
+
     # Get IPv6 addresses for given network interface
     # @param [String,nil] iface network interface. If +nil+, use default one.
     # @return [Array<String>]

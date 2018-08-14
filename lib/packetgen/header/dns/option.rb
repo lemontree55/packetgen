@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class DNS
-
       # DNS option
       # @author Sylvain Daubert
       class Option < Types::TLV
-
         # Force {#type} and {#length} fields to be {Types::Int16}
         # @see TLV#initialize
         def initialize(options={})

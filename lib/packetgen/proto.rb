@@ -5,15 +5,14 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'socket'
 
 module PacketGen
-
   # Module handling some helper methods for protocols
   # @author Sylvain Daubert
   # @since 2.1.2
   module Proto
-
     # @private cache information used by {.getprotobyname} and
     #  {.getprotobynumber}
     def self.prepare_cache

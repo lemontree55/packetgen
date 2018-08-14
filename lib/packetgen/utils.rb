@@ -4,11 +4,11 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require_relative 'config'
 require_relative 'utils/arp_spoofer'
 
 module PacketGen
-
   # Collection of some network utilities.
   #
   # This module is not enabled by default. You need to:
@@ -16,29 +16,26 @@ module PacketGen
   # @author Sylvain Daubert
   # @since 2.1.3
   module Utils
-
     # Get local ARP cache
     # @return [Hash] key: IP address, value: array containing MAC address and
     #    interface name
     def self.arp_cache
-      raw_cache = %x(/usr/sbin/arp -an)
+      raw_cache = `/usr/sbin/arp -an`
 
       cache = {}
       raw_cache.split(/\n/).each do |line|
         match = line.match(/\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/)
-        if match
-          cache[match[1]] = [match[2], match[4]]
-        end
+        cache[match[1]] = [match[2], match[4]] if match
       end
-      
+
       cache
     end
-    
+
     # Get MAC address from an IP address, or nil if this IP address is unknown
     # on local network.
     # @param [String] ipaddr dotted-octet IP address
     # @param [Hash] options
-    # @option options [String] :iface interface name. Default to 
+    # @option options [String] :iface interface name. Default to
     #   {PacketGen.default_iface}
     # @option options [Boolean] :no_cache if +true+, do not query local ARP
     #   cache and always send an ARP request on wire. Default to +false+
@@ -48,7 +45,7 @@ module PacketGen
     def self.arp(ipaddr, options={})
       unless options[:no_cache]
         local_cache = self.arp_cache
-        return local_cache[ipaddr].first if local_cache.has_key? ipaddr
+        return local_cache[ipaddr].first if local_cache.key? ipaddr
       end
 
       iface = options[:iface] || PacketGen.default_iface
@@ -56,8 +53,8 @@ module PacketGen
       my_hwaddr = Config.instance.hwaddr(iface)
       arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: my_hwaddr)
       arp_pkt.add('ARP', sha: Config.instance.hwaddr, spa: Config.instance.ipaddr,
-                  tpa: ipaddr)
-      
+                         tpa: ipaddr)
+
       capture = Capture.new(iface: iface, timeout: timeout, max: 1,
                             filter: "arp src #{ipaddr} and ether dst #{my_hwaddr}")
       cap_thread = Thread.new do
@@ -66,18 +63,13 @@ module PacketGen
 
       arp_pkt.to_w(iface)
       cap_thread.join
-      
-      if capture.packets.size > 0
-        capture.packets.each do |pkt|
-          if pkt.arp.spa.to_s == ipaddr
-            break pkt.arp.sha.to_s
-          end
-        end
-      else
-        nil
+
+      return if capture.packets.empty?
+      capture.packets.each do |pkt|
+        break pkt.arp.sha.to_s if pkt.arp.spa.to_s == ipaddr
       end
     end
-    
+
     # Do ARP spoofing on given IP address. Call to this method blocks.
     # @note This method is provided for test purpose.
     # For more control, see {ARPSpoofer} class.
@@ -133,7 +125,7 @@ module PacketGen
       spoofer = Utils::ARPSpoofer.new(options)
       spoofer.add target1, target2, options
       spoofer.add target2, target1, options
-      
+
       my_mac = Config.instance.hwaddr(options[:iface])
       my_ip = Config.instance.ipaddr(options[:iface])
       capture = Capture.new(iface: options[:iface],

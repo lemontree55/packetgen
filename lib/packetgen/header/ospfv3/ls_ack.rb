@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # This class handles {OSPFv3 OSPFv3} Link State Acknownledgment packets
       # payload. The LSAck payload has the following format:
       #    0                   1                   2                   3
@@ -41,7 +40,7 @@ module PacketGen
         #  Array of {LSA LSAs}
         #  @return [ArrayOfLSA]
         define_field :lsas, ArrayOfLSA,
-                     builder: ->(h, t) { t.new(only_headers: true) }
+                     builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end
 

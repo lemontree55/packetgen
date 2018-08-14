@@ -8,12 +8,11 @@
 module PacketGen
   module Header
     class IP
-
       # Class to handle series of IP addresses
       # @author Sylvain Daubert
       class ArrayOfAddr < Types::Array
         set_of IP::Addr
-        
+
         # Push a IP address to the array
         # @param [String,Addr] addr
         # @return [self]
@@ -27,7 +26,6 @@ module PacketGen
       # Base class for IP options
       # @author Sylvain Daubert
       class Option < Types::Fields
-
         # EOL option type
         EOL_TYPE = 0x00
         # NOP option type
@@ -55,7 +53,7 @@ module PacketGen
         #  option data
         # @return [String]
         define_field :data, Types::String, optional: ->(h) { h.length > 2 },
-                     builder: ->(h,t) { t.new(length_from: ->() { h.length - 2 }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
         # @!attribute copied
         #  1-bit copied flag from {#type} field
@@ -94,9 +92,7 @@ module PacketGen
         # Get binary string. Set {#length} field.
         # @return [String]
         def to_s
-          if respond_to? :length
-            self.length = super.size
-          end
+          self.length = super.size if respond_to? :length
           super
         end
 
@@ -104,7 +100,7 @@ module PacketGen
         # @return [String]
         def to_human
           str = self.class == Option ? "unk-#{type}" : self.class.to_s.sub(/.*::/, '')
-          if respond_to?(:length) and length > 2 and self[:data].to_s.size > 0
+          if respond_to?(:length) && (length > 2) && !self[:data].to_s.empty?
             str << ":#{self[:data].to_s.inspect}"
           end
           str
@@ -122,12 +118,12 @@ module PacketGen
       # No OPeration IP option
       class NOP < EOL
       end
-      
+
       # Loose Source and Record Route IP option
       class LSRR < Option
         delete_field :data
         undef data
-        
+
         # @!attribute pointer
         #  8-bit pointer on next address
         #  @return [Integer]
@@ -136,7 +132,7 @@ module PacketGen
         #  Array of IP addresses
         #  @return [Types::Array<IP::Addr>]
         define_field :data, ArrayOfAddr,
-                     builder: ->(h,t) { t.new(length_from: ->() { h.length - 2 }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
         # Populate object from a binary string
         # @param [String] str
@@ -156,7 +152,7 @@ module PacketGen
         def pointed_addr
           data[pointer / 4 - 1]
         end
-        
+
         # Get a human readable string
         # @return [String]
         def to_human
@@ -174,18 +170,18 @@ module PacketGen
       class SI < Option
         delete_field :data
         undef data
-        
+
         # @!attribute id
         #  16-bit stream ID
         #  @return [Integer]
         define_field :id, Types::Int16
       end
-      
+
       # Router Alert IP option
       class RA < Option
         delete_field :data
         undef data
-        
+
         # @!attribute value
         #  16-bit value. Should be 0.
         #  @return [Integer]

@@ -6,12 +6,10 @@
 # frozen_string_literal: true
 
 module PacketGen
-
   # {Inspect} module provides methods to help writing +inspect+
   # @api private
   # @author Sylvain Daubert
   module Inspect
-
     # Maximum number of characters on a line for INSPECT
     MAX_WIDTH = 70
 
@@ -53,7 +51,7 @@ module PacketGen
       str = shift_level(level)
       val = if value.is_a?(Types::Enum)
               "%-10s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
-            elsif value.is_a?(Types::Int) or value.is_a?(Integer)
+            elsif value.is_a?(Types::Int) || value.is_a?(Integer)
               int_dec_hex(value, value.sz * 2)
             elsif value.is_a?(String)
               value.to_s.inspect
@@ -96,16 +94,16 @@ module PacketGen
     # @param [#to_s] body
     # @return [String]
     def self.inspect_body(body, name='Body')
-      return '' if body.nil? or body.empty?
+      return '' if body.nil? || body.empty?
       str = dashed_line(name, 2)
-      str << (0..15).to_a.map { |v| " %02d" % v}.join << "\n"
+      str << (0..15).to_a.map { |v| ' %02d' % v }.join << "\n"
       str << '-' * MAX_WIDTH << "\n"
-      if body.size > 0
+      unless body.empty?
         (body.size / 16 + 1).times do |i|
-          octets = body.to_s[i*16, 16].unpack('C*')
-          o_str = octets.map { |v| " %02x" % v}.join
+          octets = body.to_s[i * 16, 16].unpack('C*')
+          o_str = octets.map { |v| ' %02x' % v }.join
           str << o_str
-          str << ' ' * (3*16 - o_str.size) unless o_str.size >= 3*16
+          str << ' ' * (3 * 16 - o_str.size) unless o_str.size >= 3 * 16
           str << '  ' << octets.map { |v| v < 128 && v > 31 ? v.chr : '.' }.join
           str << "\n"
         end

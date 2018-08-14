@@ -4,11 +4,11 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'socket'
 
 module PacketGen
   module Header
-
     # A IP header consists of:
     # * a first byte ({#u8} of {Types::Int8} type) composed of:
     #   * a 4-bit {#version} field,
@@ -62,14 +62,13 @@ module PacketGen
     #  ip.dst = '127.0.0.2'
     #  ip.body.read 'this is a body'
     # @author Sylvain Daubert
-    class IP < Base;end
+    class IP < Base; end
 
-require_relative 'ip/addr'
-require_relative 'ip/option'
-require_relative 'ip/options'
+    require_relative 'ip/addr'
+    require_relative 'ip/option'
+    require_relative 'ip/options'
 
     class IP
-
       # IP Ether type
       ETHERTYPE = 0x0800
 
@@ -85,7 +84,7 @@ require_relative 'ip/options'
       define_field :length, Types::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
-      define_field :id, Types::Int16, default: -> { rand(65535) }
+      define_field :id, Types::Int16, default: -> { rand(65_535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
       define_field :frag, Types::Int16, default: 0
@@ -111,7 +110,7 @@ require_relative 'ip/options'
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
-      
+
       # @!attribute version
       #   @return [Integer] 4-bit version attribute
       # @!attribute ihl
@@ -121,7 +120,7 @@ require_relative 'ip/options'
       # @!attribute flag_rsv
       #   @return [Boolean] reserved bit from flags
       # @!attribute flag_df
-      #   @return [Boolean] Don't Fragment flag 
+      #   @return [Boolean] Don't Fragment flag
       # @!attribute flag_mf
       #   @return [Boolean] More Fragment flags
       # @!attribute fragment_offset
@@ -133,7 +132,7 @@ require_relative 'ip/options'
       # @param [#to_s] hdr header or other object on which calculates a sum
       #   of 16-bit words.
       # @return [Integer]
-      def IP.sum16(hdr)
+      def self.sum16(hdr)
         old_checksum = nil
         if hdr.respond_to? :checksum=
           old_checksum = hdr.checksum
@@ -141,11 +140,11 @@ require_relative 'ip/options'
         end
 
         data = hdr.to_s
-        data << "\x00" if data.size % 2 == 1
+        data << "\x00" if data.size.odd?
         sum = data.unpack('n*').reduce(:+)
 
         hdr.checksum = old_checksum if old_checksum
-        
+
         sum
       end
 
@@ -157,12 +156,12 @@ require_relative 'ip/options'
       # * forces self[attr] to 0xffff if computed self[attr] is 0.
       # @param [Integer] checksum checksum to reduce
       # @return [Integer] reduced checksum
-      def IP.reduce_checksum(checksum)
-        while checksum > 0xffff do
+      def self.reduce_checksum(checksum)
+        while checksum > 0xffff
           checksum = (checksum & 0xffff) + (checksum >> 16)
         end
         checksum = ~checksum & 0xffff
-        (checksum == 0) ? 0xffff : checksum
+        checksum.zero? ? 0xffff : checksum
       end
 
       # Populate object from a binary string
@@ -186,7 +185,7 @@ require_relative 'ip/options'
           opt_size = (self.ihl - 5) * 4
           self[:options].read str[20, opt_size]
         end
-        self[:body].read str[20+opt_size..-1]
+        self[:body].read str[20 + opt_size..-1]
         self
       end
 
@@ -227,7 +226,7 @@ require_relative 'ip/options'
       # kernel, so bad IP packets cannot be sent this way. To do so, use {Eth#to_w}.
       # @param [String,nil] iface interface name. Not used
       # @return [void]
-      def to_w(iface=nil)
+      def to_w(_iface=nil)
         sock = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
         sock.send to_s, 0, sockaddrin
@@ -245,7 +244,7 @@ require_relative 'ip/options'
             str << shift + Inspect::FMT_ATTR % ['', 'version', version]
             str << shift + Inspect::FMT_ATTR % ['', 'ihl', ihl]
           elsif attr == :frag
-            flags = flag_rsv? ? %w(RSV) : []
+            flags = flag_rsv? ? %w[RSV] : []
             flags << 'DF' if flag_df?
             flags << 'MF' if flag_mf?
             flags_str = flags.empty? ? 'none' : flags.join(',')
@@ -260,7 +259,7 @@ require_relative 'ip/options'
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 4 and ihl >= 5
+        (version == 4) && (ihl >= 5)
       end
 
       # Get binary string. Fixup IHL if needed (IP header has options, and IHL

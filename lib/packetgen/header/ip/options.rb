@@ -8,12 +8,11 @@
 module PacketGen
   module Header
     class IP
-      
       # Class to handle IP options
       # @author Sylvain Daubert
       class Options < Types::Array
         set_of Option
-        
+
         HUMAN_SEPARATOR = ';'
 
         # Read IP header options from a string

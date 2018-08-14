@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv2
-
       # This class handle a LS request, which is composed 3 {Types::Int32} fields:
       # * {#type},
       # * {#link_state_id},
@@ -40,7 +39,7 @@ module PacketGen
           "LSR<#{human_type},#{link_state_id},#{advertising_router}>"
         end
       end
-      
+
       # This class defines a specialized {Types::Array array} to handle series
       # of {LSR LSRs}.
       # @author Sylvain Daubert

@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Authentication payloads.
       #
       # A AUTH payload consists of the IKE generic payload header (see {Payload})
@@ -36,7 +35,6 @@ module PacketGen
       #   pkt.calc_length
       # @author Sylvain Daubert
       class Auth < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 39
 
@@ -50,7 +48,7 @@ module PacketGen
           'PASSWORD'          => 12,
           'NULL'              => 13,
           'DIGITAL_SIGNATURE' => 14
-        }
+        }.freeze
 
         # @attribute [r] method
         #   8-bit Auth Method
@@ -137,9 +135,9 @@ module PacketGen
           when Transform::PRF_HMAC_MD5, Transform::PRF_HMAC_SHA1,
                Transform::PRF_HMAC_SHA2_256, Transform::PRF_HMAC_SHA2_384,
                Transform::PRF_HMAC_SHA2_512
-            digestname = Transform.constants.grep(/PRF_/).
-                         detect { |c| Transform.const_get(c) == type }.
-                         to_s.sub(/^PRF_HMAC_/, '').sub(/2_/, '')
+            digestname = Transform.constants.grep(/PRF_/)
+                                  .detect { |c| Transform.const_get(c) == type }
+                                  .to_s.sub(/^PRF_HMAC_/, '').sub(/2_/, '')
             digest = OpenSSL::Digest.const_get(digestname).new
           else
             raise NotImplementedError, 'for now, only HMAC-based PRF are supported'

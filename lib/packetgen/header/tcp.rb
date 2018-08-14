@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # A TCP header consists of:
     # * a source port ({#sport}, {Types::Int16} type),
     # * a destination port ({#dport}, +Int16+ type),
@@ -147,8 +146,8 @@ module PacketGen
       # @!attribute flags
       #  @return [Integer] 9-bit flags from {#u16}
       define_bit_fields_on :u16, :data_offset, 4, :reserved, 3, :flags, 9
-      alias :hlen :data_offset
-      alias :hlen= :data_offset=
+      alias hlen data_offset
+      alias hlen= data_offset=
 
       # @!attribute flag_ns
       #  @return [Boolean] 1-bit NS flag
@@ -205,9 +204,6 @@ module PacketGen
         self[:data_offset] = 5 + self[:options].sz / 4
       end
 
-      alias hlen data_offset
-      alias hlen= data_offset=
-
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
@@ -220,7 +216,7 @@ module PacketGen
             str << shift + Inspect::FMT_ATTR % ['', 'data_offset', doff]
             str << shift + Inspect::FMT_ATTR % ['', 'reserved', reserved]
             flags = ''.dup
-            %w(ns cwr ece urg ack psh rst syn fin).each do |fl|
+            %w[ns cwr ece urg ack psh rst syn fin].each do |fl|
               flags << (send("flag_#{fl}?") ? fl[0].upcase : '.')
             end
             str << shift + Inspect::FMT_ATTR % ['', 'flags', flags]

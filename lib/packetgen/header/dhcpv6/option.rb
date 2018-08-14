@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class DHCPv6
-
       # A DHCPv6 consists of:
       # * a {#type} ({Types::Int16}),
       # * a {#length} ({Types::Int16}),
@@ -18,7 +17,6 @@ module PacketGen
       # field to replace it by specific option field(s).
       # @author Sylvain Daubert
       class Option < Types::Fields
-        
         # @!attribute type
         #  16-bit option type
         #  @return [Integer]
@@ -31,7 +29,7 @@ module PacketGen
         #  variable length option data.
         #  @return [String]
         define_field :data, Types::String,
-                     builder: ->(h,t) { t.new(length_from: h[:length]) }
+                     builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         class << self
           # Get Option subclasses
@@ -41,7 +39,7 @@ module PacketGen
             @klasses = []
             DHCPv6.constants.each do |cst|
               klass = DHCPv6.const_get(cst)
-              next unless klass.is_a?(Class) and klass < Option
+              next unless klass.is_a?(Class) && (klass < Option)
               @klasses[klass.new.type] = klass
             end
             @klasses
@@ -74,16 +72,13 @@ module PacketGen
         # Create an Option
         # @param [Hash] options
         def initialize(options={})
-          if self.class.const_defined?(:TYPE) and options[:type].nil?
+          if self.class.const_defined?(:TYPE) && options[:type].nil?
             options[:type] = self.class.const_get(:TYPE)
           end
-          if options[:data]
-            options[:length] = options[:data].to_s.size
-          end
+
+          options[:length] = options[:data].to_s.size if options[:data]
           super
-          if options[:data].nil?
-            self.length = self.sz - 4
-          end
+          self.length = self.sz - 4 if options[:data].nil?
         end
 
         alias private_read read
@@ -122,7 +117,7 @@ module PacketGen
         # @return [String]
         def to_human
           str = "#{human_type}:".dup
-          if respond_to? :human_data and human_data.size > 0
+          if respond_to?(:human_data) && !human_data.empty?
             str << human_data
           elsif !self[:data].nil?
             str << data.inspect
@@ -146,7 +141,7 @@ module PacketGen
         # @!attribute duid
         #  @return [DUID]
         define_field :duid, DUID
-        
+
         # Get human-readable data (DUID)
         # @return [String]
         def human_data
@@ -187,12 +182,12 @@ module PacketGen
         #  options field
         #  @return [String]
         define_field :options, Types::String,
-                     builder: ->(h,t) { t.new length_from: ->() { h[:length].to_i - 12 } }
+                     builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 12 } }
 
         # Get human-readable data (IAID, T1 and T2)
         # @return [String]
         def human_data
-          "%#x,%u,%u" % [iaid, t1, t2]
+          '%#x,%u,%u' % [iaid, t1, t2]
         end
       end
 
@@ -214,12 +209,12 @@ module PacketGen
         #  options field
         #  @return [String]
         define_field :options, Types::String,
-                     builder: ->(h,t) { t.new length_from: ->() { h[:length].to_i - 4 } }
+                     builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 4 } }
 
         # Get human-readable data (IAID)
         # @return [String]
         def human_data
-          "%#x" % iaid
+          '%#x' % iaid
         end
       end
 
@@ -249,7 +244,7 @@ module PacketGen
         #  options field
         #  @return [String]
         define_field :options, Types::String,
-                     builder: ->(h,t) { t.new length_from: ->() { h[:length].to_i - 24 } }
+                     builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 24 } }
 
         # Get human-readable data (ipv6, preferred lifetime and valid lifetime)
         # @return [String]
@@ -295,7 +290,7 @@ module PacketGen
           self[:options].to_human
         end
       end
-      
+
       # DHCPv6 Preference option
       # @author Sylvain Daubert
       class Preference < Option
@@ -317,7 +312,7 @@ module PacketGen
           value.to_s
         end
       end
-      
+
       # DHCPv6 Elapsed Time option
       # @author Sylvain Daubert
       class ElapsedTime < Option
@@ -339,7 +334,7 @@ module PacketGen
           value.to_s
         end
       end
-      
+
       # DHCPv6 Relay Message option
       # @author Sylvain Daubert
       class RelayMessage < Option

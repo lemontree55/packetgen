@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # An ARP header consists of:
     # * a hardware type ({#hrd} or {#htype}) field ({Types::Int16}),
     # * a protocol type ({#pro} or {#ptype}) field (+Int16+),
@@ -30,7 +29,6 @@ module PacketGen
     #
     # @author Sylvain Daubert
     class ARP < Base
-
       # @!attribute hrd
       #  16-bit hardware protocol type
       #  # @return [Integer]
@@ -83,36 +81,36 @@ module PacketGen
       # @option options [String] :tha target hardware address
       # @option options [String] :tpa targetr internet address
       def initialize(options={})
-        options[:hrd] ||= options[:htype] 
-        options[:pro] ||= options[:ptype] 
-        options[:hln] ||= options[:hlen] 
-        options[:pln] ||= options[:plen] 
-        options[:op]  ||= options[:opcode] 
-        options[:sha] ||= options[:src_mac] 
-        options[:spa] ||= options[:src_ip] 
-        options[:tha] ||= options[:dst_mac] 
+        options[:hrd] ||= options[:htype]
+        options[:pro] ||= options[:ptype]
+        options[:hln] ||= options[:hlen]
+        options[:pln] ||= options[:plen]
+        options[:op]  ||= options[:opcode]
+        options[:sha] ||= options[:src_mac]
+        options[:spa] ||= options[:src_ip]
+        options[:tha] ||= options[:dst_mac]
         options[:tpa] ||= options[:dst_ip]
-        super 
+        super
       end
 
-      alias :htype :hrd
-      alias :htype= :hrd=
-      alias :ptype :pro
-      alias :ptype= :pro=
-      alias :hlen :hln
-      alias :hlen= :hln=
-      alias :plen :pln
-      alias :plen= :pln=
-      alias :opcode :op
-      alias :opcode= :op=
-      alias :src_mac :sha
-      alias :src_mac= :sha=
-      alias :src_ip :spa
-      alias :src_ip= :spa=
-      alias :dst_mac :tha
-      alias :dst_mac= :tha=
-      alias :dst_ip :tpa
-      alias :dst_ip= :tpa=
+      alias htype hrd
+      alias htype= hrd=
+      alias ptype pro
+      alias ptype= pro=
+      alias hlen hln
+      alias hlen= hln=
+      alias plen pln
+      alias plen= pln=
+      alias opcode op
+      alias opcode= op=
+      alias src_mac sha
+      alias src_mac= sha=
+      alias src_ip spa
+      alias src_ip= spa=
+      alias dst_mac tha
+      alias dst_mac= tha=
+      alias dst_ip tpa
+      alias dst_ip= tpa=
     end
 
     self.add_class ARP

@@ -11,12 +11,11 @@ module PacketGen
       # @abstract Base class for DUID (DHCP Unique ID)
       # @author Sylvain Daubert
       class DUID < Types::Fields
-        
         TYPES = {
           'DUID-LLT' => 1,
           'DUID-EN'  => 2,
           'DUID-LL'  => 3
-        }
+        }.freeze
 
         # @!attribute type
         #  16-bit DUID type
@@ -117,7 +116,7 @@ module PacketGen
         # Get human-readable DUID description
         # @return [String]
         def to_human
-          "DUID_EN<%#x,%s>" % [en, identifier]
+          'DUID_EN<%#x,%s>' % [en, identifier]
         end
       end
 

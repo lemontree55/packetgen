@@ -4,11 +4,11 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'rasn1'
 
 module PacketGen
   module Header
-
     # @abstract Base class for ASN.1 header types.
     #    This class implement minimal {Base} API to mimic a {Base} object.
     #
@@ -17,10 +17,9 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.0.0
     class ASN1Base < RASN1::Model
-
       # Reference on packet which owns this header
       # @return [Packet,nil]
-      attr_accessor :packet
+      attr_reader :packet
 
       # Give protocol name for this class
       # @return [String]
@@ -52,6 +51,7 @@ module PacketGen
                            classname.sub(/.*::/, '')
                          end
       end
+
       # return header method name
       # @return [String]
       # @since 2.0.0
@@ -78,17 +78,16 @@ module PacketGen
         added_to_packet(packet)
         @packet
       end
-      
+
       # @abstract This method is called when a header is added to a packet.
       #   This base method does nothing but may be overriden by subclasses.
       # @param [Packet] packet packet to which self is added
       # @return [void]
       # @since 2.1.4
-      def added_to_packet(packet)
-      end
+      def added_to_packet(packet) end
 
-      alias :parse :parse!
-      alias :to_s :to_der
+      alias parse parse!
+      alias to_s to_der
 
       # Read a BER string
       # @param [String] str

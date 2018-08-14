@@ -4,6 +4,7 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require_relative 'mcast_address_record'
 
 module PacketGen
@@ -52,7 +53,7 @@ module PacketGen
         #  16-bit Number of group records in {#records}
         #  @return [Integer]
         define_field :number_of_mar, Types::Int16, default: 0
-        
+
         # @!attribute records
         #  Array of Mcast Address Records
         #  @return [McastAddressRecords]
@@ -60,7 +61,7 @@ module PacketGen
                      builder: ->(h, t) { t.new(counter: h[:number_of_mar]) }
       end
     end
-    
+
     self.add_class MLDv2::MLR
     ICMPv6.bind_header MLDv2::MLR, type: 143
   end

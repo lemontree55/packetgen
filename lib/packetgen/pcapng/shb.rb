@@ -7,7 +7,6 @@
 
 module PacketGen
   module PcapNG
-
     # {SHB} represents a Section Header Block (SHB) of a pcapng file.
     #
     # == SHB Definition
@@ -21,7 +20,6 @@ module PacketGen
     #   Int32   :block_len2
     # @author Sylvain Daubert
     class SHB < Block
-
       # @return [:little, :big]
       attr_accessor :endian
       # Get interfaces for this section
@@ -39,7 +37,7 @@ module PacketGen
       MAGIC_BIG    = [MAGIC_INT32].pack('N')
 
       # Minimum SHB size
-      MIN_SIZE     = 7*4
+      MIN_SIZE = 7 * 4
       # +section_len+ value for undefined length
       SECTION_LEN_UNDEFINED = 0xffffffff_ffffffff
 
@@ -91,11 +89,11 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        if str_or_io.respond_to? :read
-          io = str_or_io
-        else
-          io = StringIO.new(force_binary(str_or_io.to_s))
-        end
+        io = if str_or_io.respond_to? :read
+               str_or_io
+             else
+               StringIO.new(force_binary(str_or_io.to_s))
+             end
         return self if io.eof?
 
         type_str = io.read(4)
@@ -159,12 +157,11 @@ module PacketGen
         super + body
       end
 
-
       private
 
       def force_endianness(endian)
         @endian = endian
-        self[:type]  = Types::Int32.new(self[:type].to_i, endian)
+        self[:type] = Types::Int32.new(self[:type].to_i, endian)
         self[:block_len] = Types::Int32.new(self[:block_len].to_i, endian)
         self[:magic] = Types::Int32.new(self[:magic].to_i, endian)
         self[:ver_major] = Types::Int16.new(self[:ver_major].to_i, endian)

@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles encrypted payloads, denoted SK.
       #
       # The encrypted payload contains other payloads in encrypted form.
@@ -114,15 +113,15 @@ module PacketGen
           cipher.iv = real_iv
 
           if authenticated?
-            if @icv_length == 0
+            if @icv_length.zero?
               @icv_length = opt[:icv_length].to_i if opt[:icv_length]
-              raise ParseError, 'unknown ICV size' if @icv_length == 0
+              raise ParseError, 'unknown ICV size' if @icv_length.zero?
             end
             icv = self.content.slice!(-@icv_length, @icv_length)
           end
 
-          authenticate_if_needed opt, iv, icv
-          private_decrypt cipher, opt
+          authenticate_if_needed iv, icv
+          private_decrypt opt
         end
 
         # Encrypt in-place SK payload.
@@ -151,14 +150,14 @@ module PacketGen
           real_iv += [1].pack('N') if confidentiality_mode == 'ctr'
           cipher.iv = real_iv
 
-          authenticate_if_needed options, iv
+          authenticate_if_needed iv
 
           if opt[:pad_length]
             pad_length = opt[:pad_length]
             padding = force_binary(opt[:padding] || ([0] * pad_length).pack('C*'))
           else
             pad_length = cipher.block_size
-            pad_length = 16 if cipher.block_size == 1  # Some AES mode returns 1...
+            pad_length = 16 if cipher.block_size == 1 # Some AES mode returns 1...
             pad_length -= (self.body.sz + iv.size + 1) % cipher.block_size
             pad_length = 0 if pad_length == 16
             padding = force_binary(opt[:padding] || ([0] * pad_length).pack('C*'))
@@ -170,13 +169,13 @@ module PacketGen
 
           if authenticated?
             @icv_length = opt[:icv_length] if opt[:icv_length]
-            if @conf.authenticated?
-              encrypted_msg << @conf.auth_tag[0, @icv_length]
-            else
-              encrypted_msg << @intg.digest[0, @icv_length]
-            end
+            encrypted_msg << if @conf.authenticated?
+                               @conf.auth_tag[0, @icv_length]
+                             else
+                               @intg.digest[0, @icv_length]
+                             end
           end
-          self[:content].read (iv + encrypted_msg)
+          self[:content].read(iv + encrypted_msg)
 
           # Remove plain payloads
           self[:body] = Types::String.new
@@ -184,7 +183,7 @@ module PacketGen
           # Remove enciphered payloads from packet
           id = header_id(self)
           if id < packet.headers.size - 1
-            (packet.headers.size-1).downto(id+1) do |index|
+            (packet.headers.size - 1).downto(id + 1) do |index|
               packet.headers.delete_at index
             end
           end
@@ -195,7 +194,7 @@ module PacketGen
 
         private
 
-        def authenticate_if_needed(options, iv, icv=nil)
+        def authenticate_if_needed(iv, icv=nil)
           if @conf.authenticated?
             @conf.auth_tag = icv if icv
             @conf.auth_data = get_ad
@@ -216,14 +215,14 @@ module PacketGen
         def get_ad
           str = packet.ike.to_s[0, IKE.new.sz]
           current_payload = packet.ike.body
-          until current_payload.is_a? SK do
+          until current_payload.is_a? SK
             str << current_payload.to_s[0, current_payload.length]
             current_payload = current_payload.body
           end
           str << self.to_s[0, SK.new.sz]
         end
 
-        def private_decrypt(cipher, options)
+        def private_decrypt(options)
           # decrypt
           plain_msg = decipher(content.to_s)
           # Remove cipher text

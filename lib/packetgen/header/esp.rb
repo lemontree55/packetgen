@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # A ESP header consists of:
     # * a Security Parameters Index (#{spi}, {Types::Int32} type),
     # * a Sequence Number ({#sn}, +Int32+ type),
@@ -49,7 +48,7 @@ module PacketGen
     #  esp.esp.icv_length = 16
     #  # encapsulate ICMP packet in ESP one
     #  esp.encapsulate icmp
-    #  
+    #
     #  # encrypt ESP payload
     #  cipher = OpenSSL::Cipher.new('aes-128-gcm')
     #  cipher.encrypt
@@ -61,7 +60,7 @@ module PacketGen
     #  cipher = OpenSSL::Cipher.new('aes-128-cbc')
     #  cipher.decrypt
     #  cipher.key = 16bytes_key
-    #  
+    #
     #  hmac = OpenSSL::HMAC.new(hmac_key, OpenSSL::Digest::SHA256.new)
     #
     #  pkt.esp.decrypt! cipher, intmode: hmac    # => true if ICV check OK
@@ -141,11 +140,11 @@ module PacketGen
         force_binary str
         self[:spi].read str[0, 4]
         self[:sn].read str[4, 4]
-        self[:body].read str[8...-@icv_length-2]
+        self[:body].read str[8...-@icv_length - 2]
         self[:tfc].read ''
         self[:padding].read ''
-        self[:pad_length].read str[-@icv_length-2, 1]
-        self[:next].read str[-@icv_length-1, 1]
+        self[:pad_length].read str[-@icv_length - 2, 1]
+        self[:next].read str[-@icv_length - 1, 1]
         self[:icv].read str[-@icv_length, @icv_length] if @icv_length
         self
       end
@@ -199,10 +198,10 @@ module PacketGen
 
         if opt[:pad_length]
           self.pad_length = opt[:pad_length]
-          padding = force_binary(opt[:padding] || (1..self.pad_length).to_a.pack("C*"))
+          padding = force_binary(opt[:padding] || (1..self.pad_length).to_a.pack('C*'))
           self[:padding].read padding
         else
-          padding = force_binary(opt[:padding] || (1..self.pad_length).to_a.pack("C*"))
+          padding = force_binary(opt[:padding] || (1..self.pad_length).to_a.pack('C*'))
           self[:padding].read padding[0...self.pad_length]
         end
 
@@ -210,12 +209,12 @@ module PacketGen
         if opt[:tfc]
           tfc_size = opt[:tfc_size] - body.sz
           if tfc_size > 0
-            case confidentiality_mode
-            when 'cbc'
-              tfc_size = (tfc_size / 16) * 16
-            else
-              tfc_size = (tfc_size / 4) * 4
-            end
+            tfc_size = case confidentiality_mode
+                       when 'cbc'
+                         (tfc_size / 16) * 16
+                       else
+                         (tfc_size / 4) * 4
+                       end
             tfc = force_binary("\0" * tfc_size)
           end
         end
@@ -238,7 +237,7 @@ module PacketGen
         # Remove enciphered headers from packet
         id = header_id(self)
         if id < packet.headers.size - 1
-          (packet.headers.size-1).downto(id+1) do |index|
+          (packet.headers.size - 1).downto(id + 1) do |index|
             packet.headers.delete_at index
           end
         end
@@ -261,7 +260,7 @@ module PacketGen
       #   confidentiality-only cipher. Only HMAC are supported.
       # @return [Boolean] +true+ if ESP packet is authenticated
       def decrypt!(cipher, options={})
-        opt = { :salt => '', parse: true }.merge(options)
+        opt = { salt: '', parse: true }.merge(options)
 
         set_crypto cipher, opt[:intmode]
 
@@ -280,7 +279,7 @@ module PacketGen
         end
         cipher.iv = real_iv
 
-        if authenticated? and (@icv_length == 0 or opt[:icv_length])
+        if authenticated? && (@icv_length.zero? || opt[:icv_length])
           raise ParseError, 'unknown ICV size' unless opt[:icv_length]
           @icv_length = opt[:icv_length].to_i
           # reread ESP to handle new ICV size
@@ -293,7 +292,7 @@ module PacketGen
         end
 
         authenticate_esp_header_if_needed options, iv, self[:icv]
-        private_decrypt cipher, opt
+        private_decrypt opt
       end
 
       private
@@ -330,7 +329,7 @@ module PacketGen
         end
       end
 
-      def private_decrypt(cipher, options)
+      def private_decrypt(options)
         # decrypt
         msg = self.body.to_s
         msg += self[:padding].to_s + self[:pad_length].to_s + self[:next].to_s
@@ -357,8 +356,8 @@ module PacketGen
         pkt = nil
         case self.next
         when 4   # IPv4
-        pkt = Packet.parse(body, first_header: 'IP')
-        encap_length = pkt.ip.length
+          pkt = Packet.parse(body, first_header: 'IP')
+          encap_length = pkt.ip.length
         when 41  # IPv6
           pkt = Packet.parse(body, first_header: 'IPv6')
           encap_length = pkt.ipv6.length + pkt.ipv6.sz
@@ -400,9 +399,9 @@ module PacketGen
 
     IP.bind_header ESP, protocol: ESP::IP_PROTOCOL
     IPv6.bind_header ESP, next: ESP::IP_PROTOCOL
-    UDP.bind_header ESP, procs: [ ->(f) { f.dport = f.sport = ESP::UDP_PORT },
-                                  ->(f) { (f.dport == ESP::UDP_PORT ||
-                                           f.sport == ESP::UDP_PORT) &&
+    UDP.bind_header ESP, procs: [->(f) { f.dport = f.sport = ESP::UDP_PORT },
+                                 ->(f) { (f.dport == ESP::UDP_PORT ||
+                                            f.sport == ESP::UDP_PORT) &&
                                           Types::Int32.new.read(f.body[0..3]).to_i > 0 }]
     ESP.bind_header IP, next: 4
     ESP.bind_header IPv6, next: 41

@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # IEEE 802.1X / EAPOL
     #
     # A IEEE 802.1X header consists of:
@@ -23,7 +22,6 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 1.4.0
     class Dot1x < Base
-
       # IEEE 802.1x Ether type
       ETHERTYPE = 0x888e
 

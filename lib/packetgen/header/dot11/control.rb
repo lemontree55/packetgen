@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class Dot11
-
       # IEEE 802.11 control frame header
       #
       # This class make a {Dot11} header with {#type} set to +1+
@@ -24,7 +23,6 @@ module PacketGen
       # * and a Frame check sequence ({#fcs}, of type {Types::Int32le}).
       # @author Sylvain Daubert
       class Control < Dot11
-
         # Control subtypes
         SUBTYPES = {
           7  => 'Wrapper',
@@ -44,8 +42,8 @@ module PacketGen
         # @param [Hash] options
         # @see Base#initialize
         def initialize(options={})
-          super({type: 1}.merge!(options))
-          @applicable_fields -= %i(mac3 sequence_ctrl mac4 qos_ctrl ht_ctrl)
+          super({ type: 1 }.merge!(options))
+          @applicable_fields -= %i[mac3 sequence_ctrl mac4 qos_ctrl ht_ctrl]
           define_applicable_fields
         end
 
@@ -60,7 +58,7 @@ module PacketGen
         def define_applicable_fields
           super
           if @applicable_fields.include? :mac2
-            @applicable_fields -= %i(mac2) unless SUBTYPES_WITH_MAC2.include? self.subtype
+            @applicable_fields -= %i[mac2] unless SUBTYPES_WITH_MAC2.include? self.subtype
           elsif SUBTYPES_WITH_MAC2.include? self.subtype
             @applicable_fields[3, 0] = :mac2
           end

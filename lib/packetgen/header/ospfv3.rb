@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-    
     # This class supports OSPFv3 (RFC 5340).
     # A OSPFv3 header has the following format:
     #
@@ -65,10 +64,9 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.5.0
     class OSPFv3 < Base
-      
       # IP protocol number for OSPF
       IP_PROTOCOL = OSPFv2::IP_PROTOCOL
-      
+
       # OSPF packet types
       TYPES = OSPFv2::TYPES
 

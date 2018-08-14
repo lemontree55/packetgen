@@ -8,12 +8,11 @@
 
 module PacketGen
   module Types
-
     # OUI type, defined as a set of 3 bytes
     #  oui = OUI.new
     #  oui.from_human('00:01:02')
     #  oui.to_human   # => "00:01:02"
-    #@author Sylvain Daubert
+    # @author Sylvain Daubert
     class OUI < Types::Fields
       # @attribute b2
       #  @return [Integer] left-most byte
@@ -31,9 +30,7 @@ module PacketGen
       def from_human(str)
         return self if str.nil?
         bytes = str.split(/:/)
-        unless bytes.size == 3
-          raise ArgumentError, 'not a OUI'
-        end
+        raise ArgumentError, 'not a OUI' unless bytes.size == 3
         self[:b2].read(bytes[0].to_i(16))
         self[:b1].read(bytes[1].to_i(16))
         self[:b0].read(bytes[2].to_i(16))
@@ -43,7 +40,7 @@ module PacketGen
       # Get OUI in human readable form (colon-separated bytes)
       # @return [String]
       def to_human
-        fields.map { |m| "#{'%02x' % self[m]}" }.join(':')
+        fields.map { |m| '%02x' % self[m] }.join(':')
       end
     end
   end

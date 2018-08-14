@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # This class supports MLDv1 (RFC 2710).
     #
     # From RFC 2710, a MLD header has the following format:

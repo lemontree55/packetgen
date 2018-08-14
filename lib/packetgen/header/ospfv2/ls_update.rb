@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv2
-
       # This class handles {OSPFv2 OSPFv2} Link State Update packets
       # payload. The LSU payload has the following format:
       #    0                   1                   2                   3
@@ -52,16 +51,16 @@ module PacketGen
         #  Array of {LSA LSAs}
         #  @return [ArrayOfLSA]
         define_field :lsas, ArrayOfLSA, builder: ->(h, t) { t.new(counter: h[:lsas_count]) }
-        
+
         # Calculate checksums of all LSAs
         # @return [void]
         def calc_checksum
-          lsas.each { |lsa| lsa.calc_checksum }
+          lsas.each(&:calc_checksum)
         end
-        
+
         # Calculate length of all LSAs
         def calc_length
-          lsas.each { |lsa| lsa.calc_length }
+          lsas.each(&:calc_length)
         end
       end
     end

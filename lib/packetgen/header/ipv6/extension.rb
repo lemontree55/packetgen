@@ -43,7 +43,7 @@ module PacketGen
         #  Specific options of extension header
         #  @return [String]
         define_field :options, Types::String,
-                     builder: ->(h, t) { t.new(length_from: ->() { h.real_length }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h.real_length }) }
         # @!attribute body
         #  @return [String,Base]
         define_field :body, Types::String

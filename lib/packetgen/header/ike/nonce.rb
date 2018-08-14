@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Nonce payloads, as defined in RFC 7296 §3.9.
       #
       # A Nonce payload contains a generic payload header (see {Payload}) and
@@ -31,7 +30,6 @@ module PacketGen
       #   pkt.calc_length
       # @author Sylvain Daubert
       class Nonce < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 40
       end

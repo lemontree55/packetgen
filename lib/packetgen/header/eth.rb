@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
     # * a source MAC address (MacAddr),
@@ -31,7 +30,6 @@ module PacketGen
     #
     # @author Sylvain Daubert
     class Eth < Base
-
       # Ethernet MAC address, as a group of 6 bytes
       # @author Sylvain Daubert
       class MacAddr < Types::Fields
@@ -53,7 +51,7 @@ module PacketGen
         # @!attribute a5
         #  @return [Integer] sixth byte from MacAddr
         define_field :a5, Types::Int8
-        
+
         # Read a human-readable string to populate +MacAddr+
         # @param [String] str
         # @return [self]
@@ -75,7 +73,7 @@ module PacketGen
         # +MacAddr+ in human readable form (colon format)
         # @return [String]
         def to_human
-          fields.map { |m| "#{'%02x' % self[m]}" }.join(':')
+          fields.map { |m| '%02x' % self[m] }.join(':')
         end
       end
 

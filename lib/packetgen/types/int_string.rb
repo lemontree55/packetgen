@@ -8,12 +8,10 @@
 
 module PacketGen
   module Types
-
     # Provides a class for creating strings preceeded by their length as a {Int}.
     # By default, a null string will have one byte length (length byte set to 0).
     # @author Sylvain Daubert
     class IntString
-
       # internal string
       # @return [String]
       attr_reader :string
@@ -40,9 +38,9 @@ module PacketGen
 
       # @param [Integer] l
       # @return [Integer]
-      def length=(l)
-        @length.read l
-        l
+      def length=(len)
+        @length.read len
+        len
       end
 
       # @return [Integer]
@@ -52,9 +50,9 @@ module PacketGen
 
       # @param [#to_s] s
       # @return [String]
-      def string=(s)
-        @length.value = s.to_s.size
-        @string = s.to_s
+      def string=(str)
+        @length.value = str.to_s.size
+        @string = str.to_s
       end
 
       # Get binary string

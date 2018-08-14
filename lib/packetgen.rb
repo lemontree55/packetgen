@@ -5,12 +5,12 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'packetgen/version'
 
 # PacketGen is a network packet generator and analyzor.
 # @author Sylvain Daubert
 module PacketGen
-
   # Base exception class for PacketGen exceptions
   class Error < StandardError; end
 
@@ -75,10 +75,10 @@ module PacketGen
     return @default_iface if @default_iface
 
     ipaddr = `ip addr`.split("\n")
-    @default_iface = ipaddr.each_with_index do |line, i|
+    @default_iface = ipaddr.each do |line|
       m = line.match(/^\d+: (\w+\d+):/)
       next if m.nil?
-      next if m[1] == 'lo'
+      next if m[1].start_with? 'lo'
       break m[1]
     end
   end

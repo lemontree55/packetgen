@@ -7,7 +7,6 @@
 
 module PacketGen
   module PcapNG
-
     # {IDB} represents a Interface Description Block (IDB) of a pcapng file.
     #
     # == IDB Definition
@@ -20,9 +19,8 @@ module PacketGen
     #   Int32   :block_len2
     # @author Sylvain Daubert
     class IDB < Block
-
       # Minimum IDB size
-      MIN_SIZE     = 5*4
+      MIN_SIZE = 5 * 4
 
       # Option code for if_tsresol option
       OPTION_IF_TSRESOL = 9
@@ -73,11 +71,11 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        if str_or_io.respond_to? :read
-          io = str_or_io
-        else
-          io = StringIO.new(force_binary(str_or_io.to_s))
-        end
+        io = if str_or_io.respond_to? :read
+               str_or_io
+             else
+               StringIO.new(force_binary(str_or_io.to_s))
+             end
         return self if io.eof?
 
         self[:type].read io.read(4)
@@ -104,23 +102,22 @@ module PacketGen
       # @param [Boolean] force if +true+, force decoding even if already done
       # @return [Float]
       def ts_resol(force: false)
-        if @options_decoded and not force
+        if @options_decoded && !force
           @ts_resol
         else
-          packstr = (@endian == :little) ? 'v' : 'n'
+          packstr = @endian == :little ? 'v' : 'n'
           idx = 0
           options = self[:options]
-          opt_code = opt_len = 0
 
-          while idx < options.length do
+          while idx < options.length
             opt_code, opt_len = options[idx, 4].unpack("#{packstr}2")
-            if opt_code == OPTION_IF_TSRESOL and opt_len == 1
-              tsresol = options[idx+4, 1].unpack('C').first
-              if tsresol & 0x80 == 0
-                @ts_resol = 10 ** -tsresol
-              else
-                @ts_resol = 2 ** -(tsresol & 0x7f)
-              end
+            if opt_code == OPTION_IF_TSRESOL && opt_len == 1
+              tsresol = options[idx + 4, 1].unpack('C').first
+              @ts_resol = if (tsresol & 0x80).zero?
+                            10**-tsresol
+                          else
+                            2**-(tsresol & 0x7f)
+                          end
 
               @options_decoded = true
               return @ts_resol
@@ -130,7 +127,7 @@ module PacketGen
           end
 
           @options_decoded = true
-          @ts_resol = 1E-6  # default value
+          @ts_resol = 1E-6 # default value
         end
       end
 
@@ -141,8 +138,6 @@ module PacketGen
         recalc_block_len
         super << @packets.map(&:to_s).join
       end
-
     end
-
   end
 end

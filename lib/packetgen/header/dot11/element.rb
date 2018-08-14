@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class Dot11
-
       # IEEE 802.11 information element
       #
       # An {Element} is a piece of data contained in a Dot11 management frame.

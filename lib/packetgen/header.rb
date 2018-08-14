@@ -13,8 +13,8 @@ module PacketGen
   # First, define the new header class. By example:
   #  module MyModule
   #    class MyHeader < PacketGen::Header::Base
-  #      define_field :field1, PacketGen::Types::Int32   
-  #      define_field :field2, PacketGen::Types::Int32   
+  #      define_field :field1, PacketGen::Types::Int32
+  #      define_field :field2, PacketGen::Types::Int32
   #    end
   #   end
   # Then, class must be declared to PacketGen:
@@ -27,7 +27,6 @@ module PacketGen
   #  pkt.myheader.field2.read 0x01
   # @author Sylvain Daubert
   module Header
-
     # @private snap length for PCAPRUB
     PCAP_SNAPLEN = 0xffff
     # @private promiscuous (or not) for PCAPRUB
@@ -38,7 +37,6 @@ module PacketGen
     @added_header_classes = {}
 
     class << self
-
       # List all available headers.
       # @return [Array<Class>]
       def all

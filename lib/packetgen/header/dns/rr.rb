@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class DNS
-
       # DNS Ressource Record
       # @author Sylvain Daubert
       class RR < Question
-
         # @!attribute ttl
         #  32-bit time to live
         #  @return [Integer]
@@ -37,9 +35,8 @@ module PacketGen
         # @option options [String] :rdata
         def initialize(dns, options={})
           super
-          if options[:rdata] and options[:rdlength].nil?
-            self.rdata = options[:rdata]
-          end
+          return unless options[:rdata] && options[:rdlength].nil?
+          self.rdata = options[:rdata]
         end
 
         # Set rdata and rdlength from +data+
@@ -49,7 +46,7 @@ module PacketGen
           self[:rdlength].read data.size
           self[:rdata].read data
         end
-        
+
         # Get human readable rdata
         # @return [String]
         def human_rdata
@@ -71,11 +68,11 @@ module PacketGen
           when TYPES['SOA']
             mname = name.read(self[:rdata]).dup
             rname = name.read(self[:rdata][mname.sz..-1])
-            serial = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz, 4])
-            refresh = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+4, 4])
-            retryi = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+8, 4])
-            expire = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+12, 4])
-            minimum = Types::Int32.new.read(self[:rdata][mname.sz+rname.sz+16, 4])
+            serial = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
+            refresh = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])
+            retryi = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 8, 4])
+            expire = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 12, 4])
+            minimum = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 16, 4])
             str = "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
                   "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
           when TYPES['MX']
@@ -93,15 +90,15 @@ module PacketGen
           str
         end
 
-        def human_rrclass
         # Get human readable class
         # @return [String]
+        def human_rrclass
           if self[:name].dns.is_a? MDNS
-            str = self.class::CLASSES.key(self.rrclass & 0x7fff) || "0x%04x" % (self.rrclass & 0x7fff)
+            str = self.class::CLASSES.key(self.rrclass & 0x7fff) || '0x%04x' % (self.rrclass & 0x7fff)
             str += ' CACHE-FLUSH' if self.rrclass & 0x8000 > 0
             str
           else
-            self.class::CLASSES.key(self.rrclass) || "0x%04x" % self.rrclass
+            self.class::CLASSES.key(self.rrclass) || '0x%04x' % self.rrclass
           end
         end
 

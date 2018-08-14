@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Certificate Request payloads.
       #
       # A CertReq payload consists of the IKE generic payload header (see {Payload})
@@ -36,7 +35,6 @@ module PacketGen
       #   pkt.calc_length
       # @author Sylvain Daubert
       class CertReq < Cert
-
         # Payload type number
         PAYLOAD_TYPE = 38
 
@@ -45,7 +43,7 @@ module PacketGen
         def human_content
           strs = []
           idx = 0
-          while idx < content.size do
+          while idx < content.size
             strs << content[idx, 20]
             idx += 20
           end

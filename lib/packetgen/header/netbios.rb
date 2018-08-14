@@ -16,7 +16,7 @@ module PacketGen
       class Session < Base
         # Port number for NetBIOS Session Service over TCP
         TCP_PORT = 139
-        
+
         # Session packet types
         TYPES = {
           'message'           => 0,
@@ -25,8 +25,8 @@ module PacketGen
           'negative_response' => 0x83,
           'retarget_response' => 0x84,
           'keep_alive'        => 0x85,
-        }
-        
+        }.freeze
+
         # @!attribute type
         #  8-bit session packet type
         #  @return [Integer]
@@ -38,7 +38,7 @@ module PacketGen
         # @!attribute body
         #  @return [String]
         define_field :body, Types::String
-        
+
         # Compute and set {#length} field
         # @return [Integer] calculated length
         def calc_length

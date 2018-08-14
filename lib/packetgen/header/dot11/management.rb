@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class Dot11
-
       # IEEE 802.11 management frame header
       #
       # This class make a {Dot11} header with {#type} set to +0+
@@ -25,7 +24,7 @@ module PacketGen
       # * a {#body} (a {Types::String} or another {Base} class),
       # * and a Frame check sequence ({#fcs}, of type {Types::Int32le}).
       #
-      # Management frames should be constructed with more headers from 
+      # Management frames should be constructed with more headers from
       # {SubMngt} subclasses.
       #
       # By example, build a {DeAuth} frame:
@@ -40,12 +39,11 @@ module PacketGen
       #   pkt.dot11_beacon.add_elements(type: 'TIM', value: "\x00\x01\x00\x00")
       # @author Sylvain Daubert
       class Management < Dot11
-
         # @param [Hash] options
         # @see Base#initialize
         def initialize(options={})
-          super({type: 0}.merge!(options))
-          @applicable_fields -= %i(mac4 qos_ctrl ht_ctrl)
+          super({ type: 0 }.merge!(options))
+          @applicable_fields -= %i[mac4 qos_ctrl ht_ctrl]
           define_applicable_fields
         end
 

@@ -17,14 +17,14 @@ module PacketGen
       # @param [Integer] value value to encode
       # @return [Integer]
       def self.encode(value)
-        if value < 32768
+        if value < 32_768
           value
         elsif value > 8_387_583
           0xffff
         else
           exp = 0
           value >>= 3
-          while value > 8191 do
+          while value > 8_191
             exp += 1
             value >>= 1
           end
@@ -37,7 +37,7 @@ module PacketGen
       # @param [Integer] value value to decode
       # @return [Integer]
       def self.decode(value)
-        if value < 32768
+        if value < 32_768
           value
         else
           mant = value & 0xfff

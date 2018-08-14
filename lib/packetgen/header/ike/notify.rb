@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Notify payloads, as defined in RFC 7296 §3.10.
       #
       # A Notify payload contains a generic payload header (see {Payload}) and
@@ -49,7 +48,6 @@ module PacketGen
       #   pkt.calc_length
       #   @author Sylvain Daubert
       class Notify < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 41
 
@@ -72,18 +70,18 @@ module PacketGen
           'INVALID_SELECTORS'             => 39,
           'TEMPORARY_FAILURE'             => 43,
           'CHILD_SA_NOT_FOUND'            => 44,
-          'INITIAL_CONTACT'               => 16384,
-          'SET_WINDOW_SIZE'               => 16385,
-          'ADDITIONAL_TS_POSSIBLE'        => 16386,
-          'IPCOMP_SUPPORTED'              => 16387,
-          'NAT_DETECTION_SOURCE_IP'       => 16388,
-          'NAT_DETECTION_DESTINATION_IP'  => 16389,
-          'COOKIE'                        => 16390,
-          'USE_TRANSPORT_MODE'            => 16391,
-          'HTTP_CERT_LOOKUP_SUPPORTED'    => 16392,
-          'REKEY_SA'                      => 16393,
-          'ESP_TFC_PADDING_NOT_SUPPORTED' => 16394,
-          'NON_FIRST_FRAGMENTS_ALSO'      => 16395,
+          'INITIAL_CONTACT'               => 16_384,
+          'SET_WINDOW_SIZE'               => 16_385,
+          'ADDITIONAL_TS_POSSIBLE'        => 16_386,
+          'IPCOMP_SUPPORTED'              => 16_387,
+          'NAT_DETECTION_SOURCE_IP'       => 16_388,
+          'NAT_DETECTION_DESTINATION_IP'  => 16_389,
+          'COOKIE'                        => 16_390,
+          'USE_TRANSPORT_MODE'            => 16_391,
+          'HTTP_CERT_LOOKUP_SUPPORTED'    => 16_392,
+          'REKEY_SA'                      => 16_393,
+          'ESP_TFC_PADDING_NOT_SUPPORTED' => 16_394,
+          'NON_FIRST_FRAGMENTS_ALSO'      => 16_395,
         }.freeze
 
         # @!attribute [r] protocol
@@ -119,7 +117,7 @@ module PacketGen
         alias type message_type
 
         def initialize(options={})
-          if options[:spi] and options[:spi_size].nil?
+          if options[:spi] && options[:spi_size].nil?
             options[:spi_size] = options[:spi].size
           end
           super
@@ -133,12 +131,12 @@ module PacketGen
         # @return [Integer]
         def protocol=(value)
           proto = case value
-               when Integer
-                 value
-               else
-                 c = IKE.constants.grep(/PROTO_#{value}/).first
-                 c ? IKE.const_get(c) : nil
-               end
+                  when Integer
+                    value
+                  else
+                    c = IKE.constants.grep(/PROTO_#{value}/).first
+                    c ? IKE.const_get(c) : nil
+                  end
           raise ArgumentError, "unknown protocol #{value.inspect}" unless proto
           self[:protocol].value = proto
         end
@@ -148,8 +146,8 @@ module PacketGen
         # Get protocol name
         # @return [String]
         def human_protocol
-          name = IKE.constants.grep(/PROTO/).
-                 detect { |c| IKE.const_get(c) == protocol } || "proto #{protocol}"
+          name = IKE.constants.grep(/PROTO/)
+                    .detect { |c| IKE.const_get(c) == protocol } || "proto #{protocol}"
           name.to_s.sub(/PROTO_/, '')
         end
 
@@ -165,7 +163,7 @@ module PacketGen
           str = Inspect.dashed_line(self.class, 2)
           fields.each do |attr|
             next if attr == :body
-            if %i(protocol message_type).include? attr
+            if %i[protocol message_type].include? attr
               str << Inspect.shift_level(2)
               str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
                                           send("human_#{attr}")]

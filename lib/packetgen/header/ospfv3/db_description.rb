@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class OSPFv3
-
       # This class handles {OSPFv3 OSPFv3} DB description packets payload.
       # The DB description payload has the following format:
       #    0                   1                   2                   3
@@ -65,7 +64,6 @@ module PacketGen
       #   dbd.lsas << existing_lsa.to_lsa_header
       # @author Sylvain Daubert
       class DbDescription < Base
-
         # @!attribute reserved
         #  8-bit zero field before {#options} one
         #  @return [Integer]
@@ -100,11 +98,11 @@ module PacketGen
         define_field :sequence_number, Types::Int32
         alias seqnum sequence_number
         alias seqnum= sequence_number=
-        
+
         # @!attribute lsas
         #  Array of LSA headers
         #  @return [ArrayOfLSAHeader]
-        define_field :lsas, ArrayOfLSA, builder: ->(h,t) { t.new(only_headers: true) }
+        define_field :lsas, ArrayOfLSA, builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end
 

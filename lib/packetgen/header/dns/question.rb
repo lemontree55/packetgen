@@ -8,11 +8,9 @@
 module PacketGen
   module Header
     class DNS
-
       # DNS Question
       # @author Sylvain Daubert
       class Question < Base
-
         # Ressource Record types
         TYPES = {
           'A'        => 1,
@@ -84,12 +82,12 @@ module PacketGen
         # @param [Integer] val
         # @return [Integer,String]
         def rrclass=(val)
-              v = case val
-                  when String
-                    self.class::CLASSES[val.upcase]
-                  else
-                    val
-                  end
+          v = case val
+              when String
+                self.class::CLASSES[val.upcase]
+              else
+                val
+              end
           raise ArgumentError, "unknown class #{val.inspect}" unless v
           self[:rrclass].read v
         end
@@ -104,23 +102,23 @@ module PacketGen
         # Get human readable type
         # @return [String]
         def human_type
-          self.class::TYPES.key(type) || "0x%04x" % type
+          self.class::TYPES.key(type) || '0x%04x' % type
         end
 
         # Get human readable class
         # @return [String]
         def human_rrclass
           if self[:name].dns.is_a? MDNS
-            self.class::CLASSES.key(self.rrclass & 0x7fff) || "0x%04x" % (self.rrclass & 0x7fff)
+            self.class::CLASSES.key(self.rrclass & 0x7fff) || '0x%04x' % (self.rrclass & 0x7fff)
           else
-            self.class::CLASSES.key(self.rrclass) || "0x%04x" % self.rrclass
+            self.class::CLASSES.key(self.rrclass) || '0x%04x' % self.rrclass
           end
         end
 
         # @return [String]
         def to_human
           if self[:name].dns.is_a? MDNS
-            unicast_bit = (self.rrclass & 0x8000 == 0x8000) ? 'QU' : 'QM'
+            unicast_bit = self.rrclass & 0x8000 == 0x8000 ? 'QU' : 'QM'
             "#{human_type} #{human_rrclass} #{unicast_bit} #{name}"
           else
             "#{human_type} #{human_rrclass} #{name}"

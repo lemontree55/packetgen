@@ -5,13 +5,13 @@
 # This program is published under MIT license.
 
 # frozen_string_literal: true
+
 require 'zlib'
 
 module PacketGen
   module Header
-
     # PPI (Per-Packet Information) packet
-    #@author Sylvain Daubert
+    # @author Sylvain Daubert
     # @since 1.4.0
     class PPI < Base
       # @!attribute version
@@ -53,7 +53,7 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 0 and length >= 8
+        version.zero? && (length >= 8)
       end
 
       # Calculate header length
@@ -115,9 +115,9 @@ module PacketGen
       # Check version field
       # @see [Base#parse?]
       def parse?
-        version == 0 and length >= 8
+        version.zero? && (length >= 8)
       end
-      
+
       # Calculate header length
       # @return [Integer] calculated length
       # @since 2.1.3
@@ -208,9 +208,8 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 1.4.0
     class Dot11 < Base
-
       # Frame types
-      TYPES = %w(Management Control Data Reserved).freeze
+      TYPES = %w[Management Control Data Reserved].freeze
 
       class << self
         # Set a flag for parsing Dot11 packets. If set to +true+, parse FCS field,
@@ -276,9 +275,8 @@ module PacketGen
       #  @return [Boolean] from_ds flag from {#frame_ctrl}
       # @!attribute to_ds
       #  @return [Boolean] to_ds flag from {#frame_ctrl}
-      define_bit_fields_on :frame_ctrl,  :subtype, 4, :type, 2, :proto_version, 2,
-                            :order, :wep, :md, :pwmngt, :retry, :mf, :from_ds, :to_ds
-
+      define_bit_fields_on :frame_ctrl, :subtype, 4, :type, 2, :proto_version, 2,
+                           :order, :wep, :md, :pwmngt, :retry, :mf, :from_ds, :to_ds
 
       # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
       #  @return [Integer]
@@ -362,7 +360,7 @@ module PacketGen
               elsif self.respond_to? :human_subtype
                 Inspect.dashed_line("#{self.class} #{human_subtype}", 2)
               else
-                Inspect.dashed_line("#{self.class}", 2)
+                Inspect.dashed_line(self.class.to_s, 2)
               end
         define_applicable_fields
         @applicable_fields.each do |attr|
@@ -381,25 +379,24 @@ module PacketGen
         pcap.inject self.to_s
         pcap.close
       end
-      
+
       # Callback called when a Dot11 header is added to a packet
       # Here, add +#dot11+ method as a shortcut to existing
       # +#dot11_(control|management|data)+.
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        unless packet.respond_to? :dot11
-          packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end")
-        end
+        return if packet.respond_to? :dot11
+        packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end")
       end
 
       private
 
       def define_applicable_fields
-        if to_ds? and from_ds?
+        if to_ds? && from_ds?
           @applicable_fields[6, 0] = :mac4 unless @applicable_fields.include? :mac4
         else
-          @applicable_fields -= %i(mac4)
+          @applicable_fields -= %i[mac4]
         end
         if order?
           unless @applicable_fields.include? :ht_ctrl
@@ -407,12 +404,12 @@ module PacketGen
             @applicable_fields[idx, 0] = :ht_ctrl
           end
         else
-          @applicable_fields -= %i(ht_ctrl)
+          @applicable_fields -= %i[ht_ctrl]
         end
         if Dot11.has_fcs
           @applicable_fields << :fcs unless @applicable_fields.include? :fcs
         else
-          @applicable_fields -= %i(fcs)
+          @applicable_fields -= %i[fcs]
         end
       end
 

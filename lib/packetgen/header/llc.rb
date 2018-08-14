@@ -8,7 +8,6 @@
 
 module PacketGen
   module Header
-
     # Logical-Link Control header
     #
     # A LLC header consists of:

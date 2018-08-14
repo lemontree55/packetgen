@@ -36,20 +36,20 @@ module PacketGen
       #
       # @author Kent 'picat' Gruber
       class Response < Base
-        # @!attribute version 
+        # @!attribute version
         #   @return [Types::String]
-        define_field :version,     Types::String, default: "HTTP/1.1"
-        # @!attribute status_code 
+        define_field :version,     Types::String, default: 'HTTP/1.1'
+        # @!attribute status_code
         #   @return [Types::String]
         define_field :status_code, Types::String
-        # @!attribute status_mesg 
+        # @!attribute status_mesg
         #   @return [Types::String]
-        define_field :status_mesg, Types::String  
+        define_field :status_mesg, Types::String
         # @!attribute headers
         #   associated http/1.1 headers
         #   @return [Types::String]
         define_field :headers, HTTP::Headers
-        # @!attribute body 
+        # @!attribute body
         #   @return [HTTP::PHeaders]
         define_field :body, Types::String
 
@@ -64,7 +64,7 @@ module PacketGen
           self.headers ||= options[:headers]
         end
 
-        # Read in the HTTP portion of the packet, and parse it. 
+        # Read in the HTTP portion of the packet, and parse it.
         # @return [PacketGen::HTTP::Response]
         def read(str)
           str = str.bytes.map!(&:chr).join unless str.valid_encoding?
@@ -89,8 +89,8 @@ module PacketGen
             first_line = headers.shift.split
             self[:version]     = first_line[0]
             self[:status_code] = first_line[1]
-            self[:status_mesg] = first_line[2..-1].join(" ")
-            self[:headers].read(headers.join("\n")) 
+            self[:status_mesg] = first_line[2..-1].join(' ')
+            self[:headers].read(headers.join("\n"))
           end
           self[:body] = data.join("\n")
           self
@@ -99,20 +99,18 @@ module PacketGen
         # String representation of data.
         # @return [String]
         def to_s
-          raise FormatError, "Missing #status_code." if self.status_code.empty?
-          raise FormatError, "Missing #status_mesg." if self.status_mesg.empty?
-          raise FormatError, "Missing #version."     if self.version.empty? 
-          str = "".dup # build 'dat string
-          str << self[:version] << " " << self[:status_code] << " " << self[:status_mesg] << "\r\n" 
-          if self[:headers].given?
-            str << self[:headers].to_s 
-          end
+          raise FormatError, 'Missing #status_code.' if self.status_code.empty?
+          raise FormatError, 'Missing #status_mesg.' if self.status_mesg.empty?
+          raise FormatError, 'Missing #version.'     if self.version.empty?
+          str = ''.dup # build 'dat string
+          str << self[:version] << ' ' << self[:status_code] << ' ' << self[:status_mesg] << "\r\n"
+          str << self[:headers].to_s if self[:headers].given?
           str << self.body
         end
       end
     end
 
     self.add_class HTTP::Response
-    TCP.bind_header HTTP::Response, body: ->(b) { /^HTTP\/1\.1\s\d{3,}\s.+/ =~ b.chars.select(&:valid_encoding?).join }
+    TCP.bind_header HTTP::Response, body: ->(b) { %r[^HTTP/1\.1\s\d{3,}\s.+] =~ b.chars.select(&:valid_encoding?).join }
   end
 end

@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class Dot11
-
       # @abstract Base class for all subtype management frames
       # Subclasses of this class are used to specialize {Management}. A
       # +SubMngt+ class set +subtype+ field in Dot11 header and may add some
@@ -52,7 +51,7 @@ module PacketGen
           end
           str
         end
-        
+
         # Add an {Element} to header
         # @param [Integer,String] type element type
         # @param [Object] value element value
@@ -69,7 +68,7 @@ module PacketGen
         def read_elements(str)
           start = 0
           elsz = Element.new.sz
-          while str.size - start >= elsz  do
+          while str.size - start >= elsz
             el = Element.new.read(str[start, str.size])
             @elements << el
             start += el.sz

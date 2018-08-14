@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-    
     # Bootstrap Protocol, {https://tools.ietf.org/html/rfc951
     # RFC 951}
     #
@@ -40,15 +39,14 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.2.0
     class BOOTP < Base
-      
       UDP_SERVER_PORT = 67
       UDP_CLIENT_PORT = 68
-      
+
       # DHCP opcodes
       OPCODES = {
         'BOOTREQUEST' => 1,
         'BOOTREPLY'   => 2
-      }
+      }.freeze
 
       # @!attribute op
       #   8-bit opcode
@@ -73,13 +71,13 @@ module PacketGen
       #  32-bit Transaction ID
       #  @return [Integer]
       define_field :xid, Types::Int32
-      
+
       # @!attribute secs
       #  16-bit integer: number of seconds elapsed since client began address
       #  acquisition or renewal process
       #  @return [Integer]
       define_field :secs, Types::Int16
-      
+
       # @!attribute flags
       #  16-bit flag field
       #  @return [Integer]
@@ -94,17 +92,17 @@ module PacketGen
       #  'your' (client) IP address
       #  @return [String]
       define_field :yiaddr, IP::Addr
-      
+
       # @!attribute siaddr
       #  IP address of next server to use in bootstrap
       #  @return [String]
       define_field :siaddr, IP::Addr
-      
+
       # @!attribute giaddr
       #  Relay agent IP address, used in booting via a relay agent
       #  @return [String]
       define_field :giaddr, IP::Addr
-      
+
       # @!attribute chaddr
       #   client hardware address
       #   @return [String]
@@ -123,7 +121,7 @@ module PacketGen
       # @!attribute body
       #   @return [String]
       define_field :body, Types::String
-      
+
       # @!attribute b
       #  Broadcast flag, from {#flags}
       # @return [Boolean]
@@ -131,22 +129,22 @@ module PacketGen
       #  15-bit Must Be Zero bits, from {#flags}
       # @return [Boolean]
       define_bit_fields_on :flags, :b, :mbz, 15
-      
+
       def inspect
         str = Inspect.dashed_line(self.class, 2)
         fields.each do |attr|
           next if attr == :body
           next unless is_present?(attr)
-          if attr == :chaddr and self.hlen == 6
-            str << Inspect.inspect_attribute(attr, Eth::MacAddr.new.read(self[:chaddr][0, 6]), 2)
-          else
-            str << Inspect.inspect_attribute(attr, self[attr], 2)
-          end
+          str << if (attr == :chaddr) && (self.hlen == 6)
+                   Inspect.inspect_attribute(attr, Eth::MacAddr.new.read(self[:chaddr][0, 6]), 2)
+                 else
+                   Inspect.inspect_attribute(attr, self[attr], 2)
+                 end
         end
         str
       end
     end
-    
+
     UDP.bind_header BOOTP, sport: 67, dport: 68
     UDP.bind_header BOOTP, sport: 68, dport: 67
   end

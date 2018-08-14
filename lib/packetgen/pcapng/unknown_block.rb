@@ -7,13 +7,11 @@
 
 module PacketGen
   module PcapNG
-
     # {UnknownBlock} is used to handle unsupported blocks of a pcapng file.
     # @author Sylvain Daubert
     class UnknownBlock < Block
-
       # Minimum Iblock size
-      MIN_SIZE     = 12
+      MIN_SIZE = 12
 
       # @return [:little, :big]
       attr_accessor :endian
@@ -41,15 +39,15 @@ module PacketGen
         false
       end
 
-     # Reads a String or a IO to populate the object
+      # Reads a String or a IO to populate the object
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        if str_or_io.respond_to? :read
-          io = str_or_io
-        else
-          io = StringIO.new(force_binary(str_or_io.to_s))
-        end
+        io = if str_or_io.respond_to? :read
+               str_or_io
+             else
+               StringIO.new(force_binary(str_or_io.to_s))
+             end
         return self if io.eof?
 
         self[:type].read io.read(4)
@@ -71,8 +69,6 @@ module PacketGen
         recalc_block_len
         super
       end
-
     end
-
   end
 end

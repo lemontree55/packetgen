@@ -61,7 +61,7 @@ module PacketGen
         #  Array of IP source addresses
         #  @return [IP::ArrayOfAddr]
         define_field :source_addr, IP::ArrayOfAddr,
-                     builder: ->(h,t) { t.new(counter: h[:number_of_sources]) }
+                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
 
         # @!attribute resv
         #  4-bit reserved field in

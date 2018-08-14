@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # A ICMPv6 header consists of:
     # * a +type+ field ({Types::Int8} type),
     # * a +code+ field ({Types::Int8} type),
@@ -29,7 +28,6 @@ module PacketGen
     #  icmpv6.body.read 'this is a body'
     # @author Sylvain Daubert
     class ICMPv6 < ICMP
-
       # ICMPv6 internet protocol number
       IP_PROTOCOL = 58
 

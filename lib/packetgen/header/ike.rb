@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # This class handles a pseudo-header used to differentiate ESP from IKE headers
     # in a UDP datagram with port 4500.
     # @author Sylvain Daubert
@@ -24,7 +23,7 @@ module PacketGen
       # Check non_esp_marker field
       # @see [Base#parse?]
       def parse?
-        non_esp_marker == 0
+        non_esp_marker.zero?
       end
     end
 
@@ -75,7 +74,6 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.0.0
     class IKE < Base
-
       # Classical well-known UDP port for IKE
       UDP_PORT1 = 500
       # Well-known UDP port for IKE when NAT is detected
@@ -182,7 +180,7 @@ module PacketGen
       def payloads
         payloads = []
         body = self.body
-        while body.is_a?(Payload) do
+        while body.is_a?(Payload)
           payloads << body
           body = body.body
         end
@@ -197,7 +195,7 @@ module PacketGen
           case attr
           when :flags
             str_flags = ''.dup
-            %w(r v i).each do |flag|
+            %w[r v i].each do |flag|
               str_flags << (send("flag_#{flag}?") ? flag.upcase : '.')
             end
             str << Inspect.shift_level(2)

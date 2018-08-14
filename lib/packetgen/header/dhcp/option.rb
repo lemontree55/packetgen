@@ -5,15 +5,14 @@
 
 # frozen_string_literal: true
 
-
 module PacketGen
   module Header
     class DHCP
-
       # define DHCP Options.
       # keys are option type, value are arrays containing option names
       # as strings, and a hash passed to {Option#initialize}.
-      DHCPOptions = {
+      # @since 2.6.1
+      DHCP_OPTIONS = {
         1  => ['subnet_mask', length: 4, v: IP::Addr],
         2  => ['time_zone'],
         3  => ['router', length: 4, v: IP::Addr],
@@ -37,14 +36,14 @@ module PacketGen
         44 => ['NetBIOS_server', length: 4, v: IP::Addr],
         45 => ['NetBIOS_dist_server', length: 4, v: IP::Addr],
         50 => ['requested_addr', length: 4, v: IP::Addr],
-        51 => ['lease_time', length: 4, v: Types::Int32, value: 43200],
+        51 => ['lease_time', length: 4, v: Types::Int32, value: 43_200],
         53 => ['message-type', length: 1, v: Types::Int8],
         54 => ['server_id', length: 4, v: IP::Addr],
         55 => ['param_req_list'],
         56 => ['error_message'],
-        57 => ['max_dhcp_size', length: 2, v: Types::Int16, value: 1500],
-        58 => ['renewal_time', length: 4, v: Types::Int32, value: 21600],
-        59 => ['rebinding_time', length: 4, v: Types::Int32, value: 37800],
+        57 => ['max_dhcp_size', length: 2, v: Types::Int16, value: 1_500],
+        58 => ['renewal_time', length: 4, v: Types::Int32, value: 21_600],
+        59 => ['rebinding_time', length: 4, v: Types::Int32, value: 37_800],
         60 => ['vendor_class_id'],
         61 => ['client_id'],
         64 => ['NISplus_domain'],
@@ -55,14 +54,20 @@ module PacketGen
         72 => ['WWW_server', length: 4, v: IP::Addr],
         73 => ['finger_server', length: 4, v: IP::Addr],
         74 => ['IRC_server', length: 4, v: IP::Addr]
-      }
+      }.freeze
+
+      # @deprecated Use {DHCP_OPTIONS} instead
+      DCHPOptions = DHCP_OPTIONS
 
       # Class to indicate DHCP options end
       class End < Types::Int8
         def initialize(value=255)
           super
         end
-        def to_human; self.class.to_s.sub(/.*::/, '').downcase; end
+
+        def to_human
+          self.class.to_s.sub(/.*::/, '').downcase
+        end
         alias human_type to_human
       end
 
@@ -83,9 +88,8 @@ module PacketGen
       #   option).
       # @author Sylvain Daubert
       class Option < Types::TLV
-
         # Option types
-        TYPES = Hash[DHCPOptions.to_a.map { |type, ary| [type, ary[0]] }]
+        TYPES = Hash[DHCP_OPTIONS.to_a.map { |type, ary| [type, ary[0]] }]
 
         # @param [Hash] options
         # @option options [Integer] :type
@@ -93,16 +97,15 @@ module PacketGen
         # @option options [String] :value
         def initialize(options={})
           super
-          if DHCPOptions.has_key?(self.type)
-            h = DHCPOptions[self.type].last
-            if h.is_a? Hash
-              h.each do |k, v|
-                self.length = v if k == :length
-                if k == :v
-                  self[:value] = v.new
-                  self.value = options[:value] if options[:value]
-                end
-              end
+          return unless DHCP_OPTIONS.key?(self.type)
+          h = DHCP_OPTIONS[self.type].last
+
+          return unless h.is_a? Hash
+          h.each do |k, v|
+            self.length = v if k == :length
+            if k == :v
+              self[:value] = v.new
+              self.value = options[:value] if options[:value]
             end
           end
         end
@@ -115,12 +118,12 @@ module PacketGen
         # @return [Option,End,Pad] may return another object than itself
         def read(str)
           read_type = str[0].unpack('C').first
-          if read_type == 0
+          if read_type.zero?
             Pad.new.read(str)
           elsif read_type == 255
             End.new.read(str)
-          elsif DHCPOptions.has_key?(read_type)
-            Option.new(DHCPOptions[read_type][1] || {}).private_read(str)
+          elsif DHCP_OPTIONS.key?(read_type)
+            Option.new(DHCP_OPTIONS[read_type][1] || {}).private_read(str)
           else
             super
           end
@@ -131,8 +134,8 @@ module PacketGen
         end
 
         def human_type
-          if DHCPOptions.has_key?(type)
-            DHCPOptions[type].first.dup
+          if DHCP_OPTIONS.key?(type)
+            DHCP_OPTIONS[type].first.dup
           else
             type.to_s
           end
@@ -141,13 +144,13 @@ module PacketGen
         def to_human
           s = human_type
           if length > 0
-            if value.respond_to? :to_human
-              s << ":#{value.to_human}"
-            elsif self[:value].is_a? Types::Int
-              s << ":#{self.value.to_i}"
-            else
-              s << ":#{value.inspect}"
-            end
+            s << if value.respond_to? :to_human
+                   ":#{value.to_human}"
+                 elsif self[:value].is_a? Types::Int
+                   ":#{self.value.to_i}"
+                 else
+                   ":#{value.inspect}"
+                 end
           end
           s
         end

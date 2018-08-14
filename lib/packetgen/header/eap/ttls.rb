@@ -8,7 +8,6 @@
 module PacketGen
   module Header
     class EAP
-
       # Extensible Authentication Protocol (EAP) - Tunneled-TLS,
       # {https://tools.ietf.org/html/rfc5281 RFC 5281}
       #
@@ -22,7 +21,7 @@ module PacketGen
         # @!attribute flags
         #  @return [Integer] 8-bit flags
         define_field_before :body, :flags, Types::Int8
-        
+
         # @!attribute l
         #  Say if length field is included. Defined on {#flags} field.
         #  @return [Boolean]
@@ -37,17 +36,17 @@ module PacketGen
         # @!attribute version
         #  @return [Integer] 3-bit version
         define_bit_fields_on :flags, :l, :m, :s, :reserved, 2, :version, 3
-        alias :length_present? :l?
-        alias :more_fragments? :m?
-        alias :tls_start? :s?
-        
+        alias length_present? l?
+        alias more_fragments? m?
+        alias tls_start? s?
+
         # @!attribute message_length
         #  Message length. This field provides the total length of the
         #  raw data message sequence prior to fragmentation. So, it
         #  cannot be automatically calculated (no +#calc_length+ method).
         #  @return [Integer] 32-bit message length
         define_field_before :body, :message_length, Types::Int32,
-                     optional: ->(h) { h.l? }
+                            optional: ->(h) { h.l? }
 
         # @return [EAP::TTLS]
         def initialize(options={})
@@ -62,11 +61,11 @@ module PacketGen
             next unless is_present?(attr)
             if attr == :flags
               shift = Inspect.shift_level(2)
-              value = %i(l m s).map { |f| send("#{f}?") ? f.to_s : '.' }.join
+              value = %i[l m s].map { |f| send("#{f}?") ? f.to_s : '.' }.join
               value = '%-10s (0x%02x)' % [value, self.flags]
-              str << shift 
+              str << shift
               str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''),
-                                         attr, value]
+                                          attr, value]
               str << Inspect::FMT_ATTR % ['', 'version', self.version]
             else
               str << Inspect.inspect_attribute(attr, self[attr], 2)

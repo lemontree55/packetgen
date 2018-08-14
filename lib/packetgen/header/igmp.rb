@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # This class supports IGMPv2 (RFC 2236).
     #
     # From RFC 2236, a IGMP header has the following format:
@@ -42,17 +41,16 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.4.0
     class IGMP < Base
-
       # IGMP internet protocol number
       IP_PROTOCOL = 2
-      
+
       # Known types
       TYPES = {
         'MembershipQuery'    => 0x11,
         'MembershipReportv1' => 0x12,
         'MembershipReportv2' => 0x16,
         'LeaveGroup'         => 0x17,
-      }
+       }.freeze
 
       # @!attribute type
       #  8-bit IGMP Type

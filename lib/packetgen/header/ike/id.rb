@@ -9,7 +9,6 @@
 module PacketGen
   module Header
     class IKE
-
       # This class handles Identification - Initiator payloads, denoted IDi
       # (see RFC 7296, §3.5).
       #
@@ -38,7 +37,6 @@ module PacketGen
       #   pkt.calc_length
       # @author Sylvain Daubert
       class IDi < Payload
-
         # Payload type number
         PAYLOAD_TYPE = 35
 
@@ -50,7 +48,7 @@ module PacketGen
           'DER_ASN1_DN' => 9,
           'DER_ASN1_GN' => 10,
           'KEY_ID'      => 11
-        }
+        }.freeze
 
         # @attribute [r] type
         #   8-bit ID type

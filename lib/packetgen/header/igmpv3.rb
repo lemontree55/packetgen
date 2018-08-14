@@ -7,7 +7,6 @@
 
 module PacketGen
   module Header
-
     # This class supports IGMPv3 (RFC3376).
     #
     # From RFC 3376, a IGMP header has the following format:
@@ -65,16 +64,13 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.4.0
     class IGMPv3 < IGMP
-
       # Known types
       TYPES = {
         'MembershipQuery'  => 0x11,
         'MembershipReport' => 0x22,
-      }
+      }.freeze
 
       delete_field :group_addr
-      #undef group_addr
-      #undef group_addr=
 
       # Encode value for IGMPv3 Max Resp Code and QQIC.
       # Value may be encoded as a float, so some error may occur.
@@ -84,12 +80,12 @@ module PacketGen
       def self.encode(value)
         if value < 128
           value
-        elsif value > 31743
+        elsif value > 31_743
           255
         else
           exp = 0
           value >>= 3
-          while value > 31 do
+          while value > 31
             exp += 1
             value >>= 1
           end

@@ -7,7 +7,6 @@
 
 module PacketGen
   module Types
-
     # @abstract Base class to define set of {Fields} subclasses.
     # == #record_from_hash
     # Subclasses should define private method +#record_from_hash+. This method
@@ -26,9 +25,11 @@ module PacketGen
       # Define type of objects in set. Used by {#read} and {#push}.
       # @param [Class] klass
       # @return [void]
+      # rubocop:disable Naming/AccessorMethodName
       def self.set_of(klass)
         @klass = klass
       end
+      # rubocop:enable Naming/AccessorMethodName
 
       # @param [Hash] options
       # @option options [Int] counter Int object used as a counter for this set
@@ -39,7 +40,7 @@ module PacketGen
 
       # Initialize array for copy:
       # * duplicate internal array.
-      def initialize_copy(other)
+      def initialize_copy(_other)
         @array = @array.dup
       end
 
@@ -148,14 +149,14 @@ module PacketGen
       def read(str)
         clear
         return self if str.nil?
-        return self if @counter and @counter.to_i == 0
+        return self if @counter && @counter.to_i.zero?
         force_binary str
         klass = self.class.class_eval { @klass }
-        while str.length > 0
+        until str.empty?
           obj = klass.new.read(str)
           @array << obj
           str.slice!(0, obj.sz)
-          break if @counter and self.size == @counter.to_i
+          break if @counter && self.size == @counter.to_i
         end
         self
       end
@@ -165,7 +166,7 @@ module PacketGen
       def size
         @array.size
       end
-      alias :length :size
+      alias length size
 
       # Get size in bytes
       # @return [Integer]

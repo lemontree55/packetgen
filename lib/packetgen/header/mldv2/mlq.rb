@@ -92,7 +92,7 @@ module PacketGen
         #  Array of IPv6 source addresses
         #  @return [IPv6::ArrayOfAddr]
         define_field_before :body, :source_addr, IPv6::ArrayOfAddr,
-                            builder: ->(h,t) { t.new(counter: h[:number_of_sources]) }
+                            builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
 
         # @!attribute flag_resv
         #   4-bit reserved field in {#flags}
@@ -138,9 +138,8 @@ module PacketGen
         end
       end
     end
-    
+
     self.add_class MLDv2::MLQ
     ICMPv6.bind_header MLDv2::MLQ, op: :and, type: 130, body: ->(b) { b.nil? ? '' : b.length > 23 }
-
   end
 end
