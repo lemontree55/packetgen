@@ -95,6 +95,7 @@ module PacketGen
         # Check type
         # @param [String] type name
         # @return [Boolean]
+        # @since 2.6.1
         def type?(type)
           self.class::TYPES[type] == self.type
         end

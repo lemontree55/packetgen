@@ -56,7 +56,7 @@ module PacketGen
         74 => ['IRC_server', length: 4, v: IP::Addr]
       }.freeze
 
-      # @deprecated Use {DHCP_OPTIONS} instead
+      # @deprecated Use {DHCP_OPTIONS} instead.
       DCHPOptions = DHCP_OPTIONS
 
       # Class to indicate DHCP options end
@@ -129,11 +129,14 @@ module PacketGen
           end
         end
 
+        # @since 2.6.1
+        # @return [true]
         def human_types?
           true
         end
 
         # @deprecated Use {#human_types?} instead
+        # @return [true]
         def has_human_types?
           human_type?
         end

@@ -205,6 +205,7 @@ module PacketGen
 
       # Say is this EAP header has {#type} field
       # @return [Boolean]
+      # @since 2.6.1
       def type?
         [1, 2].include?(self.code)
       end

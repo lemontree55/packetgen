@@ -82,6 +82,7 @@ module PacketGen
 
         # Say if given option has a length field.
         # @return [Boolean]
+        # @since 2.6.1
         def length?
           self[:kind].value && kind >= 2
         end
