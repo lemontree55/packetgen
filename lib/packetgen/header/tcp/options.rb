@@ -42,7 +42,7 @@ module PacketGen
                             klasses[kind].new
                           end
             this_option.read str[i, str.size]
-            unless this_option.has_length?
+            unless this_option.length?
               this_option.length = nil
               this_option.value = nil
             end

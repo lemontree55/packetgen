@@ -80,9 +80,16 @@ module PacketGen
           self
         end
 
+        # Say if given option has a length field.
+        # @return [Boolean]
+        def length?
+          self[:kind].value && kind >= 2
+        end
+
+        # @deprecated Use {#length?}.
         # @return [Boolean]
         def has_length?
-          self[:kind].value && kind >= 2
+          length?
         end
 
         # Getter for value attribute
