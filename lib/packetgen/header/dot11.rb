@@ -215,9 +215,23 @@ module PacketGen
         # Set a flag for parsing Dot11 packets. If set to +true+, parse FCS field,
         # else don't. Default is +true+.
         # @return [Boolean]
-        attr_accessor :has_fcs
+        attr_accessor :fcs
+        alias fcs? fcs
+
+        # rubocop:disable Naming/PredicateName
+
+        # @deprecated Use {#fcs?} instead.
+        def has_fcs
+          fcs?
+        end
+
+        # @deprecated Use {#fcs=} instead.
+        def has_fcs=(fcs)
+          self.fcs = fcs
+        end
+        # rubocop:enable Naming/PredicateName
       end
-      Dot11.has_fcs = true
+      Dot11.fcs = true
 
       # @!attribute frame_ctrl
       #  @return [Integer] 16-bit frame control word
@@ -311,7 +325,7 @@ module PacketGen
       # @return [Dot11] may return a subclass object if a more specific class
       #   may be determined
       def read(str)
-        has_fcs = Dot11.has_fcs
+        fcs = Dot11.fcs?
 
         if self.class == Dot11
           return self if str.nil?
@@ -326,10 +340,10 @@ module PacketGen
           when 2
             Dot11::Data.new.read str
           else
-            private_read str, has_fcs
+            private_read str, fcs
           end
         else
-          private_read str, has_fcs
+          private_read str, fcs
         end
       end
 
@@ -406,17 +420,17 @@ module PacketGen
         else
           @applicable_fields -= %i[ht_ctrl]
         end
-        if Dot11.has_fcs
+        if Dot11.fcs?
           @applicable_fields << :fcs unless @applicable_fields.include? :fcs
         else
           @applicable_fields -= %i[fcs]
         end
       end
 
-      def private_read(str, has_fcs)
+      def private_read(str, fcs)
         self[:frame_ctrl].read str[0, 2]
         define_applicable_fields
-        if has_fcs
+        if fcs
           old_read str[0...-4]
           self[:fcs].read str[-4..-1]
         else
