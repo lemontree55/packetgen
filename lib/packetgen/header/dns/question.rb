@@ -95,8 +95,14 @@ module PacketGen
         # Check type
         # @param [String] type name
         # @return [Boolean]
-        def has_type?(type)
+        def type?(type)
           self.class::TYPES[type] == self.type
+        end
+
+        # @deprecated Use {#type?} instead
+        # @return [Boolean]
+        def has_type?(type)
+          type?(type)
         end
 
         # Get human readable type

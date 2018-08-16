@@ -28,7 +28,7 @@ module PacketGen
           force_binary str
           while !str.empty? && (self.size < @counter.to_i)
             rr = RR.new(@dns).read(str)
-            rr = OPT.new(@dns).read(str) if rr.has_type?('OPT')
+            rr = OPT.new(@dns).read(str) if rr.type?('OPT')
             str.slice!(0, rr.sz)
             push rr
           end
