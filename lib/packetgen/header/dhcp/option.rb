@@ -129,8 +129,13 @@ module PacketGen
           end
         end
 
-        def has_human_types?
+        def human_types?
           true
+        end
+
+        # @deprecated Use {#human_types?} instead
+        def has_human_types?
+          human_type?
         end
 
         def human_type
