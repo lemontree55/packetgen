@@ -49,10 +49,17 @@ module PacketGen
         self.type = options[:type] || PcapNG::SPB_TYPE.to_i
       end
 
-      # Has this block option?
+      # Has this block options?
+      # @return [false]
+      # @since 2.6.1
+      def options?
+        false
+      end
+
+      # @deprecated Use {#options?} instead.
       # @return [false]
       def has_options?
-        false
+        options?
       end
 
       # Reads a String or a IO to populate the object

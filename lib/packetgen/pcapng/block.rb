@@ -32,8 +32,15 @@ module PacketGen
 
       # Has this block option?
       # @return [Boolean]
-      def has_options?
+      # @since 2.6.1
+      def options?
         @fields.key?(:options) && @fields[:options].sz > 0
+      end
+
+      # @deprecated Use {#options?} instead.
+      # @return [Boolean]
+      def has_options?
+        options?
       end
 
       # Calculate block length and update :block_len and block_len2 fields
@@ -58,15 +65,15 @@ module PacketGen
 
       # Set the endianness for the various Int classes handled by self.
       # Must be called by all subclass #initialize method.
-      # @param [:little, :big] e
-      # @return [:little, :big] returns e
-      def set_endianness(e)
-        unless %i[little big].include? e
+      # @param [:little, :big] endian
+      # @return [:little, :big] returns endian
+      def set_endianness(endian)
+        unless %i[little big].include? endian
           raise ArgumentError, "unknown endianness for #{self.class}"
         end
-        @endian = e
-        @fields.each { |_f, v| v.endian = e if v.is_a?(Types::Int) }
-        e
+        @endian = endian
+        @fields.each { |_f, v| v.endian = endian if v.is_a?(Types::Int) }
+        endian
       end
 
       def check_len_coherency
