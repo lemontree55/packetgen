@@ -85,7 +85,7 @@ module PacketGen
         when Integer
           self.old_type = val
         else
-          raise TypeError, 'need an Integer' unless has_human_types?
+          raise TypeError, 'need an Integer' unless human_types?
           new_val = self.class::TYPES.key(val.to_s)
           raise ArgumentError, "unknown #{val} type" if new_val.nil?
           self.old_type = new_val
@@ -122,7 +122,7 @@ module PacketGen
       # Return human readable type, if TYPES is defined
       # @return [String]
       def human_type
-        if has_human_types?
+        if human_types?
           htype = self.class::TYPES[type]
           htype = type if htype.nil?
           htype.to_s
@@ -134,7 +134,7 @@ module PacketGen
       # @return [String]
       def to_human
         name = self.class.to_s.gsub(/.*::/, '')
-        @typestr ||= if has_human_types?
+        @typestr ||= if human_types?
                        types = self.class::TYPES.values
                        "%-#{types.max_by(&:length).size}s"
                      else
@@ -147,7 +147,7 @@ module PacketGen
 
       private
 
-      def has_human_types?
+      def human_types?
         self.class.const_defined? :TYPES
       end
     end
