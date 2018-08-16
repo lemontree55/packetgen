@@ -96,21 +96,21 @@ module PacketGen
       #  with type different from Expanded Types (254).
       #  @return [Integer] 8-bit request or response type
       define_field :type, Types::Int8Enum, enum: TYPES,
-                   optional: ->(eap) { eap.has_type? }
+                   optional: ->(eap) { eap.type? }
 
       # @!attribute vendor_id
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 24-bit vendor ID
       define_field :vendor_id, Types::Int24,
-                   optional: ->(eap) { eap.has_type? && (eap.type == 254) }
+                   optional: ->(eap) { eap.type? && (eap.type == 254) }
 
       # @!attribute vendor_type
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 32-bit vendor type
       define_field :vendor_type, Types::Int32,
-                   optional: ->(eap) { eap.has_type? && (eap.type == 254) }
+                   optional: ->(eap) { eap.type? && (eap.type == 254) }
 
       # @!attribute body
       #  @return [Types::String, Header::Base]
@@ -132,7 +132,7 @@ module PacketGen
       def read(str)
         super str
         return self unless self.class == EAP
-        if has_type?
+        if type?
           obj = case self.type
                 when 4
                   EAP::MD5.new.read(str)
@@ -161,7 +161,7 @@ module PacketGen
       # @return [String]
       # @raise [ParseError] not a Request nor a Response packet
       def human_type
-        raise ParseError, 'not a Request nor a Response' unless has_type?
+        raise ParseError, 'not a Request nor a Response' unless type?
         self[:type].to_human
       end
 
@@ -193,9 +193,7 @@ module PacketGen
       # @return [Array<Integer>]
       # @raise [ParseError] not a Nak packet
       def desired_auth_type
-        if (code != 2) && (type != 3)
-          raise ParseError, 'not a Nak response'
-        end
+        raise ParseError, 'not a Nak response' if (code != 2) && (type != 3)
         body.to_s.unpack('C*')
       end
 
@@ -207,8 +205,14 @@ module PacketGen
 
       # Say is this EAP header has {#type} field
       # @return [Boolean]
-      def has_type?
+      def type?
         [1, 2].include?(self.code)
+      end
+
+      # @deprecated Use {#type?} instead.
+      # @return [Boolean]
+      def has_type?
+        type?
       end
 
       # Callback called when a EAP header is added to a packet
