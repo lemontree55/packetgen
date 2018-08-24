@@ -138,7 +138,8 @@ module PacketGen
         # @deprecated Use {#human_types?} instead
         # @return [true]
         def has_human_types?
-          human_type?
+          Deprecation.deprecated(self.class, __method__, 'human_types?')
+          human_types?
         end
 
         def human_type

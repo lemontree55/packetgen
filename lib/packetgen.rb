@@ -84,6 +84,7 @@ module PacketGen
   end
 end
 
+require 'packetgen/deprecation'
 require 'packetgen/types'
 require 'packetgen/inspect'
 require 'packetgen/pcapng'

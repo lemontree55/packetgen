@@ -213,6 +213,7 @@ module PacketGen
       # @deprecated Use {#type?} instead.
       # @return [Boolean]
       def has_type?
+        Deprecation.deprecated(self.class, __method__, 'type?')
         type?
       end
 

@@ -90,6 +90,7 @@ module PacketGen
         # @deprecated Use {#length?}.
         # @return [Boolean]
         def has_length?
+          Deprecation.deprecated(self.class, __method__, 'length?')
           length?
         end
 
@@ -125,7 +126,7 @@ module PacketGen
 
         # @return [String]
         def inspect
-          str = "#<#{self.class} kind=#{self[:kind].value.inspect} "
+          str = +"#<#{self.class} kind=#{self[:kind].value.inspect} "
           str << "length=#{self[:length].value.inspect} " if self[:length].value
           str << "value=#{self[:value].inspect}>"
         end
