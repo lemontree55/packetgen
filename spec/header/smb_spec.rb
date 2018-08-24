@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe SMB do
       describe 'binding' do
         it 'in NetBIOS packets' do
