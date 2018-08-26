@@ -451,6 +451,16 @@ module PacketGen
       def force_binary(str)
         PacketGen.force_binary(str)
       end
+
+      private
+
+      # Deeply duplicate +@fields+
+      # @return [void]
+      def initialize_copy(_other)
+        fields = {}
+        @fields.each { |k,v| fields[k] = v.dup }
+        @fields = fields
+      end
     end
   end
 end
