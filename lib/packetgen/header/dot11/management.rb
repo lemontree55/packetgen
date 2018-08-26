@@ -62,6 +62,12 @@ module PacketGen
 
           self
         end
+
+        # Invert mac1 and mac2 (resp. destination address and source address).
+        # @return [self]
+        def reply!
+          self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+        end
       end
     end
   end

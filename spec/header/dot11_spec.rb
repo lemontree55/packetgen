@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe PPI do
       describe '#calc_length' do
         it 'computes PPI header length' do
@@ -216,7 +215,7 @@ module PacketGen
           dot11 = Dot11.new
           str = dot11.inspect
           expect(str).to be_a(String)
-          (dot11.to_h.keys - %i(body)).each do |attr|
+          (dot11.to_h.keys - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
 
@@ -225,7 +224,7 @@ module PacketGen
           expect(str).to be_a(String)
           expect(dot11.to_h.keys).to_not include(:mac3, :sequence_ctrl, :mac4,
                                                  :qos_ctrl, :ht_ctrl)
-          (dot11.to_h.keys - %i(body)).each do |attr|
+          (dot11.to_h.keys - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -269,6 +268,43 @@ module PacketGen
           expect(pkt.llc.ssap).to eq(0xaa)
           expect(pkt.snap.oui).to eq('00:00:00')
           expect(pkt.snap.proto_id).to eq(0x800)
+        end
+      end
+    end
+
+    describe Dot11::Management do
+      let(:ctrl_mngt_pkts) { read_packets('ieee802.11-join.pcapng') }
+      describe '#reply!' do
+        it 'inverts source and destination addresses' do
+          pkt = ctrl_mngt_pkts[10]
+          pkt.reply!
+          expect(pkt.dot11.mac1).to eq('00:16:bc:3d:aa:57')
+          expect(pkt.dot11.mac2).to eq('00:01:e3:41:bd:6e')
+        end
+      end
+    end
+
+    describe Dot11::Data do
+      let(:data_pkts) { read_packets('ieee802.11-data.pcapng') }
+      describe '#reply!' do
+        it 'inverts SA and DA and DS flags (DS status is 01)' do
+          pkt1, pkt2 = data_pkts[0..1]
+          pkt1.reply!
+          expect(pkt1.dot11.mac1).to eq(pkt2.dot11.mac1)
+          expect(pkt1.dot11.mac2).to eq(pkt2.dot11.mac2)
+          expect(pkt1.dot11.mac3).to eq(pkt2.dot11.mac3)
+          expect(pkt1.dot11.from_ds?).to eq(pkt2.dot11.from_ds?)
+          expect(pkt1.dot11.to_ds?).to eq(pkt2.dot11.to_ds?)
+        end
+
+        it 'inverts SA and DA and DS flags (DS status is 10)' do
+          pkt1, pkt2 = data_pkts[0..1]
+          pkt2.reply!
+          expect(pkt2.dot11.mac1).to eq(pkt1.dot11.mac1)
+          expect(pkt2.dot11.mac2).to eq(pkt1.dot11.mac2)
+          expect(pkt2.dot11.mac3).to eq(pkt1.dot11.mac3)
+          expect(pkt2.dot11.from_ds?).to eq(pkt1.dot11.from_ds?)
+          expect(pkt2.dot11.to_ds?).to eq(pkt1.dot11.to_ds?)
         end
       end
     end
