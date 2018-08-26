@@ -6,7 +6,7 @@ module PacketGen
     describe '.gen' do
       before(:each) do
         @pkt = Packet.gen('IP')
-     end
+      end
 
       it 'raises on unknown protocol' do
         expect { Packet.gen 'IPOT' }.to raise_error(ArgumentError)
@@ -65,7 +65,7 @@ module PacketGen
         expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
         expect(pkt.ip.ttl).to eq(128)
         expect(pkt.ip.src).to eq('192.168.1.105')
-        expect(pkt.udp.sport).to eq(55261)
+        expect(pkt.udp.sport).to eq(55_261)
         expect(pkt.udp.dport).to eq(53)
         expect(pkt.udp.length).to eq(44)
         expect(pkt.udp.checksum).to eq(0x8bf8)
@@ -85,20 +85,20 @@ module PacketGen
 
       it 'parses a string with first_header set to correct header' do
         pkt = nil
-        expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'Eth') }.
-          not_to raise_error
+        expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'Eth') }
+          .not_to raise_error
         expect(pkt).to respond_to :eth
         expect(pkt).to respond_to :ip
         expect(pkt).to respond_to :udp
         expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
         expect(pkt.ip.src).to eq('192.168.1.105')
-        expect(pkt.udp.sport).to eq(55261)
+        expect(pkt.udp.sport).to eq(55_261)
       end
 
       it 'parses a string with first_header set to uncorrect header' do
         pkt = nil
-        expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'IP') }.
-          not_to raise_error
+        expect { pkt = Packet.parse(@raw_pkts.first, first_header: 'IP') }
+          .not_to raise_error
         expect(pkt).to respond_to :ip
         expect(pkt.ip.version).to eq(0)
         expect(pkt.ip.ihl).to eq(0)
@@ -253,7 +253,7 @@ module PacketGen
     describe '#calc_checksum' do
       it 'recalculates packet checksums' do
         pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
-              add('UDP', sport: 45768, dport: 80)
+              add('UDP', sport: 45_768, dport: 80)
         pkt.body = 'abcdef'
         expect(pkt.ip.checksum).to eq(0)
         expect(pkt.udp.checksum).to eq(0)
@@ -265,8 +265,8 @@ module PacketGen
     end
 
     describe '#to_w' do
-      let(:pkt) { Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: 'ff:ff:ff:ff:ff:ff').
-                         add('IP', src: '128.1.2.3', dst: '129.1.2.3') }
+      let(:pkt) { Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: 'ff:ff:ff:ff:ff:ff')
+                        .add('IP', src: '128.1.2.3', dst: '129.1.2.3') }
 
       it 'sends a packet on wire', :sudo do
         Thread.new { sleep 0.1; pkt.to_w('lo') }
@@ -319,8 +319,8 @@ module PacketGen
       after(:each) { @write_file.close; @write_file.unlink }
 
       it 'writes packet as a PcapNG file' do
-        pkt1 = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
-                add('UDP', sport: 45768, dport: 80)
+        pkt1 = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff)
+                     .add('UDP', sport: 45_768, dport: 80)
         pkt1.to_f(@write_file.path)
 
         pkt2 = Packet.read(@write_file.path).first
@@ -333,18 +333,18 @@ module PacketGen
         pkt = Packet.gen('Eth', dst: '00:01:02:03:04:05').add('IP')
         idx = [pkt.ip.id].pack('n')
         expected = force_binary("\x00\x01\x02\x03\x04\x05" \
-                                          "\x00\x00\x00\x00\x00\x00\x08\x00" \
-                                          "\x45\x00\x00\x14#{idx}\x00\x00" \
-                                          "\x40\x00\x00\x00" \
-                                          "\x7f\x00\x00\x01\x7f\x00\x00\x01")
+                                "\x00\x00\x00\x00\x00\x00\x08\x00" \
+                                "\x45\x00\x00\x14#{idx}\x00\x00" \
+                                "\x40\x00\x00\x00" \
+                                "\x7f\x00\x00\x01\x7f\x00\x00\x01")
         expect(pkt.to_s).to eq(expected)
       end
     end
 
     describe '#encapsulate' do
       it 'encapsulates a packet in another one' do
-        inner_pkt = Packet.gen('IP', src: '10.0.0.1', dst: '10.1.0.1').
-                    add('UDP', sport: 45321, dport: 53, body: 'abcd')
+        inner_pkt = Packet.gen('IP', src: '10.0.0.1', dst: '10.1.0.1')
+                          .add('UDP', sport: 45_321, dport: 53, body: 'abcd')
         inner_pkt.calc
 
         outer_pkt = Packet.gen('IP', src: '45.216.4.3', dsy: '201.123.200.147')
@@ -358,9 +358,9 @@ module PacketGen
 
     describe '#decapsulate' do
       it 'removes first header from packet' do
-        pkt = PacketGen.gen('IP', src: '1.0.0.1', dst: '1.0.0.2').
-              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
-              add('ICMP', type: 8, code: 0)
+        pkt = PacketGen.gen('IP', src: '1.0.0.1', dst: '1.0.0.2')
+                       .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
+                       .add('ICMP', type: 8, code: 0)
         pkt.decapsulate(pkt.ip)
         expect(pkt.headers.size).to eq(2)
         expect(pkt.is? 'IP').to be(true)
@@ -369,10 +369,10 @@ module PacketGen
       end
 
       it 'removes a header from packet' do
-        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05').
-              add('IP', src: '1.0.0.1', dst: '1.0.0.2').
-              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
-              add('ICMP', type: 8, code: 0)
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05')
+                    .add('IP', src: '1.0.0.1', dst: '1.0.0.2')
+                    .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
+                    .add('ICMP', type: 8, code: 0)
         pkt.decapsulate(pkt.ip)
         expect(pkt.headers.size).to eq(3)
         expect(pkt.is? 'Eth').to be(true)
@@ -382,10 +382,10 @@ module PacketGen
       end
 
       it 'removes multiple headers' do
-        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05').
-              add('IP', src: '1.0.0.1', dst: '1.0.0.2').
-              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
-              add('ICMP', type: 8, code: 0)
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05')
+                    .add('IP', src: '1.0.0.1', dst: '1.0.0.2')
+                    .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
+                    .add('ICMP', type: 8, code: 0)
         pkt.decapsulate(pkt. eth, pkt.ip)
         expect(pkt.headers.size).to eq(2)
         expect(pkt.is? 'IP').to be(true)
@@ -394,9 +394,9 @@ module PacketGen
       end
 
       it 'raises if removed header results to an unknown binding' do
-        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05').
-              add('IP', src: '10.0.0.1', dst: '10.0.0.2').
-              add('ICMP', type: 8, code: 0)
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05')
+                    .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
+                    .add('ICMP', type: 8, code: 0)
         expect { pkt.decapsulate pkt.ip }.to raise_error(FormatError)
       end
     end
@@ -413,6 +413,66 @@ module PacketGen
         pkt2 = pkt1.dup
         expect(pkt1.eth.object_id).not_to eq(pkt2.eth.object_id)
         expect(pkt1.eth.src.object_id).not_to eq(pkt2.eth.src.object_id)
+      end
+    end
+
+    describe '#reply!' do
+      let(:packets) { read_packets(File.join('..', 'pcapng', 'sample.pcapng')) }
+
+      it 'inverts Ethernet addresses' do
+        pkt = packets.first
+        src = pkt.eth.src.dup
+        dst = pkt.eth.dst.dup
+        pkt.reply!
+        expect(pkt.eth.src).to eq(dst)
+        expect(pkt.eth.dst).to eq(src)
+      end
+
+      it 'inverts IP addresses' do
+        pkt = packets.first
+        src = pkt.ip.src.dup
+        dst = pkt.ip.dst.dup
+        pkt.reply!
+        expect(pkt.ip.src).to eq(dst)
+        expect(pkt.ip.dst).to eq(src)
+      end
+
+      it 'inverts IPv6 addresses' do
+        pkt = read_packets(File.join('..', 'pcapng', 'ipv6_tcp.pcapng')).first
+        src = pkt.ipv6.src.dup
+        dst = pkt.ipv6.dst.dup
+        pkt.reply!
+        expect(pkt.ipv6.src).to eq(dst)
+        expect(pkt.ipv6.dst).to eq(src)
+      end
+
+      it 'inverts TCP ports' do
+        pkt = packets[7]
+        pkt.reply!
+        expect(pkt.tcp.sport).to eq(80)
+        expect(pkt.tcp.dport).to eq(49_426)
+      end
+
+      it 'inverts UDP ports' do
+        pkt = packets.first
+        pkt.reply!
+        expect(pkt.udp.sport).to eq(53)
+        expect(pkt.udp.dport).to eq(55_261)
+      end
+    end
+
+    describe '#reply' do
+      let(:packets) { read_packets(File.join('..', 'pcapng', 'sample.pcapng')) }
+
+      it 'inverts addresses and ports numbers' do
+        pkt = packets.first
+        reply_pkt = pkt.reply
+        expect(reply_pkt.eth.src).to eq(pkt.eth.dst)
+        expect(reply_pkt.eth.dst).to eq(pkt.eth.src)
+        expect(reply_pkt.ip.src).to eq(pkt.ip.dst)
+        expect(reply_pkt.ip.dst).to eq(pkt.ip.src)
+        expect(reply_pkt.udp.sport).to eq(pkt.udp.dport)
+        expect(reply_pkt.udp.dport).to eq(pkt.udp.sport)
       end
     end
   end

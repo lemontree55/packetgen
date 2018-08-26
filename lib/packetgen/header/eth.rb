@@ -96,8 +96,15 @@ module PacketGen
         pcap.inject self.to_s
         pcap.close
       end
-    end
 
+      # Invert destination and source addresses
+      # @return [self]
+      # @since 2.7.0
+      def reply!
+        self[:src], self[:dst] = self[:dst], self[:src]
+        self
+      end
+    end
     self.add_class Eth
   end
 end

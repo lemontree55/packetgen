@@ -268,6 +268,14 @@ module PacketGen
         self.ihl = 5 + options.sz / 4 if self.ihl == 5
         super
       end
+
+      # Invert source and destination addresses
+      # @return [self]
+      # @since 2.7.0
+      def reply!
+        self[:src], self[:dst] = self[:dst], self[:src]
+        self
+      end
     end
 
     self.add_class IP
