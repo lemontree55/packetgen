@@ -226,6 +226,17 @@ module PacketGen
         return if packet.respond_to? :eap
         packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end")
       end
+
+      # Invert between a request and a response packet. Not action for
+      # others codes.
+      # @return [self]
+      def reply!
+        case self.code
+        when 1 then self.code = 2
+        when 2 then self.code = 1
+        end
+        self
+      end
     end
 
     Dot1x.bind_header EAP, type: 0
