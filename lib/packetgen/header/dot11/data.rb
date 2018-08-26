@@ -34,6 +34,36 @@ module PacketGen
           define_applicable_fields
         end
 
+        # Invert source and destination addresses (see Table 8-19 from
+        # IEEE 802.11-2012 document to known which MAC is SA, and which
+        # one is DA).
+        # Also invert Receiver and Transmitter address in case ToDS and
+        # FromDS are true.
+        def reply!
+          ds = frame_ctrl & 3
+          case ds
+          when 0
+            # MAC1: RA/DA, MAC2: TA/SA
+            self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+          when 1
+            # MAC1: RA/BSSID, MAC2: TA/SA, MAC3: DA
+            self[:mac2], self[:mac1] = self[:mac1], self[:mac2]
+            self.to_ds = false
+            self.from_ds = true
+          when 2
+            # MAC1: RA/DA, MAC2: BSSID, MAC3: SA or BSSID
+            self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+            self.to_ds = true
+            self.from_ds = false
+          when 3
+            # MAC1: RA, MAC2: TA
+            self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+            # MAC3: DA, MAC4: SA
+            self[:mac4], self[:mac3] = self[:mac3], self[:mac4]
+          end
+          self
+        end
+
         private
 
         def define_applicable_fields

@@ -111,6 +111,23 @@ module PacketGen
       alias dst_mac= tha=
       alias dst_ip tpa
       alias dst_ip= tpa=
+
+      # Invert data to create a reply.
+      # @return [self]
+      def reply!
+        case opcode.to_i
+        when 1
+          self.opcode = 2
+          self.spa, self.tpa = self.tpa, self.spa
+          self.sha, self.tha = self.tha, self.sha
+        when 2
+          self.opcode = 1
+          self.spa, self.tpa = self.tpa, self.spa
+          self.sha = self.tha
+          self[:tha].from_human('00:00:00:00:00:00')
+        end
+        self
+      end
     end
 
     self.add_class ARP

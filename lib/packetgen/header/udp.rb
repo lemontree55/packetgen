@@ -82,6 +82,14 @@ module PacketGen
       def calc_length
         Base.calculate_and_set_length self
       end
+
+      # Invert source and destination port numbers
+      # @return [self]
+      # @since 2.7.0
+      def reply!
+        self[:sport], self[:dport] = self[:dport], self[:sport]
+        self
+      end
     end
 
     self.add_class UDP

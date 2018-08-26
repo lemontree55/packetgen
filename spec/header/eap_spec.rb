@@ -149,11 +149,30 @@ module PacketGen
         end
       end
 
+      describe '#reply!' do
+        it 'inverts between requests and responses' do
+          eap = EAP.new
+          eap.reply!
+          expect(eap.code).to eq(2)
+          eap.reply!
+          expect(eap.code).to eq(1)
+        end
+
+        it 'does nothing on success and failure packets' do
+          eap = EAP.new(code: 'Success')
+          eap.reply!
+          expect(eap.code).to eq(3)
+          eap = EAP.new(code: 'Failure')
+          eap.reply!
+          expect(eap.code).to eq(4)
+        end
+      end
+
       describe EAP::MD5 do
         describe '#initialize' do
           it 'creates a EAP::MD5 header with default values' do
             eap = EAP::MD5.new
-            expect(eap).to have_type
+            expect(eap.type?).to be(true)
             expect(eap.type).to eq(EAP::TYPES['MD5-Challenge'])
           end
         end
@@ -163,7 +182,7 @@ module PacketGen
         describe '#initialize' do
           it 'creates a EAP::TLS header with default values' do
             eap = EAP::TLS.new
-            expect(eap).to have_type
+            expect(eap.type?).to be(true)
             expect(eap.type).to eq(EAP::TYPES['EAP-TLS'])
           end
         end
@@ -212,7 +231,7 @@ module PacketGen
         describe '#initialize' do
           it 'creates a EAP::TTLS header with default values' do
             eap = EAP::TTLS.new
-            expect(eap).to have_type
+            expect(eap.type?).to be(true)
             expect(eap.type).to eq(EAP::TYPES['EAP-TTLS'])
           end
         end
@@ -222,7 +241,7 @@ module PacketGen
         describe '#initialize' do
           it 'creates a EAP::FAST header with default values' do
             eap = EAP::FAST.new
-            expect(eap).to have_type
+            expect(eap.type?).to be(true)
             expect(eap.type).to eq(EAP::TYPES['EAP-FAST'])
           end
         end

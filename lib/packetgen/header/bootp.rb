@@ -130,6 +130,7 @@ module PacketGen
       # @return [Boolean]
       define_bit_fields_on :flags, :b, :mbz, 15
 
+      # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 2)
         fields.each do |attr|
@@ -142,6 +143,16 @@ module PacketGen
                  end
         end
         str
+      end
+
+      # Invert opcode, if known
+      # @return [self]
+      def reply!
+        case self.op
+        when 1 then self.op = 2
+        when 2 then self.op = 1
+        end
+        self
       end
     end
 

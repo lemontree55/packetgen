@@ -158,6 +158,14 @@ module PacketGen
       def parse?
         version == 6
       end
+
+      # Invert source and destination addresses
+      # @return [self]
+      # @since 2.7.0
+      def reply!
+        self[:src], self[:dst] = self[:dst], self[:src]
+        self
+      end
     end
 
     self.add_class IPv6

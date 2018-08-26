@@ -211,6 +211,14 @@ module PacketGen
         end
         str
       end
+
+      # Toggle +I+ and +R+ flags.
+      # @return [self]
+      def reply!
+        self.flag_r = !self.flag_r?
+        self.flag_i = !self.flag_i?
+        self
+      end
     end
 
     self.add_class IKE

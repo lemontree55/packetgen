@@ -323,6 +323,23 @@ module PacketGen
       to_s == other.to_s
     end
 
+    # Invert all possible fields in packet to create a reply.
+    # @return [self]
+    def reply!
+      @headers.each do |header|
+        header.reply! if header.respond_to?(:reply!)
+      end
+      self
+    end
+
+    # Forge a new packet from current one with all possible fields
+    # inverted. The new packet may be a reply to current one.
+    # @return [Packet]
+    def reply
+      pkt = dup
+      pkt.reply!
+    end
+
     private
 
     # Dup +@headers+ instance variable. Internally used by +#dup+ and +#clone+

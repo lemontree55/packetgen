@@ -94,6 +94,21 @@ module PacketGen
         end
       end
 
+      describe '#reply!' do
+      let(:pkt) { read_packets('ikev2.pcapng')[2] }
+        it 'toggles I flag' do
+          expect(pkt.ike.flag_i?).to be(true)
+          pkt.reply!
+          expect(pkt.ike.flag_i?).to be(false)
+        end
+
+        it 'toggles R flag' do
+          expect(pkt.ike.flag_r?).to be(false)
+          pkt.reply!
+          expect(pkt.ike.flag_r?).to be(true)
+        end
+      end
+
       context '(parsing)' do
         let(:udp) { Packet.gen('IP').add('UDP') }
 
