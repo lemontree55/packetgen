@@ -138,6 +138,49 @@ module PacketGen
           end
         end
       end
+
+      describe '#reply!' do
+        it 'updates header from a request to a reply' do
+          arp = ARP.new(src_mac: '00:1b:11:51:b7:ce',
+                        dst_mac: '00:00:00:00:00:00',
+                        src_ip: '192.168.1.105',
+                        dst_ip: '192.168.1.2')
+          arp.reply!
+          expect(arp.opcode).to eq(2)
+          expect(arp.src_mac).to eq('00:00:00:00:00:00')
+          expect(arp.dst_mac).to eq('00:1b:11:51:b7:ce')
+          expect(arp.src_ip).to eq('192.168.1.2')
+          expect(arp.dst_ip).to eq('192.168.1.105')
+        end
+
+        it 'updates header from a reply to a request' do
+          arp = ARP.new(src_mac: '00:1b:11:51:b7:ce',
+                        dst_mac: '01:02:03:04:05:06',
+                        src_ip: '192.168.1.105',
+                        dst_ip: '192.168.1.2',
+                        opcode: 2)
+          arp.reply!
+          expect(arp.opcode).to eq(1)
+          expect(arp.src_mac).to eq('01:02:03:04:05:06')
+          expect(arp.dst_mac).to eq('00:00:00:00:00:00')
+          expect(arp.src_ip).to eq('192.168.1.2')
+          expect(arp.dst_ip).to eq('192.168.1.105')
+        end
+
+        it 'does nothing on unknown opcode' do
+          arp = ARP.new(src_mac: '00:1b:11:51:b7:ce',
+                        dst_mac: '01:02:03:04:05:06',
+                        src_ip: '192.168.1.105',
+                        dst_ip: '192.168.1.2',
+                        opcode: 3)
+          arp.reply!
+          expect(arp.opcode).to eq(3)
+          expect(arp.src_mac).to eq('00:1b:11:51:b7:ce')
+          expect(arp.dst_mac).to eq('01:02:03:04:05:06')
+          expect(arp.src_ip).to eq('192.168.1.105')
+          expect(arp.dst_ip).to eq('192.168.1.2')
+        end
+      end
     end
   end
 end
