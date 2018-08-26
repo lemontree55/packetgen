@@ -46,6 +46,22 @@ module PacketGen
           end
         end
       end
+
+      describe '#reply!' do
+        it 'inverts opcode, if known' do
+          bootp = BOOTP.new
+          bootp.reply!
+          expect(bootp.op).to eq(2)
+          bootp.reply!
+          expect(bootp.op).to eq(1)
+        end
+
+        it 'does nothing, if opcode is unknown' do
+          bootp = BOOTP.new(op: 45)
+          bootp.reply!
+          expect(bootp.op).to eq(45)
+        end
+      end
     end
   end
 end
