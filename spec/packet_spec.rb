@@ -1,9 +1,8 @@
 require_relative 'spec_helper'
+require 'tempfile'
 
 module PacketGen
-
   describe Packet do
-
     describe '.gen' do
       before(:each) do
         @pkt = Packet.gen('IP')
@@ -399,6 +398,21 @@ module PacketGen
               add('IP', src: '10.0.0.1', dst: '10.0.0.2').
               add('ICMP', type: 8, code: 0)
         expect { pkt.decapsulate pkt.ip }.to raise_error(FormatError)
+      end
+    end
+
+    describe '#dup' do
+      it 'adds magic methods for already defined headers' do
+        pkt1 = Packet.gen('Eth')
+        pkt2 = pkt1.dup
+        expect(pkt2).to respond_to(:eth)
+      end
+
+      it 'deeply duplicates a packet (headers are also duplicated)' do
+        pkt1 = Packet.gen('Eth')
+        pkt2 = pkt1.dup
+        expect(pkt1.eth.object_id).not_to eq(pkt2.eth.object_id)
+        expect(pkt1.eth.src.object_id).not_to eq(pkt2.eth.src.object_id)
       end
     end
   end
