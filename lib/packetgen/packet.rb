@@ -328,7 +328,10 @@ module PacketGen
     # Dup +@headers+ instance variable. Internally used by +#dup+ and +#clone+
     # @return [void]
     def initialize_copy(_other)
-      @headers = @headers.dup
+      @headers = @headers.map(&:dup)
+      @headers.each do |header|
+        add_magic_header_method header
+      end
     end
 
     # @overload header(klass, layer=1)
@@ -391,6 +394,10 @@ module PacketGen
       @headers << header unless previous_header
 
       return if respond_to? header.method_name
+      add_magic_header_method header
+    end
+
+    def add_magic_header_method(header)
       self.instance_eval "def #{header.method_name}(arg=nil);" \
                          "header(#{header.class}, arg); end"
     end
