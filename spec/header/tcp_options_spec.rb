@@ -44,7 +44,7 @@ module PacketGen
                 expect(opts.first.value).to eq(0x04030201)
               when TS
                 expect(opts.first.value).to eq("\0" * 8)
-              end               
+              end
             end
           end
 
@@ -72,15 +72,15 @@ module PacketGen
           let(:options) { Options.new }
 
           it 'adds an option without value' do
-            options.add 'NOP'
+            options.push opt: 'NOP'
             expect(options.size).to eq(1)
             expect(options.first).to be_a(NOP)
             expect(options.first.value).to eq('')
           end
 
           it 'adds an option with value' do
-            options.add 'ECHO', 0x87654321
-            options.add 'TS', [0x01234567, 0x89abcdef].pack('N2')
+            options.push opt: 'ECHO', value: 0x87654321
+            options.push opt: 'TS', value: [0x01234567, 0x89abcdef].pack('N2')
             expect(options.size).to eq(2)
             expect(options.first).to be_a(ECHO)
             expect(options.first.value).to eq(0x87654321)
@@ -90,7 +90,8 @@ module PacketGen
           end
 
           it 'may be serialized with another #add' do
-            options.add('SACK').add('MSS', 500).add('NOP').add('NOP')
+            options << { opt: 'SACK' } << {opt: 'MSS', value: 500}
+            options << { opt: 'NOP' } << { opt: 'NOP' }
             expect(options.size).to eq(4)
             expect(options.sz).to eq(8)
             expect(options[0]).to be_a(SACK)
@@ -100,7 +101,7 @@ module PacketGen
           end
 
           it 'raises on unknown option' do
-            expect { options.add 'UNKNOWN' }.
+            expect { options.push opt: 'UNKNOWN' }.
               to raise_error(ArgumentError, /^opt should be/)
           end
         end

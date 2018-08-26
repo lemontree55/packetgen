@@ -50,7 +50,7 @@ module PacketGen
           expect(pkt.testbase.field1).to eq(128)
         end
       end
-      
+
       context 'adding header to a packet' do
         it 'calls #added_to_packet' do
           $global_var = false

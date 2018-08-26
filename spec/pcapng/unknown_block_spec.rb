@@ -11,7 +11,7 @@ module PacketGen
         expect(@ub.type.to_i).to eq(0)
         expect(@ub.block_len.to_i).to eq(UnknownBlock::MIN_SIZE)
         expect(@ub.block_len2).to eq(@ub.block_len)
-        expect(@ub.has_options?).to be(false)
+        expect(@ub.options?).to be(false)
       end
 
       context 'when reading' do

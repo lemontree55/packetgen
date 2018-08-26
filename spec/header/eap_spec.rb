@@ -8,7 +8,7 @@ module PacketGen
           expect(Dot1x).to know_header(EAP).with(type: 0)
         end
       end
-      
+
       describe '#initialize' do
         it 'creates a EAP header with default values' do
           eap = EAP.new
@@ -33,7 +33,7 @@ module PacketGen
             expect(eap.send(key)).to eq(value)
           end
         end
-        
+
         %w(Success Failure).each do |code|
           it "does not generate a type field for #{code} code" do
             eap = EAP.new(code: code)
@@ -53,7 +53,7 @@ module PacketGen
           expect(eap.length).to eq(0x0304)
           expect(eap.type).to eq(5)
           expect(eap.body).to eq('body')
-          
+
           str = (3..(EAP.new.sz+2)).to_a.pack('C*') + 'body'
           eap.read str
           expect(eap.code).to eq(3)
@@ -61,12 +61,12 @@ module PacketGen
           expect(eap.length).to eq(0x0506)
           expect(eap.body).to eq("\x07body")
         end
-        
+
         it 'decodes a complex string' do
-          Dot11.has_fcs = false
+          Dot11.fcs = false
           file = File.join(__dir__, 'wps.pcapng')
           raws = PcapNG::File.new.read_packet_bytes(file)
-          
+
           pkt = Packet.parse(raws[2])
           expect(pkt.is? 'Dot11::Data').to be(true)
           expect(pkt.is? 'Dot1x').to be(true)
@@ -90,7 +90,7 @@ module PacketGen
           expect(pkt.eap.vendor_id).to eq(0x372a)
           expect(pkt.eap.vendor_type).to eq(1)
           expect(pkt.body).to eq(force_binary("\x01\x00"))
-          
+
           pkt = Packet.parse(raws.last)
           expect(pkt.is? 'EAP').to be(true)
           expect(pkt.eap).to be_a_failure
@@ -99,7 +99,7 @@ module PacketGen
           expect(pkt.eap.id).to eq(18)
         end
       end
-      
+
       describe '#to_s' do
         it 'returns a binary string without type field' do
           eap = EAP.new(code: 'Success')
@@ -116,7 +116,7 @@ module PacketGen
           expect(eap.to_s).to eq(force_binary("\x01\x00\x00\x0c\xfe\x00\x00\x00\x00\x00\x00\x00"))
         end
       end
-      
+
       describe '#inspect' do
         it 'returns a string without type field' do
           eap = EAP.new(code: 'Success')
@@ -180,7 +180,7 @@ module PacketGen
             expect(pkt.eap_tls).to_not be_length_present
             expect(pkt.eap_tls).to_not be_more_fragments
             expect(pkt.eap_tls).to be_tls_start
-            
+
             pkt = @packets[4]
             expect(pkt.is? 'EAP::TLS').to be(true)
             expect(pkt.eap).to be_a_response

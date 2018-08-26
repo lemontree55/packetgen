@@ -24,7 +24,7 @@ module PacketGen
           str = ::File.read(::File.join(__dir__, 'sample.pcapng'), 52)
           expect { @shb.read(str) }.to_not raise_error
           expect(@shb.block_len.to_i).to eq(52)
-          expect(@shb.has_options?).to be(true)
+          expect(@shb.options?).to be(true)
         end
 
         it 'should accept an IO' do
@@ -32,7 +32,7 @@ module PacketGen
             @shb.read(f)
           end
           expect(@shb.block_len.to_i).to eq(52)
-          expect(@shb.has_options?).to be(true)
+          expect(@shb.options?).to be(true)
         end
       end
     end

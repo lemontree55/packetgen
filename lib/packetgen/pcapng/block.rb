@@ -40,6 +40,7 @@ module PacketGen
       # @deprecated Use {#options?} instead.
       # @return [Boolean]
       def has_options?
+        Deprecation.deprecated(self.class, __method__, 'options?')
         options?
       end
 

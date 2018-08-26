@@ -164,7 +164,7 @@ module PacketGen
       #   to parse it).
       #
       #   Special key +procs+ may be used to set 2 lambdas, the former to set
-      #   fields, the former to check bindings. This may be used when multiple and
+      #   fields, the latter to check bindings. This may be used when multiple and
       #   non-trivial checks should be made.
       # @return [void]
       def self.bind_header(header_klass, args={})

@@ -31,7 +31,7 @@ module PacketGen
           expect(@idb.block_len.to_i).to eq(32)
           expect(@idb.link_type.to_i).to eq(PcapNG::LINKTYPE_ETHERNET)
           expect(@idb.snaplen.to_i).to eq(0xffff)
-          expect(@idb.has_options?).to be(true)
+          expect(@idb.options?).to be(true)
         end
 
         it 'should accept an IO' do
@@ -43,7 +43,7 @@ module PacketGen
           expect(@idb.block_len.to_i).to eq(32)
           expect(@idb.link_type.to_i).to eq(PcapNG::LINKTYPE_ETHERNET)
           expect(@idb.snaplen.to_i).to eq(0xffff)
-          expect(@idb.has_options?).to be(true)
+          expect(@idb.options?).to be(true)
         end
       end
     end

@@ -9,7 +9,7 @@ module PacketGen
           ppi = PPI.new
           ppi.calc_length
           expect(ppi.length).to eq(8)
-          
+
           ppi.ppi_fields = '12345'
           ppi.calc_length
           expect(ppi.length).to eq(13)
@@ -23,7 +23,7 @@ module PacketGen
           rt = RadioTap.new
           rt.calc_length
           expect(rt.length).to eq(8)
-          
+
           rt.radio_fields = '123456'
           rt.calc_length
           expect(rt.length).to eq(14)
@@ -45,8 +45,8 @@ module PacketGen
         end
       end
 
-      it '.has_fcs should default to true' do
-        expect(Dot11.has_fcs).to be(true)
+      it '.fcs? should default to true' do
+        expect(Dot11.fcs?).to be(true)
       end
 
       describe '#initialize' do
@@ -91,9 +91,9 @@ module PacketGen
                      Dot11::Control, Dot11::Beacon, Dot11::Auth, Dot11::Control,
                      Dot11::Auth, Dot11::Control, Dot11::AssoReq, Dot11::Control,
                      Dot11::AssoResp, Dot11::Control]
-          Dot11.has_fcs = false
+          Dot11.fcs = false
           pkts = Packet.read(ctrl_mngt_file)
-          Dot11.has_fcs = true
+          Dot11.fcs = true
           expect(pkts.map { |pkt| pkt.headers.last.class }).to eq(classes)
 
           expect(pkts[0].is? 'Dot11::Management').to be(true)
@@ -180,7 +180,7 @@ module PacketGen
 
       describe '#to_s' do
         it 'returns a binary string' do
-          Dot11.has_fcs = false
+          Dot11.fcs = false
           begin
             mngt_ctrl = PcapNG::File.new.read_packet_bytes(ctrl_mngt_file)
             mngt_str = mngt_ctrl[0]
@@ -206,7 +206,7 @@ module PacketGen
             expect(pkt.dot11.wep?).to be(false)
             expect(pkt.to_s).to eq(data_str[0..-5]) # remove FCS
           ensure
-            Dot11.has_fcs = true
+            Dot11.fcs = true
           end
         end
       end
@@ -237,7 +237,7 @@ module PacketGen
           pkt = nil
           expect { pkt = PacketGen.gen('Dot11::Management').add('Dot11::Beacon') }.to_not raise_error
           expect(pkt.headers.last).to be_a(Dot11::Beacon)
-          
+
           expect(pkt.dot11).to eq(pkt.dot11_management)
           pkt.dot11.sequence_number = 12
           pkt.dot11.fragment_number = 1
@@ -246,22 +246,22 @@ module PacketGen
           expect do
             pkt.dot11_beacon.add_element(type: 'SSID', value: 'abcd')
           end.to change { pkt.dot11_beacon.elements.size }.by(1)
-          
+
           expect do
             pkt.dot11_management.add_element(type: 'vendor', value: 'Version 1.2')
           end.to change { pkt.dot11_beacon.elements.size }.by(1)
-          
+
           pkt = PacketGen.gen('Dot11::Management')
           expect do
             pkt.dot11.add_element(type: 'vendor', value: 'Version 1.2')
           end.to raise_error(/add a Dot11::SubMngt/)
         end
-        
+
         it 'builds a IP packet over IEEE 802.11 (no encryption)' do
           pkt = PacketGen.gen('Dot11::Data', mac1: '00:01:02:03:04:05',
                               mac2: '06:07:08:09:0a:0b', mac3: '0c:0d:0e:0f:10:11')
           expect { pkt.add('IP') }.to raise_error(ArgumentError, /no layer assoc/)
-          
+
           pkt.add('LLC').add('SNAP').add('IP', src: '192.168.0.1', dst: '192.168.0.2')
           expect(pkt.dot11.wep?).to be(false)
           expect(pkt.dot11.type).to eq(2)
