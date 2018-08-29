@@ -17,6 +17,7 @@ module PacketGen
     class Base < Types::Fields
       # @api private
       # Simple class to handle a header association
+      # @deprecated Will be remove with {Base.bind_header}
       class Binding < Struct.new(:key, :value)
         # Check +fields+ responds to binding
         # @param [Types::Fields] fields
@@ -50,6 +51,7 @@ module PacketGen
 
       # @api private
       # Class to handle a header association from procs
+      # @deprecated Will be remove with {Base.bind_header}
       class ProcBinding
         # @param [Array<Proc>] procs first proc is used to set fields, second proc is
         #  used to check binding
@@ -84,24 +86,32 @@ module PacketGen
         # @return [Array<Binding>]
         attr_accessor :bindings
 
-        # @param [:or, :and] op
-        # rubocop:disable Naming/UncommunicativeMethodParamName
-        def initialize(op)
-          @op = op
+        # @param [:or, :and, :newstyle] operator
+        def initialize(operator)
+          @op = operator
           @bindings = []
         end
-        # rubocop:enable Naming/UncommunicativeMethodParamName
+
+        def new_set
+          @bindings << [] if @op == :newstyle
+        end
 
         # @param [Object] arg
-        # @return [Bindings] self
+        # @return [OldBindings] self
         def <<(arg)
-          @bindings << arg
+          if op == :newstyle
+            @bindings.last << arg
+          else
+            @bindings << arg
+          end
         end
 
         # each iterator
         # @return [void]
         def each
-          @bindings.each { |b| yield b }
+          @bindings.each do |b|
+            yield b
+          end
         end
 
         # @return [Boolean]
@@ -112,7 +122,13 @@ module PacketGen
         # @return [Hash]
         def to_h
           hsh = {}
-          each { |b| hsh[b.key] = b.value }
+          each do |b|
+            if b.is_a? Array
+              b.each { |sb| hsh[sb.key] = sb.value }
+            else
+              hsh[b.key] = b.value
+            end
+          end
           hsh
         end
 
@@ -125,6 +141,8 @@ module PacketGen
             empty? || @bindings.any? { |binding| binding.check?(fields) }
           when :and
             @bindings.all? { |binding| binding.check?(fields) }
+          when :newstyle
+            @bindings.any? { |group| group.all? { |binding| binding.check?(fields) } }
           end
         end
 
@@ -132,7 +150,12 @@ module PacketGen
         # @param [Types::Fields] fields
         # @return [void]
         def set(fields)
-          @bindings.each { |b| b.set fields }
+          case @bindings.first
+          when Array
+            @bindings.first.each { |b| b.set fields }
+          else
+            @bindings.each { |b| b.set fields }
+          end
         end
       end
 
@@ -140,7 +163,7 @@ module PacketGen
       # @return [Packet,nil]
       attr_reader :packet
 
-      # On inheritage, create +@known_headers+ class variable
+      # On inheritage, create +@old_known_header+ class variable
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
@@ -170,6 +193,7 @@ module PacketGen
       #   fields, the latter to check bindings. This may be used when multiple and
       #   non-trivial checks should be made.
       # @return [void]
+      # @deprecated Use {.bind} instead.
       def self.bind_header(header_klass, args={})
         op = args.delete(:op) || :or
         if @known_headers[header_klass].nil? || @known_headers[header_klass].op != op
@@ -178,6 +202,52 @@ module PacketGen
         else
           bindings = @known_headers[header_klass]
         end
+        args.each do |key, value|
+          bindings << if key == :procs
+                        ProcBinding.new(value)
+                      else
+                        Binding.new(key, value)
+                      end
+        end
+      end
+
+      # Bind a upper header to current one.
+      #   # Bind Header2 to Header1 when field1 from Header1 has a value of 42
+      #   Header1.bind Header2, field1: 42
+      #   # Bind Header3 to Header1 when field1 from Header1 has a value of 43
+      #   # and field2 has value 43 or 44
+      #   Header1.bind Header3, field1: 43, field2: 43
+      #   Header1.bind Header3, field1: 43, field2: 44
+      #   # Bind Header4 to Header1 when field1 from Header1 has a value
+      #   # greater or equal to 44. When adding a Header2 to a Header1
+      #   # with Packet#add, force value to 44.
+      #   Header1.bind Header4, field1: ->(v) { v.nil? ? 44 : v >= 44 }
+      #   # Bind Header5 to Header1 when field1 from Header1 has a value of 41
+      #   # and first two bytes of header1's body are null.
+      #   # When adding a Header2 to a Header1 with Packet#add, force value to 44.
+      #   Header1.bind Header5, procs: [->(hdr) { hdr.field1 = 41 }
+      #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
+      # @param [Class] header_klass header class to bind to current class
+      # @param [Hash] args current class fields and their value when +header_klass+
+      #   is embedded in current class.
+      #
+      #   Given value may be a lambda, whose alone argument is the value extracted
+      #   from header field (or +nil+ when lambda is used to set  field while adding
+      #   a header).
+      #
+      #   Special key +procs+ may be used to set 2 lambdas, the former to set
+      #   fields, the latter to check bindings. This may be used when multiple and
+      #   non-trivial checks should be made.
+      # @return [void]
+      # @since 2.7.0
+      def self.bind(header_klass, args={})
+        if @known_headers[header_klass].nil?
+          bindings = Bindings.new(:newstyle)
+          @known_headers[header_klass] = bindings
+        else
+          bindings = @known_headers[header_klass]
+        end
+        bindings.new_set
         args.each do |key, value|
           bindings << if key == :procs
                         ProcBinding.new(value)
@@ -209,7 +279,7 @@ module PacketGen
       end
 
       # @api private
-      # Get knwon headers
+      # Get known headers
       # @return [Hash] keys: header classes, values: hashes
       def self.known_headers
         @known_headers
