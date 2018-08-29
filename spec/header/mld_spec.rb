@@ -68,7 +68,7 @@ module PacketGen
           expect(mld.to_s).to eq(expected)
         end
       end
-      
+
       describe '#inspect' do
         it 'returns a String with all attributes' do
           mld = MLD.new
@@ -90,16 +90,17 @@ module PacketGen
           expect(pkt.ipv6.next).to eq(0)
           expect(pkt.ipv6.length).to eq(32)
           expect(pkt.is? 'IPv6::HopByHop').to be(true)
-          expect(pkt.ipv6_hopbyhop.options.size).to eq(1)
+          expect(pkt.ipv6_hopbyhop.options.size).to eq(2)
           expect(pkt.ipv6_hopbyhop.options[0].human_type).to eq('router_alert')
           expect(pkt.ipv6_hopbyhop.options[0].value).to eq("\x00\x00")
+          expect(pkt.ipv6_hopbyhop.options[1].to_human).to eq('pad2')
           expect(pkt.ipv6_hopbyhop.next).to eq(ICMPv6::IP_PROTOCOL)
-          expect(pkt.icmpv6.checksum).to eq(0x7baa)
+          expect(pkt.icmpv6.checksum).to eq(0x7daa)
           expected = "\x60\x00\x00\x00\x00\x20\x00\x01"
           expected << "\x00" * 15 + "\x01"
           expected << "\x00" * 15 + "\x02"
           expected << "\x3a\x00\x05\x02\x00\x00\x01\x00"
-          expected << "\x84\x00\x7b\xaa"
+          expected << "\x82\x00\x7d\xaa"
           expected << "\x00\x00\x00\x00"
           expected << "\x00" * 16
           expect(pkt.to_s).to eq(force_binary(expected))

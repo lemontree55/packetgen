@@ -97,6 +97,6 @@ end
 require_relative 'mldv2'
 
 PacketGen::Header.add_class PacketGen::Header::MLD
-PacketGen::Header::ICMPv6.bind_header PacketGen::Header::MLD, type: 130
-PacketGen::Header::ICMPv6.bind_header PacketGen::Header::MLD, type: 131
-PacketGen::Header::ICMPv6.bind_header PacketGen::Header::MLD, type: 132
+PacketGen::Header::ICMPv6.bind PacketGen::Header::MLD, type: 130
+PacketGen::Header::ICMPv6.bind PacketGen::Header::MLD, type: 131
+PacketGen::Header::ICMPv6.bind PacketGen::Header::MLD, type: 132

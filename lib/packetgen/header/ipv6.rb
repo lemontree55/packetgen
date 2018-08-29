@@ -170,10 +170,10 @@ module PacketGen
 
     self.add_class IPv6
 
-    Eth.bind_header IPv6, ethertype: IPv6::ETHERTYPE
-    SNAP.bind_header IPv6, proto_id: IPv6::ETHERTYPE
-    Dot1q.bind_header IPv6, ethertype: IPv6::ETHERTYPE
-    IP.bind_header IPv6, protocol: 41 # 6to4
+    Eth.bind IPv6, ethertype: IPv6::ETHERTYPE
+    SNAP.bind IPv6, proto_id: IPv6::ETHERTYPE
+    Dot1q.bind IPv6, ethertype: IPv6::ETHERTYPE
+    IP.bind IPv6, protocol: 41 # 6to4
   end
 end
 
@@ -183,15 +183,22 @@ module PacketGen
   module Header
     class IPv6
       class << self
-        alias old_bind_header bind_header
+        alias old_bind bind
 
         # Bind a upper header to IPv6 and its defined extension headers.
-        # @see Base.bind_header
-        def bind_header(header_klass, args={})
-          IPv6.old_bind_header header_klass, args
+        # @see Base.bind
+        def bind(header_klass, args={})
+          IPv6.old_bind header_klass, args
           [IPv6::HopByHop].each do |klass|
-            klass.bind_header header_klass, args
+            klass.bind header_klass, args
           end
+        end
+        # Bind a upper header to IPv6 and its defined extension headers.
+        # @see Base.bind_header
+        # @deprecated USe {bind}.
+        def bind_header(header_klass, args={})
+          Deprecation.deprecated(self, __method__, 'bind', klass_method: true)
+          bind header_klass, args
         end
       end
     end
