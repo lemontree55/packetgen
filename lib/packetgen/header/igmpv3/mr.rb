@@ -63,6 +63,6 @@ module PacketGen
     end
 
     self.add_class IGMPv3::MR
-    IGMPv3.bind_header IGMPv3::MR, type: 0x22
+    IGMPv3.bind IGMPv3::MR, type: 0x22
   end
 end

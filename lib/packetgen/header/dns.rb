@@ -272,7 +272,9 @@ module PacketGen
     end
 
     self.add_class DNS
-    UDP.bind_header DNS, dport: DNS::UDP_PORT, sport: DNS::UDP_PORT
-    TCP.bind_header DNS, dport: DNS::TCP_PORT, sport: DNS::TCP_PORT
+    UDP.bind DNS, dport: DNS::UDP_PORT
+    UDP.bind DNS, sport: DNS::UDP_PORT
+    TCP.bind DNS, dport: DNS::TCP_PORT
+    TCP.bind DNS, sport: DNS::TCP_PORT
   end
 end

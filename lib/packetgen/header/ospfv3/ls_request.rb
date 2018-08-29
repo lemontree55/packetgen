@@ -102,6 +102,6 @@ module PacketGen
     end
 
     self.add_class OSPFv3::LSRequest
-    OSPFv3.bind_header OSPFv3::LSRequest, type: OSPFv3::TYPES['LS_REQUEST']
+    OSPFv3.bind OSPFv3::LSRequest, type: OSPFv3::TYPES['LS_REQUEST']
   end
 end

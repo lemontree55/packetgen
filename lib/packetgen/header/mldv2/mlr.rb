@@ -63,6 +63,6 @@ module PacketGen
     end
 
     self.add_class MLDv2::MLR
-    ICMPv6.bind_header MLDv2::MLR, type: 143
+    ICMPv6.bind MLDv2::MLR, type: 143
   end
 end

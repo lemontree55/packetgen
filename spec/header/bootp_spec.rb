@@ -6,10 +6,8 @@ module PacketGen
     describe BOOTP do
       describe 'binding' do
         it 'in UDP packets' do
-          expect(UDP).to know_header(BOOTP).with(sport: 67)
-          expect(UDP).to know_header(BOOTP).with(dport: 67)
-          expect(UDP).to know_header(BOOTP).with(sport: 68)
-          expect(UDP).to know_header(BOOTP).with(dport: 68)
+          expect(UDP).to know_header(BOOTP).with(sport: 67, dport: 68)
+          expect(UDP).to know_header(BOOTP).with(sport: 68, dport: 67)
         end
       end
 

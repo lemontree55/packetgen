@@ -98,6 +98,6 @@ module PacketGen
     end
 
     self.add_class OSPFv3::Hello
-    OSPFv3.bind_header OSPFv3::Hello, type: OSPFv3::TYPES['HELLO']
+    OSPFv3.bind OSPFv3::Hello, type: OSPFv3::TYPES['HELLO']
   end
 end

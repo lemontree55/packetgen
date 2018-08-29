@@ -39,6 +39,6 @@ module PacketGen
       define_bit_fields_on :tci, :pcp, 3, :dei, :vid, 12
     end
 
-    Eth.bind_header Dot1q, ethertype: 0x8100
+    Eth.bind Dot1q, ethertype: 0x8100
   end
 end

@@ -68,6 +68,6 @@ module PacketGen
     end
 
     self.add_class OSPFv3::LSUpdate
-    OSPFv3.bind_header OSPFv3::LSUpdate, type: OSPFv3::TYPES['LS_UPDATE']
+    OSPFv3.bind OSPFv3::LSUpdate, type: OSPFv3::TYPES['LS_UPDATE']
   end
 end

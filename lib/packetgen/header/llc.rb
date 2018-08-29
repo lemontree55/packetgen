@@ -32,7 +32,7 @@ module PacketGen
       define_field :body, Types::String
     end
     self.add_class LLC
-    Dot11::Data.bind_header LLC, op: :and, type: 2, wep?: false
+    Dot11::Data.bind LLC, type: 2, wep?: false
 
     # Sub-Network Access Protocol
     #
@@ -54,6 +54,6 @@ module PacketGen
       define_field :body, Types::String
     end
     self.add_class SNAP
-    LLC.bind_header SNAP, op: :and, dsap: 170, ssap: 170, control: 3
+    LLC.bind SNAP, dsap: 170, ssap: 170, control: 3
   end
 end

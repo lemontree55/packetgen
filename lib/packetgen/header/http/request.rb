@@ -97,6 +97,6 @@ module PacketGen
     end
 
     self.add_class HTTP::Request
-    TCP.bind_header HTTP::Request, body: ->(b) { HTTP::REQUEST_REGEX =~ b.chars.select(&:valid_encoding?).join }
+    TCP.bind HTTP::Request, body: ->(b) { HTTP::REQUEST_REGEX =~ b.chars.select(&:valid_encoding?).join }
   end
 end

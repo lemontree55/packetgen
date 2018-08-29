@@ -15,8 +15,8 @@ module PacketGen
 
         it 'in UDP packets' do
           int32 = Types::Int32.new(1)
-          expect(UDP).to know_header(ESP).with(dport: 4500, body: int32.to_s)
-          expect(UDP).to know_header(ESP).with(sport: 4500, body: int32.to_s)
+          expect(UDP).to know_header(ESP).with(dport: 4500, sport: nil, body: int32.to_s)
+          expect(UDP).to know_header(ESP).with(sport: 4500, dport: nil, body: int32.to_s)
           int32.value = 0
           expect(UDP).to_not know_header(ESP).with(dport: 4500, body: int32.to_s)
         end
@@ -121,7 +121,7 @@ module PacketGen
           expect(esp.to_s).to eq(force_binary expected)
         end
       end
-      
+
       describe '#inspect' do
         it 'returns a String with all attributes' do
           esp = ESP.new
@@ -286,7 +286,7 @@ module PacketGen
           it 'decrypts a payload with CBC mode' do
             pkt, red_pkt = get_packets_from(File.join(__dir__, 'esp4-cbc.pcapng'))
 
-            
+
             cipher = get_cipher('cbc', :decrypt, key)
             expect(pkt.esp.decrypt!(cipher)).to be(true)
             pkt.decapsulate pkt.ip, pkt.esp

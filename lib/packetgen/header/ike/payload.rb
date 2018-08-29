@@ -99,217 +99,217 @@ require_relative 'vendor_id'
 
 module PacketGen
   module Header
-    IKE.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::KE.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::SK.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::SA, next: IKE::SA::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::SA.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::SK.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::KE, next: IKE::KE::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::SA.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::KE.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::SK.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::Nonce, next: IKE::Nonce::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::SA.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::KE.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::SK.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::Notify, next: IKE::Notify::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::SA.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::KE.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::SK, next: IKE::SK::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::SA.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::KE.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::SK.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::IDi, next: IKE::IDi::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::SA.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::KE.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::SK.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::IDr, next: IKE::IDr::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::SA.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::KE.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::SK.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::Cert, next: IKE::Cert::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::SA.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::KE.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::SK.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::CertReq, next: IKE::CertReq::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::SA.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::KE.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::SK.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::Auth, next: IKE::Auth::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::SA.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::KE.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::SK.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::TSi, next: IKE::TSi::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
-    IKE::VendorID.bind_header IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::SA.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::KE.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::SK.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
+    IKE::VendorID.bind IKE::TSr, next: IKE::TSr::PAYLOAD_TYPE
 
-    IKE.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::Payload.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::SA.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::KE.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::Nonce.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::Notify.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::SK.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::IDi.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::IDr.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::Cert.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::CertReq.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::Auth.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::TSi.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
-    IKE::TSr.bind_header IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::Payload.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::SA.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::KE.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::Nonce.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::Notify.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::SK.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::IDi.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::IDr.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::Cert.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::CertReq.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::Auth.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::TSi.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
+    IKE::TSr.bind IKE::VendorID, next: IKE::VendorID::PAYLOAD_TYPE
 
     # Last defined. To be used as default if no other may be parsed.
-    IKE::SA.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::KE.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::Nonce.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::Notify.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::SK.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::IDi.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::IDr.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::Cert.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::CertReq.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::Auth.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::TSi.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::TSr.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::VendorID.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE.bind_header IKE::Payload, next: ->(v) { v > 0 }
-    IKE::Payload.bind_header IKE::Payload, next: ->(v) { v > 0 }
+    IKE::SA.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::KE.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::Nonce.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::Notify.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::SK.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::IDi.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::IDr.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::Cert.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::CertReq.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::Auth.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::TSi.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::TSr.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::VendorID.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE.bind IKE::Payload, next: ->(v) { v > 0 }
+    IKE::Payload.bind IKE::Payload, next: ->(v) { v > 0 }
   end
 end

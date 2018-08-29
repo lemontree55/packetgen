@@ -63,13 +63,19 @@ module PacketGen
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
+      # @since 2.7.0 Set UDP sport according to bindings, only if sport is 0.
+      #  Needed by new bind API.
       def added_to_packet(packet)
         mdns_idx = packet.headers.size
         packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end"
+        return unless packet.is? 'UDP'
+        return unless packet.udp.sport.zero?
+        packet.udp.sport = UDP_PORT
       end
     end
 
     self.add_class MDNS
-    UDP.bind_header MDNS, dport: MDNS::UDP_PORT, sport: MDNS::UDP_PORT
+    UDP.bind MDNS, dport: MDNS::UDP_PORT
+    UDP.bind MDNS, sport: MDNS::UDP_PORT
   end
 end

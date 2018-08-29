@@ -48,7 +48,7 @@ module PacketGen
   context 'foreign headers' do
     before(:all) do
       PacketGen::Header.add_class PGTestModule::TestHeader
-      PacketGen::Header::IP.bind_header PGTestModule::TestHeader, protocol: 254
+      PacketGen::Header::IP.bind PGTestModule::TestHeader, protocol: 254
     end
     after(:all) do
       PacketGen::Header.remove_class PGTestModule::TestHeader

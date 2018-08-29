@@ -443,8 +443,8 @@ module PacketGen
     end
 
     self.add_class Dot11
-    PPI.bind_header Dot11, dlt: PcapNG::LINKTYPE_IEEE802_11
-    RadioTap.bind_header Dot11
+    PPI.bind Dot11, dlt: PcapNG::LINKTYPE_IEEE802_11
+    RadioTap.bind Dot11
   end
 end
 

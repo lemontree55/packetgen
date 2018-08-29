@@ -61,6 +61,6 @@ module PacketGen
       end
     end
 
-    BOOTP.bind_header DHCP
+    BOOTP.bind DHCP
   end
 end

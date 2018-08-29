@@ -235,7 +235,7 @@ module PacketGen
     end
 
     self.add_class OSPFv2
-    IP.bind_header OSPFv2, protocol: OSPFv2::IP_PROTOCOL
+    IP.bind OSPFv2, protocol: OSPFv2::IP_PROTOCOL
   end
 end
 

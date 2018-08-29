@@ -73,7 +73,7 @@ module PacketGen
       end
     end
 
-    Eth.bind_header Dot1x, ethertype: Dot1x::ETHERTYPE
-    SNAP.bind_header Dot1x, proto_id: Dot1x::ETHERTYPE
+    Eth.bind Dot1x, ethertype: Dot1x::ETHERTYPE
+    SNAP.bind Dot1x, proto_id: Dot1x::ETHERTYPE
   end
 end

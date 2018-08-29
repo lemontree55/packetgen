@@ -44,8 +44,6 @@ module BindingHelper
             subbindings.all? do |binding|
               if binding.is_a?(PacketGen::Header::Base::ProcBinding)
                 struct = Struct.new(*@args.keys, keyword_init: true)
-                p @args
-
                 binding.check?(struct.new(@args))
               elsif binding.value.is_a?(Proc)
                 binding.value.call(@args[binding.key])
