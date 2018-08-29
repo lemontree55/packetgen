@@ -1,6 +1,6 @@
 module PacketGen
   # Deprecation module
-  # @since 2.6.1
+  # @since 2.7.0
   # @author Sylvain Daubert
   # @api private
   module Deprecation

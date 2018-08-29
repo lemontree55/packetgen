@@ -32,7 +32,7 @@ module PacketGen
 
       # Has this block option?
       # @return [Boolean]
-      # @since 2.6.1
+      # @since 2.7.0
       def options?
         @fields.key?(:options) && @fields[:options].sz > 0
       end

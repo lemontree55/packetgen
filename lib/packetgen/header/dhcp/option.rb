@@ -11,7 +11,7 @@ module PacketGen
       # define DHCP Options.
       # keys are option type, value are arrays containing option names
       # as strings, and a hash passed to {Option#initialize}.
-      # @since 2.6.1
+      # @since 2.7.0
       DHCP_OPTIONS = {
         1  => ['subnet_mask', length: 4, v: IP::Addr],
         2  => ['time_zone'],
@@ -129,7 +129,7 @@ module PacketGen
           end
         end
 
-        # @since 2.6.1
+        # @since 2.7.0
         # @return [true]
         def human_types?
           true

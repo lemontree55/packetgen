@@ -51,7 +51,7 @@ module PacketGen
 
       # Has this block options?
       # @return [false]
-      # @since 2.6.1
+      # @since 2.7.0
       def options?
         false
       end
