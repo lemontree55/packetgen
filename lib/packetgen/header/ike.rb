@@ -219,14 +219,33 @@ module PacketGen
         self.flag_i = !self.flag_i?
         self
       end
+
+      # @api private
+      # @note This method is used internally by PacketGen and should not be
+      #       directly called
+      # @param [Packet] packet
+      # @return [void]
+      # @since 2.7.0 Set UDP sport according to bindings, only if sport is 0.
+      #  Needed by new bind API.
+      def added_to_packet(packet)
+        return unless packet.is? 'UDP'
+        return unless packet.udp.sport.zero?
+        packet.udp.sport = if packet.is?('NonESPMarker')
+                             UDP_PORT2
+                           else
+                             UDP_PORT1
+                           end
+      end
     end
 
     self.add_class IKE
     self.add_class NonESPMarker
 
-    UDP.bind_header IKE, dport: IKE::UDP_PORT1, sport: IKE::UDP_PORT1
-    UDP.bind_header NonESPMarker, dport: IKE::UDP_PORT2, sport: IKE::UDP_PORT2
-    NonESPMarker.bind_header IKE
+    UDP.bind IKE, dport: IKE::UDP_PORT1
+    UDP.bind IKE, sport: IKE::UDP_PORT1
+    UDP.bind NonESPMarker, dport: IKE::UDP_PORT2
+    UDP.bind NonESPMarker, sport: IKE::UDP_PORT2
+    NonESPMarker.bind IKE
   end
 end
 

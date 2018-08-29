@@ -112,7 +112,7 @@ module PacketGen
     end
 
     self.add_class IGMP
-    IP.bind_header IGMP, op: :and, protocol: IGMP::IP_PROTOCOL, frag: 0, ttl: 1,
-                   tos: ->(v) { v.nil? ? 0 : v != 0xc0 }
+    IP.bind IGMP, protocol: IGMP::IP_PROTOCOL, frag: 0, ttl: 1,
+                  tos: ->(v) { v.nil? ? 0 : v != 0xc0 }
   end
 end

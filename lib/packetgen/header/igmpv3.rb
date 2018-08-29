@@ -131,8 +131,7 @@ module PacketGen
     end
 
     self.add_class IGMPv3
-    IP.bind_header IGMPv3, op: :and, protocol: IGMPv3::IP_PROTOCOL, frag: 0, ttl: 1,
-                   tos: 0xc0
+    IP.bind IGMPv3, protocol: IGMPv3::IP_PROTOCOL, frag: 0, ttl: 1, tos: 0xc0
   end
 end
 

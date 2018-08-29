@@ -296,10 +296,25 @@ module PacketGen
           str
         end
       end
+
+      # @api private
+      # @note This method is used internally by PacketGen and should not be
+      #       directly called
+      # @param [Packet] packet
+      # @return [void]
+      # @since 2.7.0 Set UDP sport according to bindings, only if sport is 0.
+      #  Needed by new bind API.
+      def added_to_packet(packet)
+        return unless packet.is? 'UDP'
+        return unless packet.udp.sport.zero?
+        packet.udp.sport = packet.udp.dport
+      end
     end
 
     self.add_class SNMP
-    UDP.bind_header SNMP, dport: SNMP::UDP_PORT1, sport: SNMP::UDP_PORT1
-    UDP.bind_header SNMP, dport: SNMP::UDP_PORT2, sport: SNMP::UDP_PORT2
+    UDP.bind SNMP, dport: SNMP::UDP_PORT1
+    UDP.bind SNMP, sport: SNMP::UDP_PORT1
+    UDP.bind SNMP, dport: SNMP::UDP_PORT2
+    UDP.bind SNMP, sport: SNMP::UDP_PORT2
   end
 end

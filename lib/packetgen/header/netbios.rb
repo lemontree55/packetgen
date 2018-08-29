@@ -44,9 +44,21 @@ module PacketGen
         def calc_length
           Base.calculate_and_set_length(self, header_in_size: false)
         end
+
+        # @api private
+        # @note This method is used internally by PacketGen and should not be
+        #       directly called
+        # @since 2.7.0 Set TCP sport according to bindings, only if sport is 0.
+        #  Needed by new bind API.
+        def added_to_packet(packet)
+          return unless packet.is? 'TCP'
+          return unless packet.tcp.sport.zero?
+          packet.tcp.sport = TCP_PORT
+        end
       end
     end
     self.add_class NetBIOS::Session
-    TCP.bind_header NetBIOS::Session, sport: NetBIOS::Session::TCP_PORT, dport: NetBIOS::Session::TCP_PORT
+    TCP.bind NetBIOS::Session, dport: NetBIOS::Session::TCP_PORT
+    TCP.bind NetBIOS::Session, sport: NetBIOS::Session::TCP_PORT
   end
 end

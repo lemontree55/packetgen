@@ -156,7 +156,7 @@ module PacketGen
       end
     end
 
-    UDP.bind_header BOOTP, sport: 67, dport: 68
-    UDP.bind_header BOOTP, sport: 68, dport: 67
+    UDP.bind BOOTP, sport: 67, dport: 68
+    UDP.bind BOOTP, sport: 68, dport: 67
   end
 end

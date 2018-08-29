@@ -49,6 +49,6 @@ module PacketGen
     end
 
     self.add_class OSPFv2::LSAck
-    OSPFv2.bind_header OSPFv2::LSAck, type: OSPFv2::TYPES['LS_ACK']
+    OSPFv2.bind OSPFv2::LSAck, type: OSPFv2::TYPES['LS_ACK']
   end
 end

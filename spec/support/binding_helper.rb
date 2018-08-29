@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BindingHelper
 
   class KnowHeaderMatcher
@@ -13,7 +15,8 @@ module BindingHelper
       if @args and @args.is_a? Hash
         bindings = prev_header.known_headers[@header]
         return false unless bindings
-        if bindings.op == :or
+        case bindings.op
+        when :or
           @args.each do |key, value|
             bresult = bindings.one? do |b|
               case b
@@ -27,23 +30,42 @@ module BindingHelper
             result &&= bresult
             break unless bresult
           end
-        else
+        when :and
           hbindings = bindings.to_h
-          result = hbindings.keys == @args.keys
+          result &&= hbindings.keys == @args.keys
           proc_bindings = hbindings.dup
           proc_bindings.keep_if { |k,v| v.is_a? Proc }
           hbindings.delete_if { |k,v| v.is_a? Proc }
           result &&= hbindings.keys.all? { |k| hbindings[k] == @args[k] }
           result &&= proc_bindings.keys.all? { |k| proc_bindings[k].call(@args[k]) }
           @bad_args_and = @args
+        when :newstyle
+          result &&= bindings.one? do |subbindings|
+            subbindings.all? do |binding|
+              if binding.is_a?(PacketGen::Header::Base::ProcBinding)
+                keys = @args.keys
+                struct = Struct.new(*keys)
+                binding.check?(struct.new(*@args.values_at(*keys)))
+              elsif binding.value.is_a?(Proc)
+                binding.value.call(@args[binding.key])
+              else
+                binding.value == @args[binding.key]
+              end
+            end
+          end
+          @bad_args = @args
         end
       end
       result
     end
 
     def failure_message
-      str = "expected #@header to be a known header from #{@prev_header}"
-      if @bad_args_or
+      str = +"expected #@header to be a known header from #{@prev_header}"
+      if @bad_args
+        str << "\n         expected: #{@bad_args.inspect}"
+        str << "\nto be included in: " \
+               "#{@prev_header.known_headers[@header].inspect}"
+      elsif @bad_args_or
         str << "\n         expected: #{@bad_args_or.inspect}"
         str << "\nto be included in: " \
                "#{@prev_header.known_headers[@header].inspect}"

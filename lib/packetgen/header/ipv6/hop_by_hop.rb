@@ -67,16 +67,18 @@ module PacketGen
         # @return [String]
         def to_s
           str = super
-          case str.size % 8
+          case (str.size + 2) % 8
           when 0
             return str
           when 7
             # only on byte needed: use pad1 option
+            self << Pad1.new
             str << [0].pack('C')
           else
             # use padn option
-            len = 8 - (str.size % 8) - 4
+            len = 8 - 2 - (str.size % 8) - 2
             padn = Option.new(type: 'padn', value: "\x00" * len)
+            self << padn
             str << padn.to_s
           end
           str
@@ -127,6 +129,6 @@ module PacketGen
     end
 
     self.add_class IPv6::HopByHop
-    IPv6.bind_header IPv6::HopByHop, next: 0
+    IPv6.bind IPv6::HopByHop, next: 0
   end
 end

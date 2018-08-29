@@ -75,10 +75,10 @@ module PacketGen
     end
 
     self.add_class GRE
-    IP.bind_header GRE, protocol: GRE::IP_PROTOCOL
-    IPv6.bind_header GRE, next: GRE::IP_PROTOCOL
+    IP.bind GRE, protocol: GRE::IP_PROTOCOL
+    IPv6.bind GRE, next: GRE::IP_PROTOCOL
 
-    GRE.bind_header IP, protocol_type: IP::ETHERTYPE
-    GRE.bind_header IPv6, protocol_type: IPv6::ETHERTYPE
+    GRE.bind IP, protocol_type: IP::ETHERTYPE
+    GRE.bind IPv6, protocol_type: IPv6::ETHERTYPE
   end
 end

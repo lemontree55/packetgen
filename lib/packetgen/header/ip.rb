@@ -280,9 +280,9 @@ module PacketGen
 
     self.add_class IP
 
-    Eth.bind_header IP, ethertype: IP::ETHERTYPE
-    SNAP.bind_header IP, proto_id: IP::ETHERTYPE
-    Dot1q.bind_header IP, ethertype: IP::ETHERTYPE
-    IP.bind_header IP, protocol: 4
+    Eth.bind IP, ethertype: IP::ETHERTYPE
+    SNAP.bind IP, proto_id: IP::ETHERTYPE
+    Dot1q.bind IP, ethertype: IP::ETHERTYPE
+    IP.bind IP, protocol: 4
   end
 end

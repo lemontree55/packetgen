@@ -236,7 +236,7 @@ module PacketGen
 
     self.add_class TCP
 
-    IP.bind_header TCP, protocol: TCP::IP_PROTOCOL
-    IPv6.bind_header TCP, next: TCP::IP_PROTOCOL
+    IP.bind TCP, protocol: TCP::IP_PROTOCOL
+    IPv6.bind TCP, next: TCP::IP_PROTOCOL
   end
 end

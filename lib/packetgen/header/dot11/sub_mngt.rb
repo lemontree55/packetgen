@@ -93,7 +93,7 @@ module PacketGen
         define_field :listen_interval, Types::Int16le, default: 0x00c8
       end
       Header.add_class AssoReq
-      Management.bind_header AssoReq, op: :and, type: 0, subtype: 0
+      Management.bind AssoReq, type: 0, subtype: 0
 
       # IEEE 802.11 Association Response frame
       #
@@ -116,7 +116,7 @@ module PacketGen
         define_field :aid, Types::Int16le
       end
       Header.add_class AssoResp
-      Management.bind_header AssoResp, op: :and, type: 0, subtype: 1
+      Management.bind AssoResp, type: 0, subtype: 1
 
       # IEEE 802.11 ReAssociation Request frame
       #
@@ -133,7 +133,7 @@ module PacketGen
         define_field :current_ap, Eth::MacAddr
       end
       Header.add_class ReAssoReq
-      Management.bind_header ReAssoReq, op: :and, type: 0, subtype: 2
+      Management.bind ReAssoReq, type: 0, subtype: 2
 
       # IEEE 802.11 ReAssociation Response frame
       #
@@ -147,7 +147,7 @@ module PacketGen
       class ReAssoResp < AssoResp
       end
       Header.add_class ReAssoResp
-      Management.bind_header ReAssoResp, op: :and, type: 0, subtype: 3
+      Management.bind ReAssoResp, type: 0, subtype: 3
 
       # IEEE 802.11 Probe Request frame
       #
@@ -158,7 +158,7 @@ module PacketGen
       class ProbeReq < SubMngt
       end
       Header.add_class ProbeReq
-      Management.bind_header ProbeReq, op: :and, type: 0, subtype: 4
+      Management.bind ProbeReq, type: 0, subtype: 4
 
       # IEEE 802.11 Probe Response frame
       #
@@ -181,7 +181,7 @@ module PacketGen
         define_field :cap, Types::Int16le
       end
       Header.add_class ProbeResp
-      Management.bind_header ProbeResp, op: :and, type: 0, subtype: 5
+      Management.bind ProbeResp, type: 0, subtype: 5
 
       # IEEE 802.11 Beacon frame
       #
@@ -204,7 +204,7 @@ module PacketGen
         define_field :cap, Types::Int16le
       end
       Header.add_class Beacon
-      Management.bind_header Beacon, op: :and, type: 0, subtype: 8
+      Management.bind Beacon, type: 0, subtype: 8
 
       # IEEE 802.11 ATIM frame
       #
@@ -214,7 +214,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ATIM < SubMngt; end
       Header.add_class ATIM
-      Management.bind_header ATIM, op: :and, type: 0, subtype: 9
+      Management.bind ATIM, type: 0, subtype: 9
 
       # IEEE 802.11 Disassociation frame
       #
@@ -229,7 +229,7 @@ module PacketGen
         define_field :reason, Types::Int16le
       end
       Header.add_class Disas
-      Management.bind_header Disas, op: :and, type: 0, subtype: 10
+      Management.bind Disas, type: 0, subtype: 10
 
       # IEEE 802.11 Authentication frame
       #
@@ -252,7 +252,7 @@ module PacketGen
         define_field :status, Types::Int16le
       end
       Header.add_class Auth
-      Management.bind_header Auth, op: :and, type: 0, subtype: 11
+      Management.bind Auth, type: 0, subtype: 11
 
       # IEEE 802.11 Deauthentication frame
       #
@@ -267,7 +267,7 @@ module PacketGen
         define_field :reason, Types::Int16le
       end
       Header.add_class DeAuth
-      Management.bind_header DeAuth, op: :and, type: 0, subtype: 12
+      Management.bind DeAuth, type: 0, subtype: 12
     end
   end
 end

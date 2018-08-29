@@ -397,17 +397,17 @@ module PacketGen
 
     self.add_class ESP
 
-    IP.bind_header ESP, protocol: ESP::IP_PROTOCOL
-    IPv6.bind_header ESP, next: ESP::IP_PROTOCOL
-    UDP.bind_header ESP, procs: [->(f) { f.dport = f.sport = ESP::UDP_PORT },
-                                 ->(f) { (f.dport == ESP::UDP_PORT ||
-                                            f.sport == ESP::UDP_PORT) &&
-                                          Types::Int32.new.read(f.body[0..3]).to_i > 0 }]
-    ESP.bind_header IP, next: 4
-    ESP.bind_header IPv6, next: 41
-    ESP.bind_header TCP, next: TCP::IP_PROTOCOL
-    ESP.bind_header UDP, next: TCP::IP_PROTOCOL
-    ESP.bind_header ICMP, next: ICMP::IP_PROTOCOL
-    ESP.bind_header ICMPv6, next: ICMPv6::IP_PROTOCOL
+    IP.bind ESP, protocol: ESP::IP_PROTOCOL
+    IPv6.bind ESP, next: ESP::IP_PROTOCOL
+    UDP.bind ESP, procs: [->(f) { f.dport = f.sport = ESP::UDP_PORT },
+                          ->(f) { (f.dport == ESP::UDP_PORT ||
+                                     f.sport == ESP::UDP_PORT) &&
+                                   Types::Int32.new.read(f.body[0..3]).to_i > 0 }]
+    ESP.bind IP, next: 4
+    ESP.bind IPv6, next: 41
+    ESP.bind TCP, next: TCP::IP_PROTOCOL
+    ESP.bind UDP, next: TCP::IP_PROTOCOL
+    ESP.bind ICMP, next: ICMP::IP_PROTOCOL
+    ESP.bind ICMPv6, next: ICMPv6::IP_PROTOCOL
   end
 end

@@ -190,6 +190,6 @@ module PacketGen
         alias error_message error_msg
       end
     end
-    UDP.bind_header TFTP, dport: 69
+    UDP.bind TFTP, dport: 69
   end
 end

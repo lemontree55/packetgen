@@ -140,6 +140,6 @@ module PacketGen
     end
 
     self.add_class MLDv2::MLQ
-    ICMPv6.bind_header MLDv2::MLQ, op: :and, type: 130, body: ->(b) { b.nil? ? '' : b.length > 23 }
+    ICMPv6.bind MLDv2::MLQ, type: 130, body: ->(b) { b.nil? ? '' : b.length > 23 }
   end
 end

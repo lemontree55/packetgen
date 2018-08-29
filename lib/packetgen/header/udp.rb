@@ -94,7 +94,7 @@ module PacketGen
 
     self.add_class UDP
 
-    IP.bind_header UDP, protocol: UDP::IP_PROTOCOL
-    IPv6.bind_header UDP, next: UDP::IP_PROTOCOL
+    IP.bind UDP, protocol: UDP::IP_PROTOCOL
+    IPv6.bind UDP, next: UDP::IP_PROTOCOL
   end
 end

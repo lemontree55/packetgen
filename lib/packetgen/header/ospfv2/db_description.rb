@@ -99,6 +99,6 @@ module PacketGen
     end
 
     self.add_class OSPFv2::DbDescription
-    OSPFv2.bind_header OSPFv2::DbDescription, type: OSPFv2::TYPES['DB_DESCRIPTION']
+    OSPFv2.bind OSPFv2::DbDescription, type: OSPFv2::TYPES['DB_DESCRIPTION']
   end
 end

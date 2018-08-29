@@ -239,7 +239,7 @@ module PacketGen
       end
     end
 
-    Dot1x.bind_header EAP, type: 0
+    Dot1x.bind EAP, type: 0
   end
 end
 

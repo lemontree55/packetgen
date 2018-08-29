@@ -111,6 +111,6 @@ module PacketGen
     end
 
     self.add_class HTTP::Response
-    TCP.bind_header HTTP::Response, body: ->(b) { %r[^HTTP/1\.1\s\d{3,}\s.+] =~ b.chars.select(&:valid_encoding?).join }
+    TCP.bind HTTP::Response, body: ->(b) { %r[^HTTP/1\.1\s\d{3,}\s.+] =~ b.chars.select(&:valid_encoding?).join }
   end
 end

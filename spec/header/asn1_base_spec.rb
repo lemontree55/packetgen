@@ -19,40 +19,47 @@ module PacketGen
         end
       end
 
-      context '.bind_header' do
+      context '.bind' do
         after(:each) { clear_bindings TestBase2 }
 
         it 'binds a ASN1 header to another header with a single value' do
-          TestBase2.bind_header ASN1ToBind, field1: 55
+          TestBase2.bind ASN1ToBind, field1: 55
           expect(TestBase2).to know_header(ASN1ToBind).with(field1: 55)
           pkt = Packet.new.add('TestBase2').add('ASN1ToBind')
           expect(pkt.testbase2.field1).to eq(55)
           expect(pkt.testbase2.field2).to eq(0)
         end
 
-        it 'binds a header to another one with multiple field (or case)' do
-          TestBase2.bind_header ASN1ToBind, field1: 55, field2: 1
-          expect(TestBase2).to know_header(ASN1ToBind).with(field1: 55, field2: 1)
-          pkt = Packet.new.add('TestBase2').add('ASN1ToBind')
-          expect(pkt.testbase2.field1).to eq(55)
-          expect(pkt.testbase2.field2).to eq(1)
-        end
-
-        it 'binds a header to another one with multiple field (and case)' do
-          TestBase2.bind_header ASN1ToBind, op: :and, field1: 55, field2: 2
+        it 'binds a ASN1 header to another header with multiple field' do
+          TestBase2.bind ASN1ToBind, field1: 55, field2: 2
           expect(TestBase2).to know_header(ASN1ToBind).with(field1: 55, field2: 2)
           pkt = Packet.new.add('TestBase2').add('ASN1ToBind')
           expect(pkt.testbase2.field1).to eq(55)
           expect(pkt.testbase2.field2).to eq(2)
         end
 
-        it 'binds a header to another one using a lambda' do
-          TestBase2.bind_header ASN1ToBind, field1: ->(v) { v.nil? ? 128 : v > 127 }
+        it 'binds a ASN1 header to another header using a lambda' do
+          TestBase2.bind ASN1ToBind, field1: ->(v) { v.nil? ? 128 : v > 127 }
+          expect(TestBase2).to_not know_header(ASN1ToBind).with(field1: 127)
+          expect(TestBase2).to know_header(ASN1ToBind).with(field1: 128)
+          expect(TestBase2).to know_header(ASN1ToBind).with(field1: 129)
+          expect(TestBase2).to know_header(ASN1ToBind).with(field1: 255)
           pkt = Packet.new.add('TestBase2').add('ASN1ToBind')
           expect(pkt.testbase2.field1).to eq(128)
         end
+
+        it 'binds a header with multiple possibility (multiple calls to .bind)' do
+          TestBase2.bind ASN1ToBind, field1: 55, field2: 2
+          TestBase2.bind ASN1ToBind, field1: 54, field2: 3
+          expect(TestBase2).to know_header(ASN1ToBind).with(field1: 55, field2: 2)
+          expect(TestBase2).to know_header(ASN1ToBind).with(field1: 54, field2: 3)
+
+          pkt = Packet.new.add('TestBase2').add('ASN1ToBind')
+          expect(pkt.testbase2.field1).to eq(55)
+          expect(pkt.testbase2.field2).to eq(2)
+        end
       end
-      
+
       context 'adding header to a packet' do
         it 'calls #added_to_packet' do
           $global_var = false

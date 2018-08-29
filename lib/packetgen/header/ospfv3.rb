@@ -201,7 +201,7 @@ module PacketGen
     end
 
     self.add_class OSPFv3
-    IPv6.bind_header OSPFv3, next: OSPFv3::IP_PROTOCOL
+    IPv6.bind OSPFv3, next: OSPFv3::IP_PROTOCOL
   end
 end
 

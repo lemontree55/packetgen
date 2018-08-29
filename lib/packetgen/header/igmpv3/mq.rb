@@ -93,6 +93,6 @@ module PacketGen
     end
 
     self.add_class IGMPv3::MQ
-    IGMPv3.bind_header IGMPv3::MQ, type: 0x11
+    IGMPv3.bind IGMPv3::MQ, type: 0x11
   end
 end
