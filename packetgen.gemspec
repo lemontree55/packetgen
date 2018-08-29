@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Sylvain Daubert']
   spec.email         = ['sylvain.daubert@laposte.net']
 
-  spec.summary       = 'Network packet generator and analyzor'
+  spec.summary       = 'Network packet generator and dissector'
   # spec.description   = %q{TODO: Write a longer description or delete this line.}
   spec.homepage      = 'https://github.com/sdaubert/packetgen'
 
@@ -28,9 +28,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'pcaprub', '~>0.12.4'
   spec.add_dependency 'rasn1', '~>0.5', '>= 0.6.3'
 
-  spec.add_development_dependency 'bundler', '~> 1.7'
-  spec.add_development_dependency 'rake', '~> 12.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'simplecov', '~> 0.12'
+  spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'rake', '~> 12.3'
+  spec.add_development_dependency 'rspec', '~> 3.7'
+  spec.add_development_dependency 'simplecov', '~> 0.16'
   spec.add_development_dependency 'yard', '~> 0.9'
 end
