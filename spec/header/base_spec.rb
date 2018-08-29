@@ -85,6 +85,8 @@ module PacketGen
         it 'binds a header using procs' do
           TestBase.bind ToBind, procs: [->(h) { h.field1 = 42 },
                                         ->(h) { h.field1 == 42 && Types::Int32.new.read(h.body[0..3]).to_i > 0 }]
+          expect(TestBase).to know_header(ToBind).with(field1: 42, body: [1].pack('N'))
+
           pkt = Packet.new.add('TestBase').add('ToBind')
           expect(pkt.testbase.field1).to eq(42)
 
