@@ -195,6 +195,7 @@ module PacketGen
       # @return [void]
       # @deprecated Use {.bind} instead.
       def self.bind_header(header_klass, args={})
+        Deprecation.deprecated(self, __method__, 'bind', klass_method: true)
         op = args.delete(:op) || :or
         if @known_headers[header_klass].nil? || @known_headers[header_klass].op != op
           bindings = Bindings.new(op)
