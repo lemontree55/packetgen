@@ -5,7 +5,8 @@ module PacketGen
     describe SMB do
       describe 'binding' do
         it 'in NetBIOS packets' do
-          expect(NetBIOS::Session).to know_header(SMB)
+          expect(NetBIOS::Session).to know_header(SMB).with(body: SMB::MARKER)
+          expect(SMB).to know_header(SMB::Blocks)
         end
       end
 
