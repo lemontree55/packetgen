@@ -7,7 +7,7 @@
 
 module PacketGen
   module Header
-    class SMB < Base
+    class SMB
       # Common blocks used for unsupported SMB messages.
       #
       # {Blocks} handles parameter block and data block. Parameter block is
