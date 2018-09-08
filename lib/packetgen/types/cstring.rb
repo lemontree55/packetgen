@@ -35,13 +35,13 @@ module PacketGen
         if @static_length.is_a? Integer
           if self.size >= @static_length
             s = self[0, @static_length]
-            s[-1] = 0.chr
+            s[-1] = "\x00".encode(s.encoding)
             PacketGen.force_binary s
           else
             PacketGen.force_binary(self + "\0" * (@static_length - self.length))
           end
         else
-          PacketGen.force_binary(self + 0.chr)
+          PacketGen.force_binary(self + +"\x00".encode(self.encoding))
         end
       end
 
@@ -56,7 +56,7 @@ module PacketGen
 
       # @return [String]
       def to_human
-        idx = self.index(0.chr) || self.sz
+        idx = self.index(+"\x00".encode(self.encoding)) || self.sz
         self[0, idx]
       end
     end
