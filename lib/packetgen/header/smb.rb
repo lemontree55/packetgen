@@ -183,6 +183,7 @@ module PacketGen
     self.add_class SMB::Blocks
 
     NetBIOS::Session.bind SMB, body: ->(val) { val.nil? ? SMB::MARKER : val[0..3] == SMB::MARKER }
+    NetBIOS::Datagram.bind SMB, body: ->(val) { val.nil? ? SMB::MARKER : val[0..3] == SMB::MARKER }
     SMB.bind SMB::Blocks
   end
 end

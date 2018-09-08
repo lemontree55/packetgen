@@ -17,3 +17,4 @@ end
 
 require_relative 'netbios/name'
 require_relative 'netbios/session'
+require_relative 'netbios/datagram'
