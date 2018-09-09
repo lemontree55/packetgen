@@ -45,7 +45,7 @@ module PacketGen
           expect(ip.version).to eq(4)
           expect(ip.tos).to eq(0)
           expect(ip.length).to eq(20)
-          expect(ip.id).to be < 65536
+          expect(ip.id).to be < 65_536
           expect(ip.frag).to eq(0)
           expect(ip.ttl).to eq(64)
           expect(ip.protocol).to eq(0)
@@ -78,7 +78,7 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:ip) { IP.new}
+        let(:ip) { IP.new }
 
         it 'sets header from a string' do
           str = (1..ip.sz).to_a.pack('C*') + 'body'
@@ -198,7 +198,7 @@ module PacketGen
 
         it 'sends a IP header on wire', :sudo do
           body = force_binary("\x00" * 64)
-          pkt = Packet.gen('IP').add('UDP', sport: 35535, dport: 65535, body: body)
+          pkt = Packet.gen('IP').add('UDP', sport: 35_535, dport: 65_535, body: body)
           pkt.calc
           Thread.new { sleep 0.1; pkt.ip.to_w('lo') }
           packets = Packet.capture(iface: 'lo', max: 1,
@@ -209,8 +209,8 @@ module PacketGen
           expect(packet.ip.dst).to eq('127.0.0.1')
           expect(packet.ip.src).to eq('127.0.0.1')
           expect(packet.ip.protocol).to eq(UDP::IP_PROTOCOL)
-          expect(packet.udp.sport).to eq(35535)
-          expect(packet.udp.dport).to eq(65535)
+          expect(packet.udp.sport).to eq(35_535)
+          expect(packet.udp.dport).to eq(65_535)
           expect(packet.body).to eq(body)
         end
       end
@@ -231,7 +231,7 @@ module PacketGen
         ip = IP.new
         str = ip.inspect
         expect(str).to be_a(String)
-        (ip.to_h.keys - %i(body) + %i(version ihl flags frag_offset)).each do |attr|
+        (ip.to_h.keys - %i[body] + %i[version ihl flags frag_offset]).each do |attr|
           expect(str).to include(attr.to_s)
         end
       end
