@@ -70,11 +70,13 @@ module PacketGen
     #   # object will have a different value.
     #   define_field :id, PacketGen::Types::Int16, default: ->{ rand(65535) }
     #   # a size field
-    #   define_field :body_size, PacketGen::Type::Int16
+    #   define_field :body_size, PacketGen::Types::Int16
     #   # String field which length is taken from body_size field
-    #   define_field :body, PacketGen::Type::String, builder: ->(obj, type) { type.new('', length_from: obj[:body_size]) }
+    #   define_field :body, PacketGen::Types::String, builder: ->(obj, type) { type.new('', length_from: obj[:body_size]) }
     #   # 16-bit enumeration type. As :default not specified, default to first value of enum
-    #   define_field :type_class, PacketGen::Type::Int16Enum, enum: { 'class1' => 1, 'class2' => 2}
+    #   define_field :type_class, PacketGen::Types::Int16Enum, enum: { 'class1' => 1, 'class2' => 2}
+    #   # optional field. Only present if another field has a certain value
+    #   define_field :opt1, PacketGen::Types::Int16, optional: ->(h) { h.type == 42 }
     #
     # {.define_field_before} and {.define_field_after} are also defined to relatively
     # create a field from anoher one (for example, when adding a field in a subclass).
