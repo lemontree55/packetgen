@@ -149,13 +149,13 @@ module PacketGen
                            :flags2_is_long_name, :flags2_rsv,
                            :flags2_security_signature_required, :flags2_compresses,
                            :flags2_signature, :flags2_eas, :flags2_long_names
-
     end
     self.add_class SMB
-
     NetBIOS::Session.bind SMB, body: ->(val) { val.nil? ? SMB::MARKER : val[0..3] == SMB::MARKER }
     NetBIOS::Datagram.bind SMB, body: ->(val) { val.nil? ? SMB::MARKER : val[0..3] == SMB::MARKER }
   end
 end
 
+require_relative 'smb/string'
+require_relative 'smb/trans'
 require_relative 'smb/blocks'
