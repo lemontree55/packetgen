@@ -452,6 +452,20 @@ module PacketGen
         PacketGen.force_binary(str)
       end
 
+      # Get offset of given field in {Fields} structure.
+      # @param [Symbol] field
+      # @return [Integer]
+      # @raise [ArgumentError] unknown field
+      def offset_of(field)
+        raise ArgumentError, "#{field} is an unknown field of #{self.class}" unless @fields.include?(field)
+        offset = 0
+        fields.each do |f|
+          break offset if f == field
+          next unless is_present?(f)
+          offset += self[f].sz
+        end
+      end
+
       private
 
       # Deeply duplicate +@fields+

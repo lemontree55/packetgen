@@ -153,6 +153,35 @@ module PacketGen
         end
       end
 
+      describe '#offset_of' do
+        it 'gives offset of given field in structure' do
+          class OffsetTest < Fields
+            define_field :one, Types::Int8
+            define_field :two, Types::Int16
+            define_field :three, Types::Int32
+            define_field :four, Types::Int24
+          end
+
+          test = OffsetTest.new
+          expect(test.offset_of(:one)).to eq(0)
+          expect(test.offset_of(:two)).to eq(1)
+          expect(test.offset_of(:three)).to eq(3)
+          expect(test.offset_of(:four)).to eq(7)
+        end
+
+        it 'gives offset of given field in structure with some variable field lengths' do
+          class OffsetTest2 < Fields
+            define_field :variable, Types::String
+            define_field :one, Types::Int8
+          end
+
+          test = OffsetTest2.new
+          expect(test.offset_of(:one)).to eq(0)
+          test.variable = "0123"
+          expect(test.offset_of(:one)).to eq(4)
+        end
+      end
+
       context 'may define an optional field' do
         class FOptional < Fields
           define_field :u8, Types::Int32
