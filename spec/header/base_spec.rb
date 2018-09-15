@@ -12,6 +12,7 @@ module PGTest
 
   class ToBind < PacketGen::Header::Base
     define_field :field, PacketGen::Types::Int32, default: 1
+    define_field :str, PacketGen::Types::String
     def added_to_packet(_packet)
       $global_var = true
     end
@@ -142,6 +143,17 @@ module PacketGen
           pkt = Packet.new.add('PGTest::Base').add('PGTest::ToBind')
           expect(pkt.base.field1).to eq(55)
           expect(pkt.base.field2).to eq(2)
+        end
+      end
+
+      context 'in header plugin context' do
+        before(:all) { PGTest::Base.bind PGTest::ToBind, field1: 55 }
+        after(:all) { clear_bindings PGTest::Base }
+
+        it 'Packet#add sets given fields' do
+          pkt = PacketGen.gen('PGTest::Base').add('PGTest::ToBind', field: 42, str: '123')
+          expect(pkt.pgtest_tobind.field).to eq(42)
+          expect(pkt.pgtest_tobind.str).to eq('123')
         end
       end
 
