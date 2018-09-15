@@ -54,6 +54,13 @@ module PacketGen
         end
       end
 
+      # Populate CString from a human readable string
+      # @param [String] str
+      # @return [self]
+      def from_human(str)
+        read str
+      end
+
       # @return [String]
       def to_human
         idx = self.index(+"\x00".encode(self.encoding)) || self.sz

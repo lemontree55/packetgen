@@ -13,7 +13,7 @@ module PacketGen
         it 'accepts a static_length option' do
           cs = CString.new(static_length: 8)
           expect(cs.sz).to eq(8)
-          expect(cs).to eq ('')
+          expect(cs).to eq('')
         end
       end
 
@@ -36,7 +36,6 @@ module PacketGen
       end
 
       describe '#to_s' do
-
         it 'generates a null-terminated string' do
           cs = CString.new
           cs.read 'This is a String'
@@ -51,12 +50,20 @@ module PacketGen
           expect(cs.to_s).to eq(force_binary("This is a String\x00\x00\x00\x00"))
           expect(cs.length).to eq(16)
           expect(cs.sz).to eq(20)
-          
+
           cs.read 'This is a too too long string'
           expect(cs.length).to eq(20)
           expect(cs).to eq('This is a too too lo')
           expect(cs.sz).to eq(20)
           expect(cs.to_s).to eq("This is a too too l\x00")
+        end
+      end
+
+      context 'check Packet#add may set a CString (bug #91)' do
+        it 'is fixed' do
+          pkt = Packet.gen('BOOTP', file: 'test.txt')
+          expect(pkt.bootp.file).to eq('test.txt')
+          expect(pkt.bootp.file.to_s).to eq("test.txt\x00")
         end
       end
     end
