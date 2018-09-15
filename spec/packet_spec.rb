@@ -223,6 +223,12 @@ module PacketGen
         expect(@pkt.ip(2).protocol).to eq(0)
       end
 
+      it 'sets provided fields in arguments' do
+        @pkt.add('TCP', sport: 12_345, dport: 5_678)
+        expect(@pkt.tcp.sport).to eq(12_345)
+        expect(@pkt.tcp.dport).to eq(5_678)
+      end
+
       it 'raises on unknown protocol' do
         expect { @pkt.add 'IPOT' }.to raise_error(ArgumentError)
       end
