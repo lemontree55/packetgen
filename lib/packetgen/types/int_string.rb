@@ -65,7 +65,7 @@ module PacketGen
       # @return [::String]
       # @since 2.2.0
       def to_human
-        @string.to_s.inspect
+        @string
       end
 
       # Set length from internal string length
