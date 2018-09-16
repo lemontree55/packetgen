@@ -10,5 +10,5 @@
 # @author Sylvain Daubert
 module PacketGen
   # PacketGen version
-  VERSION = '2.8.0'
+  VERSION = '2.8.1'
 end
