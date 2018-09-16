@@ -61,6 +61,15 @@ module PacketGen
         @length.to_s << @string.to_s
       end
 
+      # Set from a human readable string
+      # @param [String] str
+      # @return [self]
+      def from_human(str)
+        @string.read str
+        calc_length
+        self
+      end
+
       # Get human readable string
       # @return [::String]
       # @since 2.2.0

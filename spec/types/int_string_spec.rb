@@ -56,6 +56,18 @@ module PacketGen
           expect(is8.to_s).to eq(force_binary("\x0aThis is a String"))
         end
       end
+
+      context 'check Packet#add may set a IntString (bug #91)' do
+        it 'is fixed' do
+          class AddIntStringTest < Header::Base
+            define_field :field, IntString
+          end
+          Header.add_class AddIntStringTest
+          pkt = Packet.gen('AddIntStringTest', field: 'This is a string')
+          expect(pkt.addintstringtest[:field].to_human).to eq('This is a string')
+          expect(pkt.addintstringtest[:field].to_s).to eq("\x10This is a string")
+        end
+      end
     end
   end
 end
