@@ -164,6 +164,22 @@ module PacketGen
           expect($global_var).to be(true)
         end
       end
+
+      context 'when adding to a packet' do
+        before(:all) do
+          class PacketTest < Base
+            define_field :field, Types::Int8, default: ->(h) { h.packet ? h.packet.ip.tos : 255 }
+          end
+          Header.add_class PacketTest
+          IP.bind PacketTest, protocol: 255
+        end
+        after(:all) { remove_binding IP, PacketTest}
+
+        it 'subclass may access to previous headers' do
+          pkt = Packet.gen('IP', tos: 45).add('PacketTest')
+          expect(pkt.packettest.field).to eq(45)
+        end
+      end
     end
   end
 end

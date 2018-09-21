@@ -143,7 +143,7 @@ module PacketGen
     def add(protocol, options={})
       klass = check_protocol(protocol)
 
-      header = klass.new(options)
+      header = klass.new(options.merge!(packet: self))
       add_header header
       self
     end
@@ -158,7 +158,7 @@ module PacketGen
       klass = check_protocol(protocol)
 
       nxt = prev.body
-      header = klass.new(options)
+      header = klass.new(options.merge!(packet: self))
       add_header header, previous_header: prev
       idx = @headers.index(prev) + 1
       @headers[idx, 0] = header

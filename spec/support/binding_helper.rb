@@ -102,4 +102,8 @@ module BindingHelper
   def clear_bindings(klass)
     klass.known_headers.clear
   end
+
+  def remove_binding(klass1, klass2)
+    klass1.known_headers.delete klass2
+  end
 end

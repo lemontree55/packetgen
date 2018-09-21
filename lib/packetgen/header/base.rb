@@ -163,7 +163,7 @@ module PacketGen
       # @return [Packet,nil]
       attr_reader :packet
 
-      # On inheritage, create +@old_known_header+ class variable
+      # On inheritage, create +@known_header+ class variable
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
@@ -284,6 +284,12 @@ module PacketGen
       # @return [Hash] keys: header classes, values: hashes
       def self.known_headers
         @known_headers
+      end
+
+      # @see Types::Fields#initialize
+      def initialize(options={})
+        @packet = options.delete(:packet) if options.key?(:packet)
+        super
       end
 
       # Return header protocol name
