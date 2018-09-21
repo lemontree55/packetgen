@@ -78,7 +78,7 @@ module PacketGen
       # @!attribute seqnum
       #  32-bit TCP sequence number
       #  @return [Integer]
-      define_field :seqnum, Types::Int32, default: -> { rand(2**32) }
+      define_field :seqnum, Types::Int32, default: ->(h) { rand(2**32) }
       # @!attribute acknum
       #  32-bit TCP acknowledgement number
       #  @return [Integer]

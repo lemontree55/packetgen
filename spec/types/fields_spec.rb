@@ -45,7 +45,7 @@ module PacketGen
           FTest.class_eval { define_field :f1, Int8, default: 255 }
           expect(FTest.new.f1).to eq(255)
 
-          FTest.class_eval { define_field :f2, Int16, default: -> { rand(8) +1 } }
+          FTest.class_eval { define_field :f2, Int16, default: ->(h) { rand(8) +1 } }
           expect(FTest.new.f2).to be > 0
           expect(FTest.new.f2).to be < 9
         end

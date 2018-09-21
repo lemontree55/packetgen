@@ -84,7 +84,7 @@ module PacketGen
       define_field :length, Types::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
-      define_field :id, Types::Int16, default: -> { rand(65_535) }
+      define_field :id, Types::Int16, default: ->(h) { rand(65_535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
       define_field :frag, Types::Int16, default: 0

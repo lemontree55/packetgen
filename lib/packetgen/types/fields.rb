@@ -132,7 +132,8 @@ module PacketGen
       # @param [Object] type class or instance
       # @param [Hash] options Unrecognized options are passed to object builder if
       #   +:builder+ option is not set.
-      # @option options [Object] :default default value
+      # @option options [Object] :default default value. May be a proc. This lambda
+      #   take one argument: the caller object.
       # @option options [Lambda] :builder lambda to construct this field.
       #   Parameters to this lambda is the caller object and the field type class.
       # @option options [Lambda] :optional define this field as optional. Given lambda
@@ -294,7 +295,7 @@ module PacketGen
 
         self.class.class_eval { @field_defs }.each do |field, ary|
           type, default, builder, optional, enum, field_options = ary
-          default = default.call if default.is_a?(Proc)
+          default = default.to_proc.call(self) if default.is_a?(Proc)
           @fields[field] = if builder
                              builder.call(self, type)
                            elsif enum
