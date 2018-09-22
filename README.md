@@ -157,6 +157,14 @@ classes. A special `config` object gives local network configuration:
 
 If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is used.
 
+## Plugins
+
+PacketGen provides a plugin system (see [wiki](https://github.com/sdaubert/packetgen/wiki/Create-Custom-Protocol)).
+
+For now, there is only one plugin available as a gem:
+
+* [packetgen-plugin-smb](https://github.com/sdaubert/packetgen-plugin-smb): add (limited) support for SMB protocol suite.
+
 ## See also
 
 Wiki: https://github.com/sdaubert/packetgen/wiki
