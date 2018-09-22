@@ -171,14 +171,13 @@ Wiki: https://github.com/sdaubert/packetgen/wiki
 
 API documentation: http://www.rubydoc.info/gems/packetgen
 
-## Pull requests?
+## Contributing
 
-yes
+Bug reports and pull requests are welcome on GitHub at https://github.com/sdaubert/packetgen-plugin-smb.
 
 ## License
-MIT License (see [LICENSE](https://github.com/sdaubert/packetgen/blob/master/LICENSE))
 
-Copyright © 2016 Sylvain Daubert
+MIT License (see [LICENSE](https://github.com/sdaubert/packetgen/blob/master/LICENSE))
 
 ### Other sources
 All original code maintains its copyright from its original authors and licensing.
