@@ -422,7 +422,7 @@ module PacketGen
     def guess_first_header(binary_str)
       first_header = nil
       Header.all.each do |hklass|
-        hdr = hklass.new
+        hdr = hklass.new(packet: self)
         # #read may return another object (more specific class)
         hdr = hdr.read(binary_str)
         # First header is found when:
@@ -446,7 +446,7 @@ module PacketGen
         break if last_known_hdr.body.empty?
         search_header(last_known_hdr) do |nh|
           str = last_known_hdr.body
-          nheader = nh.new
+          nheader = nh.new(packet: self)
           nheader = nheader.read(str)
           next unless nheader.parse?
           add_header nheader, parsing: true
