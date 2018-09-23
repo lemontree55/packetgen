@@ -17,7 +17,6 @@ module PacketGen
     class Base < Types::Fields
       # @api private
       # Simple class to handle a header association
-      # @deprecated Will be remove with {Base.bind_header}
       class Binding < Struct.new(:key, :value)
         # Check +fields+ responds to binding
         # @param [Types::Fields] fields
@@ -51,7 +50,6 @@ module PacketGen
 
       # @api private
       # Class to handle a header association from procs
-      # @deprecated Will be remove with {Base.bind_header}
       class ProcBinding
         # @param [Array<Proc>] procs first proc is used to set fields, second proc is
         #  used to check binding
