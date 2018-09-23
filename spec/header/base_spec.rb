@@ -158,14 +158,6 @@ module PacketGen
       end
 
       context 'adding header to a packet' do
-        it 'calls #added_to_packet' do
-          $global_var = false
-          Packet.gen('PGTest::ToBind')
-          expect($global_var).to be(true)
-        end
-      end
-
-      context 'when adding to a packet' do
         before(:all) do
           class PacketTest < Base
             define_field :field, Types::Int8, default: ->(h) { h.packet ? h.packet.ip.tos : 255 }
@@ -175,9 +167,34 @@ module PacketGen
         end
         after(:all) { remove_binding IP, PacketTest}
 
+        it 'calls #added_to_packet' do
+          $global_var = false
+          Packet.gen('PGTest::ToBind')
+          expect($global_var).to be(true)
+        end
+
         it 'subclass may access to previous headers' do
           pkt = Packet.gen('IP', tos: 45).add('PacketTest')
           expect(pkt.packettest.field).to eq(45)
+        end
+      end
+
+      context 'when parsing a packet' do
+        before(:all) do
+          class PacketTest < Base
+            define_field :field, Types::Int8, builder: ->(h, _) { lt = h.packet && (h.packet.ip.tos > 0) ? Types::Int16 : Types::Int8; lt.new }
+          end
+          Header.add_class PacketTest
+          IP.bind PacketTest, protocol: 255
+        end
+        after(:all) { remove_binding IP, PacketTest}
+
+        it 'subclass may access to previous headers' do
+          str = Packet.gen('IP', tos: 45).add('PacketTest').to_s
+          pkt = Packet.parse(str)
+          expect(pkt.is?('IP')).to be(true)
+          expect(pkt.is?('PacketTest')).to be(true)
+          expect(pkt.packettest[:field]).to be_a(Types::Int16)
         end
       end
     end
