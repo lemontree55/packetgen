@@ -181,9 +181,11 @@ module PacketGen
       def self.define_field_before(other, name, type, options={})
         define_field name, type, options
         return if other.nil?
+
         @ordered_fields.delete name
         idx = @ordered_fields.index(other)
         raise ArgumentError, "unknown #{other} field" if idx.nil?
+
         @ordered_fields[idx, 0] = name
       end
 
@@ -198,9 +200,11 @@ module PacketGen
       def self.define_field_after(other, name, type, options={})
         define_field name, type, options
         return if other.nil?
+
         @ordered_fields.delete name
         idx = @ordered_fields.index(other)
         raise ArgumentError, "unknown #{other} field" if idx.nil?
+
         @ordered_fields[idx + 1, 0] = name
       end
 
@@ -234,16 +238,19 @@ module PacketGen
       def self.define_bit_fields_on(attr, *args)
         attr_def = @field_defs[attr]
         raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
+
         type = attr_def.first
         unless type < Types::Int
           raise TypeError, "#{attr} is not a PacketGen::Types::Int"
         end
+
         total_size = type.new.width * 8
         idx = total_size - 1
 
         field = args.shift
         while field
           next unless field.is_a? Symbol
+
           size = if args.first.is_a? Integer
                    args.shift
                  else
@@ -359,15 +366,29 @@ module PacketGen
 
       # Say if this field is optional
       # @return [Boolean]
-      def is_optional?(field)
+      def optional?(field)
         @optional_fields.key? field
+      end
+
+      # @deprecated Use {#optional?} instead.
+      def is_optional?(field)
+        Deprecation.deprecated(self.class, __method__, 'optional?', klass_method: true)
+        optional? field
+      end
+
+      # Say if an optional field is present
+      # @return [Boolean]
+      def present?(field)
+        return true unless optional?(field)
+
+        @optional_fields[field].call(self)
       end
 
       # Say if an optional field is present
       # @return [Boolean]
       def is_present?(field)
-        return true unless is_optional?(field)
-        @optional_fields[field].call(self)
+        Deprecation.deprecated(self.class, __method__, 'present?', klass_method: true)
+        present? field
       end
 
       # Populate object from a binary string
@@ -375,10 +396,12 @@ module PacketGen
       # @return [Fields] self
       def read(str)
         return self if str.nil?
+
         force_binary str
         start = 0
         fields.each do |field|
-          next unless is_present?(field)
+          next unless present?(field)
+
           obj = nil
           if self[field].respond_to? :width
             width = self[field].width
@@ -404,7 +427,8 @@ module PacketGen
         str = Inspect.dashed_line(self.class, 2)
         fields.each do |attr|
           next if attr == :body
-          next unless is_present?(attr)
+          next unless present?(attr)
+
           str << Inspect.inspect_attribute(attr, self[attr], 2)
         end
         str
@@ -413,7 +437,7 @@ module PacketGen
       # Return object as a binary string
       # @return [String]
       def to_s
-        fields.select { |f| is_present?(f) }
+        fields.select { |f| present?(f) }
               .map! { |f| force_binary @fields[f].to_s }.join
       end
 
@@ -436,6 +460,7 @@ module PacketGen
       # @raise [ArgumentError] cannot cram +body+ in +:body+ field
       def body=(value)
         raise BodyError, 'no body field' unless @fields.key? :body
+
         case body
         when ::String
           self[:body].read value
@@ -461,10 +486,11 @@ module PacketGen
       # @raise [ArgumentError] unknown field
       def offset_of(field)
         raise ArgumentError, "#{field} is an unknown field of #{self.class}" unless @fields.include?(field)
+
         offset = 0
         fields.each do |f|
           break offset if f == field
-          next unless is_present?(f)
+          next unless present?(f)
           offset += self[f].sz
         end
       end

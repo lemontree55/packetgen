@@ -16,7 +16,7 @@ module PacketGen
           expect(eap.code).to eq(1)
           expect(eap.id).to eq(0)
           expect(eap.length).to eq(5)
-          expect(eap.is_present?(:type)).to be(true)
+          expect(eap.present?(:type)).to be(true)
           expect(eap.type).to eq(1)
           expect(eap.body).to eq('')
         end
@@ -34,10 +34,10 @@ module PacketGen
           end
         end
 
-        %w(Success Failure).each do |code|
+        %w[Success Failure].each do |code|
           it "does not generate a type field for #{code} code" do
             eap = EAP.new(code: code)
-            expect(eap.is_present?(:type)).to be(false)
+            expect(eap.present?(:type)).to be(false)
           end
         end
       end
@@ -121,10 +121,10 @@ module PacketGen
         it 'returns a string without type field' do
           eap = EAP.new(code: 'Success')
           str = eap.inspect
-          %i(code id length).each do |attr|
+          %i[code id length].each do |attr|
             expect(str).to include(attr.to_s)
           end
-          %i(type vendor_id vendor_type).each do |attr|
+          %i[type vendor_id vendor_type].each do |attr|
             expect(str).to_not include(attr.to_s)
           end
         end
@@ -132,10 +132,10 @@ module PacketGen
         it 'returns a string with type field' do
           eap = EAP.new(code: 'Request', type: 46)
           str = eap.inspect
-          %i(code id length type).each do |attr|
+          %i[code id length type].each do |attr|
             expect(str).to include(attr.to_s)
           end
-          %i(vendor_id vendor_type).each do |attr|
+          %i[vendor_id vendor_type].each do |attr|
             expect(str).to_not include(attr.to_s)
           end
         end
@@ -143,7 +143,7 @@ module PacketGen
         it 'returns a string with type and vendor fields' do
           eap = EAP.new(code: 'Request', type: 254)
           str = eap.inspect
-          (eap.fields - %i(body)).each do |attr|
+          (eap.fields - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

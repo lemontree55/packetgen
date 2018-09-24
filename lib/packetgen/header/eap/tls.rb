@@ -54,7 +54,8 @@ module PacketGen
           str = Inspect.dashed_line(self.class, 2)
           fields.each do |attr|
             next if attr == :body
-            next unless is_present?(attr)
+            next unless present?(attr)
+
             if attr == :flags
               shift = Inspect.shift_level(2)
               value = %i[l m s].map { |f| send("#{f}?") ? f.to_s : '.' }.join

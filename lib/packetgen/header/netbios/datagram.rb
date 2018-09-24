@@ -93,8 +93,8 @@ module PacketGen
         # @return [Integer] calculated length
         def calc_length
           length = self[:body].sz
-          length += self[:src_name].sz if is_present?(:src_name)
-          length += self[:dst_name].sz if is_present?(:dst_name)
+          length += self[:src_name].sz if present?(:src_name)
+          length += self[:dst_name].sz if present?(:dst_name)
           self.dgm_length = length
         end
       end

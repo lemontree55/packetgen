@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe GRE do
       describe 'binding' do
         it 'in IP packets' do
@@ -46,7 +45,7 @@ module PacketGen
         end
 
         describe '#read' do
-          let(:gre) { GRE.new}
+          let(:gre) { GRE.new }
 
           it 'sets header from a string' do
             str = force_binary("\xff" + (0..14).to_a.pack('C*')) + 'body'
@@ -75,9 +74,9 @@ module PacketGen
             expect(gre.reserved1).to eq(0x607)
             expect(gre.key).to eq(0x8090a0b)
             expect(gre.seqnum).to eq(0)
-            expect(gre.is_present?(:checksum)).to be(true)
-            expect(gre.is_present?(:key)).to be(true)
-            expect(gre.is_present?(:sequence_number)).to be(false)
+            expect(gre.present?(:checksum)).to be(true)
+            expect(gre.present?(:key)).to be(true)
+            expect(gre.present?(:sequence_number)).to be(false)
           end
 
           it 'parses a complete GRE packet' do
@@ -146,12 +145,12 @@ module PacketGen
             gre.u16 = 0x8000
             str = gre.inspect
             expect(str).to be_a(String)
-            fields = gre.fields - %i(body)
-            fields -= gre.optional_fields.select { |f| !gre.is_present?(f) }
+            fields = gre.fields - %i[body]
+            fields -= gre.optional_fields.reject { |f| gre.present?(f) }
             fields.each do |attr|
               expect(str).to include(attr.to_s)
             end
-            gre.optional_fields.select { |f| !gre.is_present?(f) }.each do |attr|
+            gre.optional_fields.reject { |f| gre.present?(f) }.each do |attr|
               expect(str).to_not include(attr.to_s)
             end
           end
