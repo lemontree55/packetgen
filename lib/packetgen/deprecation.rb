@@ -10,7 +10,8 @@ module PacketGen
       complete_deprecated_method_name = base_name + deprecated_method.to_s
       complete_new_method_name = base_name + new_method.to_s
 
-      warn "#{complete_deprecated_method_name} is deprecated in favor of #{complete_new_method_name}. " \
+      file, line = caller(2).first.split(':')[0, 2]
+      warn "#{file}:#{line}: #{complete_deprecated_method_name} is deprecated in favor of #{complete_new_method_name}. " \
            "It will be remove in PacketGen #{remove_version}."
     end
   end
