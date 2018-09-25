@@ -214,6 +214,8 @@ module PacketGen
       def self.delete_field(name)
         @ordered_fields.delete name
         @field_defs.delete name
+        self.undef_method name
+        self.undef_method "#{name}="
       end
 
       # Define a bitfield on given attribute

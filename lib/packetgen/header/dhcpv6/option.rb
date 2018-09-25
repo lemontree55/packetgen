@@ -135,8 +135,6 @@ module PacketGen
         TYPE = 1
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute duid
         #  @return [DUID]
@@ -163,8 +161,6 @@ module PacketGen
         TYPE = 3
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute iaid
         #  32-bit IAID field
@@ -198,8 +194,6 @@ module PacketGen
         TYPE = 4
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute iaid
         #  32-bit IAID field
@@ -225,8 +219,6 @@ module PacketGen
         TYPE = 5
 
         delete_field :data
-        undef data
-        undef data=
 
         # @attribute ipv6
         #  IPv6 address
@@ -267,8 +259,6 @@ module PacketGen
         TYPE = 6
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute options
         #   @return [RequestedOptions]
@@ -298,8 +288,6 @@ module PacketGen
         TYPE = 7
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute value
         #  8-bit value
@@ -320,8 +308,6 @@ module PacketGen
         TYPE = 8
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute value
         #  16-bit value
@@ -349,8 +335,6 @@ module PacketGen
         TYPE = 12
 
         delete_field :data
-        undef data
-        undef data=
 
         # @!attribute addr
         #  IPv6 server address
@@ -378,8 +362,6 @@ module PacketGen
         TYPE = 14
 
         delete_field :data
-        undef data
-        undef data=
       end
     end
   end

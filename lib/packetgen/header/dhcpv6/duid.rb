@@ -62,8 +62,6 @@ module PacketGen
       # @author Sylvain Daubert
       class DUID_LLT < DUID
         delete_field :body
-        undef body
-        undef body=
 
         # Base time for time computation
         BASE_TIME = Time.utc(2000, 1, 1)
@@ -102,8 +100,6 @@ module PacketGen
       # @author Sylvain Daubert
       class DUID_EN < DUID
         delete_field :body
-        undef body
-        undef body=
 
         # @!attribute en
         #  32-bit entreprise number
@@ -124,8 +120,6 @@ module PacketGen
       # @author Sylvain Daubert
       class DUID_LL < DUID
         delete_field :body
-        undef body
-        undef body=
 
         # @!attribute htype
         #  16-bit hardware protocol type

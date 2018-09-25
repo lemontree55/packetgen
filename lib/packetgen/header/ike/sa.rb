@@ -529,7 +529,6 @@ module PacketGen
         PAYLOAD_TYPE = 33
 
         delete_field :content
-        undef content
 
         # @!attribute proposals
         #  Set of SA proposals
