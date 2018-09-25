@@ -426,12 +426,12 @@ module PacketGen
       # Common inspect method for headers
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 2)
+        str = Inspect.dashed_line(self.class, 1)
         fields.each do |attr|
           next if attr == :body
           next unless present?(attr)
 
-          str << Inspect.inspect_attribute(attr, self[attr], 2)
+          str << Inspect.inspect_attribute(attr, self[attr], 1)
         end
         str
       end

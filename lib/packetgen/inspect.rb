@@ -14,7 +14,7 @@ module PacketGen
     MAX_WIDTH = 70
 
     # Format to inspect attribute
-    FMT_ATTR = "%12s %12s: %s\n"
+    FMT_ATTR = "%14s %16s: %s\n"
 
     # Create a dashed line with +obj+ class writing in it
     # @param [String] name
@@ -34,7 +34,7 @@ module PacketGen
     # @param [Integer] hexsize
     # @return [String]
     def self.int_dec_hex(value, hexsize)
-      "%-10s (0x%0#{hexsize}x)" % [value.to_i, value.to_i]
+      "%-16s (0x%0#{hexsize}x)" % [value.to_i, value.to_i]
     end
 
     # Format an attribute for +#inspect+.
@@ -50,7 +50,7 @@ module PacketGen
     def self.inspect_attribute(attr, value, level=1)
       str = shift_level(level)
       val = if value.is_a?(Types::Enum)
-              "%-10s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
+              "%-16s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
             elsif value.is_a?(Types::Int) || value.is_a?(Integer)
               int_dec_hex(value, value.sz * 2)
             elsif value.is_a?(String)
@@ -80,7 +80,7 @@ module PacketGen
       val = case attr
             when RASN1::Types::Enumerated
               hexsize = attr.value_size * 2
-              "%-10s (0x%0#{hexsize}x)" % [attr.value, attr.to_i]
+              "%-16s (0x%0#{hexsize}x)" % [attr.value, attr.to_i]
             when RASN1::Types::Integer
               int_dec_hex(attr.value, attr.value_size * 2)
             when RASN1::Model
@@ -95,6 +95,7 @@ module PacketGen
     # @return [String]
     def self.inspect_body(body, name='Body')
       return '' if body.nil? || body.empty?
+
       str = dashed_line(name, 2)
       str << (0..15).to_a.map { |v| ' %02d' % v }.join << "\n"
       str << '-' * MAX_WIDTH << "\n"

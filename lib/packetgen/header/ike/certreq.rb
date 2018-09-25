@@ -52,16 +52,16 @@ module PacketGen
 
         # @return [String]
         def inspect
-          str = Inspect.dashed_line(self.class, 2)
+          str = Inspect.dashed_line(self.class, 1)
           fields.each do |attr|
             case attr
             when :body
               next
             when :content
-              str << Inspect.shift_level(2)
+              str << Inspect.shift_level(1)
               str << Inspect::FMT_ATTR % ['hashes', :content, human_content]
             else
-              str << Inspect.inspect_attribute(attr, self[attr], 2)
+              str << Inspect.inspect_attribute(attr, self[attr], 1)
             end
           end
           str

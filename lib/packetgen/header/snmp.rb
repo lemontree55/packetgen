@@ -280,13 +280,13 @@ module PacketGen
 
       def inspect
         str = super
-        str << Inspect.shift_level(2)
+        str << Inspect.shift_level(1)
         if self[:data].chosen.nil?
           str << Inspect::FMT_ATTR % [self[:data].type, :data, '']
         else
           data = self[:data]
           str << Inspect::FMT_ATTR % [data.type, :data, data.chosen_value.type]
-          str << Inspect.dashed_line('ASN.1 content', 2)
+          str << Inspect.dashed_line('ASN.1 content', 1)
           str << data.chosen_value.inspect(1)
           begin
             str << Inspect.inspect_body(self[:message].to_der, 'ASN.1 DER')

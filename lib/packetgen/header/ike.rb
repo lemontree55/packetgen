@@ -189,9 +189,10 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 2)
+        str = Inspect.dashed_line(self.class, )
         fields.each do |attr|
           next if attr == :body
+
           case attr
           when :flags
             str_flags = ''.dup

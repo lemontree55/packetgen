@@ -250,21 +250,21 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 2)
+        str = Inspect.dashed_line(self.class, 1)
         fields.each do |attr|
           if attr == :u16
             flags = %i[qr aa tc rd ra].select! { |flag| send "#{flag}?" }
                                       .map(&:to_s).join(',')
-            str << Inspect.shift_level(2)
+            str << Inspect.shift_level(1)
             str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
-            opcode = '%-10s (%u)' % [OPCODES.key(self.opcode), self.opcode]
-            str << Inspect.shift_level(2)
+            opcode = '%-16s (%u)' % [OPCODES.key(self.opcode), self.opcode]
+            str << Inspect.shift_level(1)
             str << Inspect::FMT_ATTR % ['Integer', 'opcode', opcode]
-            rcode = '%-10s (%u)' % [RCODES.key(self.rcode), self.rcode]
-            str << Inspect.shift_level(2)
+            rcode = '%-16s (%u)' % [RCODES.key(self.rcode), self.rcode]
+            str << Inspect.shift_level(1)
             str << Inspect::FMT_ATTR % ['Integer', 'rcode', rcode]
           else
-            str << Inspect.inspect_attribute(attr, self[attr], 2)
+            str << Inspect.inspect_attribute(attr, self[attr], 1)
           end
         end
         str

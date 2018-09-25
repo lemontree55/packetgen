@@ -137,10 +137,11 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 2)
+        str = Inspect.dashed_line(self.class, 1)
         fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, self[attr], 2)
+
+          str << Inspect.inspect_attribute(attr, self[attr], 1)
           if attr == :u32
             shift = Inspect.shift_level(2)
             str << shift + Inspect::FMT_ATTR % ['', 'version', version]

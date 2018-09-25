@@ -45,9 +45,9 @@ module PacketGen
         # @return [String]
         def inspect
           str = super
-          str << Inspect.dashed_line('Dot11 Elements', 3)
+          str << Inspect.dashed_line('Dot11 Elements', 2)
           @elements.each do |el|
-            str << Inspect.shift_level(4) << el.to_human << "\n"
+            str << Inspect.shift_level(2) << el.to_human << "\n"
           end
           str
         end

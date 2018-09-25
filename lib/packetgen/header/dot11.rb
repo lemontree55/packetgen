@@ -40,6 +40,7 @@ module PacketGen
       # @return [PPI] self
       def read(str)
         return self if str.nil?
+
         force_binary str
         self[:version].read str[0, 1]
         self[:flags].read str[1, 1]
@@ -102,6 +103,7 @@ module PacketGen
       # @return [RadioTap] self
       def read(str)
         return self if str.nil?
+
         force_binary str
         self[:version].read str[0, 1]
         self[:pad].read str[1, 1]
@@ -331,6 +333,7 @@ module PacketGen
 
         if self.class == Dot11
           return self if str.nil?
+
           force_binary str
           self[:frame_ctrl].read str[0, 2]
 
@@ -372,16 +375,18 @@ module PacketGen
       # @return [String]
       def inspect
         str = if self.class == Dot11
-                Inspect.dashed_line("#{self.class} #{human_type}", 2)
+                Inspect.dashed_line("#{self.class} #{human_type}", 1)
               elsif self.respond_to? :human_subtype
-                Inspect.dashed_line("#{self.class} #{human_subtype}", 2)
+                Inspect.dashed_line("#{self.class} #{human_subtype}", 1)
               else
-                Inspect.dashed_line(self.class.to_s, 2)
+                Inspect.dashed_line(self.class.to_s, 1)
               end
+
         define_applicable_fields
         @applicable_fields.each do |attr|
           next if attr == :body
-          str << Inspect.inspect_attribute(attr, @fields[attr], 2)
+
+          str << Inspect.inspect_attribute(attr, @fields[attr], 1)
         end
         str
       end
@@ -403,6 +408,7 @@ module PacketGen
       # @return [void]
       def added_to_packet(packet)
         return if packet.respond_to? :dot11
+
         packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end")
       end
 

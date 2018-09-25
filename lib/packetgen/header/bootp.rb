@@ -132,14 +132,15 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 2)
+        str = Inspect.dashed_line(self.class, 1)
         fields.each do |attr|
           next if attr == :body
           next unless is_present?(attr)
+
           str << if (attr == :chaddr) && (self.hlen == 6)
-                   Inspect.inspect_attribute(attr, Eth::MacAddr.new.read(self[:chaddr][0, 6]), 2)
+                   Inspect.inspect_attribute(attr, Eth::MacAddr.new.read(self[:chaddr][0, 6]), 1)
                  else
-                   Inspect.inspect_attribute(attr, self[attr], 2)
+                   Inspect.inspect_attribute(attr, self[attr], 1)
                  end
         end
         str
