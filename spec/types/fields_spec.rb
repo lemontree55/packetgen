@@ -63,10 +63,10 @@ module PacketGen
 
         it 'adds a field before another one' do
           FTest.class_eval { define_field_before :f1, :f3, Int8 }
-          expect(FTest.new.fields).to eq([:f3, :f1, :f2])
+          expect(FTest.new.fields).to eq(%i[f3 f1 f2])
 
           FTest.class_eval { define_field_before :f2, :f4, Int8 }
-          expect(FTest.new.fields).to eq([:f3, :f1, :f4, :f2])
+          expect(FTest.new.fields).to eq(%i[f3 f1 f4 f2])
         end
 
         it 'raises on unknown before field' do
@@ -82,10 +82,10 @@ module PacketGen
 
         it 'adds a field after another one' do
           FTest.class_eval { define_field_after :f1, :f3, Int8 }
-          expect(FTest.new.fields).to eq([:f1, :f3, :f2])
+          expect(FTest.new.fields).to eq(%i[f1 f3 f2])
 
           FTest.class_eval { define_field_after :f2, :f4, Int8 }
-          expect(FTest.new.fields).to eq([:f1, :f3, :f2, :f4])
+          expect(FTest.new.fields).to eq(%i[f1 f3 f2 f4])
         end
 
         it 'raises on unknown after field' do
@@ -177,8 +177,27 @@ module PacketGen
 
           test = OffsetTest2.new
           expect(test.offset_of(:one)).to eq(0)
-          test.variable = "0123"
+          test.variable = '0123'
           expect(test.offset_of(:one)).to eq(4)
+        end
+      end
+
+      describe '#bits_on' do
+        before(:each) do
+          FTest.class_eval do
+            define_field :u81, Int8
+            define_field :u82, Int8
+            define_bit_fields_on :u81, :f1, :f2, :f3, :f4, :f5, 4
+          end
+          @ft = FTest.new
+        end
+
+        it 'returns a hash: keys are bit fields, values are their size' do
+          expect(@ft.bits_on(:u81)).to eq(f1: 1, f2: 1, f3: 1, f4: 1, f5: 4)
+        end
+
+        it 'return nil on field which does not define bits' do
+          expect(@ft.bits_on(:u82)).to be(nil)
         end
       end
 

@@ -99,7 +99,7 @@ module PacketGen
       # @private
       @field_defs = {}
       # @private
-      @bit_fields = []
+      @bit_fields = {}
 
       # On inheritage, create +@field_defs+ class variable
       # @param [Class] klass
@@ -287,7 +287,8 @@ module PacketGen
               METHODS
             end
 
-            @bit_fields << field
+            @bit_fields[attr] = {} if @bit_fields[attr].nil?
+            @bit_fields[attr][field] = size
           end
 
           idx -= size
@@ -335,8 +336,10 @@ module PacketGen
 
           @optional_fields[field] = optional if optional
         end
-        self.class.class_eval { @bit_fields }.each do |bit_field|
-          self.send "#{bit_field}=", options[bit_field] if options[bit_field]
+        self.class.class_eval { @bit_fields }.each do |_, hsh|
+          hsh.each_key do |bit_field|
+            self.send "#{bit_field}=", options[bit_field] if options[bit_field]
+          end
         end
       end
 
@@ -493,8 +496,16 @@ module PacketGen
         fields.each do |f|
           break offset if f == field
           next unless present?(f)
+
           offset += self[f].sz
         end
+      end
+
+      # Get bit fields definition for given field.
+      # @param [Symbol] field defining bit fields
+      # @return [Hash,nil] keys: bit fields, values: their size in bits
+      def bits_on(field)
+        self.class.class_eval { @bit_fields }[field]
       end
 
       private
