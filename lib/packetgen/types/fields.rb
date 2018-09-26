@@ -504,6 +504,7 @@ module PacketGen
       # Get bit fields definition for given field.
       # @param [Symbol] field defining bit fields
       # @return [Hash,nil] keys: bit fields, values: their size in bits
+      # @since 2.8.3
       def bits_on(field)
         self.class.class_eval { @bit_fields }[field]
       end
