@@ -49,16 +49,21 @@ module PacketGen
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
       str = shift_level(level)
-      val = if value.is_a?(Types::Enum)
+      val = case value
+            when Types::Enum
               "%-16s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
-            elsif value.is_a?(Types::Int) || value.is_a?(Integer)
+            when Types::Int
               int_dec_hex(value, value.sz * 2)
-            elsif value.is_a?(String)
+            when Integer
+              int_dec_hex(value, value.sz * 2)
+            when String
               value.to_s.inspect
-            elsif value.respond_to? :to_human
-              value.to_human
             else
-              value.to_s.inspect
+              if value.respond_to? :to_human
+                value.to_human
+              else
+                value.to_s.inspect
+              end
             end
       str << FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
     end
