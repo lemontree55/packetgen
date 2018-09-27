@@ -18,10 +18,7 @@ module PacketGen
       # @author Sylvain Daubert
       # @since 2.1.4
       class FAST < TTLS
-        # @return [EAP::FAST]
-        def initialize(options={})
-          super({ type: 43 }.merge!(options))
-        end
+        update_field :type, default: 43
       end
     end
   end

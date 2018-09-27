@@ -18,6 +18,7 @@ module PacketGen
       # @author Sylvain Daubert
       # @since 2.1.4
       class TTLS < EAP
+        update_field :type, default: 21
         # @!attribute flags
         #  @return [Integer] 8-bit flags
         define_field_before :body, :flags, Types::Int8
@@ -47,11 +48,6 @@ module PacketGen
         #  @return [Integer] 32-bit message length
         define_field_before :body, :message_length, Types::Int32,
                             optional: ->(h) { h.l? }
-
-        # @return [EAP::TTLS]
-        def initialize(options={})
-          super({ type: 21 }.merge!(options))
-        end
 
         # @return [String]
         def inspect

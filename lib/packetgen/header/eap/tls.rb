@@ -18,6 +18,7 @@ module PacketGen
       # @author Sylvain Daubert
       # @since 2.1.4
       class TLS < EAP
+        update_field :type, default: 13
         # @!attribute flags
         #  @return [Integer] 8-bit flags
         define_field_before :body, :flags, Types::Int8
@@ -43,11 +44,6 @@ module PacketGen
         #  @return [Integer] 32-bit TLS length
         define_field_before :body, :tls_length, Types::Int32,
                             optional: ->(h) { h.l? }
-
-        # @return [EAP::TLS]
-        def initialize(options={})
-          super({ type: 13 }.merge!(options))
-        end
 
         # @return [String]
         def inspect

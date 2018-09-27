@@ -13,6 +13,7 @@ module PacketGen
       # @author Sylvain Daubert
       # @since 2.1.4
       class MD5 < EAP
+        update_field :type, default: 4
         delete_field :body
 
         # @!attribute value_size
@@ -25,11 +26,6 @@ module PacketGen
         # @!attribute optional_name
         #  @return [::String]
         define_field :optional_name, Types::String
-
-        # @return [EAP::MD5]
-        def initialize(options={})
-          super({ type: 4 }.merge!(options))
-        end
       end
     end
   end

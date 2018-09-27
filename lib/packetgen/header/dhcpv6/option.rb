@@ -72,10 +72,6 @@ module PacketGen
         # Create an Option
         # @param [Hash] options
         def initialize(options={})
-          if self.class.const_defined?(:TYPE) && options[:type].nil?
-            options[:type] = self.class.const_get(:TYPE)
-          end
-
           options[:length] = options[:data].to_s.size if options[:data]
           super
           self.length = self.sz - 4 if options[:data].nil?
@@ -131,9 +127,7 @@ module PacketGen
       # DHCPv6 Client ID option
       # @author Sylvain Daubert
       class ClientID < Option
-        # Option type value
-        TYPE = 1
-
+        update_field :type, default: 1
         delete_field :data
 
         # @!attribute duid
@@ -150,16 +144,13 @@ module PacketGen
       # DHCPv6 Server ID option
       # @author Sylvain Daubert
       class ServerID < ClientID
-        # Option type value
-        TYPE = 2
+        update_field :type, default: 2
       end
 
       # DHCPv6 Identity Association for Non-temporary Addresses Option
       # @author Sylvain Daubert
       class IANA < Option
-        # Option type value
-        TYPE = 3
-
+        update_field :type, default: 3
         delete_field :data
 
         # @!attribute iaid
@@ -190,9 +181,7 @@ module PacketGen
       # DHCPv6 Identity Association for Temporary Addresses Option
       # @author Sylvain Daubert
       class IATA < Option
-        # Option type value
-        TYPE = 4
-
+        update_field :type, default: 4
         delete_field :data
 
         # @!attribute iaid
@@ -215,9 +204,7 @@ module PacketGen
       # DHCPv6 IA Address option
       # @author Sylvain Daubert
       class IAAddr < Option
-        # Option type value
-        TYPE = 5
-
+        update_field :type, default: 5
         delete_field :data
 
         # @attribute ipv6
@@ -255,9 +242,7 @@ module PacketGen
       # DHCPv6 Option Request Option
       # @author Sylvain Daubert
       class ORO < Option
-        # Option type value
-        TYPE = 6
-
+        update_field :type, default: 6
         delete_field :data
 
         # @!attribute options
@@ -284,9 +269,7 @@ module PacketGen
       # DHCPv6 Preference option
       # @author Sylvain Daubert
       class Preference < Option
-        # Option type value
-        TYPE = 7
-
+        update_field :type, default: 7
         delete_field :data
 
         # @!attribute value
@@ -304,9 +287,7 @@ module PacketGen
       # DHCPv6 Elapsed Time option
       # @author Sylvain Daubert
       class ElapsedTime < Option
-        # Option type value
-        TYPE = 8
-
+        update_field :type, default: 8
         delete_field :data
 
         # @!attribute value
@@ -324,16 +305,13 @@ module PacketGen
       # DHCPv6 Relay Message option
       # @author Sylvain Daubert
       class RelayMessage < Option
-        # Option type value
-        TYPE = 9
+        update_field :type, default: 9
       end
 
       # DHCPv6 Server Unicast option
       # @author Sylvain Daubert
       class ServerUnicast < Option
-        # Option type value
-        TYPE = 12
-
+        update_field :type, default: 12
         delete_field :data
 
         # @!attribute addr
@@ -351,16 +329,13 @@ module PacketGen
       # DHCPv6 Status Code option
       # @author Sylvain Daubert
       class StatusCode < ElapsedTime
-        # Option type value
-        TYPE = 13
+        update_field :type, default: 13
       end
 
       # DHCPv6 Rapid Commit option
       # @author Sylvain Daubert
       class RapidCommit < Option
-        # Option type value
-        TYPE = 14
-
+        update_field :type, default: 14
         delete_field :data
       end
     end
