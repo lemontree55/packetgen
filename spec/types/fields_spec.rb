@@ -94,6 +94,35 @@ module PacketGen
         end
       end
 
+      describe '.update_field' do
+        before(:each) do
+          FTest.class_eval { define_field :f1, Int8; define_field :f2, Int8 }
+        end
+
+        it 'updates default value of given field' do
+          FTest.update_field :f1, default: 45
+          expect(FTest.new.f1).to eq(45)
+        end
+
+        it 'updates builder of given field' do
+          FTest.update_field :f2, builder: ->(h, t) { Int16.new }
+          expect(FTest.new[:f2]).to be_a(Int16)
+        end
+
+        it 'updates optional attribute of given field' do
+          FTest.update_field :f2, optional: ->(h) { h.f1 > 0x7f }
+          expect(FTest.new(f1: 0x45).present?(:f2)).to be(false)
+          expect(FTest.new(f1: 0xff).present?(:f2)).to be(true)
+        end
+
+        it 'updates enum attribute of given field' do
+          FTest.class_eval { define_field :f3, Int8Enum, enum: { 'two' => 2 } }
+          expect(FTest.new[:f3].to_human).to eq('two')
+          FTest.update_field :f3, enum: { 'one' => 1 }
+          expect(FTest.new[:f3].to_human).to eq('one')
+        end
+      end
+
       describe '.define_bit_fields_on' do
         before(:each) do
           FTest.class_eval { define_field :u8, Int8 }

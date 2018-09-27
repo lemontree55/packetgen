@@ -105,8 +105,11 @@ module PacketGen
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
+        field_defs = {}
+        @field_defs.each do |k, v|
+          field_defs[k] = v.clone
+        end
         ordered = @ordered_fields.clone
-        field_defs = @field_defs.clone
         bf = @bit_fields.clone
         klass.class_eval do
           @ordered_fields = ordered
@@ -216,6 +219,22 @@ module PacketGen
         @field_defs.delete name
         undef_method name
         undef_method "#{name}="
+      end
+
+      # Update a previously defined field
+      # @param [Symbol] field field name to create
+      # @param [Hash] options See {.define_field}.
+      # @return [void]
+      # @see .define_field
+      # @raise [ArgumentError] unknown +field+
+      def self.update_field(field, options)
+        raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
+
+        @field_defs[field][1] = options.delete(:default) if options.key?(:default)
+        @field_defs[field][2] = options.delete(:builder) if options.key?(:builder)
+        @field_defs[field][3] = options.delete(:optional) if options.key?(:optional)
+        @field_defs[field][4] = options.delete(:enum) if options.key?(:enum)
+        @field_defs[field][5].merge!(options)
       end
 
       # Define a bitfield on given attribute
