@@ -182,6 +182,33 @@ module PacketGen
         end
       end
 
+      describe '.remove_bit_fields_on' do
+        before(:each) do
+          FTest.class_eval { define_field :u8, Int8 }
+        end
+
+        it 'removes defined bit fields' do
+          FTest.class_eval do
+            define_bit_fields_on :u8, :b0, :b1, :b2, :b3, :b4, :b5, :b6, :b7
+          end
+          ft = FTest.new
+          expect(ft).to respond_to(:b0?)
+          expect(ft).to respond_to(:b0=)
+          expect(ft).to respond_to(:b7?)
+          expect(ft).to respond_to(:b7=)
+
+          FTest.class_eval { remove_bit_fields_on :u8 }
+          expect(ft).to_not respond_to(:b0?)
+          expect(ft).to_not respond_to(:b0=)
+          expect(ft).to_not respond_to(:b7?)
+          expect(ft).to_not respond_to(:b7=)
+        end
+
+        it 'does nothing on an attribute with no bit field' do
+          expect { FTest.class_eval { remove_bit_fields_on :u8 } }.to_not raise_error
+        end
+      end
+
       describe '#offset_of' do
         it 'gives offset of given field in structure' do
           class OffsetTest < Fields

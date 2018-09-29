@@ -315,6 +315,19 @@ module PacketGen
         end
       end
 
+      # Remove all bit fields defined on +attr+
+      # @param [Symbol] attr attribute defining bit fields
+      # @return [void]
+      def self.remove_bit_fields_on(attr)
+        fields = @bit_fields.delete(attr)
+        return if fields.nil?
+
+        fields.each do |field, size|
+          undef_method "#{field}="
+          undef_method(size == 1 ? "#{field}?" : "#{field}")
+        end
+      end
+
       # Create a new header object
       # @param [Hash] options Keys are symbols. They should have name of object
       #   attributes, as defined by {.define_field} and by {.define_bit_fields_on}.
