@@ -36,7 +36,7 @@ module PacketGen
         self
       end
 
-      # @param [Integer] l
+      # @param [Integer] len
       # @return [Integer]
       def length=(len)
         @length.read len
@@ -48,7 +48,7 @@ module PacketGen
         @length.to_i
       end
 
-      # @param [#to_s] s
+      # @param [#to_s] str
       # @return [String]
       def string=(str)
         @length.value = str.to_s.size

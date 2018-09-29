@@ -222,13 +222,13 @@ module PacketGen
 
         # rubocop:disable Naming/PredicateName
 
-        # @deprecated Use {#fcs?} instead.
+        # @deprecated Use {.fcs?} instead.
         def has_fcs
           Deprecation.deprecated(self, __method__, 'fcs?', klass_method: true)
           fcs?
         end
 
-        # @deprecated Use {#fcs=} instead.
+        # @deprecated Use {.fcs=} instead.
         def has_fcs=(fcs)
           Deprecation.deprecated(self, __method__, 'fcs=', klass_method: true)
           self.fcs = fcs

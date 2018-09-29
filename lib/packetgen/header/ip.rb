@@ -224,7 +224,7 @@ module PacketGen
       #
       # When sending packet at IP level, +checksum+ and +length+ fields are set by
       # kernel, so bad IP packets cannot be sent this way. To do so, use {Eth#to_w}.
-      # @param [String,nil] iface interface name. Not used
+      # @param [String,nil] _iface interface name. Not used
       # @return [void]
       def to_w(_iface=nil)
         sock = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_RAW)

@@ -25,7 +25,7 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #   |                              ...                              |
       # This paylod is implemented as a unique field: {#lsas}, which is an
-      # {ArrayOfLSAHeader} object.
+      # {ArrayOfLSA} object.
       #
       # == Create a LSAck payload
       #   # standalone
@@ -43,7 +43,7 @@ module PacketGen
       class LSAck < Base
         # @!attribute lsas
         #  Array of LSA headers
-        #  @return [ArrayOfLSAHeader]
+        #  @return [ArrayOfLSA]
         define_field :lsas, ArrayOfLSA, builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end
