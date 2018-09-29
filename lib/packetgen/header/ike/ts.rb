@@ -220,7 +220,7 @@ module PacketGen
         # Payload type number
         PAYLOAD_TYPE = 44
 
-        delete_field :content
+        remove_field :content
 
         # @!attribute num_ts
         #   8-bit Number of TSs

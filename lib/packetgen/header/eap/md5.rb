@@ -14,7 +14,7 @@ module PacketGen
       # @since 2.1.4
       class MD5 < EAP
         update_field :type, default: 4
-        delete_field :body
+        remove_field :body
 
         # @!attribute value_size
         #  @return [Integer] 8-bit value size

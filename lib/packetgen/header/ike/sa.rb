@@ -528,7 +528,7 @@ module PacketGen
         # Payload type number
         PAYLOAD_TYPE = 33
 
-        delete_field :content
+        remove_field :content
 
         # @!attribute proposals
         #  Set of SA proposals

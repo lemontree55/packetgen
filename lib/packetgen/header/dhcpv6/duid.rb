@@ -61,7 +61,7 @@ module PacketGen
       # DUID Based on Link-layer Address Plus Time
       # @author Sylvain Daubert
       class DUID_LLT < DUID
-        delete_field :body
+        remove_field :body
 
         # Base time for time computation
         BASE_TIME = Time.utc(2000, 1, 1)
@@ -99,7 +99,7 @@ module PacketGen
       # DUID Based on Enterprise Number
       # @author Sylvain Daubert
       class DUID_EN < DUID
-        delete_field :body
+        remove_field :body
 
         # @!attribute en
         #  32-bit entreprise number
@@ -119,7 +119,7 @@ module PacketGen
       # DUID Based on Link-layer
       # @author Sylvain Daubert
       class DUID_LL < DUID
-        delete_field :body
+        remove_field :body
 
         # @!attribute htype
         #  16-bit hardware protocol type

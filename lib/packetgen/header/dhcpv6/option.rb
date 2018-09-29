@@ -128,7 +128,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ClientID < Option
         update_field :type, default: 1
-        delete_field :data
+        remove_field :data
 
         # @!attribute duid
         #  @return [DUID]
@@ -151,7 +151,7 @@ module PacketGen
       # @author Sylvain Daubert
       class IANA < Option
         update_field :type, default: 3
-        delete_field :data
+        remove_field :data
 
         # @!attribute iaid
         #  32-bit IAID field
@@ -182,7 +182,7 @@ module PacketGen
       # @author Sylvain Daubert
       class IATA < Option
         update_field :type, default: 4
-        delete_field :data
+        remove_field :data
 
         # @!attribute iaid
         #  32-bit IAID field
@@ -205,7 +205,7 @@ module PacketGen
       # @author Sylvain Daubert
       class IAAddr < Option
         update_field :type, default: 5
-        delete_field :data
+        remove_field :data
 
         # @attribute ipv6
         #  IPv6 address
@@ -243,7 +243,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ORO < Option
         update_field :type, default: 6
-        delete_field :data
+        remove_field :data
 
         # @!attribute options
         #   @return [RequestedOptions]
@@ -270,7 +270,7 @@ module PacketGen
       # @author Sylvain Daubert
       class Preference < Option
         update_field :type, default: 7
-        delete_field :data
+        remove_field :data
 
         # @!attribute value
         #  8-bit value
@@ -288,7 +288,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ElapsedTime < Option
         update_field :type, default: 8
-        delete_field :data
+        remove_field :data
 
         # @!attribute value
         #  16-bit value
@@ -312,7 +312,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ServerUnicast < Option
         update_field :type, default: 12
-        delete_field :data
+        remove_field :data
 
         # @!attribute addr
         #  IPv6 server address
@@ -336,7 +336,7 @@ module PacketGen
       # @author Sylvain Daubert
       class RapidCommit < Option
         update_field :type, default: 14
-        delete_field :data
+        remove_field :data
       end
     end
   end

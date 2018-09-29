@@ -137,7 +137,7 @@ module PacketGen
 
       # TFTP Read Request header
       class RRQ < TFTP
-        delete_field :body
+        remove_field :body
 
         # @!attribute filename
         #   Filename to access
@@ -163,7 +163,7 @@ module PacketGen
 
       # TFTP ACK header
       class ACK < TFTP
-        delete_field :body
+        remove_field :body
 
         # @!attribute block_num
         #   16-bit block number
@@ -173,7 +173,7 @@ module PacketGen
 
       # TFTP ERROR header
       class ERROR < TFTP
-        delete_field :body
+        remove_field :body
 
         # @!attribute error_code
         #   16-bit error code

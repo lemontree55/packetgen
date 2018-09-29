@@ -211,16 +211,24 @@ module PacketGen
         @ordered_fields[idx + 1, 0] = name
       end
 
-      # Delete a previously defined field
+      # Remove a previously defined field
       # @param [Symbol] name
       # @return [void]
-      def self.delete_field(name)
+      def self.remove_field(name)
         @ordered_fields.delete name
         @field_defs.delete name
         undef_method name
         undef_method "#{name}="
       end
 
+      # Delete a previously defined field
+      # @param [Symbol] name
+      # @return [void]
+      # @deprecated Use {.remove_field} instead.
+      def self.delete_field(name)
+        Deprecation.deprecated(self, __method__, 'remove_field', klass_method: true)
+        remove_field name
+      end
       # Update a previously defined field
       # @param [Symbol] field field name to create
       # @param [Hash] options See {.define_field}.

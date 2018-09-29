@@ -109,8 +109,8 @@ module PacketGen
 
       # End-of-option-List IP option
       class EOL < Option
-        delete_field :length
-        delete_field :data
+        remove_field :length
+        remove_field :data
       end
 
       # No OPeration IP option
@@ -119,7 +119,7 @@ module PacketGen
 
       # Loose Source and Record Route IP option
       class LSRR < Option
-        delete_field :data
+        remove_field :data
 
         # @!attribute pointer
         #  8-bit pointer on next address
@@ -165,7 +165,7 @@ module PacketGen
 
       # Stream Identifier IP option
       class SI < Option
-        delete_field :data
+        remove_field :data
 
         # @!attribute id
         #  16-bit stream ID
@@ -175,7 +175,7 @@ module PacketGen
 
       # Router Alert IP option
       class RA < Option
-        delete_field :data
+        remove_field :data
 
         # @!attribute value
         #  16-bit value. Should be 0.

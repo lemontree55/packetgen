@@ -70,7 +70,7 @@ module PacketGen
         'MembershipReport' => 0x22,
       }.freeze
 
-      delete_field :group_addr
+      remove_field :group_addr
 
       # Encode value for IGMPv3 Max Resp Code and QQIC.
       # Value may be encoded as a float, so some error may occur.

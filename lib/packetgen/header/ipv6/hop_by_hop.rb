@@ -107,7 +107,7 @@ module PacketGen
       # @author Sylvain Daubert
       class HopByHop < Extension
         # redefine options field
-        delete_field :options
+        remove_field :options
         # @!attribute options
         #  Specific options of extension header
         #  @return [Options]
