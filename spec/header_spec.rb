@@ -14,7 +14,7 @@ module PacketGen
       expect(Header.all).to include(Header::Eth, Header::IP, Header::ICMP, Header::ARP,
                                     Header::IPv6, Header::ICMPv6, Header::UDP,
                                     Header::TCP)
-      expect(Header.all.size).to eq(55)
+      expect(Header.all.size).to eq(53)
     end
 
     describe '.add_class' do
