@@ -74,7 +74,7 @@ module PacketGen
     # @note This method is provided for test purpose.
     # For more control, see {ARPSpoofer} class.
     # @param [String] target_ip target IP address
-    # @param [String] spoofed_ip IP address to spoofed_ip
+    # @param [String] spoofed_ip IP address to spoof
     # @param [Hash] options
     # @option options [String] :mac MAC address used to poison target
     #   ARP cache. Default to local MAC address.
@@ -87,7 +87,7 @@ module PacketGen
     # @return [void]
     def self.arp_spoof(target_ip, spoofed_ip, options={})
       interval = options[:interval] || 1.0
-      as = ARPSpoofer.new(for_seconds: options[:for_seconds], interval: interval,
+      as = ARPSpoofer.new(timeout: options[:for_seconds], interval: interval,
                           iface: options[:iface])
       as.start(target_ip, spoofed_ip, mac: options[:mac])
       as.wait
