@@ -49,7 +49,7 @@ module PacketGen
     #   define_field :type, PacketGen::Types::Int16le
     #   # define a string field
     #   define_field :body, PacketGen::Types::String
-    #   # define afield using a complex type (Fields subclass)
+    #   # define a field using a complex type (Fields subclass)
     #   define_field :mac_addr, PacketGen::Eth::MacAddr
     #
     # This example creates six methods on our Fields subclass: +#type+, +#type=+,
@@ -59,20 +59,22 @@ module PacketGen
     # * +:default+ gives default field value. It may be a simple value (an Integer
     #   for an Int field, for example) or a lambda,
     # * +:builder+ to give a builder/constructor lambda to create field. The lambda
-    #   takes one argument: {Fields} subclass object owning field,
+    #   takes 2 argument: {Fields} subclass object owning field, and type class as passes
+    #   as second argument to .define_field,
     # * +:optional+ to define this field as optional. This option takes a lambda
-    #   parameter used to say if this field is present or not,
+    #   parameter used to say if this field is present or not. The lambda takes an argument
+    #   ({Fields} subclass object owning field),
     # * +:enum+ to define Hash enumeration for an {Enum} type.
     # For example:
     #   # 32-bit integer field defaulting to 1
     #   define_field :type, PacketGen::Types::Int32, default: 1
     #   # 16-bit integer field, created with a random value. Each instance of this
     #   # object will have a different value.
-    #   define_field :id, PacketGen::Types::Int16, default: ->{ rand(65535) }
+    #   define_field :id, PacketGen::Types::Int16, default: ->(obj) { rand(65535) }
     #   # a size field
     #   define_field :body_size, PacketGen::Types::Int16
     #   # String field which length is taken from body_size field
-    #   define_field :body, PacketGen::Types::String, builder: ->(obj, type) { type.new('', length_from: obj[:body_size]) }
+    #   define_field :body, PacketGen::Types::String, builder: ->(obj, type) { type.new(length_from: obj[:body_size]) }
     #   # 16-bit enumeration type. As :default not specified, default to first value of enum
     #   define_field :type_class, PacketGen::Types::Int16Enum, enum: { 'class1' => 1, 'class2' => 2}
     #   # optional field. Only present if another field has a certain value
@@ -92,6 +94,15 @@ module PacketGen
     #   to access Boolean RSV, MF and DF flags from +frag+ field,
     # * +#fragment_offset+ and +#fragment_offset=+ to access 13-bit integer fragment
     #   offset subfield from +frag+ field.
+    #
+    # == Creating a new field class from another one
+    # Some methods may help in this case:
+    # * {.define_field_before} to define a new field before an existing one,
+    # * {.define_field_after} to define a new field after an existing onr,
+    # * {.remove_field} to remove an existing field,
+    # * {.uptade_fied} to change options of a field (but not its type),
+    # * {.remove_bit_fields_on} to remove a bit fields definition.
+    #
     # @author Sylvain Daubert
     class Fields
       # @private field names, ordered as they were declared
@@ -349,7 +360,7 @@ module PacketGen
         end
       end
 
-      # Create a new header object
+      # Create a new fields object
       # @param [Hash] options Keys are symbols. They should have name of object
       #   attributes, as defined by {.define_field} and by {.define_bit_fields_on}.
       def initialize(options={})

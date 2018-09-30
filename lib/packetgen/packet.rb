@@ -46,15 +46,10 @@ module PacketGen
   # == Save packets to a file
   #  Packet.write 'file.pcapng', packets
   #
-  # @since 2.0.0
-  #
-  #   Packet accessor has changed. When header class is in a namespace
-  #   (for example Dot11::* header classes), to avoid clashes in names, such
-  #   accessors are named +namespace_class+. For example {Header::Dot11::Data}
-  #   header is now accessed through +Packet#dot11_data+ and nor more +Packet#data+).
   # @author Sylvain Daubert
   class Packet
-    # @return [Array<Header::Base]
+    # Get packet headers, ordered as they appear in the packet.
+    # @return [Array<Header::Base>]
     attr_reader :headers
 
     # Create a new Packet
@@ -78,16 +73,22 @@ module PacketGen
       new.parse binary_str, first_header: first_header
     end
 
-    # Capture packets
+    # Capture packets from wire.
     # @param [Hash] options capture options
     # @option options [String]  :iface interface on which capture
-    #    packets on. Default: Use default interface lookup.
-    # @option options [Integer] :max maximum number of packets to capture
+    #    packets on. Default: Use default interface lookup. If no interface found,
+    #    use loopback one.
+    # @option options [Integer] :max maximum number of packets to capture.
     # @option options [Integer] :timeout maximum number of seconds before end
-    #    of capture
+    #    of capture. Default: +nil+ (no timeout)
     # @option options [String] :filter bpf filter
-    # @option options [Boolean] :promiscuous
-    # @yieldparam [Packet] packet if a block is given, yield each captured packet
+    # @option options [Boolean] :promiscuous (default: +false+)
+    # @option options [Boolean] :parse parse raw data to generate packets before
+    #    yielding.  Default: +true+
+    # @option options [Integer] :snaplen maximum number of bytes to capture for
+    #    each packet.
+    # @yieldparam [Packet,String] packet if a block is given, yield each
+    #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @return [Array<Packet>] captured packet
     def self.capture(options={})
       capture = Capture.new(options)
@@ -105,7 +106,8 @@ module PacketGen
     # @param [String] filename PcapNG or Pcap file.
     # @return [Array<Packet>]
     # @author Sylvain Daubert
-    # @author Kent Gruber
+    # @author Kent Gruber - Pcap format
+    # @since 2.0.0 Also read Pcap format.
     def self.read(filename)
       PcapNG::File.new.read_packets filename
     rescue StandardError => e
@@ -135,7 +137,7 @@ module PacketGen
       @headers = []
     end
 
-    # Add a protocol on packet stack
+    # Add a protocol header in packet.
     # @param [String] protocol
     # @param [Hash] options protocol specific options
     # @return [self]
@@ -166,7 +168,10 @@ module PacketGen
       self
     end
 
-    # Check if a protocol header is embedded in packet
+    # Check if a protocol header is embedded in packet.
+    #   pkt = PacketGen.gen('IP').add('UDP')
+    #   pkt.is?('IP')   #=> true
+    #   pkt.is?('TCP')  #=> false
     # @return [Boolean]
     # @raise [ArgumentError] unknown protocol
     def is?(protocol)
@@ -210,13 +215,13 @@ module PacketGen
       @headers.last.body = str
     end
 
-    # Get binary string
+    # Get binary string (i.e. binary string sent on or received from network).
     # @return [String]
     def to_s
       @headers.first.to_s
     end
 
-    # Write a PCapNG file to disk.
+    # Write packet to a PCapNG file on disk.
     # @param [String] filename
     # @return [Array] see return from {PcapNG::File#to_file}
     # @see File
@@ -225,9 +230,9 @@ module PacketGen
     end
     alias write to_f
 
-    # send packet on wire. Use first header +#to_w+ method.
+    # Send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
-    # @param [Boolean] calc call {#calc} on packet before sending it
+    # @param [Boolean] calc call {#calc} on packet before sending it.
     # @param [Integer] number number of times to send the packets
     # @param [Integer,Float] interval time, in seconds, between sending 2 packets
     # @return [void]
@@ -308,6 +313,7 @@ module PacketGen
       self
     end
 
+    # Get packet as a pretty formatted string.
     # @return [String]
     def inspect
       str = Inspect.dashed_line(self.class)
@@ -325,6 +331,7 @@ module PacketGen
 
     # Invert all possible fields in packet to create a reply.
     # @return [self]
+    # @since 2.7.0
     def reply!
       @headers.each do |header|
         header.reply! if header.respond_to?(:reply!)
@@ -335,6 +342,7 @@ module PacketGen
     # Forge a new packet from current one with all possible fields
     # inverted. The new packet may be a reply to current one.
     # @return [Packet]
+    # @since 2.7.0
     def reply
       pkt = dup
       pkt.reply!

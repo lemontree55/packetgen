@@ -11,7 +11,7 @@ module PacketGen
     #    Subclasses may define magic methods:
     #    * +#calc_checksum+, which computes header checksum,
     #    * +#calc_length+, which computes header length,
-    #    * +#parse?+,
+    #    * {#parse?},
     #    * +#reply!+, which inverts needed fields to forge a response.
     # @author Sylvain Daubert
     class Base < Types::Fields
@@ -95,7 +95,7 @@ module PacketGen
         end
 
         # @param [Object] arg
-        # @return [OldBindings] self
+        # @return [Bindings] self
         def <<(arg)
           if op == :newstyle
             @bindings.last << arg
@@ -117,6 +117,7 @@ module PacketGen
           @bindings.empty?
         end
 
+        # Return binding as a hash.
         # @return [Hash]
         def to_h
           hsh = {}
@@ -161,6 +162,7 @@ module PacketGen
       # @return [Packet,nil]
       attr_reader :packet
 
+      # @private
       # On inheritage, create +@known_header+ class variable
       # @param [Class] klass
       # @return [void]
@@ -211,21 +213,6 @@ module PacketGen
       end
 
       # Bind a upper header to current one.
-      #   # Bind Header2 to Header1 when field1 from Header1 has a value of 42
-      #   Header1.bind Header2, field1: 42
-      #   # Bind Header3 to Header1 when field1 from Header1 has a value of 43
-      #   # and field2 has value 43 or 44
-      #   Header1.bind Header3, field1: 43, field2: 43
-      #   Header1.bind Header3, field1: 43, field2: 44
-      #   # Bind Header4 to Header1 when field1 from Header1 has a value
-      #   # greater or equal to 44. When adding a Header2 to a Header1
-      #   # with Packet#add, force value to 44.
-      #   Header1.bind Header4, field1: ->(v) { v.nil? ? 44 : v >= 44 }
-      #   # Bind Header5 to Header1 when field1 from Header1 has a value of 41
-      #   # and first two bytes of header1's body are null.
-      #   # When adding a Header2 to a Header1 with Packet#add, force value to 44.
-      #   Header1.bind Header5, procs: [->(hdr) { hdr.field1 = 41 }
-      #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
       # @param [Class] header_klass header class to bind to current class
       # @param [Hash] args current class fields and their value when +header_klass+
       #   is embedded in current class.
@@ -238,6 +225,24 @@ module PacketGen
       #   fields, the latter to check bindings. This may be used when multiple and
       #   non-trivial checks should be made.
       # @return [void]
+      # @example Basic examples
+      #   # Bind Header2 to Header1 when field1 from Header1 has a value of 42
+      #   Header1.bind Header2, field1: 42
+      #   # Bind Header3 to Header1 when field1 from Header1 has a value of 43
+      #   # and field2 has value 43 or 44
+      #   Header1.bind Header3, field1: 43, field2: 43
+      #   Header1.bind Header3, field1: 43, field2: 44
+      # @example Defining a binding on a field using a lambda.
+      #   # Bind Header4 to Header1 when field1 from Header1 has a value
+      #   # greater or equal to 44. When adding a Header2 to a Header1
+      #   # with Packet#add, force value to 44.
+      #   Header1.bind Header4, field1: ->(v) { v.nil? ? 44 : v >= 44 }
+      # @example Defining a binding using procs key
+      #   # Bind Header5 to Header1 when field1 from Header1 has a value of 41
+      #   # and first two bytes of header1's body are null.
+      #   # When adding a Header2 to a Header1 with Packet#add, force value to 44.
+      #   Header1.bind Header5, procs: [->(hdr) { hdr.field1 = 41 }
+      #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
       # @since 2.7.0
       def self.bind(header_klass, args={})
         if @known_headers[header_klass].nil?
@@ -340,10 +345,10 @@ module PacketGen
       def added_to_packet(packet) end
 
       # @api private
-      # Get +header+ id in packet headers array
+      # Get +header+ id in {Packet#headers} array
       # @param [Header] header
       # @return [Integer]
-      # @raise FormatError +header+ not in a packet
+      # @raise [FormatError] +header+ not in a packet
       def header_id(header)
         raise FormatError, "header of type #{header.class} not in a packet" if packet.nil?
         id = packet.headers.index(header)
@@ -354,11 +359,11 @@ module PacketGen
       end
 
       # @api private
-      # Get IP or IPv6 previous header from +header+
+      # Get {IP} or {IPv6} previous header from +header+
       # @param [Header] header
       # @return [Header]
-      # @raise FormatError no IP or IPv6 header previous +header+ in packet
-      # @raise FormatError +header+ not in a packet
+      # @raise [FormatError] no IP or IPv6 header previous +header+ in packet
+      # @raise [FormatError] +header+ not in a packet
       def ip_header(header)
         hid = header_id(header)
         iph = packet.headers[0...hid].reverse.find { |h| h.is_a?(IP) || h.is_a?(IPv6) }
@@ -370,8 +375,8 @@ module PacketGen
       # Get link layer header from given header
       # @param [Header] header
       # @return [Header]
-      # @raise FormatError no link layer header in packet
-      # @raise FormatError +header+ not in a packet
+      # @raise [FormatError] no link layer header in packet
+      # @raise [FormatError] +header+ not in a packet
       def ll_header(header)
         hid = header_id(header)
         llh = packet.headers[0...hid].reverse.find { |h| h.is_a?(Eth) || h.is_a?(Dot11) }

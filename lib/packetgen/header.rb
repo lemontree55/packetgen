@@ -7,9 +7,12 @@
 # frozen_string_literal: true
 
 module PacketGen
-  # Namespace for protocol header classes
+  # Namespace for protocol header classes.
+  #
+  # This namespace handles all buitlin headers, such as {IP} or {TCP}.
+  #
   # == Add a foreign header class
-  # Since v1.1.0, PacketGen permits adding you own header classes.
+  # PacketGen permits adding you own header classes.
   # First, define the new header class. By example:
   #  module MyModule
   #    class MyHeader < PacketGen::Header::Base

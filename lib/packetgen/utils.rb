@@ -42,6 +42,7 @@ module PacketGen
     # @option options [Integer] :timeout timeout in seconds before stopping
     #   request. Default to 2.
     # @return [String,nil]
+    # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.arp(ipaddr, options={})
       unless options[:no_cache]
         local_cache = self.arp_cache
@@ -85,6 +86,7 @@ module PacketGen
     # @option options [String] :iface interface to use. Default to
     #   {PacketGen.default_iface}
     # @return [void]
+    # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.arp_spoof(target_ip, spoofed_ip, options={})
       interval = options[:interval] || 1.0
       as = ARPSpoofer.new(timeout: options[:for_seconds], interval: interval,
@@ -119,6 +121,7 @@ module PacketGen
     #     pkt
     #   end
     # @since 2.2.0
+    # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.mitm(target1, target2, options={})
       options = { iface: PacketGen.default_iface }.merge(options)
 
