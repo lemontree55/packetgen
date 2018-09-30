@@ -82,7 +82,6 @@ module PacketGen
   end
 end
 
-require_relative 'header/crypto'
 require_relative 'header/base'
 require_relative 'header/eth'
 require_relative 'header/dot11'
@@ -98,8 +97,6 @@ require_relative 'header/gre'
 require_relative 'header/udp'
 require_relative 'header/tcp'
 require_relative 'header/eap'
-require_relative 'header/esp'
-require_relative 'header/ike'
 require_relative 'header/dns'
 require_relative 'header/asn1_base'
 require_relative 'header/snmp'
