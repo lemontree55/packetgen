@@ -25,7 +25,14 @@ module PacketGen
       # @return [String]
       # @since 2.0.0
       def self.protocol_name
-        self.new.protocol_name
+        return @protocol_name if @protocol_name
+
+        classname = to_s
+        @protocol_name = if classname.start_with?('PacketGen::Header')
+                           classname.sub(/.*Header::/, '')
+                         else
+                           classname.sub(/.*::/, '')
+                         end
       end
 
       # Define some methods from given ASN.1 fields to mimic {Base} attributes
@@ -42,14 +49,7 @@ module PacketGen
       # Return header protocol name
       # @return [String]
       def protocol_name
-        return @protocol_name if @protocol_name
-
-        classname = self.class.to_s
-        @protocol_name = if classname.start_with?('PacketGen::Header')
-                           classname.sub(/.*Header::/, '')
-                         else
-                           classname.sub(/.*::/, '')
-                         end
+        self.class.protocol_name
       end
 
       # return header method name
