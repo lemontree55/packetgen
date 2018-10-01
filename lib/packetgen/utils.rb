@@ -122,6 +122,9 @@ module PacketGen
     def self.mitm(target1, target2, options={})
       options = { iface: PacketGen.default_iface }.merge(options)
 
+      mac1 = arp(target1)
+      mac2 = arp(target2)
+
       spoofer = Utils::ARPSpoofer.new(options)
       spoofer.add target1, target2, options
       spoofer.add target2, target1, options
@@ -138,7 +141,21 @@ module PacketGen
       spoofer.start_all
       capture.start do |pkt|
         modified_pkt = yield pkt
-        modified_pkt.ip.to_w(options[:iface])
+        iph = modified_pkt.ip
+        l2 = modified_pkt.is?('Dot11') ? modified_pkt.dot11 : modified_pkt.eth
+
+        if (iph.dst != my_ip) && (iph.src != my_ip)
+          if (iph.src == target1)  || (iph.dst == target2)
+            l2.dst = mac2
+          elsif (iph.src == target2) ||(iph.dst == target1)
+            l2.dst = mac1
+          else
+            next
+          end
+        else
+          next
+        end
+        modified_pkt.to_w(options[:iface])
       end
     end
   end
