@@ -214,6 +214,7 @@ module PacketGen
       # Remove a previously defined field
       # @param [Symbol] name
       # @return [void]
+      # @since 2.8.4
       def self.remove_field(name)
         @ordered_fields.delete name
         @field_defs.delete name
@@ -225,6 +226,7 @@ module PacketGen
       # @param [Symbol] name
       # @return [void]
       # @deprecated Use {.remove_field} instead.
+      # @since 2.8.4 deprecated
       def self.delete_field(name)
         Deprecation.deprecated(self, __method__, 'remove_field', klass_method: true)
         remove_field name
@@ -235,6 +237,7 @@ module PacketGen
       # @return [void]
       # @see .define_field
       # @raise [ArgumentError] unknown +field+
+      # @since 2.8.4
       def self.update_field(field, options)
         raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
 
@@ -326,6 +329,7 @@ module PacketGen
       # Remove all bit fields defined on +attr+
       # @param [Symbol] attr attribute defining bit fields
       # @return [void]
+      # @since 2.8.4
       def self.remove_bit_fields_on(attr)
         fields = @bit_fields.delete(attr)
         return if fields.nil?
