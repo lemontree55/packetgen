@@ -507,6 +507,7 @@ module PacketGen
       # @return [void]
       # @raise [BodyError] no body on given object
       # @raise [ArgumentError] cannot cram +body+ in +:body+ field
+      # @deprecated
       def body=(value)
         raise BodyError, 'no body field' unless @fields.key? :body
 
