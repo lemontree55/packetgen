@@ -435,6 +435,7 @@ module PacketGen
 
       # Say if an optional field is present
       # @return [Boolean]
+      # @deprecated Use {#present?} instead.
       def is_present?(field)
         Deprecation.deprecated(self.class, __method__, 'present?', klass_method: true)
         present? field
@@ -509,6 +510,7 @@ module PacketGen
       # @raise [ArgumentError] cannot cram +body+ in +:body+ field
       # @deprecated
       def body=(value)
+        Deprecation.deprecated(self.class, __method__)
         raise BodyError, 'no body field' unless @fields.key? :body
 
         case body
@@ -526,6 +528,7 @@ module PacketGen
       # Force str to binary encoding
       # @param [String] str
       # @return [String]
+      # @deprecated Will be a private method
       def force_binary(str)
         PacketGen.force_binary(str)
       end
