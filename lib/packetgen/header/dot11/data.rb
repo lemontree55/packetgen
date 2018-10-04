@@ -64,6 +64,60 @@ module PacketGen
           self
         end
 
+        # Get destination MAC address
+        # @return [String]
+        def dst
+          ds = frame_ctrl & 3
+          case ds
+          when 0, 2
+            self.mac1
+          when 1, 3
+            self.mac3
+          end
+        end
+
+        # Set destination MAC address
+        # @param [String] mac MAC address to set
+        # @return [String]
+        def dst=(mac)
+          ds = frame_ctrl & 3
+          case ds
+          when 0, 2
+            self.mac1 = mac
+          when 1, 3
+            self.mac3 = mac
+          end
+        end
+
+        # Get source MAC address
+        # @return [String]
+        def src
+          ds = frame_ctrl & 3
+          case ds
+          when 0, 1
+            self.mac2
+          when 2
+            self.mac3
+          when 3
+            self.mac4
+          end
+        end
+
+        # Set source MAC address
+        # @param [String] mac MAC address to set
+        # @return [String]
+        def src=(mac)
+          ds = frame_ctrl & 3
+          case ds
+          when 0, 1
+            self.mac2 = mac
+          when 2
+            self.mac3 = mac
+          when 3
+            self.mac4 = mac
+          end
+        end
+
         private
 
         def define_applicable_fields
