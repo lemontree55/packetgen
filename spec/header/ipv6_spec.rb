@@ -169,7 +169,6 @@ module PacketGen
           body = force_binary("\x00" * 64)
           pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
                 add('UDP', sport: 35535, dport: 65535, body: body)
-          pkt.calc
           Thread.new { sleep 0.1; pkt.ipv6.to_w('lo') }
           packets = PacketGen.capture(iface: 'lo', max: 1,
                                       filter: 'ip6 dst ::1 and ip6 proto 17',

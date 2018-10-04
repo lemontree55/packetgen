@@ -199,7 +199,6 @@ module PacketGen
         it 'sends a IP header on wire', :sudo do
           body = force_binary("\x00" * 64)
           pkt = Packet.gen('IP').add('UDP', sport: 35_535, dport: 65_535, body: body)
-          pkt.calc
           Thread.new { sleep 0.1; pkt.ip.to_w('lo') }
           packets = Packet.capture(iface: 'lo', max: 1,
                                    filter: 'ip dst 127.0.0.1 and ip proto 17',

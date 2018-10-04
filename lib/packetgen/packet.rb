@@ -232,12 +232,13 @@ module PacketGen
 
     # Send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
-    # @param [Boolean] calc call {#calc} on packet before sending it.
+    # @param [Boolean] calc if +true+, call {#calc} on packet before sending it.
     # @param [Integer] number number of times to send the packets
     # @param [Integer,Float] interval time, in seconds, between sending 2 packets
     # @return [void]
     # @since 2.1.4 add `calc`, `number` and `interval` parameters
-    def to_w(iface=nil, calc: false, number: 1, interval: 1)
+    # @since 3.0.0 +calc+ defaults to +true+
+    def to_w(iface=nil, calc: true, number: 1, interval: 1)
       iface ||= PacketGen.default_iface
       if @headers.first.respond_to? :to_w
         self.calc if calc
