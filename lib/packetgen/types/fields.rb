@@ -94,249 +94,252 @@ module PacketGen
     #   offset subfield from +frag+ field.
     # @author Sylvain Daubert
     class Fields
-      # @private
+      # @private field names, ordered as they were declared
       @ordered_fields = []
-      # @private
+      # @private field definitions
       @field_defs = {}
-      # @private
+      # @private bit field definitions
       @bit_fields = {}
 
-      # On inheritage, create +@field_defs+ class variable
-      # @param [Class] klass
-      # @return [void]
-      def self.inherited(klass)
-        field_defs = {}
-        @field_defs.each do |k, v|
-          field_defs[k] = v.clone
-        end
-        ordered = @ordered_fields.clone
-        bf = @bit_fields.clone
-        klass.class_eval do
-          @ordered_fields = ordered
-          @field_defs = field_defs
-          @bit_fields = bf
-        end
-      end
-
-      # Define a field in class
-      #   class BinaryStruct < PacketGen::Types::Fields
-      #     # 8-bit value
-      #     define_field :value1, Types::Int8
-      #     # 16-bit value
-      #     define_field :value2, Types::Int16
-      #     # specific class, may use a specific constructor
-      #     define_field :value3, MyClass, builder: ->(obj, type) { type.new(obj) }
-      #   end
-      #
-      #   bs = BinaryStruct.new
-      #   bs[value1]   # => Types::Int8
-      #   bs.value1    # => Integer
-      # @param [Symbol] name field name
-      # @param [Object] type class or instance
-      # @param [Hash] options Unrecognized options are passed to object builder if
-      #   +:builder+ option is not set.
-      # @option options [Object] :default default value. May be a proc. This lambda
-      #   take one argument: the caller object.
-      # @option options [Lambda] :builder lambda to construct this field.
-      #   Parameters to this lambda is the caller object and the field type class.
-      # @option options [Lambda] :optional define this field as optional. Given lambda
-      #   is used to known if this field is present or not. Parameter to this lambda is
-      #   the being defined Field object.
-      # @option options [Hash] :enum mandatory option for an {Enum} type.
-      #   Define enumeration: hash's keys are +String+, and values are +Integer+.
-      # @return [void]
-      def self.define_field(name, type, options={})
-        define = []
-        if type < Types::Enum
-          define << "def #{name}; self[:#{name}].to_i; end"
-          define << "def #{name}=(val) self[:#{name}].value = val; end"
-        elsif type < Types::Int
-          define << "def #{name}; self[:#{name}].to_i; end"
-          define << "def #{name}=(val) self[:#{name}].read val; end"
-        elsif type.instance_methods.include?(:to_human) &&
-              type.instance_methods.include?(:from_human)
-          define << "def #{name}; self[:#{name}].to_human; end"
-          define << "def #{name}=(val) self[:#{name}].from_human val; end"
-        else
-          define << "def #{name}; self[:#{name}]; end\n"
-          define << "def #{name}=(val) self[:#{name}].read val; end"
+      class <<self
+        # On inheritage, create +@field_defs+ class variable
+        # @param [Class] klass
+        # @return [void]
+        def inherited(klass)
+          field_defs = {}
+          @field_defs.each do |k, v|
+            field_defs[k] = v.clone
+          end
+          ordered = @ordered_fields.clone
+          bf = @bit_fields.clone
+          klass.class_eval do
+            @ordered_fields = ordered
+            @field_defs = field_defs
+            @bit_fields = bf
+          end
         end
 
-        define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
-        define.delete(0) if type.instance_methods.include? name
-        class_eval define.join("\n")
-        @field_defs[name] = [type, options.delete(:default),
-                             options.delete(:builder),
-                             options.delete(:optional),
-                             options.delete(:enum),
-                             options]
-        @ordered_fields << name
-      end
-
-      # Define a field, before another one
-      # @param [Symbol,nil] other field name to create a new one before. If +nil+,
-      #    new field is appended.
-      # @param [Symbol] name field name to create
-      # @param [Object] type class or instance
-      # @param [Hash] options See {.define_field}.
-      # @return [void]
-      # @see .define_field
-      def self.define_field_before(other, name, type, options={})
-        define_field name, type, options
-        return if other.nil?
-
-        @ordered_fields.delete name
-        idx = @ordered_fields.index(other)
-        raise ArgumentError, "unknown #{other} field" if idx.nil?
-
-        @ordered_fields[idx, 0] = name
-      end
-
-      # Define a field, after another one
-      # @param [Symbol,nil] other field name to create a new one after. If +nil+,
-      #    new field is appended.
-      # @param [Symbol] name field name to create
-      # @param [Object] type class or instance
-      # @param [Hash] options See {.define_field}.
-      # @return [void]
-      # @see .define_field
-      def self.define_field_after(other, name, type, options={})
-        define_field name, type, options
-        return if other.nil?
-
-        @ordered_fields.delete name
-        idx = @ordered_fields.index(other)
-        raise ArgumentError, "unknown #{other} field" if idx.nil?
-
-        @ordered_fields[idx + 1, 0] = name
-      end
-
-      # Remove a previously defined field
-      # @param [Symbol] name
-      # @return [void]
-      # @since 2.8.4
-      def self.remove_field(name)
-        @ordered_fields.delete name
-        @field_defs.delete name
-        undef_method name
-        undef_method "#{name}="
-      end
-
-      # Delete a previously defined field
-      # @param [Symbol] name
-      # @return [void]
-      # @deprecated Use {.remove_field} instead.
-      # @since 2.8.4 deprecated
-      def self.delete_field(name)
-        Deprecation.deprecated(self, __method__, 'remove_field', klass_method: true)
-        remove_field name
-      end
-      # Update a previously defined field
-      # @param [Symbol] field field name to create
-      # @param [Hash] options See {.define_field}.
-      # @return [void]
-      # @see .define_field
-      # @raise [ArgumentError] unknown +field+
-      # @since 2.8.4
-      def self.update_field(field, options)
-        raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
-
-        @field_defs[field][1] = options.delete(:default) if options.key?(:default)
-        @field_defs[field][2] = options.delete(:builder) if options.key?(:builder)
-        @field_defs[field][3] = options.delete(:optional) if options.key?(:optional)
-        @field_defs[field][4] = options.delete(:enum) if options.key?(:enum)
-        @field_defs[field][5].merge!(options)
-      end
-
-      # Define a bitfield on given attribute
-      #   class MyHeader < PacketGen::Types::Fields
-      #     define_field :flags, Types::Int16
-      #     # define a bit field on :flag attribute:
-      #     # flag1, flag2 and flag3 are 1-bit fields
-      #     # type and stype are 3-bit fields. reserved is a 6-bit field
-      #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved, 7
-      #   end
-      # A bitfield of size 1 bit defines 2 methods:
-      # * +#field?+ which returns a Boolean,
-      # * +#field=+ which takes and returns a Boolean.
-      # A bitfield of more bits defines 2 methods:
-      # * +#field+ which returns an Integer,
-      # * +#field=+ which takes and returns an Integer.
-      # @param [Symbol] attr attribute name (attribute should be a {Types::Int}
-      #   subclass)
-      # @param [Array] args list of bitfield names. Name may be followed
-      #   by bitfield size. If no size is given, 1 bit is assumed.
-      # @return [void]
-      def self.define_bit_fields_on(attr, *args)
-        attr_def = @field_defs[attr]
-        raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
-
-        type = attr_def.first
-        unless type < Types::Int
-          raise TypeError, "#{attr} is not a PacketGen::Types::Int"
-        end
-
-        total_size = type.new.width * 8
-        idx = total_size - 1
-
-        field = args.shift
-        while field
-          next unless field.is_a? Symbol
-
-          size = if args.first.is_a? Integer
-                   args.shift
-                 else
-                   1
-                 end
-          unless field == :_
-            shift = idx - (size - 1)
-            field_mask = (2**size - 1) << shift
-            clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
-
-            if size == 1
-              class_eval <<-METHODS
-              def #{field}?
-                val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-                val != 0
-              end
-              def #{field}=(v)
-                val = v ? 1 : 0
-                self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-                self[:#{attr}].value |= val << #{shift}
-              end
-              METHODS
-            else
-              class_eval <<-METHODS
-              def #{field}
-                (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-              end
-              def #{field}=(v)
-                self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-                self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
-              end
-              METHODS
-            end
-
-            @bit_fields[attr] = {} if @bit_fields[attr].nil?
-            @bit_fields[attr][field] = size
+        # Define a field in class
+        #   class BinaryStruct < PacketGen::Types::Fields
+        #     # 8-bit value
+        #     define_field :value1, Types::Int8
+        #     # 16-bit value
+        #     define_field :value2, Types::Int16
+        #     # specific class, may use a specific constructor
+        #     define_field :value3, MyClass, builder: ->(obj, type) { type.new(obj) }
+        #   end
+        #
+        #   bs = BinaryStruct.new
+        #   bs[value1]   # => Types::Int8
+        #   bs.value1    # => Integer
+        # @param [Symbol] name field name
+        # @param [Object] type class or instance
+        # @param [Hash] options Unrecognized options are passed to object builder if
+        #   +:builder+ option is not set.
+        # @option options [Object] :default default value. May be a proc. This lambda
+        #   take one argument: the caller object.
+        # @option options [Lambda] :builder lambda to construct this field.
+        #   Parameters to this lambda is the caller object and the field type class.
+        # @option options [Lambda] :optional define this field as optional. Given lambda
+        #   is used to known if this field is present or not. Parameter to this lambda is
+        #   the being defined Field object.
+        # @option options [Hash] :enum mandatory option for an {Enum} type.
+        #   Define enumeration: hash's keys are +String+, and values are +Integer+.
+        # @return [void]
+        def define_field(name, type, options={})
+          define = []
+          if type < Types::Enum
+            define << "def #{name}; self[:#{name}].to_i; end"
+            define << "def #{name}=(val) self[:#{name}].value = val; end"
+          elsif type < Types::Int
+            define << "def #{name}; self[:#{name}].to_i; end"
+            define << "def #{name}=(val) self[:#{name}].read val; end"
+          elsif type.instance_methods.include?(:to_human) &&
+                type.instance_methods.include?(:from_human)
+            define << "def #{name}; self[:#{name}].to_human; end"
+            define << "def #{name}=(val) self[:#{name}].from_human val; end"
+          else
+            define << "def #{name}; self[:#{name}]; end\n"
+            define << "def #{name}=(val) self[:#{name}].read val; end"
           end
 
-          idx -= size
-          field = args.shift
+          define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
+          define.delete(0) if type.instance_methods.include? name
+          class_eval define.join("\n")
+          @field_defs[name] = [type, options.delete(:default),
+                               options.delete(:builder),
+                               options.delete(:optional),
+                               options.delete(:enum),
+                               options]
+          @ordered_fields << name
         end
-      end
 
-      # Remove all bit fields defined on +attr+
-      # @param [Symbol] attr attribute defining bit fields
-      # @return [void]
-      # @since 2.8.4
-      def self.remove_bit_fields_on(attr)
-        fields = @bit_fields.delete(attr)
-        return if fields.nil?
+        # Define a field, before another one
+        # @param [Symbol,nil] other field name to create a new one before. If +nil+,
+        #    new field is appended.
+        # @param [Symbol] name field name to create
+        # @param [Object] type class or instance
+        # @param [Hash] options See {.define_field}.
+        # @return [void]
+        # @see .define_field
+        def define_field_before(other, name, type, options={})
+          define_field name, type, options
+          return if other.nil?
 
-        fields.each do |field, size|
-          undef_method "#{field}="
-          undef_method(size == 1 ? "#{field}?" : "#{field}")
+          @ordered_fields.delete name
+          idx = @ordered_fields.index(other)
+          raise ArgumentError, "unknown #{other} field" if idx.nil?
+
+          @ordered_fields[idx, 0] = name
+        end
+
+        # Define a field, after another one
+        # @param [Symbol,nil] other field name to create a new one after. If +nil+,
+        #    new field is appended.
+        # @param [Symbol] name field name to create
+        # @param [Object] type class or instance
+        # @param [Hash] options See {.define_field}.
+        # @return [void]
+        # @see .define_field
+        def define_field_after(other, name, type, options={})
+          define_field name, type, options
+          return if other.nil?
+
+          @ordered_fields.delete name
+          idx = @ordered_fields.index(other)
+          raise ArgumentError, "unknown #{other} field" if idx.nil?
+
+          @ordered_fields[idx + 1, 0] = name
+        end
+
+        # Remove a previously defined field
+        # @param [Symbol] name
+        # @return [void]
+        # @since 2.8.4
+        def remove_field(name)
+          @ordered_fields.delete name
+          @field_defs.delete name
+          undef_method name
+          undef_method "#{name}="
+        end
+
+        # Delete a previously defined field
+        # @param [Symbol] name
+        # @return [void]
+        # @deprecated Use {.remove_field} instead.
+        # @since 2.8.4 deprecated
+        def delete_field(name)
+          Deprecation.deprecated(self, __method__, 'remove_field', klass_method: true)
+          remove_field name
+        end
+
+        # Update a previously defined field
+        # @param [Symbol] field field name to create
+        # @param [Hash] options See {.define_field}.
+        # @return [void]
+        # @see .define_field
+        # @raise [ArgumentError] unknown +field+
+        # @since 2.8.4
+        def update_field(field, options)
+          raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
+
+          @field_defs[field][1] = options.delete(:default) if options.key?(:default)
+          @field_defs[field][2] = options.delete(:builder) if options.key?(:builder)
+          @field_defs[field][3] = options.delete(:optional) if options.key?(:optional)
+          @field_defs[field][4] = options.delete(:enum) if options.key?(:enum)
+          @field_defs[field][5].merge!(options)
+        end
+
+        # Define a bitfield on given attribute
+        #   class MyHeader < PacketGen::Types::Fields
+        #     define_field :flags, Types::Int16
+        #     # define a bit field on :flag attribute:
+        #     # flag1, flag2 and flag3 are 1-bit fields
+        #     # type and stype are 3-bit fields. reserved is a 6-bit field
+        #     define_bit_fields_on :flags, :flag1, :flag2, :flag3, :type, 3, :stype, 3, :reserved, 7
+        #   end
+        # A bitfield of size 1 bit defines 2 methods:
+        # * +#field?+ which returns a Boolean,
+        # * +#field=+ which takes and returns a Boolean.
+        # A bitfield of more bits defines 2 methods:
+        # * +#field+ which returns an Integer,
+        # * +#field=+ which takes and returns an Integer.
+        # @param [Symbol] attr attribute name (attribute should be a {Types::Int}
+        #   subclass)
+        # @param [Array] args list of bitfield names. Name may be followed
+        #   by bitfield size. If no size is given, 1 bit is assumed.
+        # @return [void]
+        def define_bit_fields_on(attr, *args)
+          attr_def = @field_defs[attr]
+          raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
+
+          type = attr_def.first
+          unless type < Types::Int
+            raise TypeError, "#{attr} is not a PacketGen::Types::Int"
+          end
+
+          total_size = type.new.width * 8
+          idx = total_size - 1
+
+          field = args.shift
+          while field
+            next unless field.is_a? Symbol
+
+            size = if args.first.is_a? Integer
+                     args.shift
+                   else
+                     1
+                   end
+            unless field == :_
+              shift = idx - (size - 1)
+              field_mask = (2**size - 1) << shift
+              clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
+
+              if size == 1
+                class_eval <<-METHODS
+                def #{field}?
+                  val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+                  val != 0
+                end
+                def #{field}=(v)
+                  val = v ? 1 : 0
+                  self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+                  self[:#{attr}].value |= val << #{shift}
+                end
+                METHODS
+              else
+                class_eval <<-METHODS
+                def #{field}
+                  (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+                end
+                def #{field}=(v)
+                  self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+                  self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
+                end
+                METHODS
+              end
+
+              @bit_fields[attr] = {} if @bit_fields[attr].nil?
+              @bit_fields[attr][field] = size
+            end
+
+            idx -= size
+            field = args.shift
+          end
+        end
+
+        # Remove all bit fields defined on +attr+
+        # @param [Symbol] attr attribute defining bit fields
+        # @return [void]
+        # @since 2.8.4
+        def remove_bit_fields_on(attr)
+          fields = @bit_fields.delete(attr)
+          return if fields.nil?
+
+          fields.each do |field, size|
+            undef_method "#{field}="
+            undef_method(size == 1 ? "#{field}?" : "#{field}")
+          end
         end
       end
 
