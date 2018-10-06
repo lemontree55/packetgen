@@ -119,6 +119,12 @@ module PacketGen
           end
         end
 
+        # Get field names
+        # @return [Array<Symbol>]
+        def fields
+          @ordered_fields
+        end
+
         # Define a field in class
         #   class BinaryStruct < PacketGen::Types::Fields
         #     # 8-bit value
@@ -171,7 +177,7 @@ module PacketGen
                                options.delete(:optional),
                                options.delete(:enum),
                                options]
-          @ordered_fields << name
+          fields << name
         end
 
         # Define a field, before another one
@@ -186,11 +192,11 @@ module PacketGen
           define_field name, type, options
           return if other.nil?
 
-          @ordered_fields.delete name
-          idx = @ordered_fields.index(other)
+          fields.delete name
+          idx = fields.index(other)
           raise ArgumentError, "unknown #{other} field" if idx.nil?
 
-          @ordered_fields[idx, 0] = name
+          fields[idx, 0] = name
         end
 
         # Define a field, after another one
@@ -205,11 +211,11 @@ module PacketGen
           define_field name, type, options
           return if other.nil?
 
-          @ordered_fields.delete name
-          idx = @ordered_fields.index(other)
+          fields.delete name
+          idx = fields.index(other)
           raise ArgumentError, "unknown #{other} field" if idx.nil?
 
-          @ordered_fields[idx + 1, 0] = name
+          fields[idx + 1, 0] = name
         end
 
         # Remove a previously defined field
@@ -217,7 +223,7 @@ module PacketGen
         # @return [void]
         # @since 2.8.4
         def remove_field(name)
-          @ordered_fields.delete name
+          fields.delete name
           @field_defs.delete name
           undef_method name
           undef_method "#{name}="
@@ -408,7 +414,7 @@ module PacketGen
       # Get all field names
       # @return [Array<Symbol>]
       def fields
-        @ordered_fields ||= self.class.class_eval { @ordered_fields }
+        self.class.fields
       end
 
       # Get all optional field name
