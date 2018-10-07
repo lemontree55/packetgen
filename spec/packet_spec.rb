@@ -42,11 +42,6 @@ module PacketGen
         expect { @pkt.ip(attr => nil) }.to raise_error(ArgumentError).
                                             with_message(/unknown #{attr} attribute/)
       end
-
-      it 'is called through PacketGen.gen' do
-        pkt = PacketGen.gen('IP', src: '192.168.1.1')
-        expect(pkt.ip.src).to eq('192.168.1.1')
-      end
     end
 
     describe '.parse' do
@@ -106,19 +101,6 @@ module PacketGen
         expect(pkt.ip.id).to eq(0x74de)
         expect(pkt.ip.protocol).to eq(0x51)
       end
-
-      it 'is called through PacketGen.parse' do
-        pkt = nil
-        expect { pkt = PacketGen.parse(@raw_pkts.first) }.not_to raise_error
-        expect(pkt).to respond_to :eth
-        expect(pkt).to respond_to :ip
-        expect(pkt).to respond_to :udp
-        expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
-        expect(pkt.udp.checksum).to eq(0x8bf8)
-
-        expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }.
-          not_to raise_error
-      end
     end
 
     describe '.read' do
@@ -137,12 +119,6 @@ module PacketGen
         expect(ary.all? { |el| el.is_a? Packet }).to be(true)
       end
 
-      it 'is called through PacketGen.read' do
-        ary = PacketGen.read(file)
-        expect(ary).to be_a(Array)
-        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
-      end
-
       it 'raises error on unknown file' do
         expect { Packet.read __FILE__ }.to raise_error(ArgumentError)
       end
@@ -156,18 +132,6 @@ module PacketGen
         write_file = Tempfile.new('pcapng')
         begin
           Packet.write(write_file.path, ary)
-          expect(Packet.read(write_file.path)).to eq(ary)
-        ensure
-          write_file.close
-          write_file.unlink
-        end
-      end
-
-      it 'is called through PacketGen.write' do
-        ary = Packet.read(file)
-        write_file = Tempfile.new('pcapng')
-        begin
-          PacketGen.write(write_file.path, ary)
           expect(Packet.read(write_file.path)).to eq(ary)
         ensure
           write_file.close

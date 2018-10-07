@@ -82,6 +82,21 @@ module PacketGen
       break m[1]
     end
   end
+
+  # Shortcut to get a header class
+  # @example builtin class
+  #   # same as PacketGen::Header::Dot11:Data.new(id: 0xfedc)
+  #   dot11 = PacketGen.header('Dot11::Data', id: 0xfedc)  #=> PacketGen::Header::Dot11:Data
+  # @example plugin class
+  #   require 'packet-plugin-smb'
+  #   # same as PacketGen::Plugin::SMB::CloseRequest.new(fid: 0x1234)
+  #   smbclose = PacketGen.header('SMB::CloseRequest', fid: 0x1234)
+  # @param [String] protocol protocol from which generate a header
+  # @param [Hash] options specific options for +protocol+
+  # @return [Header::Base]
+  def self.header(protocol, options={})
+    Header.get_header_class_by_name(protocol).new(options)
+  end
 end
 
 require 'packetgen/deprecation'
