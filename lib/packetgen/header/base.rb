@@ -306,10 +306,11 @@ module PacketGen
       # return header method name
       # @return [String]
       # @since 2.0.0
+      # @since 2.8.6 permit multiple nesting levels
       def method_name
         return @method_name if @method_name
 
-        @method_name = protocol_name.downcase.sub(/::/, '_')
+        @method_name = protocol_name.downcase.gsub(/::/, '_')
       end
 
       # @abstract Should be redefined by subclasses. This method should check invariant
