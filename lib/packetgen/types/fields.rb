@@ -225,8 +225,8 @@ module PacketGen
         def remove_field(name)
           fields.delete name
           @field_defs.delete name
-          undef_method name
-          undef_method "#{name}="
+          undef_method name if method_defined?(name)
+          undef_method "#{name}=" if method_defined?("#{name}=")
         end
 
         # Delete a previously defined field
