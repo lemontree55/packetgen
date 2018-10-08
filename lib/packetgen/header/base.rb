@@ -78,30 +78,21 @@ module PacketGen
       class Bindings
         include Enumerable
 
-        # op type
-        # @return [:or,:and]
-        attr_accessor :op
         # @return [Array<Binding>]
         attr_accessor :bindings
 
-        # @param [:or, :and, :newstyle] operator
-        def initialize(operator)
-          @op = operator
+        def initialize
           @bindings = []
         end
 
         def new_set
-          @bindings << [] if @op == :newstyle
+          @bindings << []
         end
 
         # @param [Object] arg
         # @return [Bindings] self
         def <<(arg)
-          if op == :newstyle
-            @bindings.last << arg
-          else
-            @bindings << arg
-          end
+          @bindings.last << arg
         end
 
         # each iterator
@@ -122,11 +113,7 @@ module PacketGen
         def to_h
           hsh = {}
           each do |b|
-            if b.is_a? Array
-              b.each { |sb| hsh[sb.key] = sb.value }
-            else
-              hsh[b.key] = b.value
-            end
+            b.each { |sb| hsh[sb.key] = sb.value }
           end
           hsh
         end
@@ -135,26 +122,14 @@ module PacketGen
         # @param [Types::Fields] fields
         # @return [Boolean]
         def check?(fields)
-          case @op
-          when :or
-            empty? || @bindings.any? { |binding| binding.check?(fields) }
-          when :and
-            @bindings.all? { |binding| binding.check?(fields) }
-          when :newstyle
-            @bindings.any? { |group| group.all? { |binding| binding.check?(fields) } }
-          end
+          @bindings.any? { |group| group.all? { |binding| binding.check?(fields) } }
         end
 
         # Set +fields+ to bindings value
         # @param [Types::Fields] fields
         # @return [void]
         def set(fields)
-          case @bindings.first
-          when Array
-            @bindings.first.each { |b| b.set fields }
-          else
-            @bindings.each { |b| b.set fields }
-          end
+          @bindings.first.each { |b| b.set fields }
         end
       end
 
@@ -169,47 +144,6 @@ module PacketGen
       def self.inherited(klass)
         super
         klass.class_eval { @known_headers = {} }
-      end
-
-      # Bind a upper header to current class
-      #   Header1.bind_header Header2, field1: 43
-      #   Header1.bind_header Header3, field1: 43, field2: 43
-      #   Header1.bind_header Header4, op: :and, field1: 43, field2: 43
-      #   Header1.bind_header Header5, field1: ->(v) { v.nil? ? 128 : v > 127 }
-      #   Header1.bind_header Header6, procs: [->(hdr) { hdr.field1 = 1 }
-      #                                        ->(hdr) { hdr.field1 == 1 && hdr.body[0..1] == "\x00\x00" }]
-      # @param [Class] header_klass header class to bind to current class
-      # @param [Hash] args current class fields and their value when +header_klass+
-      #   is embedded in current class. Given value may be a lambda, whose alone argument
-      #   is the value extracted from header field (or +nil+ when lambda is used to set
-      #   field while adding a header).
-      #
-      #   If multiple fields are given, a special key +:op+ may be given to set parse
-      #   operation on this binding. By default, +:op+ is +:or+ (at least one binding
-      #   must match to parse it). It also may be set to +:and+ (all bindings must match
-      #   to parse it).
-      #
-      #   Special key +procs+ may be used to set 2 lambdas, the former to set
-      #   fields, the latter to check bindings. This may be used when multiple and
-      #   non-trivial checks should be made.
-      # @return [void]
-      # @deprecated Use {.bind} instead.
-      def self.bind_header(header_klass, args={})
-        Deprecation.deprecated(self, __method__, 'bind', klass_method: true)
-        op = args.delete(:op) || :or
-        if @known_headers[header_klass].nil? || @known_headers[header_klass].op != op
-          bindings = Bindings.new(op)
-          @known_headers[header_klass] = bindings
-        else
-          bindings = @known_headers[header_klass]
-        end
-        args.each do |key, value|
-          bindings << if key == :procs
-                        ProcBinding.new(value)
-                      else
-                        Binding.new(key, value)
-                      end
-        end
       end
 
       # Bind a upper header to current one.
@@ -246,7 +180,7 @@ module PacketGen
       # @since 2.7.0
       def self.bind(header_klass, args={})
         if @known_headers[header_klass].nil?
-          bindings = Bindings.new(:newstyle)
+          bindings = Bindings.new
           @known_headers[header_klass] = bindings
         else
           bindings = @known_headers[header_klass]
