@@ -231,6 +231,13 @@ module PacketGen
         ip = IP.new
         str = ip.inspect
         expect(str).to be_a(String)
+        (ip.to_h.keys - %i[body options] + %i[version ihl flags frag_offset]).each do |attr|
+          expect(str).to include(attr.to_s)
+        end
+
+        ip = IP.new(ihl: 6)
+        str = ip.inspect
+        expect(str).to be_a(String)
         (ip.to_h.keys - %i[body] + %i[version ihl flags frag_offset]).each do |attr|
           expect(str).to include(attr.to_s)
         end

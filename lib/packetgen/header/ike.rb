@@ -189,28 +189,18 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, )
-        fields.each do |attr|
-          next if attr == :body
-
+        super do |attr|
           case attr
           when :flags
             str_flags = ''.dup
             %w[r v i].each do |flag|
               str_flags << (send("flag_#{flag}?") ? flag.upcase : '.')
             end
-            str << Inspect.shift_level(2)
+            str = Inspect.shift_level
             str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
                                         str_flags]
-          when :exchange_type
-            str << Inspect.shift_level(2)
-            str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
-                                        human_exchange_type]
-          else
-            str << Inspect.inspect_attribute(attr, self[attr], 2)
           end
         end
-        str
       end
 
       # Toggle +I+ and +R+ flags.

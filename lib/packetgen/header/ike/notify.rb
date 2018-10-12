@@ -160,19 +160,13 @@ module PacketGen
 
         # @return [String]
         def inspect
-          str = Inspect.dashed_line(self.class, 1)
-          fields.each do |attr|
-            next if attr == :body
+          super do |attr|
+            next unless attr == :protocol
 
-            if %i[protocol message_type].include? attr
-              str << Inspect.shift_level(1)
-              str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
-                                          send("human_#{attr}")]
-            else
-              str << Inspect.inspect_attribute(attr, self[attr], 1)
-            end
+            str = Inspect.shift_level
+            str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
+                                        human_protocol]
           end
-          str
         end
       end
     end

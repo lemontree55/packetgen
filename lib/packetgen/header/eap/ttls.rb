@@ -51,24 +51,18 @@ module PacketGen
 
         # @return [String]
         def inspect
-          str = Inspect.dashed_line(self.class, 1)
-          fields.each do |attr|
-            next if attr == :body
-            next unless is_present?(attr)
+          super do |attr|
+            next unless attr == :flags
 
-            if attr == :flags
-              shift = Inspect.shift_level(1)
-              value = %i[l m s].map { |f| send("#{f}?") ? f.to_s : '.' }.join
-              value = '%-16s (0x%02x)' % [value, self.flags]
-              str << shift
-              str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''),
-                                          attr, value]
-              str << Inspect::FMT_ATTR % ['', 'version', self.version]
-            else
-              str << Inspect.inspect_attribute(attr, self[attr], 1)
-            end
+            shift = Inspect.shift_level
+            str = shift.dup
+            value = %i[l m s].map { |f| send("#{f}?") ? f.to_s : '.' }.join
+            value = '%-16s (0x%02x)' % [value, self.flags]
+            str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''),
+                                        attr, value]
+            str << shift
+            str << Inspect::FMT_ATTR % ['', 'version', self.version]
           end
-          str
         end
       end
     end

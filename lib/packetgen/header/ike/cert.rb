@@ -68,24 +68,6 @@ module PacketGen
         def human_encoding
           self[:encoding].to_human
         end
-
-        # @return [String]
-        def inspect
-          str = Inspect.dashed_line(self.class, 1)
-          fields.each do |attr|
-            case attr
-            when :body
-              next
-            when :encoding
-              str << Inspect.shift_level(1)
-              str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''), attr,
-                                          human_encoding]
-            else
-              str << Inspect.inspect_attribute(attr, self[attr], 1)
-            end
-          end
-          str
-        end
       end
     end
 

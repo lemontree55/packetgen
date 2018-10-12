@@ -206,24 +206,20 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 1)
-        shift = Inspect.shift_level(1)
-        fields.each do |attr|
-          next if attr == :body
+        super do |attr|
+          next unless attr == :u16
 
-          str << Inspect.inspect_attribute(attr, self[attr], 1)
-          if attr == :u16
-            doff = Inspect.int_dec_hex(data_offset, 1)
-            str << shift + Inspect::FMT_ATTR % ['', 'data_offset', doff]
-            str << shift + Inspect::FMT_ATTR % ['', 'reserved', reserved]
-            flags = ''.dup
-            %w[ns cwr ece urg ack psh rst syn fin].each do |fl|
-              flags << (send("flag_#{fl}?") ? fl[0].upcase : '.')
-            end
-            str << shift + Inspect::FMT_ATTR % ['', 'flags', flags]
+          shift = Inspect.shift_level
+          str = Inspect.inspect_attribute(attr, self[attr])
+          doff = Inspect.int_dec_hex(data_offset, 1)
+          str<< shift << Inspect::FMT_ATTR % ['', 'data_offset', doff]
+          str << shift << Inspect::FMT_ATTR % ['', 'reserved', reserved]
+          flags = ''.dup
+          %w[ns cwr ece urg ack psh rst syn fin].each do |fl|
+            flags << (send("flag_#{fl}?") ? fl[0].upcase : '.')
           end
+          str << shift << Inspect::FMT_ATTR % ['', 'flags', flags]
         end
-        str
       end
 
       # Invert source and destination port numbers

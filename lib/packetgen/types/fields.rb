@@ -482,7 +482,13 @@ module PacketGen
         self
       end
 
-      # Common inspect method for headers
+      # Common inspect method for headers.
+      #
+      # A block may be given to differently format some attributes. This
+      # may be used by subclasses to handle specific fields.
+      # @yieldparam attr [Symbol] attribute to inspect
+      # @yieldreturn [String,nil] the string to print for +attr+, or +nil+
+      #  to let +inspect+ generate it
       # @return [String]
       def inspect
         str = Inspect.dashed_line(self.class, 1)
@@ -490,7 +496,8 @@ module PacketGen
           next if attr == :body
           next unless present?(attr)
 
-          str << Inspect.inspect_attribute(attr, self[attr], 1)
+          result = yield(attr)if block_given?
+          str << (result || Inspect.inspect_attribute(attr, self[attr], 1))
         end
         str
       end

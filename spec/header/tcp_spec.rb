@@ -99,7 +99,7 @@ module PacketGen
 
       describe 'setters' do
         let(:tcp) { TCP.new }
-        
+
         it '#sport= accepts integers' do
           tcp.sport = 145
           expect(tcp[:sport].value).to eq(145)
@@ -152,7 +152,7 @@ module PacketGen
           end
         end
       end
-      
+
       describe '#inspect' do
         it 'returns a String with all attributes' do
           tcp = TCP.new

@@ -235,26 +235,25 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 1)
-        shift = Inspect.shift_level(1)
-        fields.each do |attr|
-          next if attr == :body
-
-          str << Inspect.inspect_attribute(attr, self[attr], 1)
-          if attr == :u8
-            str << shift + Inspect::FMT_ATTR % ['', 'version', version]
-            str << shift + Inspect::FMT_ATTR % ['', 'ihl', ihl]
-          elsif attr == :frag
+        super do |attr|
+          case attr
+          when :u8
+            shift = Inspect.shift_level
+            str = Inspect.inspect_attribute(attr, self[attr])
+            str << shift << Inspect::FMT_ATTR % ['', 'version', version]
+            str << shift << Inspect::FMT_ATTR % ['', 'ihl', ihl]
+          when :frag
+            shift = Inspect.shift_level
+            str = Inspect.inspect_attribute(attr, self[attr])
             flags = flag_rsv? ? %w[RSV] : []
             flags << 'DF' if flag_df?
             flags << 'MF' if flag_mf?
             flags_str = flags.empty? ? 'none' : flags.join(',')
-            str << shift + Inspect::FMT_ATTR % ['', 'flags', flags_str]
+            str << shift << Inspect::FMT_ATTR % ['', 'flags', flags_str]
             foff = Inspect.int_dec_hex(fragment_offset, 4)
-            str << shift + Inspect::FMT_ATTR % ['', 'frag_offset', foff]
+            str << shift << Inspect::FMT_ATTR % ['', 'frag_offset', foff]
           end
         end
-        str
       end
 
       # Check version field

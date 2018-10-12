@@ -137,21 +137,17 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = Inspect.dashed_line(self.class, 1)
-        fields.each do |attr|
-          next if attr == :body
+        super do |attr|
+          next unless attr == :u32
 
-          str << Inspect.inspect_attribute(attr, self[attr], 1)
-          if attr == :u32
-            shift = Inspect.shift_level(2)
-            str << shift + Inspect::FMT_ATTR % ['', 'version', version]
-            tclass = Inspect.int_dec_hex(traffic_class, 2)
-            str << shift + Inspect::FMT_ATTR % ['', 'tclass', tclass]
-            fl_value = Inspect.int_dec_hex(flow_label, 5)
-            str << shift + Inspect::FMT_ATTR % ['', 'flow_label', fl_value]
-          end
+          str = Inspect.inspect_attribute(attr, self[attr])
+          shift = Inspect.shift_level
+          str << shift + Inspect::FMT_ATTR % ['', 'version', version]
+          tclass = Inspect.int_dec_hex(traffic_class, 2)
+          str << shift + Inspect::FMT_ATTR % ['', 'tclass', tclass]
+          fl_value = Inspect.int_dec_hex(flow_label, 5)
+          str << shift + Inspect::FMT_ATTR % ['', 'flow_label', fl_value]
         end
-        str
       end
 
       # Check version field
