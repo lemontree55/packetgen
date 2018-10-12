@@ -356,7 +356,9 @@ module PacketGen
         @fields = {}
         @optional_fields = {}
 
-        self.class.class_eval { @field_defs }.each do |field, ary|
+        field_defs = self.class.class_eval { @field_defs }
+        self.class.fields.each do |field|
+          ary = field_defs[field]
           type, default, builder, optional, enum, field_options = ary
           default = default.to_proc.call(self) if default.is_a?(Proc)
           @fields[field] = if builder
