@@ -71,41 +71,6 @@ module PacketGen
         end
       end
 
-      describe 'setters' do
-        let(:snmp) { SNMP.new }
-
-        it '#version= accepts integers in range (0..3)' do
-          snmp.version = 0
-          expect(snmp.version).to eq('v1')
-          snmp.version = 1
-          expect(snmp.version).to eq('v2c')
-          snmp.version = 2
-          expect(snmp.version).to eq('v2')
-          snmp.version = 3
-          expect(snmp.version).to eq('v3')
-          expect { snmp.version = 4 }.to raise_error(RASN1::EnumeratedError)
-        end
-
-        it '#version= accepts version strings' do
-          snmp.version = 'v1'
-          expect(snmp[:version].value).to eq('v1')
-          snmp.version = 'v2c'
-          expect(snmp[:version].value).to eq('v2c')
-          snmp.version = 'v2'
-          expect(snmp[:version].value).to eq('v2')
-          snmp.version = 'v3'
-          expect(snmp[:version].value).to eq('v3')
-
-          expect { snmp.version = 'v4' }.to raise_error(RASN1::EnumeratedError)
-          expect { snmp.version = 'abc' }.to raise_error(RASN1::EnumeratedError)
-        end
-
-        it '#community= accepts strings' do
-          snmp.community = 'abcdef'
-          expect(snmp[:community].value).to eq('abcdef')
-        end
-      end
-
       describe '#to_s' do
         it 'returns a binary string' do
           snmp = SNMP.new(version: 'v1')
@@ -135,7 +100,7 @@ module PacketGen
       describe SNMP::PDUs do
         it 'index of a model in CHOICE corresponds to its PDU number' do
           pdus = SNMP::PDUs.new
-          
+
           (0..8).each do |i|
             expect(pdus.value[i].tag & 0x1f).to eq(i)
           end

@@ -113,7 +113,7 @@ module PacketGen
         sequence :pdu,
                  implicit: SNMP::PDU_GET, constructed: true,
                  content: [integer(:id, value: 0),
-                           enumerated(:error, value: 0, enum: ERRORS),
+                           integer(:error, value: 0, enum: ERRORS),
                            integer(:error_index, value: 0),
                            model(:varbindlist, VariableBindings)]
       end
@@ -162,13 +162,13 @@ module PacketGen
                  implicit: SNMP::PDU_TRAPv1, constructed: true,
                  content: [objectid(:enterprise),
                            octet_string(:agent_addr),
-                           enumerated(:generic_trap, enum: { 'cold_start'        => 0,
-                                                             'warm_start'        => 1,
-                                                             'link_down'         => 2,
-                                                             'link_up'           => 3,
-                                                             'auth_failure'      => 4,
-                                                             'egp_neighbor_loss' => 5,
-                                                             'specific'          => 6 }),
+                           integer(:generic_trap, enum: { 'cold_start'        => 0,
+                                                          'warm_start'        => 1,
+                                                          'link_down'         => 2,
+                                                          'link_up'           => 3,
+                                                          'auth_failure'      => 4,
+                                                          'egp_neighbor_loss' => 5,
+                                                          'specific'          => 6 }),
                            integer(:specific_trap),
                            integer(:timestamp),
                            model(:varbindlist, VariableBindings)]
@@ -243,8 +243,8 @@ module PacketGen
       end
 
       sequence :message,
-               content: [enumerated(:version, value: 'v2c',
-                                    enum: { 'v1' => 0, 'v2c' => 1, 'v2' => 2, 'v3' => 3 }),
+               content: [integer(:version, value: 'v2c',
+                                 enum: { 'v1' => 0, 'v2c' => 1, 'v2' => 2, 'v3' => 3 }),
                          octet_string(:community, value: 'public'),
                          model(:data, PDUs)]
 
