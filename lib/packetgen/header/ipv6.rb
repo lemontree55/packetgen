@@ -190,13 +190,6 @@ module PacketGen
             klass.bind header_klass, args
           end
         end
-        # Bind a upper header to IPv6 and its defined extension headers.
-        # @see Base.bind_header
-        # @deprecated USe {bind}.
-        def bind_header(header_klass, args={})
-          Deprecation.deprecated(self, __method__, 'bind', klass_method: true)
-          bind header_klass, args
-        end
       end
     end
   end
