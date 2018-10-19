@@ -218,21 +218,6 @@ module PacketGen
         # @return [Boolean]
         attr_accessor :fcs
         alias fcs? fcs
-
-        # rubocop:disable Naming/PredicateName
-
-        # @deprecated Use {.fcs?} instead.
-        def has_fcs
-          Deprecation.deprecated(self, __method__, 'fcs?', klass_method: true)
-          fcs?
-        end
-
-        # @deprecated Use {.fcs=} instead.
-        def has_fcs=(fcs)
-          Deprecation.deprecated(self, __method__, 'fcs=', klass_method: true)
-          self.fcs = fcs
-        end
-        # rubocop:enable Naming/PredicateName
       end
       Dot11.fcs = true
 
