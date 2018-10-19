@@ -100,13 +100,6 @@ module PacketGen
           self.class::TYPES[type] == self.type
         end
 
-        # @deprecated Use {#type?} instead
-        # @return [Boolean]
-        def has_type?(type)
-          Deprecation.deprecated(self.class, __method__, 'type?')
-          type?(type)
-        end
-
         # Get human readable type
         # @return [String]
         def human_type
