@@ -240,16 +240,6 @@ module PacketGen
           undef_method "#{name}=" if method_defined?("#{name}=")
         end
 
-        # Delete a previously defined field
-        # @param [Symbol] name
-        # @return [void]
-        # @deprecated Use {.remove_field} instead.
-        # @since 2.8.4 deprecated
-        def delete_field(name)
-          Deprecation.deprecated(self, __method__, 'remove_field', klass_method: true)
-          remove_field name
-        end
-
         # Update a previously defined field
         # @param [Symbol] field field name to create
         # @param [Hash] options See {.define_field}.
@@ -441,26 +431,12 @@ module PacketGen
         @optional_fields.key? field
       end
 
-      # @deprecated Use {#optional?} instead.
-      def is_optional?(field)
-        Deprecation.deprecated(self.class, __method__, 'optional?', klass_method: true)
-        optional? field
-      end
-
       # Say if an optional field is present
       # @return [Boolean]
       def present?(field)
         return true unless optional?(field)
 
         @optional_fields[field].call(self)
-      end
-
-      # Say if an optional field is present
-      # @return [Boolean]
-      # @deprecated Use {#present?} instead.
-      def is_present?(field)
-        Deprecation.deprecated(self.class, __method__, 'present?', klass_method: true)
-        present? field
       end
 
       # Populate object from a binary string
@@ -530,36 +506,6 @@ module PacketGen
       # @return [Hash] keys: attributes, values: attribute values
       def to_h
         Hash[fields.map { |f| [f, @fields[f].to_human] }]
-      end
-
-      # Used to set body as value of body object.
-      # @param [String,Int,Fields,nil] value
-      # @return [void]
-      # @raise [BodyError] no body on given object
-      # @raise [ArgumentError] cannot cram +body+ in +:body+ field
-      # @deprecated
-      def body=(value)
-        Deprecation.deprecated(self.class, __method__)
-        raise BodyError, 'no body field' unless @fields.key? :body
-
-        case body
-        when ::String
-          self[:body].read value
-        when Int, Fields
-          self[:body] = value
-        when NilClass
-          self[:body] = Types::String.new.read('')
-        else
-          raise ArgumentError, "Can't cram a #{body.class} in a :body field"
-        end
-      end
-
-      # Force str to binary encoding
-      # @param [String] str
-      # @return [String]
-      # @deprecated Will be a private method
-      def force_binary(str)
-        PacketGen.force_binary(str)
       end
 
       # Get offset of given field in {Fields} structure.
