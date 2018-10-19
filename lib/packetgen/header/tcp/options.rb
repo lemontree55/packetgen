@@ -52,19 +52,6 @@ module PacketGen
           self
         end
 
-        # @deprecated use {#push} or {#<<}
-        # Add a well-known option
-        # @param [String] opt option name
-        # @param [Object] value
-        # @return [self]
-        # @raise [ArgumentError] unknown option
-        def add(opt, value=nil)
-          Deprecation.deprecated(self.class, __method__, 'push')
-          option = record_from_hash(opt: opt, value: value)
-          self << option
-          self
-        end
-
         private
 
         def record_from_hash(hsh)

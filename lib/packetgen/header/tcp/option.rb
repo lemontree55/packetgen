@@ -87,13 +87,6 @@ module PacketGen
           self[:kind].value && kind >= 2
         end
 
-        # @deprecated Use {#length?}.
-        # @return [Boolean]
-        def has_length?
-          Deprecation.deprecated(self.class, __method__, 'length?')
-          length?
-        end
-
         # Getter for value attribute
         # @return [String, Integer]
         def value
