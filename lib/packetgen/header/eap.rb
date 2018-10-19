@@ -210,13 +210,6 @@ module PacketGen
         [1, 2].include?(self.code)
       end
 
-      # @deprecated Use {#type?} instead.
-      # @return [Boolean]
-      def has_type?
-        Deprecation.deprecated(self.class, __method__, 'type?')
-        type?
-      end
-
       # Callback called when a EAP header is added to a packet
       # Here, add +#eap+ method as a shortcut to existing
       # +#eap_(md5|tls|ttls|fast)+.
