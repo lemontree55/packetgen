@@ -105,6 +105,8 @@ module PacketGen
     #
     # @author Sylvain Daubert
     class Fields
+      # @private
+      FieldDef = Struct.new(:type, :default, :builder, :optional, :enum, :options)
       # @private field names, ordered as they were declared
       @ordered_fields = []
       # @private field definitions
@@ -123,6 +125,7 @@ module PacketGen
           end
           ordered = @ordered_fields.clone
           bf = @bit_fields.clone
+
           klass.class_eval do
             @ordered_fields = ordered
             @field_defs = field_defs
@@ -183,11 +186,12 @@ module PacketGen
           define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
           define.delete(0) if type.instance_methods.include? name
           class_eval define.join("\n")
-          @field_defs[name] = [type, options.delete(:default),
-                               options.delete(:builder),
-                               options.delete(:optional),
-                               options.delete(:enum),
-                               options]
+          @field_defs[name] = FieldDef.new(type,
+                                           options.delete(:default),
+                                           options.delete(:builder),
+                                           options.delete(:optional),
+                                           options.delete(:enum),
+                                           options)
           fields << name
         end
 
@@ -250,11 +254,11 @@ module PacketGen
         def update_field(field, options)
           raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
 
-          @field_defs[field][1] = options.delete(:default) if options.key?(:default)
-          @field_defs[field][2] = options.delete(:builder) if options.key?(:builder)
-          @field_defs[field][3] = options.delete(:optional) if options.key?(:optional)
-          @field_defs[field][4] = options.delete(:enum) if options.key?(:enum)
-          @field_defs[field][5].merge!(options)
+          @field_defs[field].default = options.delete(:default) if options.key?(:default)
+          @field_defs[field].builder = options.delete(:builder) if options.key?(:builder)
+          @field_defs[field].optional = options.delete(:optional) if options.key?(:optional)
+          @field_defs[field].enum = options.delete(:enum) if options.key?(:enum)
+          @field_defs[field].options.merge!(options)
         end
 
         # Define a bitfield on given attribute
@@ -280,7 +284,7 @@ module PacketGen
           attr_def = @field_defs[attr]
           raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
 
-          type = attr_def.first
+          type = attr_def.type
           unless type < Types::Int
             raise TypeError, "#{attr} is not a PacketGen::Types::Int"
           end
@@ -359,9 +363,14 @@ module PacketGen
 
         field_defs = self.class.class_eval { @field_defs }
         self.class.fields.each do |field|
-          ary = field_defs[field]
-          type, default, builder, optional, enum, field_options = ary
+          type = field_defs[field].type
+          default = field_defs[field].default
           default = default.to_proc.call(self) if default.is_a?(Proc)
+          builder = field_defs[field].builder
+          optional = field_defs[field].optional
+          enum = field_defs[field].enum
+          field_options = field_defs[field].options
+
           @fields[field] = if builder
                              builder.call(self, type)
                            elsif enum
