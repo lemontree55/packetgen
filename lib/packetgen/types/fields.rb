@@ -541,6 +541,13 @@ module PacketGen
         @fields.each { |k,v| fields[k] = v.dup }
         @fields = fields
       end
+
+      # Force str to binary encoding
+      # @param [String] str
+      # @return [String]
+      def force_binary(str)
+        PacketGen.force_binary(str)
+      end
     end
   end
 end
