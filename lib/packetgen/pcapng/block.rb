@@ -37,13 +37,6 @@ module PacketGen
         @fields.key?(:options) && @fields[:options].sz > 0
       end
 
-      # @deprecated Use {#options?} instead.
-      # @return [Boolean]
-      def has_options?
-        Deprecation.deprecated(self.class, __method__, 'options?')
-        options?
-      end
-
       # Calculate block length and update :block_len and block_len2 fields
       # @return [void]
       def recalc_block_len

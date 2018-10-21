@@ -40,13 +40,6 @@ module PacketGen
         false
       end
 
-      # @deprecated Use {#options?} instead.
-      # @return [false]
-      def has_options?
-        Deprecation.deprecated(self.class, __method__, 'options?')
-        options?
-      end
-
       # Reads a String or a IO to populate the object
       # @param [::String,IO] str_or_io
       # @return [self]
