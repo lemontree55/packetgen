@@ -10,8 +10,33 @@ require 'ipaddr'
 
 module PacketGen
   module Header
+    # IPv6 ({https://tools.ietf.org/html/rfc8200 RFC 8200})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |Version| Traffic Class |           Flow Label                  |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |         Payload Length        |  Next Header  |   Hop Limit   |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +                         Source Address                        +
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +                      Destination Address                      +
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #
     # A IPv6 header consists of:
-    # * a first 32-bit word ({#u32}, of {Types::Int32} type) composoed of:
+    # * a first 32-bit word ({#u32}, of {Types::Int32} type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 8-bit {#traffic_class} field,
     #   * a 20-bit {#flow_label} field,
@@ -44,6 +69,18 @@ module PacketGen
     #  ipv6[:src]              # => PacketGen::Header::IPv6::Addr
     #  ipv6.dst = '2001:1234:5678:abcd::123'
     #  ipv6.body.read 'this is a body'
+    #
+    # == Add IPv6 extensions
+    # In IPv6, optional extensions are encoded in separate headers that
+    # may be placed between the IPv6 header and the upper-layer header.
+    #
+    # In PacketGen, a IPv6 extension is processedf as a classical header:
+    #  pkt = PacketGen.gen('IPv6')
+    #  # Add a HopByHop extension
+    #  pkt.add('IPv6::HopByHop')
+    #  pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: [0].pack('n') }
+    #  # Add another header
+    #  pkt.add('UDP')
     # @author Sylvain Daubert
     class IPv6 < Base; end
 
