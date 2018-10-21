@@ -166,20 +166,22 @@ module PacketGen
         end
 
         it 'sends a IPv6 header on wire', :sudo, :notravis do
-          body = force_binary("\x00" * 64)
-          pkt = Packet.gen('IPv6', traffic_class: 0x40, hop: 0x22, src: '::1').
-                add('UDP', sport: 35535, dport: 65535, body: body)
+          body = (0..63).to_a.pack('C*')
+          pkt = Packet.gen('IPv6', traffic_class: 0x40, flow_label: 0x12345, hop: 0x22, src: '::2').
+                       add('UDP', sport: 35535, dport: 65535, body: body)
           Thread.new { sleep 0.1; pkt.ipv6.to_w('lo') }
           packets = PacketGen.capture(iface: 'lo', max: 1,
                                       filter: 'ip6 dst ::1 and ip6 proto 17',
                                       timeout: 2)
           packet = packets.first
           expect(packet.is? 'IPv6').to be(true)
-          expect(packet.ipv6.dst).to eq('::1')
-          expect(packet.ipv6.src).to eq('::1')
-          expect(packet.ipv6.next).to eq(UDP::IP_PROTOCOL)
           expect(packet.ipv6.traffic_class).to eq(0x40)
+          expect(packet.ipv6.flow_label).to eq(0x12345)
+          expect(packet.ipv6.length).to eq(0)
+          expect(packet.ipv6.next).to eq(UDP::IP_PROTOCOL)
           expect(packet.ipv6.hop).to eq(0x22)
+          expect(packet.ipv6.dst).to eq('::1')
+          expect(packet.ipv6.src).to eq('::2')
           expect(packet.udp.sport).to eq(35535)
           expect(packet.udp.dport).to eq(65535)
           expect(packet.body).to eq(body)
