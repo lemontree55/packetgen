@@ -162,8 +162,8 @@ module PacketGen
       nxt = prev.body
       header = klass.new(options.merge!(packet: self))
       add_header header, previous_header: prev
-      idx = @headers.index(prev) + 1
-      @headers[idx, 0] = header
+      idx = headers.index(prev) + 1
+      headers[idx, 0] = header
       header[:body] = nxt
       self
     end
@@ -176,13 +176,13 @@ module PacketGen
     # @raise [ArgumentError] unknown protocol
     def is?(protocol)
       klass = check_protocol protocol
-      @headers.any? { |h| h.is_a? klass }
+      headers.any? { |h| h.is_a? klass }
     end
 
     # Recalculate all packet checksums
     # @return [void]
     def calc_checksum
-      @headers.reverse_each do |header|
+      headers.reverse_each do |header|
         header.calc_checksum if header.respond_to? :calc_checksum
       end
     end
@@ -190,7 +190,7 @@ module PacketGen
     # Recalculate all packet length fields
     # @return [void]
     def calc_length
-      @headers.each do |header|
+      headers.each do |header|
         header.calc_length if header.respond_to? :calc_length
       end
     end
@@ -205,20 +205,20 @@ module PacketGen
     # Get packet body
     # @return [Types]
     def body
-      @headers.last.body if @headers.last.respond_to? :body
+      last_header.body if last_header.respond_to? :body
     end
 
     # Set packet body
     # @param [String] str
     # @return [void]
     def body=(str)
-      @headers.last.body = str
+      last_header.body = str
     end
 
     # Get binary string (i.e. binary string sent on or received from network).
     # @return [String]
     def to_s
-      @headers.first.to_s
+      first_header.to_s
     end
 
     # Write packet to a PCapNG file on disk.
@@ -240,7 +240,8 @@ module PacketGen
     # @since 3.0.0 +calc+ defaults to +true+
     def to_w(iface=nil, calc: true, number: 1, interval: 1)
       iface ||= PacketGen.default_iface
-      if @headers.first.respond_to? :to_w
+
+      if first_header.respond_to? :to_w
         self.calc if calc
         if number == 1
           @headers.first.to_w(iface)
@@ -251,7 +252,7 @@ module PacketGen
           end
         end
       else
-        type = @headers.first.protocol_name
+        type = first_header.protocol_name
         raise WireError, "don't known how to send a #{type} packet on wire"
       end
     end
@@ -270,21 +271,21 @@ module PacketGen
     end
 
     # Remove headers from +self+
-    # @param [Array<Header>] headers
+    # @param [Array<Header>] hdrs
     # @return [self] +self+ with some headers removed
     # @raise [FormatError] any headers not in +self+
     # @raise [FormatError] removed headers result in an unknown binding
     # @since 1.1.0
-    def decapsulate(*headers)
-      headers.each do |header|
-        idx = @headers.index(header)
+    def decapsulate(*hdrs)
+      hdrs.each do |hdr|
+        idx = headers.index(hdr)
         raise FormatError, 'header not in packet!' if idx.nil?
 
-        prev_header = idx > 0 ? @headers[idx - 1] : nil
-        next_header = (idx + 1) < @headers.size ? @headers[idx + 1] : nil
-        @headers.delete_at(idx)
-        if prev_header && next_header
-          add_header(next_header, previous_header: prev_header)
+        prev_hdr = idx > 0 ? headers[idx - 1] : nil
+        next_hdr = (idx + 1) < headers.size ? headers[idx + 1] : nil
+        headers.delete_at(idx)
+        if prev_hdr && next_hdr
+          add_header(next_hdr, previous_header: prev_hdr)
         end
       end
     rescue ArgumentError => ex
@@ -319,7 +320,7 @@ module PacketGen
     # @return [String]
     def inspect
       str = Inspect.dashed_line(self.class)
-      @headers.each do |header|
+      headers.each do |header|
         str << header.inspect
       end
       str << Inspect.inspect_body(body)
@@ -335,7 +336,7 @@ module PacketGen
     # @return [self]
     # @since 2.7.0
     def reply!
-      @headers.each do |header|
+      headers.each do |header|
         header.reply! if header.respond_to?(:reply!)
       end
       self
@@ -355,10 +356,22 @@ module PacketGen
     # Dup +@headers+ instance variable. Internally used by +#dup+ and +#clone+
     # @return [void]
     def initialize_copy(_other)
-      @headers = @headers.map(&:dup)
-      @headers.each do |header|
+      @headers = headers.map(&:dup)
+      headers.each do |header|
         add_magic_header_method header
       end
+    end
+
+    # Give first header of packet
+    # @return [Header::Base]
+    def first_header
+      headers.first
+    end
+
+    # Give last header of packet
+    # @return [Header::Base]
+    def last_header
+      headers.last
     end
 
     # @overload header(klass, layer=1)
@@ -370,17 +383,15 @@ module PacketGen
     #  @raise [ArgumentError] unknown option
     # @return [Header::Base]
     def header(klass, arg)
-      headers = @headers.select { |h| h.is_a? klass }
       layer = arg.is_a?(Integer) ? arg : 1
-      header = headers[layer - 1]
+      header = headers.select { |h| h.is_a? klass }[layer - 1]
+      return header unless arg.is_a? Hash
 
-      if arg.is_a? Hash
-        arg.each do |key, value|
-          unless header.respond_to? "#{key}="
-            raise ArgumentError, "unknown #{key} attribute for #{klass}"
-          end
-          header.send "#{key}=", value
+      arg.each do |key, value|
+        unless header.respond_to? "#{key}="
+          raise ArgumentError, "unknown #{key} attribute for #{klass}"
         end
+        header.send "#{key}=", value
       end
 
       header
@@ -401,7 +412,7 @@ module PacketGen
     # @param [Boolean] parsing
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
-      prev_header = previous_header || headers.last
+      prev_header = previous_header || last_header
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
         bindings = prev_header.class.known_headers[header.class.superclass] if bindings.nil?
@@ -440,8 +451,7 @@ module PacketGen
         hdr = hklass.new(packet: self)
         # #read may return another object (more specific class)
         hdr = hdr.read(binary_str)
-        # First header is found when:
-        # * for one known header,
+        # First header is found when, for one known header,
         # * +#parse?+ is true
         # * it exists a known binding with a upper header
         next unless hdr.parse?
