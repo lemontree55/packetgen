@@ -243,13 +243,10 @@ module PacketGen
 
       if first_header.respond_to? :to_w
         self.calc if calc
-        if number == 1
-          @headers.first.to_w(iface)
-        else
-          number.times do
-            @headers.first.to_w(iface)
-            sleep interval
-          end
+
+        number.times do
+          first_header.to_w(iface)
+          sleep interval if number > 1
         end
       else
         type = first_header.protocol_name
