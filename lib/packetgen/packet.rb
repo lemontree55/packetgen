@@ -297,7 +297,7 @@ module PacketGen
     # @return [Packet] self
     # @raise [ArgumentError] +first_header+ is an unknown header
     def parse(binary_str, first_header: nil)
-      @headers.clear
+      headers.clear
 
       if first_header.nil?
         # No decoding forced for first header. Have to guess it!
@@ -306,8 +306,9 @@ module PacketGen
           raise ParseError, 'cannot identify first header in string'
         end
       end
+
       add first_header
-      @headers[-1, 1] = @headers.last.read(binary_str)
+      headers[-1, 1] = last_header.read(binary_str)
 
       # Decode upper headers recursively
       decode_bottom_up
@@ -400,34 +401,39 @@ module PacketGen
     # @param [Boolean] parsing
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
-      prev_header = previous_header || @headers.last
+      prev_header = previous_header || headers.last
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
+        bindings = prev_header.class.known_headers[header.class.superclass] if bindings.nil?
         if bindings.nil?
-          bindings = prev_header.class.known_headers[header.class.superclass]
-          if bindings.nil?
-            msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. ".dup
-            msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
-            msg << "#{prev_header.method_name}_proto_field: "
-            msg << "value_for_#{header.method_name})"
-            raise ArgumentError, msg
-          end
+          msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. ".dup
+          msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
+          msg << "#{prev_header.method_name}_proto_field: "
+          msg << "value_for_#{header.method_name})"
+          raise ArgumentError, msg
         end
+
         bindings.set(prev_header) if !bindings.empty? && !parsing
         prev_header[:body] = header
       end
       header.packet = self
-      @headers << header unless previous_header
+      headers << header unless previous_header
 
       return if respond_to? header.method_name
       add_magic_header_method header
     end
 
+    # Add method to access +header+
+    # @param [Header::Base] header
+    # @return [void]
     def add_magic_header_method(header)
       self.instance_eval "def #{header.method_name}(arg=nil);" \
                          "header(#{header.class}, arg); end"
     end
 
+    # Try to guess header from +binary_str+
+    # @param [String] binary_str
+    # @return [String] header/protocol name
     def guess_first_header(binary_str)
       first_header = nil
       Header.all.each do |hklass|
@@ -439,38 +445,44 @@ module PacketGen
         # * +#parse?+ is true
         # * it exists a known binding with a upper header
         next unless hdr.parse?
-        search_header(hdr) do
-          first_header = hklass.to_s.gsub(/.*::/, '')
-        end
+
+        first_header = hklass.to_s.gsub(/.*::/, '') if search_upper_header(hdr)
         break unless first_header.nil?
       end
       first_header
     end
 
+    # Decode packet bottom up
+    # @return [void]
     def decode_bottom_up
-      decode_packet_bottom_up = true
-      while decode_packet_bottom_up
-        last_known_hdr = @headers.last
-        break unless last_known_hdr.respond_to? :body
-        break if last_known_hdr.body.empty?
-        search_header(last_known_hdr) do |nh|
-          str = last_known_hdr.body
-          nheader = nh.new(packet: self)
-          nheader = nheader.read(str)
-          next unless nheader.parse?
-          add_header nheader, parsing: true
-        end
-        decode_packet_bottom_up = (@headers.last != last_known_hdr)
+      loop do
+        last_known_hdr = last_header
+        break if !last_known_hdr.respond_to?(:body) || last_known_hdr.body.empty?
+
+        nh = search_upper_header(last_known_hdr)
+        break if nh.nil?
+
+        nheader = nh.new(packet: self)
+        nheader = nheader.read(last_known_hdr.body)
+        next unless nheader.parse?
+
+        add_header nheader, parsing: true
+        break if last_header == last_known_hdr
       end
     end
 
-    def search_header(hdr)
+    # Search a upper header for +hdr+
+    # @param [Header::Base] hdr
+    # @return [void]
+    # @yieldparam [Header::Base] found upper header
+    def search_upper_header(hdr)
       hdr.class.known_headers.each do |nh, bindings|
         if bindings.check?(hdr)
-          yield nh
-          break
+          return nh
         end
       end
+
+      nil
     end
   end
 end
