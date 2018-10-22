@@ -279,5 +279,23 @@ module PacketGen
         expect(ip.frag).to eq(0x9001)
       end
     end
+
+    describe IP::Options do
+      let(:ip) { IP.new }
+
+      describe '#<<' do
+        it 'accepts options as Option-subclass objects' do
+          ip.options << IP::RA.new
+          expect(ip.options.to_s).to eq(force_binary("\x94\x04\x00\x00"))
+        end
+
+        it 'accepts options as hashes' do
+          ip.options << { type: 'RR' }
+          ip.options.last.data << '1.1.1.1' << '2.2.2.2'
+          ip.options << { type: 'EOL' }
+          expect(ip.options.to_s).to eq([7, 11, 4, 0x1010101, 0x2020202, 0].pack('C3N2C'))
+        end
+      end
+    end
   end
 end

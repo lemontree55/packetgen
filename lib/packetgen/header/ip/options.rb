@@ -27,10 +27,10 @@ module PacketGen
           types = Option.types
           while i < str.to_s.length
             type = str[i, 1].unpack('C').first
-            this_option = if types[type].nil?
-                            Option.new
+            this_option = if types.value? type
+                            IP.const_get(types.key(type)).new
                           else
-                            types[type].new
+                            Option.new
                           end
             this_option.read str[i, str.size]
             self << this_option
@@ -47,6 +47,12 @@ module PacketGen
             str += ([0] * (4 - (str.length % 4))).pack('C*')
           end
           str
+        end
+
+        private
+
+        def record_from_hash(hsh)
+          Option.build(hsh)
         end
       end
     end

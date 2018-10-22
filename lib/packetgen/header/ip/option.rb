@@ -70,13 +70,29 @@ module PacketGen
         # @return [Hash]
         def self.types
           return @types if defined? @types
+
           @types = {}
           Option.constants.each do |cst|
             next unless cst.to_s.end_with? '_TYPE'
             optname = cst.to_s.sub(/_TYPE/, '')
-            @types[Option.const_get(cst)] = IP.const_get(optname)
+            @types[optname] = Option.const_get(cst)
           end
           @types
+        end
+
+        # Factory to build an option from its type
+        # @return [Option]
+        def Option.build(options={})
+          type = options.delete(:type)
+          klass = case type
+                  when String
+                    types.key?(type) ? IP.const_get(type) : self
+                  when Integer
+                    types.value?(type) ? IP.const_get(types.key(type)) : self
+                  else
+                    self
+                  end
+          klass.new(options)
         end
 
         def initialize(options={})
@@ -87,6 +103,7 @@ module PacketGen
             end
           end
           super
+          self.length = sz if respond_to?(:length) && options[:length].nil?
         end
 
         # Get binary string. Set {#length} field.
@@ -114,8 +131,7 @@ module PacketGen
       end
 
       # No OPeration IP option
-      class NOP < EOL
-      end
+      class NOP < EOL; end
 
       # Loose Source and Record Route IP option
       class LSRR < Option
@@ -124,12 +140,12 @@ module PacketGen
         # @!attribute pointer
         #  8-bit pointer on next address
         #  @return [Integer]
-        define_field :pointer, Types::Int8
+        define_field :pointer, Types::Int8, default: 4
         # @!attribute data
         #  Array of IP addresses
         #  @return [Types::Array<IP::Addr>]
         define_field :data, ArrayOfAddr,
-                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
+                     builder: ->(h, t) { t.new(length_from: -> { h.length - 3 }) }
 
         # Populate object from a binary string
         # @param [String] str
