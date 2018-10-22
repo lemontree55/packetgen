@@ -7,6 +7,7 @@
 # frozen_string_literal: true
 
 require 'packetgen/version'
+require 'interfacez'
 
 # PacketGen is a network packet generator and analyzor.
 # @author Sylvain Daubert
@@ -72,15 +73,7 @@ module PacketGen
   # Get default network interface (ie. first non-loopback declared interface)
   # @return [String]
   def self.default_iface
-    return @default_iface if @default_iface
-
-    ipaddr = `ip addr`.split("\n")
-    @default_iface = ipaddr.each do |line|
-      m = line.match(/^\d+: (\w+\d+):/)
-      next if m.nil?
-      next if m[1].start_with? 'lo'
-      break m[1]
-    end
+    Interfacez.default
   end
 
   # Shortcut to get a header class

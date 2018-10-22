@@ -5,8 +5,6 @@
 
 # frozen_string_literal: true
 
-require 'interfacez'
-
 module PacketGen
   # Capture packets from wire
   # @author Sylvain Daubert
