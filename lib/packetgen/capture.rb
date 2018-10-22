@@ -57,6 +57,7 @@ module PacketGen
     # @see {#initialize} for parameters
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
+    # @since 3.0.0 arguments are kwargs and nor more a hash
     def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: DEFAULT_SNAPLEN)
       set_options iface, max, timeout, filter, promisc, parse, snaplen
 

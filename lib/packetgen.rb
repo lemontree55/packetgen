@@ -41,11 +41,12 @@ module PacketGen
   end
 
   # Shortcut for {Packet.capture}
-  # @param [Hash] options capture options. See {Packet.capture}.
+  # Same arguments as {Capture#initialize}
+  # @see Capture#initialize
   # @yieldparam [Packet] packet
   # @return [Array<Packet>]
-  def self.capture(options={})
-    Packet.capture(options) { |packet| yield packet if block_given? }
+  def self.capture(**kwargs)
+    Packet.capture(kwargs) { |packet| yield packet if block_given? }
   end
 
   # Shortcut for {Packet.read}

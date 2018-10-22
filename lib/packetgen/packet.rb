@@ -74,24 +74,13 @@ module PacketGen
     end
 
     # Capture packets from wire.
-    # @param [Hash] options capture options
-    # @option options [String]  :iface interface on which capture
-    #    packets on. Default: Use default interface lookup. If no interface found,
-    #    use loopback one.
-    # @option options [Integer] :max maximum number of packets to capture.
-    # @option options [Integer] :timeout maximum number of seconds before end
-    #    of capture. Default: +nil+ (no timeout)
-    # @option options [String] :filter bpf filter
-    # @option options [Boolean] :promiscuous (default: +false+)
-    # @option options [Boolean] :parse parse raw data to generate packets before
-    #    yielding.  Default: +true+
-    # @option options [Integer] :snaplen maximum number of bytes to capture for
-    #    each packet.
+    # Same arguments as {Capture#initialize}
+    # @see Capture#initialize
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @return [Array<Packet>] captured packet
-    def self.capture(options={})
-      capture = Capture.new(options)
+    def self.capture(**kwargs)
+      capture = Capture.new(kwargs)
       if block_given?
         capture.start { |packet| yield packet }
       else
