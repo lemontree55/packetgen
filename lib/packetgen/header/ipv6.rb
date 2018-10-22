@@ -45,6 +45,7 @@ module PacketGen
     # * a hop-limit field ({#hop}, +Int8+ type),
     # * a source address field ({#src}, {IPv6::Addr} type),
     # * a destination address field ({#dst}, +IPv6::Addr+ type),
+    # * and a {#body} ({Types::String} type).
     #
     # == Create a IPv6 header
     #  # standalone

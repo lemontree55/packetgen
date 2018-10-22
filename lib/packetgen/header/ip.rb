@@ -9,6 +9,22 @@ require 'socket'
 
 module PacketGen
   module Header
+    # IP protocol ({https://tools.ietf.org/html/rfc791 RFC 791})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |Version|  IHL  |Type of Service|          Total Length         |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |         Identification        |Flags|      Fragment Offset    |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |  Time to Live |    Protocol   |         Header Checksum       |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                       Source Address                          |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                    Destination Address                        |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                    Options                    |    Padding    |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A IP header consists of:
     # * a first byte ({#u8} of {Types::Int8} type) composed of:
     #   * a 4-bit {#version} field,
@@ -24,7 +40,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+),
     # * a source IP address ({#src}, {Addr} type),
     # * a destination IP address ({#dst}, +Addr+ type),
-    # * an optional {#options} field ({Types::String} type),
+    # * an optional {#options} field ({Options} type),
     # * and a {#body} ({Types::String} type).
     #
     # == Create a IP header
@@ -61,6 +77,14 @@ module PacketGen
     #  ip[:src]              # => PacketGen::Header::IP::Addr
     #  ip.dst = '127.0.0.2'
     #  ip.body.read 'this is a body'
+    #
+    # == Add IP options
+    # IP has an {#options} attribute used to store datagram options.
+    #  pkt = PacketGen.gen('IP')
+    #  # add option from class
+    #  pkt.ip.options << PacketGen::Header::IP::RA.new
+    #  # or use a hash
+    #  pkt.ip.options << { type: 'RR', data: ['192.168.16.4']}
     # @author Sylvain Daubert
     class IP < Base; end
 

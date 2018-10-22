@@ -7,6 +7,14 @@
 
 module PacketGen
   module Header
+    # UDP header ({https://tools.ietf.org/html/rfc768 RFC 768})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |          Source Port          |       Destination Port        |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |             Length            |           Checksum            |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A UDP header consists of:
     # * a source port field ({#sport}, {Types::Int16} type),
     # * a destination port field ({#dport}, +Int16+ type),
