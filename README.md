@@ -114,8 +114,8 @@ First, define the new header class. For example:
 ```ruby
 module MyModule
  class MyHeader < PacketGen::Header::Base
-   define_field :field1, PacketGen::Types::Int32   
-   define_field :field2, PacketGen::Types::Int32   
+   define_field :field1, PacketGen::Types::Int32
+   define_field :field2, PacketGen::Types::Int32
  end
 end
 ```
@@ -173,7 +173,7 @@ API documentation: http://www.rubydoc.info/gems/packetgen
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/sdaubert/packetgen-plugin-smb.
+Bug reports and pull requests are welcome on GitHub at https://github.com/sdaubert/packetgen.
 
 ## License
 
