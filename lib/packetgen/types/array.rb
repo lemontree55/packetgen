@@ -22,22 +22,23 @@ module PacketGen
       # May be ovverriden by subclasses
       HUMAN_SEPARATOR = ','
 
+      # rubocop:disable Naming/AccessorMethodName
       class <<self
-        # Get class set with {#set_of}.
+        # Get class set with {.set_of}.
         # @return [Class]
         def set_of_klass
           @klass
         end
 
+
         # Define type of objects in set. Used by {#read} and {#push}.
         # @param [Class] klass
         # @return [void]
-        # rubocop:disable Naming/AccessorMethodName
         def set_of(klass)
           @klass = klass
         end
-        # rubocop:enable Naming/AccessorMethodName
       end
+      # rubocop:enable Naming/AccessorMethodName
 
       # @param [Hash] options
       # @option options [Int] counter Int object used as a counter for this set
