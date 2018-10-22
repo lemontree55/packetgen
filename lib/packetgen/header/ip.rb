@@ -207,10 +207,11 @@ module PacketGen
         self[:checksum].value = IP.reduce_checksum(checksum)
       end
 
-      # Compute length and set +length+ field
+      # Compute and set +length+ and +ihl+ field
       # @return [Integer]
       def calc_length
         Base.calculate_and_set_length self
+        self.ihl = 5 + options.sz / 4
       end
 
       # Get IP part of pseudo header checksum.
