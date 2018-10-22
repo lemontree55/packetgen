@@ -125,7 +125,7 @@ module PacketGen
       private
 
       def ts_resol
-        if @interface.nil?
+        if !defined?(@interface) || @interface.nil?
           1E-6
         else
           @interface.ts_resol

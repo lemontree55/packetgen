@@ -78,6 +78,8 @@ module PacketGen
           self.rrclass = options[:rrclass] if options[:rrclass]
         end
 
+        undef rrclass=
+
         # Setter for class
         # @param [Integer] val
         # @return [Integer,String]

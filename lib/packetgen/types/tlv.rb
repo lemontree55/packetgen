@@ -75,6 +75,8 @@ module PacketGen
       # @private
       alias old_type= type=
 
+      undef type=, value=, value
+
       # Set type
       # @param [::String,Integer] val
       # @return [Integer]

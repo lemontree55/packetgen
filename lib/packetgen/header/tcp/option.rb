@@ -87,6 +87,8 @@ module PacketGen
           self[:kind].value && kind >= 2
         end
 
+        undef value
+
         # Getter for value attribute
         # @return [String, Integer]
         def value

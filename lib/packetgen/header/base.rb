@@ -199,7 +199,7 @@ module PacketGen
       # @return [String]
       # @since 2.0.0
       def self.protocol_name
-        return @protocol_name if @protocol_name
+        return @protocol_name if defined? @protocol_name
 
         classname = to_s
         @protocol_name = if classname.start_with?('PacketGen::Header')
@@ -247,7 +247,7 @@ module PacketGen
       # @since 2.0.0
       # @since 2.8.6 permit multiple nesting levels
       def method_name
-        return @method_name if @method_name
+        return @method_name if defined? @method_name
 
         @method_name = protocol_name.downcase.gsub(/::/, '_')
       end

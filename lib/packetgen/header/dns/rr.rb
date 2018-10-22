@@ -39,6 +39,8 @@ module PacketGen
           self.rdata = options[:rdata]
         end
 
+        undef rdata=
+
         # Set rdata and rdlength from +data+
         # @param [String] data
         # @return [void]

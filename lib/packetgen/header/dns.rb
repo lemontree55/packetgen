@@ -206,6 +206,8 @@ module PacketGen
         self
       end
 
+      undef opcode=, rcode=
+
       # Set opcode
       # @param [Integer,String] value
       # @return [Integer]

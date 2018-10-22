@@ -74,7 +74,7 @@ module PacketGen
           elsif block_given?
             yield packet_data
           end
-          break if @max && raw_packets.size >= @max
+          break if defined?(@max) && (raw_packets.size >= @max)
         end
       end
       cap_thread.join(@timeout)

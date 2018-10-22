@@ -32,7 +32,7 @@ module PacketGen
       # get null-terminated string
       # @return [String]
       def to_s
-        if @static_length.is_a? Integer
+        if defined? @static_length and @static_length.is_a? Integer
           if self.size >= @static_length
             s = self[0, @static_length]
             s[-1] = "\x00".encode(s.encoding)

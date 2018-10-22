@@ -7,7 +7,16 @@ module PacketGen
       class FTest < Fields; end
 
       after(:each) do
-        FTest.class_eval { @ordered_fields.clear; @field_defs.clear; @bit_fields.clear }
+        FTest.class_eval do
+          @ordered_fields.clear
+          @field_defs.clear
+          @bit_fields.clear
+          %i[b0 b1 b2 b3 b4 b5 b6 b7 f1 f2 f3 f4 f5 u8 u81 u82].each do |meth|
+            undef_method meth if method_defined?(meth)
+            undef_method "#{meth}=" if method_defined?("#{meth}=")
+            undef_method "#{meth}?" if method_defined?("#{meth}?")
+          end
+        end
       end
 
       describe '.define_field' do

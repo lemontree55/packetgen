@@ -34,7 +34,7 @@ module PacketGen
           expect(int.value).to eq(42)
         end
         it 'raises on reading a string' do
-          expect { int.read("\x2a") }.to raise_error(NoMethodError)
+          expect { int.read("\x2a") }.to raise_error(ParseError)
         end
       end
 
