@@ -22,14 +22,22 @@ module PacketGen
       # May be ovverriden by subclasses
       HUMAN_SEPARATOR = ','
 
-      # Define type of objects in set. Used by {#read} and {#push}.
-      # @param [Class] klass
-      # @return [void]
-      # rubocop:disable Naming/AccessorMethodName
-      def self.set_of(klass)
-        @klass = klass
+      class <<self
+        # Get class set with {#set_of}.
+        # @return [Class]
+        def set_of_klass
+          @klass
+        end
+
+        # Define type of objects in set. Used by {#read} and {#push}.
+        # @param [Class] klass
+        # @return [void]
+        # rubocop:disable Naming/AccessorMethodName
+        def set_of(klass)
+          @klass = klass
+        end
+        # rubocop:enable Naming/AccessorMethodName
       end
-      # rubocop:enable Naming/AccessorMethodName
 
       # @param [Hash] options
       # @option options [Int] counter Int object used as a counter for this set
@@ -151,7 +159,7 @@ module PacketGen
         return self if str.nil?
         return self if @counter && @counter.to_i.zero?
         force_binary str
-        klass = self.class.class_eval { @klass }
+        klass = self.class.set_of_klass
         until str.empty?
           obj = klass.new.read(str)
           @array << obj
@@ -202,7 +210,7 @@ module PacketGen
       private
 
       def record_from_hash(obj)
-        obj_klass = self.class.class_eval { @klass }
+        obj_klass = self.class.set_of_klass
         if obj_klass
           obj_klass.new(obj)
         else

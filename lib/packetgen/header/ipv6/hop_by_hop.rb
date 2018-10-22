@@ -53,9 +53,8 @@ module PacketGen
           clear
           return self if str.nil?
           force_binary str
-          klass = self.class.class_eval { @klass }
           until str.empty?
-            obj = klass.new.read(str)
+            obj = self.class.set_of_klass.new.read(str)
             obj = Pad1.new.read(str) if obj.type.zero?
             self.push obj
             str.slice!(0, obj.sz)
