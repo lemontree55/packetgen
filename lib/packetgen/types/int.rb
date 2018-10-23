@@ -80,7 +80,7 @@ module PacketGen
       # Give size in bytes of self
       # @return [Integer]
       def sz
-        to_s.size
+        width
       end
     end
 
