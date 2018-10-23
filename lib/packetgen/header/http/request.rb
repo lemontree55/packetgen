@@ -69,9 +69,9 @@ module PacketGen
           str = vrb + str.split(vrb)[-1]
           str = str.split("\n").map(&:chomp)
           first_line = str.shift.split
-          self[:method]  = first_line[0]
-          self[:path]    = first_line[1]
-          self[:version] = first_line[2]
+          self[:method].read first_line[0]
+          self[:path].read first_line[1]
+          self[:version].read first_line[2]
           # requests can sometimes have a payload
           if (data_index = str.find_index(''))
             data    = str[data_index + 1..-1].join("\n")
@@ -80,7 +80,7 @@ module PacketGen
             headers = str.join("\n")
           end
           self[:headers].read(headers)
-          self[:body] = data
+          self[:body].read data
           self
         end
 
