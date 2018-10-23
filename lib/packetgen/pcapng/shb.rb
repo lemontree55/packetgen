@@ -130,7 +130,7 @@ module PacketGen
         self[:ver_major].read io.read(2)
         self[:ver_minor].read io.read(2)
         self[:section_len].read io.read(8)
-        self[:options].read io.read(self[:block_len].to_i - MIN_SIZE)
+        self[:options].read io.read(self.block_len - MIN_SIZE)
         self[:block_len2].read io.read(4)
 
         check_len_coherency
@@ -149,8 +149,8 @@ module PacketGen
       # @return [String]
       def to_s
         body = @interfaces.map(&:to_s).join
-        unless self[:section_len].to_i == SECTION_LEN_UNDEFINED
-          self.section_len.value = body.size
+        unless self.section_len == SECTION_LEN_UNDEFINED
+          self.section_len = body.size
         end
         pad_field :options
         recalc_block_len

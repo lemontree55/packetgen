@@ -34,10 +34,10 @@ module PacketGen
           intf = @pcapng.sections.first.interfaces.first
           expect(intf.section).to eq(@pcapng.sections.first)
           expect(intf.packets.size).to eq(4)
-          expect(intf.snaplen.to_i).to eq(0)
+          expect(intf.snaplen).to eq(0)
           packet = intf.packets.first
           expect(packet.interface).to eq(intf)
-          expect(packet.data.size).to eq(packet.orig_len.to_i)
+          expect(packet.data.size).to eq(packet.orig_len)
         end
 
         it 'yields xPB object per read packet' do

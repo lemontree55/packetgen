@@ -83,7 +83,7 @@ module PacketGen
         self[:link_type].read io.read(2)
         self[:reserved].read io.read(2)
         self[:snaplen].read io.read(4)
-        self[:options].read io.read(self[:block_len].to_i - MIN_SIZE)
+        self[:options].read io.read(self.block_len - MIN_SIZE)
         self[:block_len2].read io.read(4)
 
         check_len_coherency
@@ -105,7 +105,7 @@ module PacketGen
         if @options_decoded && !force
           @ts_resol
         else
-          packstr = @endian == :little ? 'v' : 'n'
+          packstr = endian == :little ? 'v' : 'n'
           idx = 0
           options = self[:options]
 

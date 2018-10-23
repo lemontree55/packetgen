@@ -83,7 +83,7 @@ module PacketGen
         self[:block_len2].read io.read(4)
 
         check_len_coherency
-        self.type = self[:type] || PcapNG::IDB_TYPE.to_i
+        self.type ||= PcapNG::IDB_TYPE.to_i
         self
       end
 

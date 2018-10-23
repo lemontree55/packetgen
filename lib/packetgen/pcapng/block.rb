@@ -49,8 +49,8 @@ module PacketGen
       # @return [void]
       def pad_field(*fields)
         fields.each do |field|
-          unless (@fields[field].size % 4).zero?
-            @fields[field] << "\x00" * (4 - (@fields[field].size % 4))
+          unless (@fields[field].sz % 4).zero?
+            @fields[field] << "\x00" * (4 - (@fields[field].sz % 4))
           end
         end
       end
@@ -71,7 +71,7 @@ module PacketGen
       end
 
       def check_len_coherency
-        unless self[:block_len].to_i == self[:block_len2].to_i
+        unless self.block_len == self.block_len2
           raise InvalidFileError, 'Incoherency in Block length'
         end
       end
