@@ -171,16 +171,21 @@ module PacketGen
           if type < Types::Enum
             define << "def #{name}; self[:#{name}].to_i; end"
             define << "def #{name}=(val) self[:#{name}].value = val; end"
-          elsif type < Types::Int
-            define << "def #{name}; self[:#{name}].to_i; end"
-            define << "def #{name}=(val) self[:#{name}].read val; end"
-          elsif type.instance_methods.include?(:to_human) &&
-                type.instance_methods.include?(:from_human)
-            define << "def #{name}; self[:#{name}].to_human; end"
-            define << "def #{name}=(val) self[:#{name}].from_human val; end"
           else
-            define << "def #{name}; self[:#{name}]; end\n"
-            define << "def #{name}=(val) self[:#{name}].read val; end"
+            define << "def #{name}\n" \
+                      "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
+                      "    self[:#{name}].to_human\n" \
+                      "  else\n" \
+                      "    self[:#{name}]\n" \
+                      "  end\n" \
+                      "end"
+            define << "def #{name}=(val)\n" \
+                      "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
+                      "    self[:#{name}].from_human val\n" \
+                      "  else\n" \
+                      "    self[:#{name}].read val\n" \
+                      "  end\n" \
+                      "end"
           end
 
           define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
@@ -384,8 +389,6 @@ module PacketGen
           value = options[field] || default
           if value.class <= type
             @fields[field] = value
-          elsif type <= Types::String
-            @fields[field].read(value)
           elsif @fields[field].respond_to? :from_human
             @fields[field].from_human(value)
           end
@@ -451,14 +454,9 @@ module PacketGen
           next unless present?(field)
 
           obj = nil
-          if self[field].respond_to? :width
-            width = self[field].width
-            obj = self[field].read str[start, width]
-            start += width
-          elsif self[field].respond_to? :sz
+          if self[field].respond_to? :sz
             obj = self[field].read str[start..-1]
-            size = self[field].sz
-            start += size
+            start += self[field].sz
           else
             obj = self[field].read str[start..-1]
             start = str.size

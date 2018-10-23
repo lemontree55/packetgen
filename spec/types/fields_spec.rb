@@ -44,8 +44,7 @@ module PacketGen
           FTest.class_eval { define_field :f3, String }
           ft = FTest.new
           expect(ft[:f3]).to be_a(String)
-          expect(ft.f3).to be_a(String)
-          expect(ft.f3).to be_a(String)
+          expect(ft.f3).to be_a(::String)
           ft.f3 = 'abcd'
           expect(ft[:f3]).to eq('abcd')
         end

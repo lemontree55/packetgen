@@ -85,7 +85,7 @@ module PacketGen
           pkt3 = Packet.parse(pkt.to_s, first_header: 'PGTest::Base')
           expect(pkt3.is?('Base')).to be(true)
           expect(pkt3.is?('PGTest::ToBind')).to be(false)
-          expect(pkt3.base.body).to be_a(Types::String)
+          expect(pkt3.base[:body]).to be_a(Types::String)
         end
 
         it 'binds a header with multiple possibility (multiple calls to .bind)' do

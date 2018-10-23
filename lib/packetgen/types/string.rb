@@ -45,6 +45,7 @@ module PacketGen
 
       alias sz length
       alias to_human to_s
+      alias from_human read
     end
   end
 end

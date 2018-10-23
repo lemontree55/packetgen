@@ -98,27 +98,15 @@ module PacketGen
       # @param [::String,Integer] val
       # @return [::String,Integer]
       def value=(val)
-        if self[:value].respond_to? :from_human
-          self[:value].from_human val
-        elsif self[:value].is_a? Types::Int
-          self[:value].value = val
-        else
-          self.length = val.length if val.is_a? ::String
-          self[:value].read val
-        end
+        self[:value].from_human val
+        self.length = self[:value].sz
         val
       end
 
       # Get +value+
       # @return [Object] depend on +value+ type
       def value
-        if self[:value].respond_to? :to_human
-          self[:value].to_human
-        elsif self[:value].is_a? Types::Int
-          self[:value].to_i
-        else
-          self[:value]
-        end
+        self[:value].to_human
       end
 
       # Return human readable type, if TYPES is defined
