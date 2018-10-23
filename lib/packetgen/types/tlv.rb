@@ -88,8 +88,10 @@ module PacketGen
           self.old_type = val
         else
           raise TypeError, 'need an Integer' unless human_types?
+
           new_val = self.class::TYPES.key(val.to_s)
           raise ArgumentError, "unknown #{val} type" if new_val.nil?
+
           self.old_type = new_val
         end
       end

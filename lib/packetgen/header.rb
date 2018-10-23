@@ -43,7 +43,8 @@ module PacketGen
       # List all available headers.
       # @return [Array<Class>]
       def all
-        return @header_classes if @header_classes
+        return @header_classes if defined?(@header_classes) && @header_classes
+
         @header_classes = @added_header_classes.values
       end
       alias list all

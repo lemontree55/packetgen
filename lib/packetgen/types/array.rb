@@ -30,7 +30,6 @@ module PacketGen
           @klass
         end
 
-
         # Define type of objects in set. Used by {#read} and {#push}.
         # @param [Class] klass
         # @return [void]
@@ -61,12 +60,12 @@ module PacketGen
       end
 
       def ==(other)
-        case other
-        when Array
-          @array == other.to_a
-        else
-          @array == other
-        end
+        @array == case other
+                  when Array
+                    other.to_a
+                  else
+                    other
+                  end
       end
 
       # Clear array.
@@ -159,6 +158,7 @@ module PacketGen
         clear
         return self if str.nil?
         return self if @counter && @counter.to_i.zero?
+
         force_binary str
         klass = self.class.set_of_klass
         until str.empty?
@@ -211,12 +211,9 @@ module PacketGen
       private
 
       def record_from_hash(obj)
-        obj_klass = self.class.set_of_klass
-        if obj_klass
-          obj_klass.new(obj)
-        else
-          raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
-        end
+        return obj_klass.new(obj) if self.class.set_of_klass
+
+        raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
       end
     end
 

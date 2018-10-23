@@ -101,9 +101,11 @@ module PacketGen
       PcapNG::File.new.read_packets filename
     rescue StandardError => e
       raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
+
       packets = []
       PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
         next unless (packet = PacketGen.parse(packet.to_s))
+
         packets << packet
       end
       packets
@@ -270,9 +272,7 @@ module PacketGen
         prev_hdr = idx > 0 ? headers[idx - 1] : nil
         next_hdr = (idx + 1) < headers.size ? headers[idx + 1] : nil
         headers.delete_at(idx)
-        if prev_hdr && next_hdr
-          add_header(next_hdr, previous_header: prev_hdr)
-        end
+        add_header(next_hdr, previous_header: prev_hdr) if prev_hdr && next_hdr
       end
     rescue ArgumentError => ex
       raise FormatError, ex.message
@@ -389,6 +389,7 @@ module PacketGen
     def check_protocol(protocol)
       klass = Header.get_header_class_by_name(protocol)
       raise ArgumentError, "unknown #{protocol} protocol" if klass.nil?
+
       klass
     end
 
@@ -417,6 +418,7 @@ module PacketGen
       headers << header unless previous_header
 
       return if respond_to? header.method_name
+
       add_magic_header_method header
     end
 
@@ -473,9 +475,7 @@ module PacketGen
     # @yieldparam [Header::Base] found upper header
     def search_upper_header(hdr)
       hdr.class.known_headers.each do |nh, bindings|
-        if bindings.check?(hdr)
-          return nh
-        end
+        return nh if bindings.check?(hdr)
       end
 
       nil

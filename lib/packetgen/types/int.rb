@@ -47,7 +47,7 @@ module PacketGen
                  elsif defined? @packstr
                    value.to_s.unpack(@packstr[@endian]).first
                  else
-                    raise ParseError, 'Int#read is abstract and cannot read'
+                   raise ParseError, 'Int#read is abstract and cannot read'
                  end
         self
       end

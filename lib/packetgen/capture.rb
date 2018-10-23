@@ -103,6 +103,7 @@ module PacketGen
 
     def set_filter_on(pcap)
       return if filter.nil? || filter.empty?
+
       pcap.setfilter filter
     end
   end

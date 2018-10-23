@@ -354,7 +354,7 @@ module PacketGen
 
           fields.each do |field, size|
             undef_method "#{field}="
-            undef_method(size == 1 ? "#{field}?" : "#{field}")
+            undef_method(size == 1 ? "#{field}?" : field)
           end
         end
       end
@@ -453,12 +453,10 @@ module PacketGen
         fields.each do |field|
           next unless present?(field)
 
-          obj = nil
+          obj = self[field].read str[start..-1]
           if self[field].respond_to? :sz
-            obj = self[field].read str[start..-1]
             start += self[field].sz
           else
-            obj = self[field].read str[start..-1]
             start = str.size
           end
           self[field] = obj unless obj == self[field]
@@ -481,7 +479,7 @@ module PacketGen
           next if attr == :body
           next unless present?(attr)
 
-          result = yield(attr)if block_given?
+          result = yield(attr) if block_given?
           str << (result || Inspect.inspect_attribute(attr, self[attr], 1))
         end
         str
@@ -536,7 +534,7 @@ module PacketGen
       # @return [void]
       def initialize_copy(_other)
         fields = {}
-        @fields.each { |k,v| fields[k] = v.dup }
+        @fields.each { |k, v| fields[k] = v.dup }
         @fields = fields
       end
 

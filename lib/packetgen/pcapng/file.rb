@@ -66,10 +66,14 @@ module PacketGen
         end
 
         return unless blk
+
         count = 0
         @sections.each do |section|
           section.interfaces.each do |intf|
-            intf.packets.each { |pkt| count += 1; yield pkt }
+            intf.packets.each do |pkt|
+              count += 1
+              yield pkt
+            end
           end
         end
         count

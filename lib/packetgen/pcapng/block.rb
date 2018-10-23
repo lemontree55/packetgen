@@ -65,6 +65,7 @@ module PacketGen
         unless %i[little big].include? endian
           raise ArgumentError, "unknown endianness for #{self.class}"
         end
+
         @endian = endian
         @fields.each { |_f, v| v.endian = endian if v.is_a?(Types::Int) }
         endian
