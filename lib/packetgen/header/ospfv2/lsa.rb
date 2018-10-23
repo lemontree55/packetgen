@@ -201,6 +201,7 @@ module PacketGen
           clear
           return self if str.nil?
           return self if @counter && @counter.to_i.zero?
+
           force_binary str
           until str.empty?
             lsa = LSAHeader.new.read(str)

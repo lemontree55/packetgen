@@ -211,7 +211,8 @@ module PacketGen
       private
 
       def record_from_hash(obj)
-        return obj_klass.new(obj) if self.class.set_of_klass
+        obj_klass = self.class.set_of_klass
+        return obj_klass.new(obj) if obj_klass
 
         raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
       end

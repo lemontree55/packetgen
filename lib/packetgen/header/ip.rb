@@ -108,7 +108,7 @@ module PacketGen
       define_field :length, Types::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
-      define_field :id, Types::Int16, default: ->(h) { rand(65_535) }
+      define_field :id, Types::Int16, default: ->(_) { rand(65_535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
       define_field :frag, Types::Int16, default: 0
@@ -193,6 +193,7 @@ module PacketGen
       # @return [Fields] self
       def read(str)
         return self if str.nil?
+        
         force_binary str
         self[:u8].read str[0, 1]
         self[:tos].read str[1, 1]

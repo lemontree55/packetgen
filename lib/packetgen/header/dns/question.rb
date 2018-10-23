@@ -91,6 +91,7 @@ module PacketGen
                 val
               end
           raise ArgumentError, "unknown class #{val.inspect}" unless v
+
           self[:rrclass].read v
         end
 

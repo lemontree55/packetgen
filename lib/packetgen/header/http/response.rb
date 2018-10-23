@@ -102,6 +102,7 @@ module PacketGen
           raise FormatError, 'Missing #status_code.' if self.status_code.empty?
           raise FormatError, 'Missing #status_mesg.' if self.status_mesg.empty?
           raise FormatError, 'Missing #version.'     if self.version.empty?
+
           str = ''.dup # build 'dat string
           str << self[:version] << ' ' << self[:status_code] << ' ' << self[:status_mesg] << "\r\n"
           str << self[:headers].to_s if self[:headers].given?

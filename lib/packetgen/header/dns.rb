@@ -189,6 +189,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
+
         force_binary str
         self[:id].read str[0, 2]
         self[:u16].read str[2, 2]
@@ -219,6 +220,7 @@ module PacketGen
                  OPCODES[value.to_s]
                end
         raise ArgumentError, "unknown opcode #{value.inspect}" unless intg
+
         self.u16 &= 0x87ff
         self.u16 |= (intg & 0xf) << 11
       end
@@ -234,6 +236,7 @@ module PacketGen
                  RCODES[value]
                end
         raise ArgumentError, "unknown rcode #{value.inspect}" unless intg
+
         self.u16 &= 0xfff0
         self.u16 |= intg & 0xf
       end

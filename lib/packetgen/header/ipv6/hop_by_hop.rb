@@ -52,6 +52,7 @@ module PacketGen
         def read(str)
           clear
           return self if str.nil?
+
           force_binary str
           until str.empty?
             obj = self.class.set_of_klass.new.read(str)
@@ -117,6 +118,7 @@ module PacketGen
         # @return [self]
         def read(str)
           return self if str.nil?
+
           force_binary str
           self[:next].read str[0, 1]
           self[:length].read str[1, 1]

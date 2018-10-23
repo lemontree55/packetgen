@@ -71,6 +71,7 @@ module PacketGen
         # @return [self]
         def read(str)
           return self if str.nil?
+
           force_binary str
           self[:kind].read str[0, 1]
           if str[1, 1]

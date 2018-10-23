@@ -25,6 +25,7 @@ module PacketGen
         def read(str)
           clear
           return self if str.nil?
+
           force_binary str
           while !str.empty? && (self.size < @counter.to_i)
             rr = RR.new(@dns).read(str)

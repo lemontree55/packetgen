@@ -15,9 +15,11 @@ module PacketGen
         # @return [Array<Class>]
         def self.option_classes
           return @klasses if defined? @klasses
+
           @klasses = []
           Option.constants.each do |cst|
             next unless cst.to_s.end_with? '_KIND'
+
             optname = cst.to_s.sub(/_KIND/, '')
             @klasses[Option.const_get(cst)] = TCP.const_get(optname)
           end
@@ -30,8 +32,8 @@ module PacketGen
         def read(str)
           clear
           return self if str.nil?
-          PacketGen.force_binary str
 
+          PacketGen.force_binary str
           i = 0
           klasses = self.class.option_classes
           while i < str.to_s.length
@@ -57,15 +59,12 @@ module PacketGen
         def record_from_hash(hsh)
           if hsh.key? :opt
             klassname = hsh.delete(:opt)
-            if TCP.const_defined?(klassname)
-              klass = TCP.const_get(klassname)
-              unless klass < Option
-                raise ArgumentError, 'opt should be a TCP::Option subclass'
-              end
-              klass.new(hsh)
-            else
-              raise ArgumentError, 'opt should be a TCP::Option subclass'
-            end
+            raise ArgumentError, 'opt should be a TCP::Option subclass' unless TCP.const_defined?(klassname)
+
+            klass = TCP.const_get(klassname)
+            raise ArgumentError, 'opt should be a TCP::Option subclass' unless klass < Option
+
+            klass.new(hsh)
           else
             hsh
           end

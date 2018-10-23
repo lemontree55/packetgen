@@ -52,8 +52,10 @@ module PacketGen
         # @return [self]
         def from_human(str)
           return self if str.nil?
+
           addr = IPAddr.new(str)
           raise ArgumentError, 'string is not a IPv6 address' unless addr.ipv6?
+
           addri = addr.to_i
           self.a1 = addri >> 112
           self.a2 = addri >> 96 & 0xffff

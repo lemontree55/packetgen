@@ -74,6 +74,7 @@ module PacketGen
           @types = {}
           Option.constants.each do |cst|
             next unless cst.to_s.end_with? '_TYPE'
+
             optname = cst.to_s.sub(/_TYPE/, '')
             @types[optname] = Option.const_get(cst)
           end
@@ -144,14 +145,14 @@ module PacketGen
         # @!attribute data
         #  Array of IP addresses
         #  @return [Types::Array<IP::Addr>]
-        define_field :data, ArrayOfAddr,
-                     builder: ->(h, t) { t.new(length_from: -> { h.length - 3 }) }
+        define_field :data, ArrayOfAddr
 
         # Populate object from a binary string
         # @param [String] str
         # @return [Fields] self
         def read(str)
           return self if str.nil?
+
           force_binary str
           self[:type].read str[0, 1]
           self[:length].read str[1, 1]

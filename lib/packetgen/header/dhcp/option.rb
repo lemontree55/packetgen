@@ -95,9 +95,10 @@ module PacketGen
         def initialize(options={})
           super
           return unless DHCP_OPTIONS.key?(self.type)
-          h = DHCP_OPTIONS[self.type].last
 
+          h = DHCP_OPTIONS[self.type].last
           return unless h.is_a? Hash
+
           h.each do |k, v|
             self.length = v if k == :length
             if k == :v

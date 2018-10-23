@@ -143,10 +143,10 @@ module PacketGen
       end
 
       # Send IPv6 packet on wire. All fields may be set (even {#version}).
-      # @param [String] iface interface name
+      # @param [String] _iface interface name (not used)
       # @return [void]
       # @since 3.0.0 no more limitations on +flow_label+, +length+ and +src+ fields.
-      def to_w(iface=nil)
+      def to_w(_iface=nil)
         sock = Socket.new(Socket::AF_INET6, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
         sock.send to_s, 0, sockaddrin

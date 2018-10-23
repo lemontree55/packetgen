@@ -90,6 +90,7 @@ module PacketGen
           raise FormatError, 'Missing #method.'  if self.method.empty?
           raise FormatError, 'Missing #path.'    if self.path.empty?
           raise FormatError, 'Missing #version.' if self.version.empty?
+
           str = ''.dup # build 'dat string
           str << self[:method] << ' ' << self[:path] << ' ' << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
         end

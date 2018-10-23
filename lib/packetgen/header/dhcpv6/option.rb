@@ -36,10 +36,12 @@ module PacketGen
           # @return [Hash]
           def subclasses
             return @klasses if defined? @klasses
+
             @klasses = []
             DHCPv6.constants.each do |cst|
               klass = DHCPv6.const_get(cst)
               next unless klass.is_a?(Class) && (klass < Option)
+
               @klasses[klass.new.type] = klass
             end
             @klasses
@@ -86,6 +88,7 @@ module PacketGen
         def read(str)
           if self.class == Option
             return self if str.nil?
+
             PacketGen.force_binary str
             type = Types::Int16.new.read(str).to_i
             klass = Option.subclasses[type]

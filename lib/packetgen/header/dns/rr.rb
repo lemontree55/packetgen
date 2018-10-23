@@ -36,6 +36,7 @@ module PacketGen
         def initialize(dns, options={})
           super
           return unless options[:rdata] && options[:rdlength].nil?
+
           self.rdata = options[:rdata]
         end
 

@@ -285,10 +285,10 @@ module PacketGen
       # @raise [FormatError] +header+ not in a packet
       def header_id(header)
         raise FormatError, "header of type #{header.class} not in a packet" if packet.nil?
+
         id = packet.headers.index(header)
-        if id.nil?
-          raise FormatError, "header of type #{header.class} not in packet #{packet}"
-        end
+        raise FormatError, "header of type #{header.class} not in packet #{packet}" if id.nil?
+
         id
       end
 
@@ -302,6 +302,7 @@ module PacketGen
         hid = header_id(header)
         iph = packet.headers[0...hid].reverse.find { |h| h.is_a?(IP) || h.is_a?(IPv6) }
         raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
+
         iph
       end
 
@@ -315,6 +316,7 @@ module PacketGen
         hid = header_id(header)
         llh = packet.headers[0...hid].reverse.find { |h| h.is_a?(Eth) || h.is_a?(Dot11) }
         raise FormatError, 'no link layer header in packet' if llh.nil?
+
         llh
       end
     end

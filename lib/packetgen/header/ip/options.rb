@@ -21,8 +21,8 @@ module PacketGen
         def read(str)
           clear
           return self if str.nil?
-          PacketGen.force_binary str
 
+          PacketGen.force_binary str
           i = 0
           types = Option.types
           while i < str.to_s.length
