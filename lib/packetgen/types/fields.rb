@@ -391,8 +391,6 @@ module PacketGen
             else
               @fields[field].read(value)
             end
-          elsif type < Types::Int
-            @fields[field].read(value)
           elsif type <= Types::String
             @fields[field].read(value)
           elsif @fields[field].respond_to? :from_human
