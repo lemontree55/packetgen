@@ -384,13 +384,6 @@ module PacketGen
           value = options[field] || default
           if value.class <= type
             @fields[field] = value
-          elsif type < Types::Enum
-            case value
-            when ::String
-              @fields[field].value = value
-            else
-              @fields[field].read(value)
-            end
           elsif type <= Types::String
             @fields[field].read(value)
           elsif @fields[field].respond_to? :from_human

@@ -45,9 +45,10 @@ module PacketGen
       end
 
       # Setter for value attribute
-      # @param [Integer, String,nil] value value as an Integer or as a String
+      # @param [#to_i, String,nil] value value as an Integer or as a String
       #   from enumration
       # @return [Integer]
+      # @raise [ArgumentError] String value is unknown
       def value=(value)
         ival = case value
                when NilClass
@@ -56,8 +57,7 @@ module PacketGen
                  raise ArgumentError, "#{value.inspect} not in enumeration" unless @enum.key? value
                  @enum[value]
                else
-                 raise ArgumentError, "#{value.inspect} not in enumeration" unless @enum.value? value
-                 value
+                 value.to_i
                end
         @value = ival
       end
