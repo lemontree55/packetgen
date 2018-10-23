@@ -218,7 +218,7 @@ module PacketGen
         length = if header_in_size
                    hdr.sz
                  else
-                   hdr.body.sz
+                   hdr[:body].sz
                  end
         hdr.length = length
       end

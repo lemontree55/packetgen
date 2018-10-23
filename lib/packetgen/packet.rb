@@ -194,7 +194,7 @@ module PacketGen
     # Get packet body
     # @return [Types]
     def body
-      last_header.body if last_header.respond_to? :body
+      last_header[:body] if last_header.respond_to? :body
     end
 
     # Set packet body

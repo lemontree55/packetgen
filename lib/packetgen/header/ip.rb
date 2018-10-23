@@ -235,7 +235,7 @@ module PacketGen
       # @return [Integer]
       def calc_length
         Base.calculate_and_set_length self
-        self.ihl = 5 + options.sz / 4
+        self.ihl = 5 + self[:options].sz / 4
       end
 
       # Get IP part of pseudo header checksum.
@@ -290,7 +290,7 @@ module PacketGen
       # Get binary string. Fixup IHL if needed (IP header has options, and IHL
       # was not set by user).
       def to_s
-        self.ihl = 5 + options.sz / 4 if self.ihl == 5
+        self.ihl = 5 + self[:options].sz / 4 if self.ihl == 5
         super
       end
 
