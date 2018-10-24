@@ -17,6 +17,7 @@ module PacketGen
     # @author Sylvain Daubert
     class Array
       include Enumerable
+      include LengthFrom
 
       # Separator used in {#to_human}.
       # May be ovverriden by subclasses
@@ -45,6 +46,7 @@ module PacketGen
       def initialize(options={})
         @counter = options[:counter]
         @array = []
+        initialize_length_from(options)
       end
 
       # Initialize array for copy:
@@ -160,7 +162,7 @@ module PacketGen
         return self if str.nil?
         return self if @counter && @counter.to_i.zero?
 
-        force_binary str
+        str = read_with_length_from(str)
         klass = self.class.set_of_klass
         until str.empty?
           obj = klass.new.read(str)
