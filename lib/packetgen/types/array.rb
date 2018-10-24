@@ -14,6 +14,14 @@ module PacketGen
     #
     # A default method is defined by {Array}: it calls constructor of class defined
     # by {.set_of}.
+    #
+    # == #real_type
+    # Subclasses should define private method +#real_type+ is {.set_of} type
+    # may be subclassed. This method should return real class to use. It
+    # takes an only argument, which is of type given by {.set_of}.
+    #
+    # Default behaviour of this method is to argument's class.
+    #
     # @author Sylvain Daubert
     class Array
       include Enumerable
@@ -166,6 +174,8 @@ module PacketGen
         klass = self.class.set_of_klass
         until str.empty?
           obj = klass.new.read(str)
+          real_klass = real_type(obj)
+          obj = real_klass.new.read(str) unless real_klass == klass
           @array << obj
           str.slice!(0, obj.sz)
           break if @counter && self.size == @counter.to_i
@@ -218,6 +228,10 @@ module PacketGen
         return obj_klass.new(obj) if obj_klass
 
         raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
+      end
+
+      def real_type(obj)
+        obj.class
       end
     end
 
