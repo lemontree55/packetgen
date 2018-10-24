@@ -130,7 +130,8 @@ module PacketGen
       # @!attribute options
       #  @since 2.2.0
       #  @return [Types::String]
-      define_field :options, Options, optional: ->(h) { h.ihl > 5 }
+      define_field :options, Options, optional: ->(h) { h.ihl > 5 },
+                  builder: ->(h, t) { t.new(length_from: -> { (h.ihl - 5) * 4 }) }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
@@ -186,32 +187,6 @@ module PacketGen
         end
         checksum = ~checksum & 0xffff
         checksum.zero? ? 0xffff : checksum
-      end
-
-      # Populate object from a binary string
-      # @param [String] str
-      # @return [Fields] self
-      def read(str)
-        return self if str.nil?
-
-        force_binary str
-        self[:u8].read str[0, 1]
-        self[:tos].read str[1, 1]
-        self[:length].read str[2, 2]
-        self[:id].read str[4, 2]
-        self[:frag].read str[6, 2]
-        self[:ttl].read str[8, 1]
-        self[:protocol].read str[9, 1]
-        self[:checksum].read str[10, 2]
-        self[:src].read str[12, 4]
-        self[:dst].read str[16, 4]
-        opt_size = 0
-        if self.ihl > 5
-          opt_size = (self.ihl - 5) * 4
-          self[:options].read str[20, opt_size]
-        end
-        self[:body].read str[20 + opt_size..-1]
-        self
       end
 
       # Compute checksum and set +checksum+ field
