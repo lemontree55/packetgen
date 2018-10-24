@@ -26,6 +26,7 @@ module PacketGen
       class <<self
         # Get class set with {.set_of}.
         # @return [Class]
+        # @since 3.0.0
         def set_of_klass
           @klass
         end

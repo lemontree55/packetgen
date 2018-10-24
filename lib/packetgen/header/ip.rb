@@ -193,7 +193,7 @@ module PacketGen
       # @return [Fields] self
       def read(str)
         return self if str.nil?
-        
+
         force_binary str
         self[:u8].read str[0, 1]
         self[:tos].read str[1, 1]
@@ -234,6 +234,7 @@ module PacketGen
 
       # Compute and set +length+ and +ihl+ field
       # @return [Integer]
+      # @since 3.0.0 add +ihl+ calculation
       def calc_length
         Base.calculate_and_set_length self
         self.ihl = 5 + self[:options].sz / 4
