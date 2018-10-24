@@ -37,10 +37,11 @@ module PacketGen
         # @!attribute length
         #  Option length
         #  @return [Integer] 8-bit option length
-        define_field :length, Types::Int8
+        define_field :length, Types::Int8, optional: ->(h) { h.length? }
         # @!attribute value
         #  @return [Integer,String] option value
-        define_field :value, Types::String
+        define_field :value, Types::String, optional: ->(h) { h.length? && h.length > 2 },
+                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
         # @param [hash] options
         # @option options [Integer] :kind
@@ -59,33 +60,18 @@ module PacketGen
                     end
             self[:value] = klass.new(options[:value])
           when NilClass
-            self[:value] = Types::String.new
+            # Nothing to do
           else
             self[:value] = Types::String.new.read(options[:value])
             self[:length].read(self[:value].sz + 2) unless options[:length]
           end
         end
 
-        # Read a TCP option from a string
-        # @param [String] str binary string
-        # @return [self]
-        def read(str)
-          return self if str.nil?
-
-          force_binary str
-          self[:kind].read str[0, 1]
-          if str[1, 1]
-            self[:length].read str[1, 1]
-            self[:value].read str[2, length - 2] if str[2, 1] && length > 2
-          end
-          self
-        end
-
         # Say if given option has a length field.
         # @return [Boolean]
         # @since 2.7.0
         def length?
-          self[:kind].value && kind >= 2
+          kind >= 2
         end
 
         undef value
@@ -101,13 +87,26 @@ module PacketGen
           end
         end
 
+        alias old_set_value value=
+        # Setter for value attribute
+        # @param[String,Integer]
+        # @return [String, Integer]
+        def value=(v)
+          case self[:value]
+          when Types::Int
+            self.length = 2 + self[:value].sz
+          when String
+            self.length = 2 + Types::String.new.read(v).sz
+          end
+          self[:value].read v
+          v
+        end
+
         # Get binary string
         # @return [String]
         def to_s
-          str = self[:kind].to_s
-          str << self[:length].to_s unless self[:length].value.nil?
-          str << self[:value].to_s if length > 2
-          str
+          self.length = 2 + self[:value].sz if length?
+          super
         end
 
         # Get option as a human readable string
