@@ -28,7 +28,7 @@ module PacketGen
       # @param [#to_s] str
       # @return [String]
       def read_with_length_from(str)
-        s = force_binary(str.to_s)
+        s = PacketGen.force_binary(str.to_s)
         str_end = case @length_from
                   when Types::Int
                     @length_from.to_i
