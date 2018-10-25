@@ -145,21 +145,7 @@ module PacketGen
         # @!attribute data
         #  Array of IP addresses
         #  @return [Types::Array<IP::Addr>]
-        define_field :data, ArrayOfAddr
-
-        # Populate object from a binary string
-        # @param [String] str
-        # @return [Fields] self
-        def read(str)
-          return self if str.nil?
-
-          force_binary str
-          self[:type].read str[0, 1]
-          self[:length].read str[1, 1]
-          self[:pointer].read str[2, 1]
-          self[:data].read str[3, length - 3]
-          self
-        end
+        define_field :data, ArrayOfAddr, builder: ->(h, t) { t.new(length_from: -> { h.length - 3 }) }
 
         # Get IP address pointer by {#pointer}
         # @return [Addr]

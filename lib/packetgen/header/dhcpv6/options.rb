@@ -23,6 +23,13 @@ module PacketGen
 
         # Separator used in {#to_human}.
         HUMAN_SEPARATOR = ';'
+
+        private
+
+        def real_type(opt)
+          real_klass = Option.subclasses[opt.type]
+          real_klass.nil? ? Option : real_klass
+        end
       end
     end
   end

@@ -72,7 +72,7 @@ module PacketGen
         OSPFv3.define_options(self)
         # @attribute links
         #  @return [ArrayOfLink]
-        define_field :links, ArrayOfLink
+        define_field :links, ArrayOfLink, builder: ->(h, t) { t.new(length_from: -> { h.length - h.offset_of(:links) }) }
 
         # @!attribute nt_flag
         #  @return [Boolean]
@@ -103,7 +103,7 @@ module PacketGen
         # @!attribute routers
         #  List of routers attached to the link.
         #  @return [IP::ArrayOfAddr]
-        define_field :routers, IP::ArrayOfAddr
+        define_field :routers, IP::ArrayOfAddr, builder: ->(h, t) { t.new(length_from: -> { h.length - h.offset_of(:routers) }) }
       end
 
       # This class handles OSPFv3 LSA Intra-Area-Prefix payloads.
@@ -175,7 +175,7 @@ module PacketGen
         # @!attribute prefixes
         #  List of IPv6 prefixes to be associated with the link.
         #  @return [ArrayOfIPv6Prefix]
-        define_field :prefixes, ArrayOfIPv6Prefix
+        define_field :prefixes, ArrayOfIPv6Prefix, builder: ->(h, t) { t.new(counter: h[:prefix_count]) }
       end
 
       # This class defines a specialized {Types::Array array} to handle series
@@ -183,7 +183,7 @@ module PacketGen
       # and infers correct type.
       # @author Sylvain Daubert
       class ArrayOfLSA < Types::Array
-        set_of LSA
+        set_of LSAHeader
 
         # @param [Hash] options
         # @option options [Types::Int] counter Int object used as a counter for this set
@@ -192,28 +192,6 @@ module PacketGen
         def initialize(options={})
           super
           @only_headers = options[:only_headers] || false
-        end
-
-        # Populate object from a string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          clear
-          return self if str.nil?
-          return self if @counter && @counter.to_i.zero?
-
-          force_binary str
-          until str.empty?
-            lsa = LSAHeader.new.read(str)
-            unless @only_headers
-              klass = get_lsa_class_by_human_type(lsa.human_type)
-              lsa = klass.new.read(str[0...lsa.length])
-            end
-            self.push lsa
-            str.slice!(0, lsa.sz)
-            break if @counter && (self.size == @counter.to_i)
-          end
-          self
         end
 
         private
@@ -245,6 +223,10 @@ module PacketGen
           else
             LSA
           end
+        end
+
+        def real_type(lsah)
+          @only_headers ? lsah.class : get_lsa_class_by_human_type(lsah.human_type)
         end
       end
     end

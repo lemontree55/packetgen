@@ -33,7 +33,7 @@ module PacketGen
         # @!attribute prefix
         #  IPv6 Prefix as an array of 32-bit words
         #  @return [Prefix]
-        define_field :prefix, Types::ArrayOfInt32
+        define_field :prefix, Types::ArrayOfInt32, builder: ->(h, t) { t.new(length_from: -> { h.length / 8 }) }
 
         # @!attribute dn_opt
         #  This bit controls an inter-area-prefix-LSAs or AS-external-LSAs

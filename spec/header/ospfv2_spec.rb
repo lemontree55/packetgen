@@ -28,7 +28,7 @@ module PacketGen
         end
 
         it 'accepts options' do
-          options             = { 
+          options             = {
             version: 1,
             type: 'LS_ACK',
             length: 152,
@@ -262,7 +262,7 @@ module PacketGen
             ospf = packets[3].ospfv2
             expect(ospf.type).to eq(3)
             expect(ospf.body).to be_a(OSPFv2::LSRequest)
-            
+
             lsr = ospf.body
             expect(lsr.lsrs.size).to eq(7)
             expected = [{ type: 'Router',
@@ -366,7 +366,7 @@ module PacketGen
             lsack = ospf.body
             expect(lsack.lsas.size).to eq(13)
             lsack.lsas.each { |lsa| expect(lsa).to be_a(OSPFv2::LSAHeader) }
-            
+
             types = lsack.lsas.map(&:human_type)
             expect(types).to eq(%w(Router) + %w(AS-External) * 12)
           end

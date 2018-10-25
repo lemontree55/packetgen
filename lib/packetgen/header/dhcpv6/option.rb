@@ -82,26 +82,6 @@ module PacketGen
         alias private_read read
         private :private_read
 
-        # Populate object from binary string
-        # @param [String] str
-        # @return [Option]
-        def read(str)
-          if self.class == Option
-            return self if str.nil?
-
-            PacketGen.force_binary str
-            type = Types::Int16.new.read(str).to_i
-            klass = Option.subclasses[type]
-            if klass
-              klass.new.read(str)
-            else
-              private_read str
-            end
-          else
-            private_read str
-          end
-        end
-
         # Get human-readable {#type}
         # @return [String]
         def human_type
