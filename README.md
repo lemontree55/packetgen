@@ -161,8 +161,9 @@ If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is us
 
 PacketGen provides a plugin system (see [wiki](https://github.com/sdaubert/packetgen/wiki/Create-Custom-Protocol)).
 
-For now, there is only one plugin available as a gem:
+Available plugins (available as gem) are:
 
+* [packetgen-plugin-ipsec](https://github.com/sdaubert/packetgen-plugin-ipsec): add support for ESP and IKEv2 protocols. Before PacketGen3, these protocols were included in packetgen.
 * [packetgen-plugin-smb](https://github.com/sdaubert/packetgen-plugin-smb): add (limited) support for SMB protocol suite.
 
 ## See also
