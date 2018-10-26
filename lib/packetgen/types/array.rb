@@ -5,6 +5,8 @@
 
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module PacketGen
   module Types
     # @abstract Base class to define set of {Fields} subclasses.
@@ -24,6 +26,34 @@ module PacketGen
     #
     # @author Sylvain Daubert
     class Array
+      extend Forwardable
+
+      # @!method [](index)
+      #   Return the element at +index+.
+      #   @param [integer] index
+      #   @return [Object]
+      # @!method clear
+      #   Clear array.
+      #   @return [void]
+      # @!method each
+      #   Calls the given block once for each element in self, passing that
+      #   element as a parameter. Returns the array itself.
+      #   @return [Array]
+      # @method empty?
+      #   Return +true+ if contains no element.
+      #   @return [Booelan]
+      # @!method first
+      #   Return first element
+      #   @return [Object]
+      # @!method last
+      #   Return last element.
+      #   @return [Object]
+      # @!method size
+      #   Get number of element in array
+      #   @return [Integer]
+      def_delegators :@array, :[], :clear, :each, :empty?, :first, :last, :size
+      alias length size
+
       include Enumerable
       include LengthFrom
 
@@ -63,13 +93,6 @@ module PacketGen
         @array = @array.dup
       end
 
-      # Return the element at +index+.
-      # @param [integer] index
-      # @return [Object]
-      def [](index)
-        @array[index]
-      end
-
       def ==(other)
         @array == case other
                   when Array
@@ -77,12 +100,6 @@ module PacketGen
                   else
                     other
                   end
-      end
-
-      # Clear array.
-      # @return [void]
-      def clear
-        @array.clear
       end
 
       # Clear array. Reset associated counter, if any.
@@ -108,31 +125,6 @@ module PacketGen
         deleted = @array.delete_at(index)
         @counter.read(@counter.to_i - 1) if @counter && deleted
         deleted
-      end
-
-      # Calls the given block once for each element in self, passing that
-      # element as a parameter. Returns the array itself.
-      # @return [Array]
-      def each
-        @array.each { |el| yield el }
-      end
-
-      # Return +true+ if contains no element.
-      # @return [Booelan]
-      def empty?
-        @array.empty?
-      end
-
-      # Return first element
-      # @return [Object]
-      def first
-        @array.first
-      end
-
-      # Return last element.
-      # @return [Object]
-      def last
-        @array.last
       end
 
       # @abstract depend on private method +#record_from_hash+ which should be
@@ -182,13 +174,6 @@ module PacketGen
         end
         self
       end
-
-      # Get number of element in array
-      # @return [Integer]
-      def size
-        @array.size
-      end
-      alias length size
 
       # Get size in bytes
       # @return [Integer]
