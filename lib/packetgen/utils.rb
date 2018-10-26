@@ -42,6 +42,7 @@ module PacketGen
     # @option options [Integer] :timeout timeout in seconds before stopping
     #   request. Default to 2.
     # @return [String,nil]
+    # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.arp(ipaddr, options={})
       unless options[:no_cache]
         local_cache = self.arp_cache
@@ -65,6 +66,7 @@ module PacketGen
       cap_thread.join
 
       return if capture.packets.empty?
+
       capture.packets.each do |pkt|
         break pkt.arp.sha.to_s if pkt.arp.spa.to_s == ipaddr
       end
@@ -85,6 +87,7 @@ module PacketGen
     # @option options [String] :iface interface to use. Default to
     #   {PacketGen.default_iface}
     # @return [void]
+    # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.arp_spoof(target_ip, spoofed_ip, options={})
       interval = options[:interval] || 1.0
       as = ARPSpoofer.new(timeout: options[:for_seconds], interval: interval,
@@ -119,6 +122,7 @@ module PacketGen
     #     pkt
     #   end
     # @since 2.2.0
+    # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.mitm(target1, target2, options={})
       options = { iface: PacketGen.default_iface }.merge(options)
 
@@ -144,14 +148,10 @@ module PacketGen
         iph = modified_pkt.ip
         l2 = modified_pkt.is?('Dot11') ? modified_pkt.dot11 : modified_pkt.eth
 
-        if (iph.dst != my_ip) && (iph.src != my_ip)
-          if (iph.src == target1)  || (iph.dst == target2)
-            l2.dst = mac2
-          elsif (iph.src == target2) ||(iph.dst == target1)
-            l2.dst = mac1
-          else
-            next
-          end
+        if (iph.src == target1) || (iph.dst == target2)
+          l2.dst = mac2
+        elsif (iph.src == target2) || (iph.dst == target1)
+          l2.dst = mac1
         else
           next
         end

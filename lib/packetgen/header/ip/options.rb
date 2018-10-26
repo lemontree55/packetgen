@@ -15,30 +15,6 @@ module PacketGen
 
         HUMAN_SEPARATOR = ';'
 
-        # Read IP header options from a string
-        # @param [String] str binary string
-        # @return [self]
-        def read(str)
-          clear
-          return self if str.nil?
-          PacketGen.force_binary str
-
-          i = 0
-          types = Option.types
-          while i < str.to_s.length
-            type = str[i, 1].unpack('C').first
-            this_option = if types[type].nil?
-                            Option.new
-                          else
-                            types[type].new
-                          end
-            this_option.read str[i, str.size]
-            self << this_option
-            i += this_option.sz
-          end
-          self
-        end
-
         # Get binary string
         # @return [String]
         def to_s
@@ -47,6 +23,17 @@ module PacketGen
             str += ([0] * (4 - (str.length % 4))).pack('C*')
           end
           str
+        end
+
+        private
+
+        def record_from_hash(hsh)
+          Option.build(hsh)
+        end
+
+        def real_type(opt)
+          types = Option.types
+          types.value?(opt.type) ? IP.const_get(types.key(opt.type)) : opt.class
         end
       end
     end

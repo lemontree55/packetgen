@@ -1,4 +1,3 @@
-TargetRubyVersion: 2.3
 Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 Lint/EmptyWhen:

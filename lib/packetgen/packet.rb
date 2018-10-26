@@ -46,15 +46,10 @@ module PacketGen
   # == Save packets to a file
   #  Packet.write 'file.pcapng', packets
   #
-  # @since 2.0.0
-  #
-  #   Packet accessor has changed. When header class is in a namespace
-  #   (for example Dot11::* header classes), to avoid clashes in names, such
-  #   accessors are named +namespace_class+. For example {Header::Dot11::Data}
-  #   header is now accessed through +Packet#dot11_data+ and nor more +Packet#data+).
   # @author Sylvain Daubert
   class Packet
-    # @return [Array<Header::Base]
+    # Get packet headers, ordered as they appear in the packet.
+    # @return [Array<Header::Base>]
     attr_reader :headers
 
     # Create a new Packet
@@ -78,19 +73,14 @@ module PacketGen
       new.parse binary_str, first_header: first_header
     end
 
-    # Capture packets
-    # @param [Hash] options capture options
-    # @option options [String]  :iface interface on which capture
-    #    packets on. Default: Use default interface lookup.
-    # @option options [Integer] :max maximum number of packets to capture
-    # @option options [Integer] :timeout maximum number of seconds before end
-    #    of capture
-    # @option options [String] :filter bpf filter
-    # @option options [Boolean] :promiscuous
-    # @yieldparam [Packet] packet if a block is given, yield each captured packet
+    # Capture packets from wire.
+    # Same arguments as {Capture#initialize}
+    # @see Capture#initialize
+    # @yieldparam [Packet,String] packet if a block is given, yield each
+    #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @return [Array<Packet>] captured packet
-    def self.capture(options={})
-      capture = Capture.new(options)
+    def self.capture(**kwargs)
+      capture = Capture.new(kwargs)
       if block_given?
         capture.start { |packet| yield packet }
       else
@@ -105,14 +95,17 @@ module PacketGen
     # @param [String] filename PcapNG or Pcap file.
     # @return [Array<Packet>]
     # @author Sylvain Daubert
-    # @author Kent Gruber
+    # @author Kent Gruber - Pcap format
+    # @since 2.0.0 Also read Pcap format.
     def self.read(filename)
       PcapNG::File.new.read_packets filename
     rescue StandardError => e
       raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
+
       packets = []
       PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
         next unless (packet = PacketGen.parse(packet.to_s))
+
         packets << packet
       end
       packets
@@ -135,7 +128,7 @@ module PacketGen
       @headers = []
     end
 
-    # Add a protocol on packet stack
+    # Add a protocol header in packet.
     # @param [String] protocol
     # @param [Hash] options protocol specific options
     # @return [self]
@@ -160,24 +153,27 @@ module PacketGen
       nxt = prev.body
       header = klass.new(options.merge!(packet: self))
       add_header header, previous_header: prev
-      idx = @headers.index(prev) + 1
-      @headers[idx, 0] = header
+      idx = headers.index(prev) + 1
+      headers[idx, 0] = header
       header[:body] = nxt
       self
     end
 
-    # Check if a protocol header is embedded in packet
+    # Check if a protocol header is embedded in packet.
+    #   pkt = PacketGen.gen('IP').add('UDP')
+    #   pkt.is?('IP')   #=> true
+    #   pkt.is?('TCP')  #=> false
     # @return [Boolean]
     # @raise [ArgumentError] unknown protocol
     def is?(protocol)
       klass = check_protocol protocol
-      @headers.any? { |h| h.is_a? klass }
+      headers.any? { |h| h.is_a? klass }
     end
 
     # Recalculate all packet checksums
     # @return [void]
     def calc_checksum
-      @headers.reverse_each do |header|
+      headers.reverse_each do |header|
         header.calc_checksum if header.respond_to? :calc_checksum
       end
     end
@@ -185,7 +181,7 @@ module PacketGen
     # Recalculate all packet length fields
     # @return [void]
     def calc_length
-      @headers.each do |header|
+      headers.each do |header|
         header.calc_length if header.respond_to? :calc_length
       end
     end
@@ -200,23 +196,23 @@ module PacketGen
     # Get packet body
     # @return [Types]
     def body
-      @headers.last.body if @headers.last.respond_to? :body
+      last_header[:body] if last_header.respond_to? :body
     end
 
     # Set packet body
     # @param [String] str
     # @return [void]
     def body=(str)
-      @headers.last.body = str
+      last_header.body = str
     end
 
-    # Get binary string
+    # Get binary string (i.e. binary string sent on or received from network).
     # @return [String]
     def to_s
-      @headers.first.to_s
+      first_header.to_s
     end
 
-    # Write a PCapNG file to disk.
+    # Write packet to a PCapNG file on disk.
     # @param [String] filename
     # @return [Array] see return from {PcapNG::File#to_file}
     # @see File
@@ -225,27 +221,26 @@ module PacketGen
     end
     alias write to_f
 
-    # send packet on wire. Use first header +#to_w+ method.
+    # Send packet on wire. Use first header +#to_w+ method.
     # @param [String] iface interface name. Default to first non-loopback interface
-    # @param [Boolean] calc call {#calc} on packet before sending it
+    # @param [Boolean] calc if +true+, call {#calc} on packet before sending it.
     # @param [Integer] number number of times to send the packets
     # @param [Integer,Float] interval time, in seconds, between sending 2 packets
     # @return [void]
     # @since 2.1.4 add `calc`, `number` and `interval` parameters
-    def to_w(iface=nil, calc: false, number: 1, interval: 1)
+    # @since 3.0.0 +calc+ defaults to +true+
+    def to_w(iface=nil, calc: true, number: 1, interval: 1)
       iface ||= PacketGen.default_iface
-      if @headers.first.respond_to? :to_w
+
+      if first_header.respond_to? :to_w
         self.calc if calc
-        if number == 1
-          @headers.first.to_w(iface)
-        else
-          number.times do
-            @headers.first.to_w(iface)
-            sleep interval
-          end
+
+        number.times do
+          first_header.to_w(iface)
+          sleep interval if number > 1
         end
       else
-        type = @headers.first.protocol_name
+        type = first_header.protocol_name
         raise WireError, "don't known how to send a #{type} packet on wire"
       end
     end
@@ -264,22 +259,20 @@ module PacketGen
     end
 
     # Remove headers from +self+
-    # @param [Array<Header>] headers
+    # @param [Array<Header>] hdrs
     # @return [self] +self+ with some headers removed
     # @raise [FormatError] any headers not in +self+
     # @raise [FormatError] removed headers result in an unknown binding
     # @since 1.1.0
-    def decapsulate(*headers)
-      headers.each do |header|
-        idx = @headers.index(header)
+    def decapsulate(*hdrs)
+      hdrs.each do |hdr|
+        idx = headers.index(hdr)
         raise FormatError, 'header not in packet!' if idx.nil?
 
-        prev_header = idx > 0 ? @headers[idx - 1] : nil
-        next_header = (idx + 1) < @headers.size ? @headers[idx + 1] : nil
-        @headers.delete_at(idx)
-        if prev_header && next_header
-          add_header(next_header, previous_header: prev_header)
-        end
+        prev_hdr = idx > 0 ? headers[idx - 1] : nil
+        next_hdr = (idx + 1) < headers.size ? headers[idx + 1] : nil
+        headers.delete_at(idx)
+        add_header(next_hdr, previous_header: prev_hdr) if prev_hdr && next_hdr
       end
     rescue ArgumentError => ex
       raise FormatError, ex.message
@@ -291,7 +284,7 @@ module PacketGen
     # @return [Packet] self
     # @raise [ArgumentError] +first_header+ is an unknown header
     def parse(binary_str, first_header: nil)
-      @headers.clear
+      headers.clear
 
       if first_header.nil?
         # No decoding forced for first header. Have to guess it!
@@ -300,18 +293,20 @@ module PacketGen
           raise ParseError, 'cannot identify first header in string'
         end
       end
+
       add first_header
-      @headers[-1, 1] = @headers.last.read(binary_str)
+      headers[-1, 1] = last_header.read(binary_str)
 
       # Decode upper headers recursively
       decode_bottom_up
       self
     end
 
+    # Get packet as a pretty formatted string.
     # @return [String]
     def inspect
       str = Inspect.dashed_line(self.class)
-      @headers.each do |header|
+      headers.each do |header|
         str << header.inspect
       end
       str << Inspect.inspect_body(body)
@@ -325,8 +320,9 @@ module PacketGen
 
     # Invert all possible fields in packet to create a reply.
     # @return [self]
+    # @since 2.7.0
     def reply!
-      @headers.each do |header|
+      headers.each do |header|
         header.reply! if header.respond_to?(:reply!)
       end
       self
@@ -335,6 +331,7 @@ module PacketGen
     # Forge a new packet from current one with all possible fields
     # inverted. The new packet may be a reply to current one.
     # @return [Packet]
+    # @since 2.7.0
     def reply
       pkt = dup
       pkt.reply!
@@ -345,10 +342,22 @@ module PacketGen
     # Dup +@headers+ instance variable. Internally used by +#dup+ and +#clone+
     # @return [void]
     def initialize_copy(_other)
-      @headers = @headers.map(&:dup)
-      @headers.each do |header|
+      @headers = headers.map(&:dup)
+      headers.each do |header|
         add_magic_header_method header
       end
+    end
+
+    # Give first header of packet
+    # @return [Header::Base]
+    def first_header
+      headers.first
+    end
+
+    # Give last header of packet
+    # @return [Header::Base]
+    def last_header
+      headers.last
     end
 
     # @overload header(klass, layer=1)
@@ -360,17 +369,15 @@ module PacketGen
     #  @raise [ArgumentError] unknown option
     # @return [Header::Base]
     def header(klass, arg)
-      headers = @headers.select { |h| h.is_a? klass }
       layer = arg.is_a?(Integer) ? arg : 1
-      header = headers[layer - 1]
+      header = headers.select { |h| h.is_a? klass }[layer - 1]
+      return header unless arg.is_a? Hash
 
-      if arg.is_a? Hash
-        arg.each do |key, value|
-          unless header.respond_to? "#{key}="
-            raise ArgumentError, "unknown #{key} attribute for #{klass}"
-          end
-          header.send "#{key}=", value
+      arg.each do |key, value|
+        unless header.respond_to? "#{key}="
+          raise ArgumentError, "unknown #{key} attribute for #{klass}"
         end
+        header.send "#{key}=", value
       end
 
       header
@@ -382,6 +389,7 @@ module PacketGen
     def check_protocol(protocol)
       klass = Header.get_header_class_by_name(protocol)
       raise ArgumentError, "unknown #{protocol} protocol" if klass.nil?
+
       klass
     end
 
@@ -391,77 +399,86 @@ module PacketGen
     # @param [Boolean] parsing
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
-      prev_header = previous_header || @headers.last
+      prev_header = previous_header || last_header
       if prev_header
         bindings = prev_header.class.known_headers[header.class]
+        bindings = prev_header.class.known_headers[header.class.superclass] if bindings.nil?
         if bindings.nil?
-          bindings = prev_header.class.known_headers[header.class.superclass]
-          if bindings.nil?
-            msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. ".dup
-            msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
-            msg << "#{prev_header.method_name}_proto_field: "
-            msg << "value_for_#{header.method_name})"
-            raise ArgumentError, msg
-          end
+          msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. ".dup
+          msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
+          msg << "#{prev_header.method_name}_proto_field: "
+          msg << "value_for_#{header.method_name})"
+          raise ArgumentError, msg
         end
+
         bindings.set(prev_header) if !bindings.empty? && !parsing
         prev_header[:body] = header
       end
       header.packet = self
-      @headers << header unless previous_header
+      headers << header unless previous_header
 
       return if respond_to? header.method_name
+
       add_magic_header_method header
     end
 
+    # Add method to access +header+
+    # @param [Header::Base] header
+    # @return [void]
     def add_magic_header_method(header)
       self.instance_eval "def #{header.method_name}(arg=nil);" \
                          "header(#{header.class}, arg); end"
     end
 
+    # Try to guess header from +binary_str+
+    # @param [String] binary_str
+    # @return [String] header/protocol name
     def guess_first_header(binary_str)
       first_header = nil
       Header.all.each do |hklass|
         hdr = hklass.new(packet: self)
         # #read may return another object (more specific class)
         hdr = hdr.read(binary_str)
-        # First header is found when:
-        # * for one known header,
+        # First header is found when, for one known header,
         # * +#parse?+ is true
         # * it exists a known binding with a upper header
         next unless hdr.parse?
-        search_header(hdr) do
-          first_header = hklass.to_s.gsub(/.*::/, '')
-        end
+
+        first_header = hklass.to_s.gsub(/.*::/, '') if search_upper_header(hdr)
         break unless first_header.nil?
       end
       first_header
     end
 
+    # Decode packet bottom up
+    # @return [void]
     def decode_bottom_up
-      decode_packet_bottom_up = true
-      while decode_packet_bottom_up
-        last_known_hdr = @headers.last
-        break unless last_known_hdr.respond_to? :body
-        break if last_known_hdr.body.empty?
-        search_header(last_known_hdr) do |nh|
-          str = last_known_hdr.body
-          nheader = nh.new(packet: self)
-          nheader = nheader.read(str)
-          next unless nheader.parse?
-          add_header nheader, parsing: true
-        end
-        decode_packet_bottom_up = (@headers.last != last_known_hdr)
+      loop do
+        last_known_hdr = last_header
+        break if !last_known_hdr.respond_to?(:body) || last_known_hdr.body.empty?
+
+        nh = search_upper_header(last_known_hdr)
+        break if nh.nil?
+
+        nheader = nh.new(packet: self)
+        nheader = nheader.read(last_known_hdr.body)
+        next unless nheader.parse?
+
+        add_header nheader, parsing: true
+        break if last_header == last_known_hdr
       end
     end
 
-    def search_header(hdr)
+    # Search a upper header for +hdr+
+    # @param [Header::Base] hdr
+    # @return [void]
+    # @yieldparam [Header::Base] found upper header
+    def search_upper_header(hdr)
       hdr.class.known_headers.each do |nh, bindings|
-        if bindings.check?(hdr)
-          yield nh
-          break
-        end
+        return nh if bindings.check?(hdr)
       end
+
+      nil
     end
   end
 end

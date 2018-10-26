@@ -7,6 +7,12 @@
 
 module PacketGen
   module Header
+    # ICMPv6 header ({https://tools.ietf.org/html/rfc4443 RFC 4443})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |     Type      |     Code      |          Checksum             |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A ICMPv6 header consists of:
     # * a +type+ field ({Types::Int8} type),
     # * a +code+ field ({Types::Int8} type),

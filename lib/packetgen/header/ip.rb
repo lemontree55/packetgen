@@ -9,6 +9,22 @@ require 'socket'
 
 module PacketGen
   module Header
+    # IP protocol ({https://tools.ietf.org/html/rfc791 RFC 791})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |Version|  IHL  |Type of Service|          Total Length         |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |         Identification        |Flags|      Fragment Offset    |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |  Time to Live |    Protocol   |         Header Checksum       |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                       Source Address                          |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                    Destination Address                        |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                    Options                    |    Padding    |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A IP header consists of:
     # * a first byte ({#u8} of {Types::Int8} type) composed of:
     #   * a 4-bit {#version} field,
@@ -24,7 +40,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+),
     # * a source IP address ({#src}, {Addr} type),
     # * a destination IP address ({#dst}, +Addr+ type),
-    # * an optional {#options} field ({Types::String} type),
+    # * an optional {#options} field ({Options} type),
     # * and a {#body} ({Types::String} type).
     #
     # == Create a IP header
@@ -61,6 +77,14 @@ module PacketGen
     #  ip[:src]              # => PacketGen::Header::IP::Addr
     #  ip.dst = '127.0.0.2'
     #  ip.body.read 'this is a body'
+    #
+    # == Add IP options
+    # IP has an {#options} attribute used to store datagram options.
+    #  pkt = PacketGen.gen('IP')
+    #  # add option from class
+    #  pkt.ip.options << PacketGen::Header::IP::RA.new
+    #  # or use a hash
+    #  pkt.ip.options << { type: 'RR', data: ['192.168.16.4']}
     # @author Sylvain Daubert
     class IP < Base; end
 
@@ -84,7 +108,7 @@ module PacketGen
       define_field :length, Types::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
-      define_field :id, Types::Int16, default: ->(h) { rand(65_535) }
+      define_field :id, Types::Int16, default: ->(_) { rand(65_535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
       define_field :frag, Types::Int16, default: 0
@@ -106,7 +130,8 @@ module PacketGen
       # @!attribute options
       #  @since 2.2.0
       #  @return [Types::String]
-      define_field :options, Options, optional: ->(h) { h.ihl > 5 }
+      define_field :options, Options, optional: ->(h) { h.ihl > 5 },
+                  builder: ->(h, t) { t.new(length_from: -> { (h.ihl - 5) * 4 }) }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
@@ -164,31 +189,6 @@ module PacketGen
         checksum.zero? ? 0xffff : checksum
       end
 
-      # Populate object from a binary string
-      # @param [String] str
-      # @return [Fields] self
-      def read(str)
-        return self if str.nil?
-        force_binary str
-        self[:u8].read str[0, 1]
-        self[:tos].read str[1, 1]
-        self[:length].read str[2, 2]
-        self[:id].read str[4, 2]
-        self[:frag].read str[6, 2]
-        self[:ttl].read str[8, 1]
-        self[:protocol].read str[9, 1]
-        self[:checksum].read str[10, 2]
-        self[:src].read str[12, 4]
-        self[:dst].read str[16, 4]
-        opt_size = 0
-        if self.ihl > 5
-          opt_size = (self.ihl - 5) * 4
-          self[:options].read str[20, opt_size]
-        end
-        self[:body].read str[20 + opt_size..-1]
-        self
-      end
-
       # Compute checksum and set +checksum+ field
       # @return [Integer]
       def calc_checksum
@@ -207,10 +207,12 @@ module PacketGen
         self[:checksum].value = IP.reduce_checksum(checksum)
       end
 
-      # Compute length and set +length+ field
+      # Compute and set +length+ and +ihl+ field
       # @return [Integer]
+      # @since 3.0.0 add +ihl+ calculation
       def calc_length
         Base.calculate_and_set_length self
+        self.ihl = 5 + self[:options].sz / 4
       end
 
       # Get IP part of pseudo header checksum.
@@ -265,7 +267,7 @@ module PacketGen
       # Get binary string. Fixup IHL if needed (IP header has options, and IHL
       # was not set by user).
       def to_s
-        self.ihl = 5 + options.sz / 4 if self.ihl == 5
+        self.ihl = 5 + self[:options].sz / 4 if self.ihl == 5
         super
       end
 

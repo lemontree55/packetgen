@@ -87,12 +87,12 @@ module PacketGen
           end
           unless headers.empty?
             first_line = headers.shift.split
-            self[:version]     = first_line[0]
-            self[:status_code] = first_line[1]
-            self[:status_mesg] = first_line[2..-1].join(' ')
+            self[:version].read first_line[0]
+            self[:status_code].read first_line[1]
+            self[:status_mesg].read first_line[2..-1].join(' ')
             self[:headers].read(headers.join("\n"))
           end
-          self[:body] = data.join("\n")
+          self[:body].read data.join("\n")
           self
         end
 
@@ -102,6 +102,7 @@ module PacketGen
           raise FormatError, 'Missing #status_code.' if self.status_code.empty?
           raise FormatError, 'Missing #status_mesg.' if self.status_mesg.empty?
           raise FormatError, 'Missing #version.'     if self.version.empty?
+
           str = ''.dup # build 'dat string
           str << self[:version] << ' ' << self[:status_code] << ' ' << self[:status_mesg] << "\r\n"
           str << self[:headers].to_s if self[:headers].given?

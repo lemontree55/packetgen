@@ -56,13 +56,6 @@ module PacketGen
         false
       end
 
-      # @deprecated Use {#options?} instead.
-      # @return [false]
-      def has_options?
-        Deprecation.deprecated(self.class, __method__, 'options?')
-        options?
-      end
-
       # Reads a String or a IO to populate the object
       # @param [::String,IO] str_or_io
       # @return [self]
@@ -90,7 +83,7 @@ module PacketGen
         self[:block_len2].read io.read(4)
 
         check_len_coherency
-        self.type = self[:type] || PcapNG::IDB_TYPE.to_i
+        self.type ||= PcapNG::IDB_TYPE.to_i
         self
       end
 

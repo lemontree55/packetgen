@@ -5,8 +5,6 @@
 
 # frozen_string_literal: true
 
-require 'interfacez'
-
 module PacketGen
   # Capture packets from wire
   # @author Sylvain Daubert
@@ -14,6 +12,12 @@ module PacketGen
   class Capture
     # Default snaplen to use if :snaplen option not defined.
     DEFAULT_SNAPLEN = 0xffff
+
+    private
+
+    attr_reader :filter, :cap_thread
+
+    public
 
     # Get captured packets.
     # @return [Array<Packets>]
@@ -27,53 +31,53 @@ module PacketGen
     # @return [String]
     attr_reader :iface
 
-    # @param [Hash] options
-    # @option options [String]  :iface interface on which capture
+    # @param [String] iface interface on which capture
     #    packets on. Default: Use default interface lookup. If no interface found,
     #    use loopback one.
-    # @option options [Integer] :max maximum number of packets to capture.
-    # @option options [Integer] :timeout maximum number of seconds before end
+    # @param [Integer] max maximum number of packets to capture.
+    # @param [Integer] timeout maximum number of seconds before end
     #    of capture. Default: +nil+ (no timeout)
-    # @option options [String] :filter bpf filter
-    # @option options [Boolean] :promiscuous (default: +false+)
-    # @option options [Boolean] :parse parse raw data to generate packets before
+    # @param [String] filter bpf filter
+    # @param [Boolean] promisc (default: +false+)
+    # @param [Boolean] parse parse raw data to generate packets before
     #    yielding.  Default: +true+
-    # @option options [Integer] :snaplen maximum number of bytes to capture for
+    # @param [Integer] snaplen maximum number of bytes to capture for
     #    each packet.
     # @since 2.0.0 remove old 1.x API
-    def initialize(options={})
-      @iface = Interfacez.default || Interfacez.loopback
+    # @since 3.0.0 arguments are kwargs and nor more a hash
+    def initialize(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: DEFAULT_SNAPLEN)
+      @iface = iface || Interfacez.default || Interfacez.loopback
 
       @packets     = []
       @raw_packets = []
-      @promisc = false
-      @snaplen = DEFAULT_SNAPLEN
-      @parse = true
-      set_options options
+      set_options iface, max, timeout, filter, promisc, parse, snaplen
     end
 
     # Start capture
-    # @param [Hash] options complete see {#initialize}.
+    # @see {#initialize} for parameters
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
-    def start(options={})
-      set_options options
-      @pcap = PCAPRUB::Pcap.open_live(@iface, @snaplen, @promisc, 1)
-      set_filter
+    # @since 3.0.0 arguments are kwargs and nor more a hash
+    def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: DEFAULT_SNAPLEN)
+      set_options iface, max, timeout, filter, promisc, parse, snaplen
+
+      pcap = PCAPRUB::Pcap.open_live(self.iface, @snaplen, @promisc, 1)
+      set_filter_on pcap
+
       @cap_thread = Thread.new do
-        @pcap.each do |packet_data|
-          @raw_packets << packet_data
+        pcap.each do |packet_data|
+          raw_packets << packet_data
           if @parse
             packet = Packet.parse(packet_data)
-            @packets << packet
+            packets << packet
             yield packet if block_given?
           elsif block_given?
             yield packet_data
           end
-          break if @max && @raw_packets.size >= @max
+          break if defined?(@max) && (raw_packets.size >= @max)
         end
       end
-      @cap_thread.join(@timeout)
+      cap_thread.join(@timeout)
     end
 
     # Stop capture. Should be used from another thread, as {#start} blocks.
@@ -82,25 +86,25 @@ module PacketGen
     # has been made to make Capture nor PacketGen thread-safe.
     # @return [void]
     def stop
-      @cap_thread.kill
+      cap_thread.kill
     end
 
     private
 
-    def set_options(options)
-      @max = options[:max] if options[:max]
-      @filter = options[:filter] if options[:filter]
-      @timeout = options[:timeout] if options[:timeout]
-      @promisc = options[:promisc] if options.key? :promisc
-      @snaplen = options[:snaplen] if options[:snaplen]
-      @parse = options[:parse] if options.key? :parse
-      @iface = options[:iface] if options[:iface]
+    def set_options(iface, max, timeout, filter, promisc, parse, snaplen)
+      @max = max if max
+      @filter = filter unless filter.nil?
+      @timeout = timeout unless timeout.nil?
+      @promisc = promisc unless promisc.nil?
+      @snaplen = snaplen unless snaplen.nil?
+      @parse = parse unless parse.nil?
+      @iface = iface unless iface.nil?
     end
 
-    def set_filter
-      return if @filter.nil?
-      return if @filter.empty?
-      @pcap.setfilter @filter
+    def set_filter_on(pcap)
+      return if filter.nil? || filter.empty?
+
+      pcap.setfilter filter
     end
   end
 end

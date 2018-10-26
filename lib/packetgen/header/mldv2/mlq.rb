@@ -121,6 +121,8 @@ module PacketGen
           self[:max_resp_delay].value = MLDv2.encode(value)
         end
 
+        undef qqic, qqic=
+
         # Get QQIC value
         # @note May return a different value from value previously set, as a
         #   float encoding is used to encode big values. See {IGMPv3.decode}.

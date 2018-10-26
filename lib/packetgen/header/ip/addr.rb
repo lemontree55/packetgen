@@ -31,6 +31,7 @@ module PacketGen
         # @return [self]
         def from_human(str)
           return self if str.nil?
+
           m = str.match(IPV4_ADDR_REGEX)
           if m
             self[:a1].read m[1].to_i

@@ -12,39 +12,33 @@ module PacketGen
     # to be compatible with others {Types}.
     # @author Sylvain Daubert
     class String < ::String
+      include LengthFrom
+
+      # @return [Integer]
+      attr_reader :static_length
+
       # @param [Hash] options
       # @option options [Types::Int,Proc] :length_from object or proc from which
       #   takes length when reading
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
         super()
-        @length_from = options[:length_from]
+        initialize_length_from(options)
         @static_length = options[:static_length]
       end
 
       # @param [::String] str
       # @return [String] self
       def read(str)
-        s = str.to_s
-        str_end = case @length_from
-                  when Types::Int
-                    @length_from.to_i
-                  when Proc
-                    @length_from.call
-                  else
-                    if @static_length.is_a? Integer
-                      @static_length
-                    else
-                      s.size
-                    end
-                  end
-        str_end = 0 if str_end < 0
-        self.replace(s[0, str_end])
+        s = read_with_length_from(str)
+        s = s[0, static_length] if static_length
+        self.replace(s)
         self
       end
 
       alias sz length
       alias to_human to_s
+      alias from_human read
     end
   end
 end

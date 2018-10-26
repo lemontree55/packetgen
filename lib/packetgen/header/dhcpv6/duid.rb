@@ -78,6 +78,8 @@ module PacketGen
         #  @return [Eth::MacAddr]
         define_field :link_addr, Eth::MacAddr
 
+        undef time, time=
+
         # @return [Time]
         def time
           BASE_TIME + self[:time].to_i

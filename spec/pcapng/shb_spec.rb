@@ -23,7 +23,7 @@ module PacketGen
         it 'should accept a String' do
           str = ::File.read(::File.join(__dir__, 'sample.pcapng'), 52)
           expect { @shb.read(str) }.to_not raise_error
-          expect(@shb.block_len.to_i).to eq(52)
+          expect(@shb.block_len).to eq(52)
           expect(@shb.options?).to be(true)
         end
 
@@ -31,7 +31,7 @@ module PacketGen
           ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
             @shb.read(f)
           end
-          expect(@shb.block_len.to_i).to eq(52)
+          expect(@shb.block_len).to eq(52)
           expect(@shb.options?).to be(true)
         end
       end

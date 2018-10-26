@@ -10,8 +10,33 @@ require 'ipaddr'
 
 module PacketGen
   module Header
+    # IPv6 ({https://tools.ietf.org/html/rfc8200 RFC 8200})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |Version| Traffic Class |           Flow Label                  |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |         Payload Length        |  Next Header  |   Hop Limit   |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +                         Source Address                        +
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +                      Destination Address                      +
+    #   |                                                               |
+    #   +                                                               +
+    #   |                                                               |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #
     # A IPv6 header consists of:
-    # * a first 32-bit word ({#u32}, of {Types::Int32} type) composoed of:
+    # * a first 32-bit word ({#u32}, of {Types::Int32} type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 8-bit {#traffic_class} field,
     #   * a 20-bit {#flow_label} field,
@@ -20,6 +45,7 @@ module PacketGen
     # * a hop-limit field ({#hop}, +Int8+ type),
     # * a source address field ({#src}, {IPv6::Addr} type),
     # * a destination address field ({#dst}, +IPv6::Addr+ type),
+    # * and a {#body} ({Types::String} type).
     #
     # == Create a IPv6 header
     #  # standalone
@@ -44,6 +70,18 @@ module PacketGen
     #  ipv6[:src]              # => PacketGen::Header::IPv6::Addr
     #  ipv6.dst = '2001:1234:5678:abcd::123'
     #  ipv6.body.read 'this is a body'
+    #
+    # == Add IPv6 extensions
+    # In IPv6, optional extensions are encoded in separate headers that
+    # may be placed between the IPv6 header and the upper-layer header.
+    #
+    # In PacketGen, a IPv6 extension is processedf as a classical header:
+    #  pkt = PacketGen.gen('IPv6')
+    #  # Add a HopByHop extension
+    #  pkt.add('IPv6::HopByHop')
+    #  pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: [0].pack('n') }
+    #  # Add another header
+    #  pkt.add('UDP')
     # @author Sylvain Daubert
     class IPv6 < Base; end
 
@@ -104,34 +142,14 @@ module PacketGen
         sum
       end
 
-      # Send IPv6 packet on wire.
-      #
-      # When sending packet at IPv6 level, +version+, +flow_label+ and +length+
-      # fields are set by kernel. Source address should be a unicast address
-      # assigned to the host. To set any of this fields, use {Eth#to_w}.
-      # @param [String] iface interface name
+      # Send IPv6 packet on wire. All fields may be set (even {#version}).
+      # @param [String] _iface interface name (not used)
       # @return [void]
-      def to_w(iface=nil)
-        sock = Socket.new(Socket::AF_INET6, Socket::SOCK_RAW, self.next)
+      # @since 3.0.0 no more limitations on +flow_label+, +length+ and +src+ fields.
+      def to_w(_iface=nil)
+        sock = Socket.new(Socket::AF_INET6, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
-
-        # IPv6 RAW sockets don't have IPHDRINCL option to send IPv6 header.
-        # So, header must be built using ancillary data.
-        # Only src address, traffic_class and hop_limit can be set this way.
-        hop_limit = Socket::AncillaryData.int(Socket::AF_INET6,
-                                              Socket::IPPROTO_IPV6,
-                                              Socket::IPV6_HOPLIMIT, hop)
-        tc = Socket::AncillaryData.int(Socket::AF_INET6,
-                                       Socket::IPPROTO_IPV6,
-                                       Socket::IPV6_TCLASS,
-                                       traffic_class)
-
-        # src address is set through PKT_INFO, which needs interface index.
-        ifaddr = Socket.getifaddrs.find { |ia| ia.name == iface }
-        raise WireError, "unknown #{iface} interface" if ifaddr.nil?
-        pkt_info = Socket::AncillaryData.ipv6_pktinfo(Addrinfo.ip(src), ifaddr.ifindex)
-
-        sock.sendmsg body.to_s, 0, sockaddrin, hop_limit, tc, pkt_info
+        sock.send to_s, 0, sockaddrin
         sock.close
       end
 
@@ -189,13 +207,6 @@ module PacketGen
           [IPv6::HopByHop].each do |klass|
             klass.bind header_klass, args
           end
-        end
-        # Bind a upper header to IPv6 and its defined extension headers.
-        # @see Base.bind_header
-        # @deprecated USe {bind}.
-        def bind_header(header_klass, args={})
-          Deprecation.deprecated(self, __method__, 'bind', klass_method: true)
-          bind header_klass, args
         end
       end
     end

@@ -37,13 +37,6 @@ module PacketGen
         @fields.key?(:options) && @fields[:options].sz > 0
       end
 
-      # @deprecated Use {#options?} instead.
-      # @return [Boolean]
-      def has_options?
-        Deprecation.deprecated(self.class, __method__, 'options?')
-        options?
-      end
-
       # Calculate block length and update :block_len and block_len2 fields
       # @return [void]
       def recalc_block_len
@@ -56,8 +49,8 @@ module PacketGen
       # @return [void]
       def pad_field(*fields)
         fields.each do |field|
-          unless (@fields[field].size % 4).zero?
-            @fields[field] << "\x00" * (4 - (@fields[field].size % 4))
+          unless (@fields[field].sz % 4).zero?
+            @fields[field] << "\x00" * (4 - (@fields[field].sz % 4))
           end
         end
       end
@@ -72,13 +65,14 @@ module PacketGen
         unless %i[little big].include? endian
           raise ArgumentError, "unknown endianness for #{self.class}"
         end
+
         @endian = endian
         @fields.each { |_f, v| v.endian = endian if v.is_a?(Types::Int) }
         endian
       end
 
       def check_len_coherency
-        unless self[:block_len].to_i == self[:block_len2].to_i
+        unless self.block_len == self.block_len2
           raise InvalidFileError, 'Incoherency in Block length'
         end
       end

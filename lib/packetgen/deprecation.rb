@@ -4,7 +4,7 @@ module PacketGen
   # @author Sylvain Daubert
   # @api private
   module Deprecation
-    def self.deprecated(klass, deprecated_method, new_method=nil, klass_method: false, remove_version: '3.0.0')
+    def self.deprecated(klass, deprecated_method, new_method=nil, klass_method: false, remove_version: '4.0.0')
       separator = klass_method ? '.' : '#'
       base_name = klass.to_s + separator
       complete_deprecated_method_name = base_name + deprecated_method.to_s

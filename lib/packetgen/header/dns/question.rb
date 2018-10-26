@@ -78,6 +78,8 @@ module PacketGen
           self.rrclass = options[:rrclass] if options[:rrclass]
         end
 
+        undef rrclass=
+
         # Setter for class
         # @param [Integer] val
         # @return [Integer,String]
@@ -89,6 +91,7 @@ module PacketGen
                 val
               end
           raise ArgumentError, "unknown class #{val.inspect}" unless v
+
           self[:rrclass].read v
         end
 
@@ -98,13 +101,6 @@ module PacketGen
         # @since 2.7.0
         def type?(type)
           self.class::TYPES[type] == self.type
-        end
-
-        # @deprecated Use {#type?} instead
-        # @return [Boolean]
-        def has_type?(type)
-          Deprecation.deprecated(self.class, __method__, 'type?')
-          type?(type)
         end
 
         # Get human readable type

@@ -75,6 +75,8 @@ module PacketGen
       # @private
       alias old_type= type=
 
+      undef type=, value=, value
+
       # Set type
       # @param [::String,Integer] val
       # @return [Integer]
@@ -86,8 +88,10 @@ module PacketGen
           self.old_type = val
         else
           raise TypeError, 'need an Integer' unless human_types?
+
           new_val = self.class::TYPES.key(val.to_s)
           raise ArgumentError, "unknown #{val} type" if new_val.nil?
+
           self.old_type = new_val
         end
       end
@@ -96,27 +100,15 @@ module PacketGen
       # @param [::String,Integer] val
       # @return [::String,Integer]
       def value=(val)
-        if self[:value].respond_to? :from_human
-          self[:value].from_human val
-        elsif self[:value].is_a? Types::Int
-          self[:value].value = val
-        else
-          self.length = val.length if val.is_a? ::String
-          self[:value].read val
-        end
+        self[:value].from_human val
+        self.length = self[:value].sz
         val
       end
 
       # Get +value+
       # @return [Object] depend on +value+ type
       def value
-        if self[:value].respond_to? :to_human
-          self[:value].to_human
-        elsif self[:value].is_a? Types::Int
-          self[:value].to_i
-        else
-          self[:value]
-        end
+        self[:value].to_human
       end
 
       # Return human readable type, if TYPES is defined

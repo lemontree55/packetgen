@@ -132,6 +132,7 @@ module PacketGen
       def read(str)
         super str
         return self unless self.class == EAP
+
         if type?
           obj = case self.type
                 when 4
@@ -162,6 +163,7 @@ module PacketGen
       # @raise [ParseError] not a Request nor a Response packet
       def human_type
         raise ParseError, 'not a Request nor a Response' unless type?
+
         self[:type].to_human
       end
 
@@ -194,6 +196,7 @@ module PacketGen
       # @raise [ParseError] not a Nak packet
       def desired_auth_type
         raise ParseError, 'not a Nak response' if (code != 2) && (type != 3)
+
         body.to_s.unpack('C*')
       end
 
@@ -210,13 +213,6 @@ module PacketGen
         [1, 2].include?(self.code)
       end
 
-      # @deprecated Use {#type?} instead.
-      # @return [Boolean]
-      def has_type?
-        Deprecation.deprecated(self.class, __method__, 'type?')
-        type?
-      end
-
       # Callback called when a EAP header is added to a packet
       # Here, add +#eap+ method as a shortcut to existing
       # +#eap_(md5|tls|ttls|fast)+.
@@ -224,6 +220,7 @@ module PacketGen
       # @return [void]
       def added_to_packet(packet)
         return if packet.respond_to? :eap
+
         packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end")
       end
 

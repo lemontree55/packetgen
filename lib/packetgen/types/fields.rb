@@ -49,7 +49,7 @@ module PacketGen
     #   define_field :type, PacketGen::Types::Int16le
     #   # define a string field
     #   define_field :body, PacketGen::Types::String
-    #   # define afield using a complex type (Fields subclass)
+    #   # define a field using a complex type (Fields subclass)
     #   define_field :mac_addr, PacketGen::Eth::MacAddr
     #
     # This example creates six methods on our Fields subclass: +#type+, +#type=+,
@@ -59,20 +59,22 @@ module PacketGen
     # * +:default+ gives default field value. It may be a simple value (an Integer
     #   for an Int field, for example) or a lambda,
     # * +:builder+ to give a builder/constructor lambda to create field. The lambda
-    #   takes one argument: {Fields} subclass object owning field,
+    #   takes 2 argument: {Fields} subclass object owning field, and type class as passes
+    #   as second argument to .define_field,
     # * +:optional+ to define this field as optional. This option takes a lambda
-    #   parameter used to say if this field is present or not,
+    #   parameter used to say if this field is present or not. The lambda takes an argument
+    #   ({Fields} subclass object owning field),
     # * +:enum+ to define Hash enumeration for an {Enum} type.
     # For example:
     #   # 32-bit integer field defaulting to 1
     #   define_field :type, PacketGen::Types::Int32, default: 1
     #   # 16-bit integer field, created with a random value. Each instance of this
     #   # object will have a different value.
-    #   define_field :id, PacketGen::Types::Int16, default: ->{ rand(65535) }
+    #   define_field :id, PacketGen::Types::Int16, default: ->(obj) { rand(65535) }
     #   # a size field
     #   define_field :body_size, PacketGen::Types::Int16
     #   # String field which length is taken from body_size field
-    #   define_field :body, PacketGen::Types::String, builder: ->(obj, type) { type.new('', length_from: obj[:body_size]) }
+    #   define_field :body, PacketGen::Types::String, builder: ->(obj, type) { type.new(length_from: obj[:body_size]) }
     #   # 16-bit enumeration type. As :default not specified, default to first value of enum
     #   define_field :type_class, PacketGen::Types::Int16Enum, enum: { 'class1' => 1, 'class2' => 2}
     #   # optional field. Only present if another field has a certain value
@@ -92,8 +94,19 @@ module PacketGen
     #   to access Boolean RSV, MF and DF flags from +frag+ field,
     # * +#fragment_offset+ and +#fragment_offset=+ to access 13-bit integer fragment
     #   offset subfield from +frag+ field.
+    #
+    # == Creating a new field class from another one
+    # Some methods may help in this case:
+    # * {.define_field_before} to define a new field before an existing one,
+    # * {.define_field_after} to define a new field after an existing onr,
+    # * {.remove_field} to remove an existing field,
+    # * {.uptade_fied} to change options of a field (but not its type),
+    # * {.remove_bit_fields_on} to remove a bit fields definition.
+    #
     # @author Sylvain Daubert
     class Fields
+      # @private
+      FieldDef = Struct.new(:type, :default, :builder, :optional, :enum, :options)
       # @private field names, ordered as they were declared
       @ordered_fields = []
       # @private field definitions
@@ -112,6 +125,7 @@ module PacketGen
           end
           ordered = @ordered_fields.clone
           bf = @bit_fields.clone
+
           klass.class_eval do
             @ordered_fields = ordered
             @field_defs = field_defs
@@ -157,26 +171,32 @@ module PacketGen
           if type < Types::Enum
             define << "def #{name}; self[:#{name}].to_i; end"
             define << "def #{name}=(val) self[:#{name}].value = val; end"
-          elsif type < Types::Int
-            define << "def #{name}; self[:#{name}].to_i; end"
-            define << "def #{name}=(val) self[:#{name}].read val; end"
-          elsif type.instance_methods.include?(:to_human) &&
-                type.instance_methods.include?(:from_human)
-            define << "def #{name}; self[:#{name}].to_human; end"
-            define << "def #{name}=(val) self[:#{name}].from_human val; end"
           else
-            define << "def #{name}; self[:#{name}]; end\n"
-            define << "def #{name}=(val) self[:#{name}].read val; end"
+            define << "def #{name}\n" \
+                      "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
+                      "    self[:#{name}].to_human\n" \
+                      "  else\n" \
+                      "    self[:#{name}]\n" \
+                      "  end\n" \
+                      "end"
+            define << "def #{name}=(val)\n" \
+                      "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
+                      "    self[:#{name}].from_human val\n" \
+                      "  else\n" \
+                      "    self[:#{name}].read val\n" \
+                      "  end\n" \
+                      "end"
           end
 
           define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
           define.delete(0) if type.instance_methods.include? name
           class_eval define.join("\n")
-          @field_defs[name] = [type, options.delete(:default),
-                               options.delete(:builder),
-                               options.delete(:optional),
-                               options.delete(:enum),
-                               options]
+          @field_defs[name] = FieldDef.new(type,
+                                           options.delete(:default),
+                                           options.delete(:builder),
+                                           options.delete(:optional),
+                                           options.delete(:enum),
+                                           options)
           fields << name
         end
 
@@ -229,16 +249,6 @@ module PacketGen
           undef_method "#{name}=" if method_defined?("#{name}=")
         end
 
-        # Delete a previously defined field
-        # @param [Symbol] name
-        # @return [void]
-        # @deprecated Use {.remove_field} instead.
-        # @since 2.8.4 deprecated
-        def delete_field(name)
-          Deprecation.deprecated(self, __method__, 'remove_field', klass_method: true)
-          remove_field name
-        end
-
         # Update a previously defined field
         # @param [Symbol] field field name to create
         # @param [Hash] options See {.define_field}.
@@ -249,11 +259,11 @@ module PacketGen
         def update_field(field, options)
           raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
 
-          @field_defs[field][1] = options.delete(:default) if options.key?(:default)
-          @field_defs[field][2] = options.delete(:builder) if options.key?(:builder)
-          @field_defs[field][3] = options.delete(:optional) if options.key?(:optional)
-          @field_defs[field][4] = options.delete(:enum) if options.key?(:enum)
-          @field_defs[field][5].merge!(options)
+          @field_defs[field].default = options.delete(:default) if options.key?(:default)
+          @field_defs[field].builder = options.delete(:builder) if options.key?(:builder)
+          @field_defs[field].optional = options.delete(:optional) if options.key?(:optional)
+          @field_defs[field].enum = options.delete(:enum) if options.key?(:enum)
+          @field_defs[field].options.merge!(options)
         end
 
         # Define a bitfield on given attribute
@@ -279,7 +289,7 @@ module PacketGen
           attr_def = @field_defs[attr]
           raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
 
-          type = attr_def.first
+          type = attr_def.type
           unless type < Types::Int
             raise TypeError, "#{attr} is not a PacketGen::Types::Int"
           end
@@ -344,12 +354,12 @@ module PacketGen
 
           fields.each do |field, size|
             undef_method "#{field}="
-            undef_method(size == 1 ? "#{field}?" : "#{field}")
+            undef_method(size == 1 ? "#{field}?" : field)
           end
         end
       end
 
-      # Create a new header object
+      # Create a new fields object
       # @param [Hash] options Keys are symbols. They should have name of object
       #   attributes, as defined by {.define_field} and by {.define_bit_fields_on}.
       def initialize(options={})
@@ -358,9 +368,14 @@ module PacketGen
 
         field_defs = self.class.class_eval { @field_defs }
         self.class.fields.each do |field|
-          ary = field_defs[field]
-          type, default, builder, optional, enum, field_options = ary
+          type = field_defs[field].type
+          default = field_defs[field].default
           default = default.to_proc.call(self) if default.is_a?(Proc)
+          builder = field_defs[field].builder
+          optional = field_defs[field].optional
+          enum = field_defs[field].enum
+          field_options = field_defs[field].options
+
           @fields[field] = if builder
                              builder.call(self, type)
                            elsif enum
@@ -374,17 +389,6 @@ module PacketGen
           value = options[field] || default
           if value.class <= type
             @fields[field] = value
-          elsif type < Types::Enum
-            case value
-            when ::String
-              @fields[field].value = value
-            else
-              @fields[field].read(value)
-            end
-          elsif type < Types::Int
-            @fields[field].read(value)
-          elsif type <= Types::String
-            @fields[field].read(value)
           elsif @fields[field].respond_to? :from_human
             @fields[field].from_human(value)
           end
@@ -430,26 +434,12 @@ module PacketGen
         @optional_fields.key? field
       end
 
-      # @deprecated Use {#optional?} instead.
-      def is_optional?(field)
-        Deprecation.deprecated(self.class, __method__, 'optional?', klass_method: true)
-        optional? field
-      end
-
       # Say if an optional field is present
       # @return [Boolean]
       def present?(field)
         return true unless optional?(field)
 
         @optional_fields[field].call(self)
-      end
-
-      # Say if an optional field is present
-      # @return [Boolean]
-      # @deprecated Use {#present?} instead.
-      def is_present?(field)
-        Deprecation.deprecated(self.class, __method__, 'present?', klass_method: true)
-        present? field
       end
 
       # Populate object from a binary string
@@ -463,17 +453,10 @@ module PacketGen
         fields.each do |field|
           next unless present?(field)
 
-          obj = nil
-          if self[field].respond_to? :width
-            width = self[field].width
-            obj = self[field].read str[start, width]
-            start += width
-          elsif self[field].respond_to? :sz
-            obj = self[field].read str[start..-1]
-            size = self[field].sz
-            start += size
+          obj = self[field].read str[start..-1]
+          if self[field].respond_to? :sz
+            start += self[field].sz
           else
-            obj = self[field].read str[start..-1]
             start = str.size
           end
           self[field] = obj unless obj == self[field]
@@ -496,7 +479,7 @@ module PacketGen
           next if attr == :body
           next unless present?(attr)
 
-          result = yield(attr)if block_given?
+          result = yield(attr) if block_given?
           str << (result || Inspect.inspect_attribute(attr, self[attr], 1))
         end
         str
@@ -519,36 +502,6 @@ module PacketGen
       # @return [Hash] keys: attributes, values: attribute values
       def to_h
         Hash[fields.map { |f| [f, @fields[f].to_human] }]
-      end
-
-      # Used to set body as value of body object.
-      # @param [String,Int,Fields,nil] value
-      # @return [void]
-      # @raise [BodyError] no body on given object
-      # @raise [ArgumentError] cannot cram +body+ in +:body+ field
-      # @deprecated
-      def body=(value)
-        Deprecation.deprecated(self.class, __method__)
-        raise BodyError, 'no body field' unless @fields.key? :body
-
-        case body
-        when ::String
-          self[:body].read value
-        when Int, Fields
-          self[:body] = value
-        when NilClass
-          self[:body] = Types::String.new.read('')
-        else
-          raise ArgumentError, "Can't cram a #{body.class} in a :body field"
-        end
-      end
-
-      # Force str to binary encoding
-      # @param [String] str
-      # @return [String]
-      # @deprecated Will be a private method
-      def force_binary(str)
-        PacketGen.force_binary(str)
       end
 
       # Get offset of given field in {Fields} structure.
@@ -581,8 +534,15 @@ module PacketGen
       # @return [void]
       def initialize_copy(_other)
         fields = {}
-        @fields.each { |k,v| fields[k] = v.dup }
+        @fields.each { |k, v| fields[k] = v.dup }
         @fields = fields
+      end
+
+      # Force str to binary encoding
+      # @param [String] str
+      # @return [String]
+      def force_binary(str)
+        PacketGen.force_binary(str)
       end
     end
   end

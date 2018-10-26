@@ -96,10 +96,10 @@ module PacketGen
         self[:tsl].read io.read(4)
         self[:cap_len].read io.read(4)
         self[:orig_len].read io.read(4)
-        self[:data].read io.read(self[:cap_len].to_i)
+        self[:data].read io.read(self.cap_len)
         data_pad_len = (4 - (self[:cap_len].to_i % 4)) % 4
         io.read data_pad_len
-        options_len = self[:block_len].to_i - self[:cap_len].to_i - data_pad_len
+        options_len = self.block_len - self.cap_len - data_pad_len
         options_len -= MIN_SIZE
         self[:options].read io.read(options_len)
         self[:block_len2].read io.read(4)
@@ -111,7 +111,7 @@ module PacketGen
       # Return timestamp as a Time object
       # @return [Time]
       def timestamp
-        Time.at((self[:tsh].to_i << 32 | self[:tsl].to_i) * ts_resol)
+        Time.at((self.tsh << 32 | self.tsl) * ts_resol)
       end
 
       # Return the object as a String
@@ -125,7 +125,7 @@ module PacketGen
       private
 
       def ts_resol
-        if @interface.nil?
+        if !defined?(@interface) || @interface.nil?
           1E-6
         else
           @interface.ts_resol

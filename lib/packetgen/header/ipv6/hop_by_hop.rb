@@ -46,23 +46,6 @@ module PacketGen
       class Options < Types::Array
         set_of Option
 
-        # Populate object from a binary string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          clear
-          return self if str.nil?
-          force_binary str
-          klass = self.class.class_eval { @klass }
-          until str.empty?
-            obj = klass.new.read(str)
-            obj = Pad1.new.read(str) if obj.type.zero?
-            self.push obj
-            str.slice!(0, obj.sz)
-          end
-          self
-        end
-
         # Get options as a binary string. Add padding if needed.
         # @return [String]
         def to_s
@@ -82,6 +65,12 @@ module PacketGen
             str << padn.to_s
           end
           str
+        end
+
+        private
+
+        def real_type(opt)
+          opt.type.zero? ? Pad1 : opt.class
         end
       end
 
@@ -111,20 +100,7 @@ module PacketGen
         # @!attribute options
         #  Specific options of extension header
         #  @return [Options]
-        define_field_before :body, :options, Options
-
-        # Populate object from a binary string
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          return self if str.nil?
-          force_binary str
-          self[:next].read str[0, 1]
-          self[:length].read str[1, 1]
-          self[:options].read str[2, real_length - 2]
-          self[:body].read str[real_length..-1]
-          self
-        end
+        define_field_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2} ) }
       end
     end
 

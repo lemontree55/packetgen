@@ -7,6 +7,26 @@
 
 module PacketGen
   module Header
+    # TCP header ({https://tools.ietf.org/html/rfc793 RFC 793})
+    #    0                   1                   2                   3
+    #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |          Source Port          |       Destination Port        |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                        Sequence Number                        |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                    Acknowledgment Number                      |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |  Data |           |U|A|P|R|S|F|                               |
+    #   | Offset| Reserved  |R|C|S|S|Y|I|            Window             |
+    #   |       |           |G|K|H|T|N|N|                               |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |           Checksum            |         Urgent Pointer        |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                    Options                    |    Padding    |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    #   |                             data                              |
+    #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A TCP header consists of:
     # * a source port ({#sport}, {Types::Int16} type),
     # * a destination port ({#dport}, +Int16+ type),
@@ -78,7 +98,7 @@ module PacketGen
       # @!attribute seqnum
       #  32-bit TCP sequence number
       #  @return [Integer]
-      define_field :seqnum, Types::Int32, default: ->(h) { rand(2**32) }
+      define_field :seqnum, Types::Int32, default: ->(_) { rand(2**32) }
       # @!attribute acknum
       #  32-bit TCP acknowledgement number
       #  @return [Integer]
@@ -174,6 +194,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
+
         force_binary str
         self[:sport].read str[0, 2]
         self[:dport].read str[2, 2]
@@ -212,7 +233,7 @@ module PacketGen
           shift = Inspect.shift_level
           str = Inspect.inspect_attribute(attr, self[attr])
           doff = Inspect.int_dec_hex(data_offset, 1)
-          str<< shift << Inspect::FMT_ATTR % ['', 'data_offset', doff]
+          str << shift << Inspect::FMT_ATTR % ['', 'data_offset', doff]
           str << shift << Inspect::FMT_ATTR % ['', 'reserved', reserved]
           flags = ''.dup
           %w[ns cwr ece urg ack psh rst syn fin].each do |fl|

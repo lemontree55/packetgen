@@ -34,7 +34,7 @@ module PacketGen
           expect(int.value).to eq(42)
         end
         it 'raises on reading a string' do
-          expect { int.read("\x2a") }.to raise_error(NoMethodError)
+          expect { int.read("\x2a") }.to raise_error(ParseError)
         end
       end
 
@@ -47,6 +47,20 @@ module PacketGen
       describe '#to_f' do
         it 'returns value as a float' do
           expect(Int.new(42).to_f).to be_within(0.1).of(42.0)
+        end
+      end
+
+      context 'responds to human API' do
+        let(:int) { Int.new }
+
+        it '#from_human' do
+          int.from_human 42
+          expect(int.value).to eq(42)
+        end
+
+        it '#to_human' do
+          int.from_human 49
+          expect(int.to_human).to eq(49)
         end
       end
     end

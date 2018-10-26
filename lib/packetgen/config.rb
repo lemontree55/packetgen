@@ -7,7 +7,6 @@
 
 require 'socket'
 require 'singleton'
-require 'interfacez'
 
 module PacketGen
   # Config class to provide +config+ object to pgconsole

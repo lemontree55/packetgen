@@ -68,8 +68,7 @@ module PacketGen
       # @param [String] iface interface name
       # @return [void]
       def to_w(iface)
-        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC,
-                                       PCAP_TIMEOUT)
+        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC, PCAP_TIMEOUT)
         pcap.inject self.to_s
         pcap.close
       end
@@ -219,21 +218,6 @@ module PacketGen
         # @return [Boolean]
         attr_accessor :fcs
         alias fcs? fcs
-
-        # rubocop:disable Naming/PredicateName
-
-        # @deprecated Use {.fcs?} instead.
-        def has_fcs
-          Deprecation.deprecated(self, __method__, 'fcs?', klass_method: true)
-          fcs?
-        end
-
-        # @deprecated Use {.fcs=} instead.
-        def has_fcs=(fcs)
-          Deprecation.deprecated(self, __method__, 'fcs=', klass_method: true)
-          self.fcs = fcs
-        end
-        # rubocop:enable Naming/PredicateName
       end
       Dot11.fcs = true
 

@@ -27,52 +27,6 @@ end
 module PacketGen
   module Header
     describe Base do
-      describe '.bind_header' do
-        after(:each) { clear_bindings PGTest::Base }
-
-        it 'binds a header to another one with a single value' do
-          PGTest::Base.bind_header PGTest::ToBind, field1: 55
-          expect(PGTest::Base).to know_header(PGTest::ToBind).with(field1: 55)
-          pkt = Packet.new.add('PGTest::Base').add('PGTest::ToBind')
-          expect(pkt).to respond_to(:base)
-          expect(pkt).to respond_to(:pgtest_tobind)
-          expect(pkt.base.field1).to eq(55)
-          expect(pkt.base.field2).to eq(0)
-          expect(pkt.pgtest_tobind.field).to eq(1)
-        end
-
-        it 'binds a header to another one with multiple field (or case)' do
-          PGTest::Base.bind_header PGTest::ToBind, field1: 55, field2: 1
-          expect(PGTest::Base).to know_header(PGTest::ToBind).with(field1: 55, field2: 1)
-          pkt = Packet.new.add('PGTest::Base').add('PGTest::ToBind')
-          expect(pkt).to respond_to(:base)
-          expect(pkt).to respond_to(:pgtest_tobind)
-          expect(pkt.base.field1).to eq(55)
-          expect(pkt.base.field2).to eq(1)
-          expect(pkt.pgtest_tobind.field).to eq(1)
-        end
-
-        it 'binds a header to another one with multiple field (and case)' do
-          PGTest::Base.bind_header PGTest::ToBind, op: :and, field1: 55, field2: 2
-          expect(PGTest::Base).to know_header(PGTest::ToBind).with(field1: 55, field2: 2)
-          pkt = Packet.new.add('PGTest::Base').add('PGTest::ToBind')
-          expect(pkt).to respond_to(:base)
-          expect(pkt).to respond_to(:pgtest_tobind)
-          expect(pkt.base.field1).to eq(55)
-          expect(pkt.base.field2).to eq(2)
-          expect(pkt.pgtest_tobind.field).to eq(1)
-        end
-
-        it 'binds a header to another one using a lambda' do
-          PGTest::Base.bind_header PGTest::ToBind, field1: ->(v) { v.nil? ? 128 : v > 127 }
-          pkt = Packet.new.add('PGTest::Base').add('PGTest::ToBind')
-          expect(pkt).to respond_to(:base)
-          expect(pkt).to respond_to(:pgtest_tobind)
-          expect(pkt.base.field1).to eq(128)
-          expect(pkt.pgtest_tobind.field).to eq(1)
-        end
-      end
-
       describe '.bind' do
         after(:each) { clear_bindings PGTest::Base }
 
@@ -131,7 +85,7 @@ module PacketGen
           pkt3 = Packet.parse(pkt.to_s, first_header: 'PGTest::Base')
           expect(pkt3.is?('Base')).to be(true)
           expect(pkt3.is?('PGTest::ToBind')).to be(false)
-          expect(pkt3.base.body).to be_a(Types::String)
+          expect(pkt3.base[:body]).to be_a(Types::String)
         end
 
         it 'binds a header with multiple possibility (multiple calls to .bind)' do

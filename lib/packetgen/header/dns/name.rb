@@ -93,6 +93,7 @@ module PacketGen
 
         def pointer?(index)
           return false if index.nil?
+
           index & POINTER_MASK == POINTER_MASK
         end
 

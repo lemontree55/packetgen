@@ -70,13 +70,30 @@ module PacketGen
         # @return [Hash]
         def self.types
           return @types if defined? @types
+
           @types = {}
           Option.constants.each do |cst|
             next unless cst.to_s.end_with? '_TYPE'
+
             optname = cst.to_s.sub(/_TYPE/, '')
-            @types[Option.const_get(cst)] = IP.const_get(optname)
+            @types[optname] = Option.const_get(cst)
           end
           @types
+        end
+
+        # Factory to build an option from its type
+        # @return [Option]
+        def Option.build(options={})
+          type = options.delete(:type)
+          klass = case type
+                  when String
+                    types.key?(type) ? IP.const_get(type) : self
+                  when Integer
+                    types.value?(type) ? IP.const_get(types.key(type)) : self
+                  else
+                    self
+                  end
+          klass.new(options)
         end
 
         def initialize(options={})
@@ -87,6 +104,7 @@ module PacketGen
             end
           end
           super
+          self.length = sz if respond_to?(:length) && options[:length].nil?
         end
 
         # Get binary string. Set {#length} field.
@@ -99,7 +117,7 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          str = self.class == Option ? "unk-#{type}" : self.class.to_s.sub(/.*::/, '')
+          str = self.class == Option ? +"unk-#{type}" : self.class.to_s.sub(/.*::/, '')
           if respond_to?(:length) && (length > 2) && !self[:data].to_s.empty?
             str << ":#{self[:data].to_s.inspect}"
           end
@@ -114,8 +132,7 @@ module PacketGen
       end
 
       # No OPeration IP option
-      class NOP < EOL
-      end
+      class NOP < EOL; end
 
       # Loose Source and Record Route IP option
       class LSRR < Option
@@ -124,25 +141,11 @@ module PacketGen
         # @!attribute pointer
         #  8-bit pointer on next address
         #  @return [Integer]
-        define_field :pointer, Types::Int8
+        define_field :pointer, Types::Int8, default: 4
         # @!attribute data
         #  Array of IP addresses
         #  @return [Types::Array<IP::Addr>]
-        define_field :data, ArrayOfAddr,
-                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
-
-        # Populate object from a binary string
-        # @param [String] str
-        # @return [Fields] self
-        def read(str)
-          return self if str.nil?
-          force_binary str
-          self[:type].read str[0, 1]
-          self[:length].read str[1, 1]
-          self[:pointer].read str[2, 1]
-          self[:data].read str[3, length - 3]
-          self
-        end
+        define_field :data, ArrayOfAddr, builder: ->(h, t) { t.new(length_from: -> { h.length - 3 }) }
 
         # Get IP address pointer by {#pointer}
         # @return [Addr]

@@ -255,7 +255,7 @@ module PacketGen
         pkt.body = '123'
         pkt.ip.id = 0   # to remove randomness on checksum computation
 
-        Thread.new { sleep 0.1; pkt.to_w('lo', calc: true) }
+        Thread.new { sleep 0.1; pkt.to_w('lo') }
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -266,14 +266,26 @@ module PacketGen
         expect(packet.ip.checksum).to eq(0x75df)
       end
 
+      it 'does not calculate calculatable fields if calc is false', :sudo do
+        Thread.new { sleep 0.1; pkt.to_w('lo', calc: false) }
+        packets = Packet.capture(iface: 'lo', max: 1,
+                                 filter: 'ether dst ff:ff:ff:ff:ff:ff',
+                                 timeout: 2)
+        packet = packets.first
+        expect(packet.ip.src).to eq('128.1.2.3')
+        expect(packet.ip.dst).to eq('129.1.2.3')
+        expect(packet.ip.length).to eq(20)
+        expect(packet.ip.checksum).to eq(0)
+      end
+
       it 'sends packet multiple times', :sudo do
         Thread.new do
-          sleep 0.1
+          sleep 0.2
           pkt.to_w('lo', number: 5, interval: 0.1)
         end
         packets = Packet.capture(iface: 'lo', max: 5,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
-                                 timeout: 1)
+                                 timeout: 1.5)
 
         expect(packets.length).to eq(5)
       end

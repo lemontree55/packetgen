@@ -62,10 +62,10 @@ module PacketGen
 
         describe '#to_s' do
           it 'generates a string for Option with only a kind' do
-            opt = Option.new(kind: 254)
-            expect(opt.to_s).to eq(force_binary "\xfe")
+            opt = Option.new(kind: 1)
+            expect(opt.to_s).to eq(force_binary "\x01")
           end
-          
+
           it 'generates a string for complete Option' do
             opt = Option.new(kind: 253, length: 4, value: 1)
             expected = "\xfd\x04\x00\x01"
@@ -148,13 +148,12 @@ module PacketGen
           expect(sack.to_s).to eq(force_binary "\x05\x02")
           1.upto(12) do |i|
             sack.value = 'z' * i
-            sack.length = 2 + i
             expected = [5, 2 + i].pack('C*') + 'z' * i
             expect(sack.to_s).to eq(force_binary expected)
           end
         end
       end
-      
+
       describe ECHO do
         it 'kind is 6' do
           expect(ECHO.new.kind).to eq(6)
@@ -167,7 +166,7 @@ module PacketGen
           expect(echo.to_s).to eq(force_binary "\x06\x06\xff\x01\x02\x03")
         end
       end
-      
+
       describe ECHOREPLY do
         it 'kind is 7' do
           expect(ECHOREPLY.new.kind).to eq(7)

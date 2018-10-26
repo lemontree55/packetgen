@@ -29,6 +29,7 @@ module PacketGen
           when String
             @data = s_or_h.split("\n").map do |h|
               next unless h.include?(':')
+
               k, v = h.split(':', 2)
               [k, v.strip]
             end.reject(&:nil?).to_h
@@ -42,6 +43,7 @@ module PacketGen
         # @return [String]
         def to_s
           return "\r\n" if @data.nil? || @data.empty?
+
           d = []
           @data.map do |k, v|
             d << k + ': ' + v
@@ -66,6 +68,7 @@ module PacketGen
         # @return [Boolean]
         def given?
           return true unless @data.nil? || @data.empty?
+
           false
         end
       end

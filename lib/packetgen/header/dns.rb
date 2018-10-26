@@ -97,12 +97,12 @@ module PacketGen
   end
 end
 
-require_relative 'dns/rrsection'
-require_relative 'dns/qdsection'
 require_relative 'dns/name'
 require_relative 'dns/question'
 require_relative 'dns/rr'
 require_relative 'dns/opt'
+require_relative 'dns/rrsection'
+require_relative 'dns/qdsection'
 
 module PacketGen
   module Header
@@ -184,27 +184,7 @@ module PacketGen
       define_bit_fields_on :u16, :qr, :opcode, 4, :aa, :tc, :rd, :ra, :z,
                            :ad, :cd, :rcode, 4
 
-      # Read DNS header and sections from a string
-      # @param [String] str binary string
-      # @return [self]
-      def read(str)
-        return self if str.nil?
-        force_binary str
-        self[:id].read str[0, 2]
-        self[:u16].read str[2, 2]
-        self[:qdcount].read str[4, 2]
-        self[:ancount].read str[6, 2]
-        self[:nscount].read str[8, 2]
-        self[:arcount].read str[10, 2]
-        self[:qd].read str[12..-1] if self.qdcount > 0
-        start = 12 + self[:qd].sz
-        self[:an].read str[start..-1] if self.ancount > 0
-        start += self[:an].sz
-        self[:ns].read str[start..-1] if self.nscount > 0
-        start += self[:ns].sz
-        self[:ar].read str[start..-1] if self.arcount > 0
-        self
-      end
+      undef opcode=, rcode=
 
       # Set opcode
       # @param [Integer,String] value
@@ -217,6 +197,7 @@ module PacketGen
                  OPCODES[value.to_s]
                end
         raise ArgumentError, "unknown opcode #{value.inspect}" unless intg
+
         self.u16 &= 0x87ff
         self.u16 |= (intg & 0xf) << 11
       end
@@ -232,6 +213,7 @@ module PacketGen
                  RCODES[value]
                end
         raise ArgumentError, "unknown rcode #{value.inspect}" unless intg
+
         self.u16 &= 0xfff0
         self.u16 |= intg & 0xf
       end

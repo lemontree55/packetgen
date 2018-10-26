@@ -7,9 +7,12 @@
 # frozen_string_literal: true
 
 module PacketGen
-  # Namespace for protocol header classes
+  # Namespace for protocol header classes.
+  #
+  # This namespace handles all buitlin headers, such as {IP} or {TCP}.
+  #
   # == Add a foreign header class
-  # Since v1.1.0, PacketGen permits adding you own header classes.
+  # PacketGen permits adding you own header classes.
   # First, define the new header class. By example:
   #  module MyModule
   #    class MyHeader < PacketGen::Header::Base
@@ -40,7 +43,8 @@ module PacketGen
       # List all available headers.
       # @return [Array<Class>]
       def all
-        return @header_classes if @header_classes
+        return @header_classes if defined?(@header_classes) && @header_classes
+
         @header_classes = @added_header_classes.values
       end
       alias list all
@@ -51,7 +55,7 @@ module PacketGen
       # @return [void]
       # @since 1.1.0
       def add_class(klass)
-        protocol_name = klass.new.protocol_name
+        protocol_name = klass.protocol_name
         @added_header_classes[protocol_name] = klass
         @header_classes = nil
       end
@@ -62,7 +66,7 @@ module PacketGen
       # @return [void]
       # @since 1.1.0
       def remove_class(klass)
-        protocol_name = klass.new.protocol_name
+        protocol_name = klass.protocol_name
         @added_header_classes.delete protocol_name
         @header_classes = nil
       end
@@ -82,7 +86,6 @@ module PacketGen
   end
 end
 
-require_relative 'header/crypto'
 require_relative 'header/base'
 require_relative 'header/eth'
 require_relative 'header/dot11'
@@ -98,8 +101,6 @@ require_relative 'header/gre'
 require_relative 'header/udp'
 require_relative 'header/tcp'
 require_relative 'header/eap'
-require_relative 'header/esp'
-require_relative 'header/ike'
 require_relative 'header/dns'
 require_relative 'header/asn1_base'
 require_relative 'header/snmp'
@@ -114,5 +115,4 @@ require_relative 'header/mld'
 require_relative 'header/mldv2'
 require_relative 'header/ospfv2'
 require_relative 'header/ospfv3'
-require_relative 'header/netbios'
 require_relative 'header/mdns'

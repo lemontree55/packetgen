@@ -56,9 +56,6 @@ module PacketGen
         74 => ['IRC_server', length: 4, v: IP::Addr]
       }.freeze
 
-      # @deprecated Use {DHCP_OPTIONS} instead.
-      DCHPOptions = DHCP_OPTIONS
-
       # Class to indicate DHCP options end
       class End < Types::Int8
         def initialize(value=255)
@@ -98,9 +95,10 @@ module PacketGen
         def initialize(options={})
           super
           return unless DHCP_OPTIONS.key?(self.type)
-          h = DHCP_OPTIONS[self.type].last
 
+          h = DHCP_OPTIONS[self.type].last
           return unless h.is_a? Hash
+
           h.each do |k, v|
             self.length = v if k == :length
             if k == :v
@@ -135,13 +133,8 @@ module PacketGen
           true
         end
 
-        # @deprecated Use {#human_types?} instead
-        # @return [true]
-        def has_human_types?
-          Deprecation.deprecated(self.class, __method__, 'human_types?')
-          human_types?
-        end
-
+        # Get human-readable type
+        # @return [String]
         def human_type
           if DHCP_OPTIONS.key?(type)
             DHCP_OPTIONS[type].first.dup
@@ -150,6 +143,7 @@ module PacketGen
           end
         end
 
+        # @return [String]
         def to_human
           s = human_type
           if length > 0

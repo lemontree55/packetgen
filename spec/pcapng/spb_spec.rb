@@ -8,9 +8,9 @@ module PacketGen
       it 'should have correct initialization values' do
         expect(@spb).to be_a(SPB)
         expect(@spb.endian).to eq(:little)
-        expect(@spb.type.to_i).to eq(PcapNG::SPB_TYPE.to_i)
-        expect(@spb.orig_len.to_i).to eq(0)
-        expect(@spb.block_len.to_i).to eq(SPB::MIN_SIZE)
+        expect(@spb.type).to eq(PcapNG::SPB_TYPE.to_i)
+        expect(@spb.orig_len).to eq(0)
+        expect(@spb.block_len).to eq(SPB::MIN_SIZE)
         expect(@spb.block_len2).to eq(@spb.block_len)
       end
 
@@ -18,9 +18,9 @@ module PacketGen
         it 'should accept a String' do
           str = ::File.read(::File.join(__dir__, 'sample-spb.pcapng'))[128, 0x14c]
           expect { @spb.read str }.to_not raise_error
-          expect(@spb.type.to_i).to eq(PcapNG::SPB_TYPE.to_i)
-          expect(@spb.block_len.to_i).to eq(0x14c)
-          expect(@spb.orig_len.to_i).to eq(0x13a)
+          expect(@spb.type).to eq(PcapNG::SPB_TYPE.to_i)
+          expect(@spb.block_len).to eq(0x14c)
+          expect(@spb.orig_len).to eq(0x13a)
           expect(@spb.data.size).to eq(0x13a)
         end
 
@@ -29,9 +29,9 @@ module PacketGen
             f.seek(128, :CUR)
             @spb.read f
           end
-          expect(@spb.type.to_i).to eq(PcapNG::SPB_TYPE.to_i)
-          expect(@spb.block_len.to_i).to eq(0x14c)
-          expect(@spb.orig_len.to_i).to eq(0x13a)
+          expect(@spb.type).to eq(PcapNG::SPB_TYPE.to_i)
+          expect(@spb.block_len).to eq(0x14c)
+          expect(@spb.orig_len).to eq(0x13a)
           expect(@spb.data.size).to eq(0x13a)
         end
       end

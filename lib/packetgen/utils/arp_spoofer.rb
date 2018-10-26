@@ -5,8 +5,6 @@
 
 # frozen_string_literal: true
 
-require 'thread'
-
 module PacketGen
   module Utils
     # @note This class is provided for test purpose.
@@ -117,6 +115,7 @@ module PacketGen
       # @return [Boolean,nil]
       def active?(target_ip)
         return unless @targets.key?(target_ip)
+
         @targets[target_ip][:active]
       end
 

@@ -66,10 +66,14 @@ module PacketGen
         end
 
         return unless blk
+
         count = 0
         @sections.each do |section|
           section.interfaces.each do |intf|
-            intf.packets.each { |pkt| count += 1; yield pkt }
+            intf.packets.each do |pkt|
+              count += 1
+              yield pkt
+            end
           end
         end
         count
@@ -347,8 +351,8 @@ module PacketGen
           shb << block
           block.section = shb
         when EPB
-          shb.interfaces[block.interface_id.to_i] << block
-          block.interface = shb.interfaces[block.interface_id.to_i]
+          shb.interfaces[block.interface_id] << block
+          block.interface = shb.interfaces[block.interface_id]
         when SPB
           shb.interfaces[0] << block
           block.interface = shb.interfaces[0]

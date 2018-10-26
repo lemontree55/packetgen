@@ -104,9 +104,11 @@ module PacketGen
         ary.each do |pkt|
           if server_tid.nil?
             next unless pkt.is?('UDP') && (pkt.udp.dport == client_tid)
+
             server_tid = pkt.udp.sport
           else
             next unless pkt.is?('UDP')
+
             tids = [server_tid, client_tid]
             ports = [pkt.udp.sport, pkt.udp.dport]
             next unless (tids - ports).empty?
@@ -132,6 +134,7 @@ module PacketGen
       # @return [void]
       def added_to_packet(packet)
         return if packet.respond_to? :tftp
+
         packet.instance_eval("def tftp(arg=nil); header(#{self.class}, arg); end")
       end
 

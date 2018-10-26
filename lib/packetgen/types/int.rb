@@ -38,23 +38,26 @@ module PacketGen
 
       # @abstract
       # Read an Int from a binary string or an integer
-      # @param [Integer, String] value
+      # @param [Integer, #to_s] value
       # @return [self]
+      # @raise [ParseError] when reading +#to_s+ objects with abstract Int class.
       def read(value)
         @value = if value.is_a?(Integer)
                    value.to_i
-                 else
+                 elsif defined? @packstr
                    value.to_s.unpack(@packstr[@endian]).first
+                 else
+                   raise ParseError, 'Int#read is abstract and cannot read'
                  end
         self
       end
 
       # @abstract
       # @return [::String]
-      # @raise [StandardError] This is an abstrat method and must be redefined
+      # @raise [ParseError] This is an abstrat method and must be redefined
       def to_s
         unless defined? @packstr
-          raise StandardError, 'PacketGen::Types::Int#to_s is an abstract method'
+          raise ParseError, 'PacketGen::Types::Int#to_s is an abstract method'
         end
 
         [to_i].pack(@packstr[@endian])
@@ -66,6 +69,7 @@ module PacketGen
         @value || @default
       end
       alias to_human to_i
+      alias from_human value=
 
       # Convert Int to Float
       # @return [Float]
@@ -76,7 +80,7 @@ module PacketGen
       # Give size in bytes of self
       # @return [Integer]
       def sz
-        to_s.size
+        width
       end
     end
 

@@ -259,6 +259,7 @@ module PacketGen
         super
         data.chosen = options[:chosen_pdu] if options[:chosen_pdu]
         return unless options[:pdu]
+
         data.root.value[data.chosen] = data.root.chosen_value.class.new(options[:pdu])
       end
 
@@ -307,6 +308,7 @@ module PacketGen
       def added_to_packet(packet)
         return unless packet.is? 'UDP'
         return unless packet.udp.sport.zero?
+
         packet.udp.sport = packet.udp.dport
       end
     end

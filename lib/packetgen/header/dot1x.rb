@@ -52,6 +52,7 @@ module PacketGen
       # @return [self]
       def read(str)
         return self if str.nil?
+
         self[:version].read(str[0, 1])
         self[:type].read(str[1, 1])
         self[:length].read(str[2, 2])

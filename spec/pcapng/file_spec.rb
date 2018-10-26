@@ -34,16 +34,16 @@ module PacketGen
           intf = @pcapng.sections.first.interfaces.first
           expect(intf.section).to eq(@pcapng.sections.first)
           expect(intf.packets.size).to eq(4)
-          expect(intf.snaplen.to_i).to eq(0)
+          expect(intf.snaplen).to eq(0)
           packet = intf.packets.first
           expect(packet.interface).to eq(intf)
-          expect(packet.data.size).to eq(packet.orig_len.to_i)
+          expect(packet.data.size).to eq(packet.orig_len)
         end
 
         it 'yields xPB object per read packet' do
           idx = 0
           @pcapng.readfile(@file) do |pkt|
-            expect(pkt).to be_a(@Pcapng::EPB)
+            expect(pkt).to be_a(PcapNG::EPB)
             idx += 1
           end
           expect(idx).to eq(11)
@@ -100,7 +100,7 @@ module PacketGen
             end
           end
         end
-        
+
         it 'raises when file cannot be read' do
           expect { @pcapng.readfile 'inexistent_file.pcapng' }.
             to raise_error(ArgumentError, /cannot read/)
@@ -208,7 +208,7 @@ module PacketGen
           expect(@pcapng.sections[0].to_s).to eq(@pcapng.sections[1].to_s)
         end
       end
-      
+
       describe '#append' do
         before(:each) { @write_file = Tempfile.new('pcapng') }
         after(:each) { @write_file.close; @write_file.unlink }
@@ -307,13 +307,13 @@ module PacketGen
           packets2 = @pcapng.read_packets(@tmpfilename)
           expect(packets2.map(&:to_s).join).to eq(packets.map(&:to_s).join)
         end
-        
+
         it 'raises when :array argument is not an Array' do
           packets = @pcapng.read_packets(@file)[0..2]
           expect { @pcapng.array_to_file array: packets.map(&:to_s).join }.
             to raise_error(ArgumentError, /needs to be an array/)
         end
-        
+
         it 'raises when argument is nor an Array neither a Hash' do
           packets = @pcapng.read_packets(@file)[0..2]
           expect { @pcapng.array_to_file packets.map(&:to_s).join }.
@@ -331,13 +331,13 @@ module PacketGen
         @pcapng.read orig_str
         expect(@pcapng.to_s).to eq(orig_str)
       end
-      
+
       describe '#read!' do
         it 'clears object and reads a string' do
           str1 = force_binary(::File.read(@file))
           str2 = force_binary(::File.read(@file_spb))
           @pcapng.read str1
-          
+
           @pcapng.read! str2
           expect(@pcapng.to_s).to eq(str2)
         end

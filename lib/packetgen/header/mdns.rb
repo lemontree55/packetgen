@@ -70,6 +70,7 @@ module PacketGen
         packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end"
         return unless packet.is? 'UDP'
         return unless packet.udp.sport.zero?
+
         packet.udp.sport = UDP_PORT
       end
     end

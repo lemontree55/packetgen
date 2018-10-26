@@ -8,13 +8,13 @@ module PacketGen
       it 'should have correct initialization values' do
         expect(@epb).to be_a(EPB)
         expect(@epb.endian).to eq(:little)
-        expect(@epb.type.to_i).to eq(PcapNG::EPB_TYPE.to_i)
-        expect(@epb.interface_id.to_i).to eq(0)
-        expect(@epb.tsh.to_i).to eq(0)
-        expect(@epb.tsl.to_i).to eq(0)
-        expect(@epb.cap_len.to_i).to eq(0)
-        expect(@epb.orig_len.to_i).to eq(0)
-        expect(@epb.block_len.to_i).to eq(EPB::MIN_SIZE)
+        expect(@epb.type).to eq(PcapNG::EPB_TYPE.to_i)
+        expect(@epb.interface_id).to eq(0)
+        expect(@epb.tsh).to eq(0)
+        expect(@epb.tsl).to eq(0)
+        expect(@epb.cap_len).to eq(0)
+        expect(@epb.orig_len).to eq(0)
+        expect(@epb.block_len).to eq(EPB::MIN_SIZE)
         expect(@epb.block_len2).to eq(@epb.block_len)
       end
 
@@ -22,13 +22,13 @@ module PacketGen
         it 'should accept a String' do
           str = ::File.read(::File.join(__dir__, 'sample.pcapng'))[84, 112]
           expect { @epb.read(str) }.to_not raise_error
-          expect(@epb.type.to_i).to eq(PcapNG::EPB_TYPE.to_i)
-          expect(@epb.block_len.to_i).to eq(112)
-          expect(@epb.interface_id.to_i).to eq(0)
-          expect(@epb.tsh.to_i).to eq(0x475ad)
-          expect(@epb.tsl.to_i).to eq(0xd392be6a)
-          expect(@epb.cap_len.to_i).to eq(78)
-          expect(@epb.orig_len.to_i).to eq(@epb.cap_len.to_i)
+          expect(@epb.type).to eq(PcapNG::EPB_TYPE.to_i)
+          expect(@epb.block_len).to eq(112)
+          expect(@epb.interface_id).to eq(0)
+          expect(@epb.tsh).to eq(0x475ad)
+          expect(@epb.tsl).to eq(0xd392be6a)
+          expect(@epb.cap_len).to eq(78)
+          expect(@epb.orig_len).to eq(@epb.cap_len)
           expect(@epb.options?).to be(false)
         end
 
@@ -37,13 +37,13 @@ module PacketGen
             f.seek(84, :CUR)
             @epb.read f
           end
-          expect(@epb.type.to_i).to eq(PcapNG::EPB_TYPE.to_i)
-          expect(@epb.block_len.to_i).to eq(112)
-          expect(@epb.interface_id.to_i).to eq(0)
-          expect(@epb.tsh.to_i).to eq(0x475ad)
-          expect(@epb.tsl.to_i).to eq(0xd392be6a)
-          expect(@epb.cap_len.to_i).to eq(78)
-          expect(@epb.orig_len.to_i).to eq(@epb.cap_len.to_i)
+          expect(@epb.type).to eq(PcapNG::EPB_TYPE.to_i)
+          expect(@epb.block_len).to eq(112)
+          expect(@epb.interface_id).to eq(0)
+          expect(@epb.tsh).to eq(0x475ad)
+          expect(@epb.tsl).to eq(0xd392be6a)
+          expect(@epb.cap_len).to eq(78)
+          expect(@epb.orig_len).to eq(@epb.cap_len)
           expect(@epb.options?).to be(false)
         end
 

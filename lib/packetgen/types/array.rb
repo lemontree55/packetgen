@@ -5,6 +5,8 @@
 
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module PacketGen
   module Types
     # @abstract Base class to define set of {Fields} subclasses.
@@ -14,20 +16,66 @@ module PacketGen
     #
     # A default method is defined by {Array}: it calls constructor of class defined
     # by {.set_of}.
+    #
+    # == #real_type
+    # Subclasses should define private method +#real_type+ is {.set_of} type
+    # may be subclassed. This method should return real class to use. It
+    # takes an only argument, which is of type given by {.set_of}.
+    #
+    # Default behaviour of this method is to argument's class.
+    #
     # @author Sylvain Daubert
     class Array
+      extend Forwardable
+
+      # @!method [](index)
+      #   Return the element at +index+.
+      #   @param [integer] index
+      #   @return [Object]
+      # @!method clear
+      #   Clear array.
+      #   @return [void]
+      # @!method each
+      #   Calls the given block once for each element in self, passing that
+      #   element as a parameter. Returns the array itself.
+      #   @return [Array]
+      # @method empty?
+      #   Return +true+ if contains no element.
+      #   @return [Booelan]
+      # @!method first
+      #   Return first element
+      #   @return [Object]
+      # @!method last
+      #   Return last element.
+      #   @return [Object]
+      # @!method size
+      #   Get number of element in array
+      #   @return [Integer]
+      def_delegators :@array, :[], :clear, :each, :empty?, :first, :last, :size
+      alias length size
+
       include Enumerable
+      include LengthFrom
 
       # Separator used in {#to_human}.
       # May be ovverriden by subclasses
       HUMAN_SEPARATOR = ','
 
-      # Define type of objects in set. Used by {#read} and {#push}.
-      # @param [Class] klass
-      # @return [void]
       # rubocop:disable Naming/AccessorMethodName
-      def self.set_of(klass)
-        @klass = klass
+      class <<self
+        # Get class set with {.set_of}.
+        # @return [Class]
+        # @since 3.0.0
+        def set_of_klass
+          @klass
+        end
+
+        # Define type of objects in set. Used by {#read} and {#push}.
+        # @param [Class] klass
+        # @return [void]
+        def set_of(klass)
+          @klass = klass
+        end
       end
       # rubocop:enable Naming/AccessorMethodName
 
@@ -36,6 +84,7 @@ module PacketGen
       def initialize(options={})
         @counter = options[:counter]
         @array = []
+        initialize_length_from(options)
       end
 
       # Initialize array for copy:
@@ -44,26 +93,13 @@ module PacketGen
         @array = @array.dup
       end
 
-      # Return the element at +index+.
-      # @param [integer] index
-      # @return [Object]
-      def [](index)
-        @array[index]
-      end
-
       def ==(other)
-        case other
-        when Array
-          @array == other.to_a
-        else
-          @array == other
-        end
-      end
-
-      # Clear array.
-      # @return [void]
-      def clear
-        @array.clear
+        @array == case other
+                  when Array
+                    other.to_a
+                  else
+                    other
+                  end
       end
 
       # Clear array. Reset associated counter, if any.
@@ -89,31 +125,6 @@ module PacketGen
         deleted = @array.delete_at(index)
         @counter.read(@counter.to_i - 1) if @counter && deleted
         deleted
-      end
-
-      # Calls the given block once for each element in self, passing that
-      # element as a parameter. Returns the array itself.
-      # @return [Array]
-      def each
-        @array.each { |el| yield el }
-      end
-
-      # Return +true+ if contains no element.
-      # @return [Booelan]
-      def empty?
-        @array.empty?
-      end
-
-      # Return first element
-      # @return [Object]
-      def first
-        @array.first
-      end
-
-      # Return last element.
-      # @return [Object]
-      def last
-        @array.last
       end
 
       # @abstract depend on private method +#record_from_hash+ which should be
@@ -150,23 +161,19 @@ module PacketGen
         clear
         return self if str.nil?
         return self if @counter && @counter.to_i.zero?
-        force_binary str
-        klass = self.class.class_eval { @klass }
+
+        str = read_with_length_from(str)
+        klass = self.class.set_of_klass
         until str.empty?
           obj = klass.new.read(str)
+          real_klass = real_type(obj)
+          obj = real_klass.new.read(str) unless real_klass == klass
           @array << obj
           str.slice!(0, obj.sz)
           break if @counter && self.size == @counter.to_i
         end
         self
       end
-
-      # Get number of element in array
-      # @return [Integer]
-      def size
-        @array.size
-      end
-      alias length size
 
       # Get size in bytes
       # @return [Integer]
@@ -192,22 +199,17 @@ module PacketGen
         @array.map(&:to_human).join(self.class::HUMAN_SEPARATOR)
       end
 
-      # Force binary encoding for +str+
-      # @param [String] str
-      # @return [String] binary encoded string
-      def force_binary(str)
-        PacketGen.force_binary str
-      end
-
       private
 
       def record_from_hash(obj)
-        obj_klass = self.class.class_eval { @klass }
-        if obj_klass
-          obj_klass.new(obj)
-        else
-          raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
-        end
+        obj_klass = self.class.set_of_klass
+        return obj_klass.new(obj) if obj_klass
+
+        raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
+      end
+
+      def real_type(obj)
+        obj.class
       end
     end
 

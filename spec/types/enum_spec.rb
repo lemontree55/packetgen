@@ -22,8 +22,9 @@ module PacketGen
           end
         end
 
-        it 'raises on Integer out of range' do
-          expect { enum.value = 155 }.to raise_error(ArgumentError)
+        it 'accepts out of range Integers' do
+          expect { enum.value = 155 }.to_not raise_error
+          expect(enum.to_i).to eq(155)
         end
 
         it 'raises on unknown strings' do
@@ -39,6 +40,15 @@ module PacketGen
           enum.value = 'low'
           expect(enum.value).to be_a(Integer)
           expect(enum.value).to eq(0)
+        end
+      end
+
+      describe '#from_human' do
+        it 'accepts human redable values' do
+          enum.from_human(1)
+          expect(enum.to_i).to eq(1)
+          enum.from_human('high')
+          expect(enum.to_i).to eq(2)
         end
       end
 

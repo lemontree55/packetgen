@@ -74,6 +74,8 @@ module PacketGen
         #  @return [Integer]
         define_bit_fields_on :u8, :resv, 4, :flag_s, :qrv, 3
 
+        undef qqic, qqic=
+
         # Get QQIC value
         # @note May return a different value from value previously set, as a
         #   float encoding is used to encode big values. See {IGMPv3.decode}.
