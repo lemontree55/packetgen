@@ -199,13 +199,6 @@ module PacketGen
         @array.map(&:to_human).join(self.class::HUMAN_SEPARATOR)
       end
 
-      # Force binary encoding for +str+
-      # @param [String] str
-      # @return [String] binary encoded string
-      def force_binary(str)
-        PacketGen.force_binary str
-      end
-
       private
 
       def record_from_hash(obj)
