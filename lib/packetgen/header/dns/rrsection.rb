@@ -26,7 +26,7 @@ module PacketGen
           clear
           return self if str.nil?
 
-          force_binary str
+          PacketGen.force_binary str
           while !str.empty? && (self.size < @counter.to_i)
             rr = RR.new(@dns).read(str)
             rr = OPT.new(@dns).read(str) if rr.type?('OPT')

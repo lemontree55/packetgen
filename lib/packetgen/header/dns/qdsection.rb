@@ -31,7 +31,7 @@ module PacketGen
           clear
           return self if str.nil?
 
-          force_binary str
+          PacketGen.force_binary str
           while !str.empty? && (self.size < @counter.to_i)
             question = Question.new(@dns).read(str)
             str.slice!(0, question.sz)

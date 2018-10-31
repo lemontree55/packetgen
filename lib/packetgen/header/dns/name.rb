@@ -52,7 +52,7 @@ module PacketGen
           clear
           return self if str.nil?
 
-          force_binary str
+          PacketGen.force_binary str
           start = 0
           loop do
             index = str[start, 2].unpack('n').first
