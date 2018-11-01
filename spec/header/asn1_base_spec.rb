@@ -1,4 +1,5 @@
 require_relative '../spec_helper'
+require_relative '../shared_examples_for_headerable'
 
 $global_var = false
 
@@ -67,6 +68,9 @@ module PacketGen
           expect($global_var).to be(true)
         end
       end
+
+      # Use of a real class, as ASN1Base cannot be instanciated
+      include_examples 'headerable', ASN1ToBind
     end
   end
 end

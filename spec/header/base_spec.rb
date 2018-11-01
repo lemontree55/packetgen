@@ -1,4 +1,5 @@
 require_relative '../spec_helper'
+require_relative '../shared_examples_for_headerable'
 
 $global_var = false
 
@@ -151,6 +152,8 @@ module PacketGen
           expect(pkt.packettest[:field]).to be_a(Types::Int16)
         end
       end
+
+      include_examples 'headerable', Base
     end
   end
 end
