@@ -48,7 +48,7 @@ module PacketGen
 
         def real_type(opt)
           klasses = self.class.option_classes
-          klasses[opt.kind].nil? ? OPtion : klasses[opt.kind]
+          klasses[opt.kind].nil? ? Option : klasses[opt.kind]
         end
       end
     end

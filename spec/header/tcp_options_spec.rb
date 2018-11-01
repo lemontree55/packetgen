@@ -66,6 +66,14 @@ module PacketGen
             expect(opts.size).to eq(3)
             expect(opts.map { |o| o.class }).to eq([NOP, NOP, TS])
           end
+
+          it 'decodes unrecognized options' do
+            str = "\x13\x14111111111111111111\x13\x14222222222222222222"
+            expect { opts.read(str) }.to_not raise_error
+            expect(opts.size).to eq(2)
+            expect(opts.first.kind).to eq(0x13)
+            expect(opts.first.value).to eq('1' * 18)
+          end
         end
 
         describe '#add' do
