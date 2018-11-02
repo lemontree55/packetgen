@@ -483,4 +483,5 @@ module PacketGen
   end
 end
 
+require_relative 'headerable'
 require_relative 'header'

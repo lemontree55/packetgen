@@ -15,6 +15,8 @@ module PacketGen
     #    * +#reply!+, which inverts needed fields to forge a response.
     # @author Sylvain Daubert
     class Base < Types::Fields
+      include Headerable
+
       # @api private
       # Simple class to handle a header association
       class Binding < Struct.new(:key, :value)
@@ -133,10 +135,6 @@ module PacketGen
         end
       end
 
-      # Reference on packet which owns this header
-      # @return [Packet,nil]
-      attr_reader :packet
-
       # @private
       # On inheritage, create +@known_header+ class variable
       # @param [Class] klass
@@ -195,19 +193,6 @@ module PacketGen
         end
       end
 
-      # Give protocol name for this class
-      # @return [String]
-      # @since 2.0.0
-      def self.protocol_name
-        return @protocol_name if defined? @protocol_name
-
-        classname = to_s
-        @protocol_name = if classname.start_with?('PacketGen::Header')
-                           classname.sub(/.*Header::/, '')
-                         else
-                           classname.sub(/.*::/, '')
-                         end
-      end
 
       # Helper method to calculate length of +hdr+ and set its +length+ field.
       # To be used by +#calc_length+ in Base subclasses.
@@ -236,47 +221,6 @@ module PacketGen
         super
       end
 
-      # Return header protocol name
-      # @return [String]
-      def protocol_name
-        self.class.protocol_name
-      end
-
-      # return header method name
-      # @return [String]
-      # @since 2.0.0
-      # @since 2.8.6 permit multiple nesting levels
-      def method_name
-        return @method_name if defined? @method_name
-
-        @method_name = protocol_name.downcase.gsub(/::/, '_')
-      end
-
-      # @abstract Should be redefined by subclasses. This method should check invariant
-      #   fields from header.
-      # Call by {Packet#parse} when guessing first header to check if header is correct
-      # @return [Boolean]
-      def parse?
-        true
-      end
-
-      # @api private
-      # Set packet to which this header belongs
-      # @param [Packet] packet
-      # @return [Packet] packet
-      # @since 2.1.4
-      def packet=(packet)
-        @packet = packet
-        added_to_packet(packet)
-        @packet
-      end
-
-      # @abstract This method is called when a header is added to a packet.
-      #   This base method does nothing but may be overriden by subclasses.
-      # @param [Packet] packet packet to which self is added
-      # @return [void]
-      # @since 2.1.4
-      def added_to_packet(packet) end
 
       # @api private
       # Get +header+ id in {Packet#headers} array

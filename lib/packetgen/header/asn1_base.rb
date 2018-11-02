@@ -17,23 +17,7 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.0.0
     class ASN1Base < RASN1::Model
-      # Reference on packet which owns this header
-      # @return [Packet,nil]
-      attr_reader :packet
-
-      # Give protocol name for this class
-      # @return [String]
-      # @since 2.0.0
-      def self.protocol_name
-        return @protocol_name if defined? @protocol_name
-
-        classname = to_s
-        @protocol_name = if classname.start_with?('PacketGen::Header')
-                           classname.sub(/.*Header::/, '')
-                         else
-                           classname.sub(/.*::/, '')
-                         end
-      end
+      include Headerable
 
       # Define some methods from given ASN.1 fields to mimic {Base} attributes
       # @param [Array<Symbol>] attributes
@@ -45,46 +29,6 @@ module PacketGen
                      "def #{attr}=(v); @elements[:#{attr}].value = v; end"
         end
       end
-
-      # Return header protocol name
-      # @return [String]
-      def protocol_name
-        self.class.protocol_name
-      end
-
-      # return header method name
-      # @return [String]
-      # @since 2.0.0
-      def method_name
-        return @method_name if defined? @method_name
-
-        @method_name = protocol_name.downcase.sub(/::/, '_')
-      end
-
-      # Called by {Packet#parse} when guessing first header to check if header
-      # is correct
-      # @return [true]
-      def parse?
-        true
-      end
-
-      # @api private
-      # @since 2.1.4
-      # Set packet to which this header belongs
-      # @param [Packet] packet
-      # @return [Packet] packet
-      def packet=(packet)
-        @packet = packet
-        added_to_packet(packet)
-        @packet
-      end
-
-      # @abstract This method is called when a header is added to a packet.
-      #   This base method does nothing but may be overriden by subclasses.
-      # @param [Packet] packet packet to which self is added
-      # @return [void]
-      # @since 2.1.4
-      def added_to_packet(packet) end
 
       alias parse parse!
       alias to_s to_der
