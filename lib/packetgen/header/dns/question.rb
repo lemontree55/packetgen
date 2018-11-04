@@ -10,7 +10,7 @@ module PacketGen
     class DNS
       # DNS Question
       # @author Sylvain Daubert
-      class Question < Base
+      class Question < Types::Fields
         # Ressource Record types
         TYPES = {
           'A'        => 1,
