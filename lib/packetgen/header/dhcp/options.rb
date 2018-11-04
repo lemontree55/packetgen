@@ -33,7 +33,7 @@ module PacketGen
           when 'end', 255
             End.new
           else
-            obj_klass = self.class.class_eval { @klass }
+            obj_klass = self.class.set_of_klass
             obj_klass.new(hsh)
           end
         end
