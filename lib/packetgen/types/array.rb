@@ -18,11 +18,11 @@ module PacketGen
     # by {.set_of}.
     #
     # == #real_type
-    # Subclasses should define private method +#real_type+ is {.set_of} type
+    # Subclasses should define private method +#real_type+ if {.set_of} type
     # may be subclassed. This method should return real class to use. It
     # takes an only argument, which is of type given by {.set_of}.
     #
-    # Default behaviour of this method is to argument's class.
+    # Default behaviour of this method is to return argument's class.
     #
     # @author Sylvain Daubert
     class Array
@@ -201,11 +201,15 @@ module PacketGen
 
       private
 
-      def record_from_hash(obj)
+      def record_from_hash(hsh)
         obj_klass = self.class.set_of_klass
-        return obj_klass.new(obj) if obj_klass
+        unless obj_klass
+          raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
+        end
 
-        raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
+        obj = obj_klass.new(hsh) if obj_klass
+        klass = real_type(obj)
+        klass == obj_klass ? obj : klass.new(hsh)
       end
 
       def real_type(obj)
