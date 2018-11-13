@@ -181,7 +181,7 @@ module PacketGen
     # Recalculate all packet length fields
     # @return [void]
     def calc_length
-      headers.each do |header|
+      headers.reverse_each do |header|
         header.calc_length if header.respond_to? :calc_length
       end
     end
