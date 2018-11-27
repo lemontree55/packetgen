@@ -115,6 +115,11 @@ module PacketGen
       @bit_fields = {}
 
       class <<self
+        # Get field definitions for this class.
+        # @return [Hash]
+        # @since 3.0.3
+        attr_reader :field_defs
+
         # On inheritage, create +@field_defs+ class variable
         # @param [Class] klass
         # @return [void]
@@ -191,12 +196,12 @@ module PacketGen
           define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
           define.delete(0) if type.instance_methods.include? name
           class_eval define.join("\n")
-          @field_defs[name] = FieldDef.new(type,
-                                           options.delete(:default),
-                                           options.delete(:builder),
-                                           options.delete(:optional),
-                                           options.delete(:enum),
-                                           options)
+          field_defs[name] = FieldDef.new(type,
+                                          options.delete(:default),
+                                          options.delete(:builder),
+                                          options.delete(:optional),
+                                          options.delete(:enum),
+                                          options)
           fields << name
         end
 
@@ -257,13 +262,13 @@ module PacketGen
         # @raise [ArgumentError] unknown +field+
         # @since 2.8.4
         def update_field(field, options)
-          raise ArgumentError, "unkown #{field} field for #{self}" unless @field_defs.key?(field)
+          raise ArgumentError, "unkown #{field} field for #{self}" unless field_defs.key?(field)
 
-          @field_defs[field].default = options.delete(:default) if options.key?(:default)
-          @field_defs[field].builder = options.delete(:builder) if options.key?(:builder)
-          @field_defs[field].optional = options.delete(:optional) if options.key?(:optional)
-          @field_defs[field].enum = options.delete(:enum) if options.key?(:enum)
-          @field_defs[field].options.merge!(options)
+          field_defs[field].default = options.delete(:default) if options.key?(:default)
+          field_defs[field].builder = options.delete(:builder) if options.key?(:builder)
+          field_defs[field].optional = options.delete(:optional) if options.key?(:optional)
+          field_defs[field].enum = options.delete(:enum) if options.key?(:enum)
+          field_defs[field].options.merge!(options)
         end
 
         # Define a bitfield on given attribute
@@ -286,7 +291,7 @@ module PacketGen
         #   by bitfield size. If no size is given, 1 bit is assumed.
         # @return [void]
         def define_bit_fields_on(attr, *args)
-          attr_def = @field_defs[attr]
+          attr_def = field_defs[attr]
           raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
 
           type = attr_def.type
@@ -366,7 +371,7 @@ module PacketGen
         @fields = {}
         @optional_fields = {}
 
-        field_defs = self.class.class_eval { @field_defs }
+        field_defs = self.class.field_defs
         self.class.fields.each do |field|
           type = field_defs[field].type
           default = field_defs[field].default
