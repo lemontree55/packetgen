@@ -16,9 +16,9 @@ module PacketGen
             expect(http_req).to be_a(Request)
           end
           it 'creates a TCP header with given options' do
-            http_req = Request.new(method: "GET", path: "/", headers: {'User-Agent' => 'dummy/1.0' })
+            http_req = Request.new(verb: "GET", path: "/", headers: {'User-Agent' => 'dummy/1.0' })
             expect(http_req).to be_a(Request)
-            expect(http_req.method).to eq("GET")
+            expect(http_req.verb).to eq("GET")
             expect(http_req.path).to eq("/")
             expect(http_req.headers).to eq({'User-Agent' => 'dummy/1.0' })
           end
@@ -26,9 +26,9 @@ module PacketGen
 
         describe 'setters' do
           let(:http_req) { Request.new }
-          it '#method= accepts strings' do
-            http_req.method = "GET"
-            expect(http_req.method).to eq("GET")
+          it '#verb= accepts strings' do
+            http_req.verb = "GET"
+            expect(http_req.verb).to eq("GET")
           end
           it '#path= accepts strings' do
             http_req.path = "/"
@@ -44,15 +44,15 @@ module PacketGen
           let(:http_req) { Request.new }
           it 'errors out without needed fields' do
             expect{ http_req.to_s }.to raise_error(FormatError)
-            http_req.method = "GET"
+            http_req.verb = "GET"
             expect{ http_req.to_s }.to raise_error(FormatError)
             http_req.path = "/"
-            expect(http_req.to_s).to be_a(String) 
+            expect(http_req.to_s).to be_a(String)
           end
-          it 'returns a string with the needed fields' do 
-            http_req.method = "GET"
+          it 'returns a string with the needed fields' do
+            http_req.verb = "GET"
             http_req.path = "/"
-            expect(http_req.to_s).to be_a(String) 
+            expect(http_req.to_s).to be_a(String)
           end
         end
 
@@ -60,18 +60,18 @@ module PacketGen
           let(:http_req) { Request.new }
           it 'parses http request data from a string' do
             http_req.read("GET / HTTP/1.1\r\nUser-Agent: dummy/1.0\r\n\r\n")
-            expect(http_req.method).to eq("GET") 
-            expect(http_req.path).to eq("/") 
-            expect(http_req.version).to eq("HTTP/1.1") 
-            expect(http_req.headers).to eq({"User-Agent" => "dummy/1.0"}) 
+            expect(http_req.verb).to eq("GET")
+            expect(http_req.path).to eq("/")
+            expect(http_req.version).to eq("HTTP/1.1")
+            expect(http_req.headers).to eq({"User-Agent" => "dummy/1.0"})
           end
           it 'parses weird http request data from a string with invalid encoding' do
             http_req.read("GET / HTTP/1.1\r\nUser-Agent: dummy/1.0\r\n\r\n\r\xD1")
-            expect(http_req.method).to eq("GET") 
-            expect(http_req.path).to eq("/") 
-            expect(http_req.version).to eq("HTTP/1.1") 
-            expect(http_req.headers).to eq({"User-Agent" => "dummy/1.0"}) 
-            expect(http_req.body.bytes).to eq("\r\xD1".bytes) 
+            expect(http_req.verb).to eq("GET")
+            expect(http_req.path).to eq("/")
+            expect(http_req.version).to eq("HTTP/1.1")
+            expect(http_req.headers).to eq({"User-Agent" => "dummy/1.0"})
+            expect(http_req.body.bytes).to eq("\r\xD1".bytes)
           end
         end
 

@@ -9,7 +9,7 @@ module PacketGen
   module Header
     module HTTP
       # An HTTP/1.1 Request packet consists of:
-      # * the http method ({Types::String}).
+      # * the http verb ({Types::String}).
       # * the path ({Types::String}).
       # * the version ({Types::String}).
       # * associated http headers ({HTTP::Headers}).
@@ -27,16 +27,16 @@ module PacketGen
       #
       # == HTTP Request attributes
       #   http_rqst.version = "HTTP/1.1"
-      #   http_rqst.method  = "GET"
+      #   http_rqst.verb  = "GET"
       #   http_rqst.path    = "/meow.html"
       #   http_rqst.headers = "Host: tcpdump.org"     # string or
       #   http_rqst.headers = { "Host": "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
       class Request < Base
-        # @!attribute method
+        # @!attribute verb
         #   @return [Types::String]
-        define_field :method,  Types::String
+        define_field :verb,  Types::String
         # @!attribute path
         #   @return [Types::String]
         define_field :path,    Types::String
@@ -52,7 +52,7 @@ module PacketGen
         define_field :body, Types::String
 
         # @param [Hash] options
-        # @option options [String] :method
+        # @option options [String] :verb
         # @option options [String] :path
         # @option options [String] :version
         # @option options [Hash]   :headers
@@ -69,7 +69,7 @@ module PacketGen
           str = vrb + str.split(vrb)[-1]
           str = str.split("\n").map(&:chomp)
           first_line = str.shift.split
-          self[:method].read first_line[0]
+          self[:verb].read first_line[0]
           self[:path].read first_line[1]
           self[:version].read first_line[2]
           # requests can sometimes have a payload
@@ -87,12 +87,12 @@ module PacketGen
         # String representation of data.
         # @return [String]
         def to_s
-          raise FormatError, 'Missing #method.'  if self.method.empty?
+          raise FormatError, 'Missing #verb.'  if self.verb.empty?
           raise FormatError, 'Missing #path.'    if self.path.empty?
           raise FormatError, 'Missing #version.' if self.version.empty?
 
           str = ''.dup # build 'dat string
-          str << self[:method] << ' ' << self[:path] << ' ' << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
+          str << self[:verb] << ' ' << self[:path] << ' ' << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
         end
       end
     end
