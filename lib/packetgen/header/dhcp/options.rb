@@ -26,15 +26,23 @@ module PacketGen
 
         private
 
-        def record_from_hash(hsh)
-          case hsh[:type]
-          when 'pad', 0
-            Pad.new
-          when 'end', 255
-            End.new
+        def real_type(obj)
+          case obj.type
+          when 0
+            Pad
+          when 1, 3, 4, 5, 6, 7, 8, 9, 28, 41, 42, 44, 45, 50, 54, 65, 69,
+               70, 71, 72, 73, 74
+            IPAddrOption
+          when 53
+            Int8Option
+          when 57
+            Int16Option
+          when 51, 58, 59
+            Int32Option
+          when 255
+            End
           else
-            obj_klass = self.class.set_of_klass
-            obj_klass.new(hsh)
+            Option
           end
         end
       end

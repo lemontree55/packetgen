@@ -12,8 +12,9 @@ module PacketGen
       # IEEE 802.11 information element
       #
       # An {Element} is a piece of data contained in a Dot11 management frame.
-      # @author Sylvain Daubert
-      class Element < Types::TLV
+      Element = Types::AbstractTLV.create
+
+      class Element
         # Known element types
         TYPES = {
           0 =>   'SSID',
@@ -33,6 +34,7 @@ module PacketGen
           221 => 'vendor'
         }.freeze
       end
+      Element.define_type_enum Element::TYPES.invert
     end
   end
 end

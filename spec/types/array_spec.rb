@@ -4,17 +4,18 @@ module PacketGen
   module Types
     describe Array do
 
+      MyTLV = AbstractTLV.create(type_class: Int8)
       class GoodClass < Array
-        set_of TLV
+        set_of MyTLV
       end
       class GoodClass2 < Array
         def record_from_hash(obj)
-          TLV.new(obj)
+          MyTLV.new(obj)
         end
       end
       class BadClass < Array; end
-      
-      let(:tlv) { TLV.new }
+
+      let(:tlv) { MyTLV.new }
 
       context '#push' do
         let(:g) { GoodClass.new }
@@ -30,7 +31,7 @@ module PacketGen
         it 'accepts a Hash when .set_of is used' do
           expect { g << { type: 1, value: '43' } }.to change { g.size }.by(1)
           expect(g.size). to eq(1)
-          expect(g.first).to be_a(TLV)
+          expect(g.first).to be_a(MyTLV)
           expect(g.first.type).to eq(1)
           expect(g.first.value).to eq('43')
         end
@@ -38,7 +39,7 @@ module PacketGen
         it 'accepts a Hash when #record_from_hash is redefined' do
           expect { g2 << { type: 1, value: '43' } }.to change { g2.size }.by(1)
           expect(g2.size). to eq(1)
-          expect(g2.first).to be_a(TLV)
+          expect(g2.first).to be_a(MyTLV)
           expect(g2.first.type).to eq(1)
           expect(g2.first.value).to eq('43')
         end

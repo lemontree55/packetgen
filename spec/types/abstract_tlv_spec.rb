@@ -77,15 +77,15 @@ module PacketGen
         describe '#to_human' do
           it 'returns a string (type is an Enum)' do
             tlv = TestEnumTLV.new(type: 1, value: 'abcdef')
-            expect(tlv.to_human).to eq('TestEnumTLV type:one length:6   value:"abcdef"')
+            expect(tlv.to_human).to eq('type:one,length:6,value:"abcdef"')
           end
 
           it 'returns a string (type is  not an Enum)' do
             tlv = TestNoEnumTLV.new
-            expect(tlv.to_human).to eq('TestNoEnumTLV type:0 length:0   value:""')
+            expect(tlv.to_human).to eq('type:0,length:0,value:""')
             tlv.type = 156
             tlv.value = 'abcd'
-            expect(tlv.to_human).to eq('TestNoEnumTLV type:156 length:4   value:"abcd"')
+            expect(tlv.to_human).to eq('type:156,length:4,value:"abcd"')
           end
         end
       end

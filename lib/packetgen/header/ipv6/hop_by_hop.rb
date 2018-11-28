@@ -8,9 +8,10 @@
 module PacketGen
   module Header
     class IPv6
-      # Option for {HopByHop} IPv6 extension header
-      # @author Sylvain Daubert
-      class Option < Types::TLV
+      # Option for {HopByHop} IPv6 extension header.
+      Option = Types::AbstractTLV.create
+
+      class Option
         # Known option types
         TYPES = {
           1 => 'padn',
@@ -27,6 +28,7 @@ module PacketGen
           end
         end
       end
+      Option.define_type_enum Option::TYPES.invert
 
       # Special option pad1, for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert

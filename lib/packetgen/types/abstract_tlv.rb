@@ -128,14 +128,8 @@ module PacketGen
       # @abstract Should only be called on real TLV class instances.
       # @return [String]
       def to_human
-        name = self.class.to_s.gsub(/.*::/, '')
-        @typestr ||= if self[:type].respond_to? :enum
-                       "%-#{self[:type].enum.keys.max_by(&:length).size}s"
-                     else
-                       '%s'
-                     end
-        @lenstr ||= "%-#{(2**(self[:length].width * 8) - 1).to_s.size}u"
-        "#{name} type:#{@typestr} length:#{@lenstr} value:#{value.inspect}" % [human_type, length]
+        my_value = self[:value].is_a?(String) ? value.inspect : value.to_human
+        "type:%s,length:%u,value:#{my_value}" % [human_type, length]
       end
     end
   end
