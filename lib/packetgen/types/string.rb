@@ -8,7 +8,8 @@
 
 module PacketGen
   module Types
-    # This class is just like regular String. It only adds {#read} and {#sz} methods
+    # This class is just like regular String. It only adds {#read}, {#sz},
+    # #{to_human} and {#from_human} methods
     # to be compatible with others {Types}.
     # @author Sylvain Daubert
     class String < ::String
