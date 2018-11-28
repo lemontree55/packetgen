@@ -117,7 +117,7 @@ module PacketGen
       class <<self
         # Get field definitions for this class.
         # @return [Hash]
-        # @since 3.0.3
+        # @since 3.1.0
         attr_reader :field_defs
 
         # On inheritage, create +@field_defs+ class variable

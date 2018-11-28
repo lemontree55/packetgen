@@ -33,9 +33,12 @@ module PacketGen
       #   http_rqst.headers = { "Host": "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
+      # @author Sylvain Daubert
+      # @since 3.1.0 Rename +#method+ into {#verb} to not mask +Object#method+.
       class Request < Base
         # @!attribute verb
         #   @return [Types::String]
+        #   @since 3.1.0
         define_field :verb,  Types::String
         # @!attribute path
         #   @return [Types::String]

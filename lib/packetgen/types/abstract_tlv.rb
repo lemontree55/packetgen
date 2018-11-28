@@ -43,6 +43,7 @@ module PacketGen
     #   tlv.value       #=> 42
     #   tlv.to_s        #=> "\x00\x01\x00\x04\x01\x02\x03\x04"
     # @author Sylvain Daubert
+    # @since 3.1.0
     class AbstractTLV < Types::Fields
       # Generate a TLV class
       # @param [Class] type_class Class to use for +type+

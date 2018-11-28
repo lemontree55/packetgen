@@ -34,6 +34,7 @@ module PacketGen
     # @param [Module] new_klass class/module to use instead of +klass+
     # @param [String] remove_version version from which +klass+ will
     #                 no more exist.
+    # @since 3.1.0
     def self.deprecated_class(klass, new_klass=nil, remove_version: REMOVE_VERSION)
       file, line = caller(2..2).first.split(':')[0, 2]
       message = +"#{file}:#{line}: #{klass} is deprecated"

@@ -29,6 +29,7 @@ module PacketGen
     # * set type as String with {#type=}.
     # @author Sylvain Daubert
     # @deprecated Use {AbstractTLV} instead.
+    # @since 3.1.0 deprecated
     class TLV < Fields
       # @!attribute type
       #  @return [Integer]
