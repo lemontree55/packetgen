@@ -28,6 +28,7 @@ module PacketGen
     # * print human readable type using {#human_type},
     # * set type as String with {#type=}.
     # @author Sylvain Daubert
+    # @deprecated Use {AbstractTLV} instead.
     class TLV < Fields
       # @!attribute type
       #  @return [Integer]
@@ -50,6 +51,7 @@ module PacketGen
       # @option options [Class] :v {String} subclass for +:value+ attribute.
       #   Default: {Types::String}.
       def initialize(options={})
+        Deprecation.deprecated_class(self.class, AbstractTLV)
         super
         self[:type] = options[:t].new(self.type) if options[:t]
         self[:length] = options[:l].new(self.length) if options[:l]
