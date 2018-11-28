@@ -193,8 +193,8 @@ module PacketGen
                       "end"
           end
 
-          define.delete(1) if type.instance_methods.include? "#{name}=".to_sym
-          define.delete(0) if type.instance_methods.include? name
+          define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
+          define.delete_at(0) if instance_methods.include? name
           class_eval define.join("\n")
           field_defs[name] = FieldDef.new(type,
                                           options.delete(:default),
