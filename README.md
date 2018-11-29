@@ -164,7 +164,7 @@ PacketGen provides a plugin system (see [wiki](https://github.com/sdaubert/packe
 Available plugins (available as gem) are:
 
 * [packetgen-plugin-ipsec](https://github.com/sdaubert/packetgen-plugin-ipsec): add support for ESP and IKEv2 protocols. Before PacketGen3, these protocols were included in packetgen.
-* [packetgen-plugin-smb](https://github.com/sdaubert/packetgen-plugin-smb): add (limited) support for SMB protocol suite.
+* [packetgen-plugin-smb](https://github.com/sdaubert/packetgen-plugin-smb): add support for SMB protocol suite.
 
 ## See also
 
