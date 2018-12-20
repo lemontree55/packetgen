@@ -75,7 +75,7 @@ module PacketGen
             expect(opt[:ttl].to_i).to eq(0x42_0000)
           end
 
-          it '#do= accepts an Boolean' do
+          it '#do= accepts a Boolean' do
             opt.do = true
             expect(opt[:ttl].to_i).to eq(0x8000)
             opt.do = false
@@ -105,6 +105,26 @@ module PacketGen
             opt = OPT.new(dns, name: 'org')
             expect(opt.to_human).to eq('org. OPT UDPsize:512 extRCODE:0 EDNSversion:0' \
                                        ' flags:none options:none')
+          end
+        end
+
+        context '(DNS options)' do
+          let(:opt) { OPT.new(dns) }
+
+          it 'accepts DNS options' do
+            opt.options << { code: 48, data: '12' }
+            expect(opt.options.last).to be_a(DNS::Option)
+            expect(opt.options.last.code).to eq(48)
+            expect(opt.options.last.type).to eq(48)
+            expect(opt.options.last.length).to eq(2)
+            expect(opt.options.last.data).to eq('12')
+            expect(opt.options.last.value).to eq('12')
+          end
+
+          it 'sets DNS options in binary string' do
+            opt.options << { code: 48, data: '12' }
+            expect(opt.to_s).to eq([0, 41, 512, 0, 0].pack('CnnNn') +
+                                   "\x00\x30\x00\x0212")
           end
         end
       end
