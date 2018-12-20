@@ -29,6 +29,8 @@ module PacketGen
         alias data= value=
       end
 
+      # Array of {Option}.
+      # @since 3.1.1
       class ArrayOfOptions < Types::Array
         set_of Option
       end

@@ -43,10 +43,14 @@ module PacketGen
     # == DNS attributes
     #  dns.id = 0x1234
     #  dns.qr = false
-    #  dns.opcode = 0xe
-    #  dns.opcode = 'query'
+    #  # opcode may be set as an Integer (all values are possible)
+    #  # or as a String (only keys from PacketGen::Header::DNS::OPCODES)
+    #  dns.opcode = 0xe       # set as integer, value not defined in standard
+    #  dns.opcode = 'query'   # set as string
     #  dns.aa = dns.tc = dns.rd = dns.ra = false
-    #  dns.rcode = 0xa
+    #  # rcode may be set as an Integer (all values are possible)
+    #  # or as a String (only keys from PacketGen::Header::DNS::RCODES)
+    #  dns.rcode = 11
     #  dns.rcode = 'refused'
     #  dns.qdcount = 123
     #  dns.ancount = 0x1234
@@ -71,8 +75,8 @@ module PacketGen
     #  dns.qd.push({ rtype: 'Question', name: 'example.net', type: 'AAAA' })
     #
     # == Add a ressource record to a DNS section
-    # Adding a {RR} with {RRSection#<<} automagically increments section counter.
-    # To not modify it, use {RRSection#push}
+    # Adding a {RR} with {RRSection#<< RRSection#<<} automagically increments section counter.
+    # To not modify it, use {RRSection#push RRSection#push}
     #  # add a RR to answer section. Increment ancount
     #  dns.an << PacketGen::Header::DNS::RR.new(dns, name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton)
     #  # or
@@ -89,7 +93,9 @@ module PacketGen
     #  # or
     #  dns.ar << { rtype: 'OPT', udp_size: 4096, ext_rcode: 43 }
     #  # add an option to OPT record
-    #  dns.ar.last.options << PacketGen::Header::DNS::Option.new(code: 48, length: 2, data: "12")
+    #  dns.ar.last.options << PacketGen::Header::DNS::Option.new(code: 48, data: '12')
+    #  # or
+    #  dns.ar.last.options << { code: 48, data: '12' }
     # @author Sylvain Daubert
     # @since 1.3.0
     class DNS < Base

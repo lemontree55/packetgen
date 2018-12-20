@@ -14,6 +14,8 @@ module PacketGen
       #
       # a OPT record may contain zero or more {Option options} in its {#rdata}.
       # @author Sylvain Daubert
+      # @since 1.3.0
+      # @since 3.1.1 {#options} is a {ArrayOfOptions}
       class OPT < RR
         # @!attribute options
         #   @return [ArrayOfOptions]
