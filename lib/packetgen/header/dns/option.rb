@@ -11,6 +11,10 @@ module PacketGen
       # DNS option
       Option = Types::AbstractTLV.create(type_class: Types::Int16,
                                          length_class: Types::Int16)
+
+      class ArrayOfOptions < Types::Array
+        set_of Option
+      end
     end
   end
 end

@@ -15,8 +15,9 @@ module PacketGen
       # a OPT record may contain zero or more {Option options} in its {#rdata}.
       # @author Sylvain Daubert
       class OPT < RR
-        # @return [Array<Option>]
-        attr_reader :options
+        # @!attribute options
+        #   @return [ArrayOfOptions]
+        define_field_after :rdata, :options, ArrayOfOptions
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -35,7 +36,6 @@ module PacketGen
         def initialize(dns, options={})
           opts = { name: '.', rrclass: 512, type: 41 }.merge!(options)
           super dns, opts
-          @options = []
 
           self.udp_size = options[:udp_size] if options[:udp_size]
           self.ext_rcode = options[:ext_rcode] if options[:ext_rcode]
@@ -121,21 +121,10 @@ module PacketGen
         end
 
         # @return [String]
-        def human_options
-          str = @options.map(&:to_human).join(';')
-          str.empty? ? 'none' : str
-        end
-
-        # @return [String]
         def to_human
           "#{name} #{human_type} UDPsize:#{udp_size} " \
           "extRCODE:#{ext_rcode} EDNSversion:#{version} flags:#{human_flags} " \
-          "options:#{human_options}"
-        end
-
-        # @return [String]
-        def to_s
-          super + @options.map(&:to_s).join
+          "options:#{options.empty? ? 'none' : options.to_human}"
         end
       end
     end
