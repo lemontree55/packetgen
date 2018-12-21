@@ -8,7 +8,11 @@
 module PacketGen
   module Header
     class IPv6
-      # Option for {HopByHop} IPv6 extension header.
+      # @!parse
+      #  # Option for {HopByHop} IPv6 extension header.
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class Option <AbstractTLV; end
+      # @private
       Option = Types::AbstractTLV.create
 
       class Option
