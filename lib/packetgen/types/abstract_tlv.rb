@@ -40,20 +40,40 @@ module PacketGen
     #   tlv = MyTLV.new(type: 1, value: '1.2.3.4')
     #   tlv.type        #=> 1
     #   tlv.length      #=> 4
-    #   tlv.value       #=> 42
+    #   tlv.value       #=> '1.2.3.4'
     #   tlv.to_s        #=> "\x00\x01\x00\x04\x01\x02\x03\x04"
+    #
+    # Some aliases may also be defined. For example, to create a TLV type
+    # whose +type+ field should be named +code+:
+    #   MyTLV = PacketGen::Types::AbstractTLV.create(type_class: PacketGen::Types::Int16,
+    #                                                length_class: PacketGen::Types::Int16,
+    #                                                aliases: { code: :type })
+    #   tlv = MyTLV.new(code: 1, value: 'abcd')
+    #   tlv.code        #=> 1
+    #   tlv.type        #=> 1
+    #   tlv.length      #=> 4
+    #   tlv.value       #=> 'abcd'
+    #
     # @author Sylvain Daubert
     # @since 3.1.0
+    # @since 3.1.1 add +:aliases+ keyword to {#initialize}
     class AbstractTLV < Types::Fields
+      class <<self
+        # @return [Hash]
+        attr_accessor :aliases
+      end
+      self.aliases = {}
+
       # Generate a TLV class
       # @param [Class] type_class Class to use for +type+
       # @param [Class] length_class Class to use for +length+
       # @param [Class] value_class Class to use for +value+
       # @return [Class]
-      def self.create(type_class: Int8Enum, length_class: Int8, value_class: String)
+      def self.create(type_class: Int8Enum, length_class: Int8, value_class: String, aliases: {})
         raise Error, '.create cannot be called on a subclass of PacketGen::Types::AbstractTLV' unless self.equal? AbstractTLV
 
         klass = Class.new(self)
+        klass.aliases = aliases
 
         if type_class < Enum
           klass.define_field :type, type_class, enum: {}
@@ -62,6 +82,13 @@ module PacketGen
         end
         klass.define_field :length, length_class
         klass.define_field :value, value_class
+
+        aliases.each do |al, orig|
+          klass.instance_eval do
+            alias_method al, orig if klass.method_defined?(orig)
+            alias_method :"#{al}=", :"#{orig}=" if klass.method_defined?(:"#{orig}=")
+          end
+        end
 
         klass
       end
@@ -90,6 +117,10 @@ module PacketGen
       # @option options [Integer] :length
       # @option options [Object] :value
       def initialize(options={})
+        self.class.aliases.each do |al, orig|
+          options[orig] = options[al] if options.key?(al)
+        end
+
         super
         # used #value= defined below, which set length if needed
         self.value = options[:value] if options[:value]

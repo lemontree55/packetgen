@@ -45,6 +45,15 @@ module PacketGen
         it 'raises when called on a subclass' do
           expect { TestEnumTLV.create }.to raise_error(Error)
         end
+
+        it 'accepts an aliases argument' do
+          tlv_class = AbstractTLV.create(aliases: { code: :type })
+          tlv = tlv_class.new
+          expect(tlv).to respond_to(:type)
+          expect(tlv).to respond_to(:type=)
+          expect(tlv).to respond_to(:code)
+          expect(tlv).to respond_to(:code=)
+        end
       end
 
       context 'use of instance of generated class' do
@@ -86,6 +95,29 @@ module PacketGen
             tlv.type = 156
             tlv.value = 'abcd'
             expect(tlv.to_human).to eq('type:156,length:4,value:"abcd"')
+          end
+        end
+
+        describe 'use of aliases' do
+          let(:tlv_class) { AbstractTLV.create(aliases: { code: :type }) }
+
+          it '#initialize accepts alias as argument' do
+            tlv = tlv_class.new(code: 42)
+            expect(tlv.type).to eq(42)
+          end
+
+          it 'accepts alias method name' do
+            tlv = tlv_class.new(code: 42)
+            expect(tlv.code).to eq(42)
+          end
+
+          it 'accepts alias as a write accessor' do
+            tlv = tlv_class.new(type: 0)
+            expect(tlv.code).to eq(0)
+            expect(tlv.type).to eq(0)
+            tlv.code = 54
+            expect(tlv.code).to eq(54)
+            expect(tlv.type).to eq(54)
           end
         end
       end

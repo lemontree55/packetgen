@@ -8,26 +8,26 @@
 module PacketGen
   module Header
     class DNS
-      # DNS option
+      # @!parse
+      #  # DNS option is a TLV object:
+      #  # * {#code} is a {Types::Int16},
+      #  # * {#length #length} is a {Types::Int16},
+      #  # * {#data} is a {Types::String}.
+      #  #
+      #  # @since 1.3.0
+      #  # @since 3.1.0 defined with {Types::AbstractTLV}
+      #  # @!parse class Option < Types::AbstractTLV; end
+      #  # @!attribute code
+      #  #   Alias for {#type}
+      #  #   @return [Integer]
+      #  # @!attribute data
+      #  #   Alias for {#value}
+      #  #   @return [Types::String]
+      #  class Option < Types::AbstractTLV; end
+      # @private
       Option = Types::AbstractTLV.create(type_class: Types::Int16,
-                                         length_class: Types::Int16)
-
-      class Option
-        # Same as TLV#initialize but add some facilities.
-        # @param [Hash] options
-        # @option [String,Integer] :code same as +:type+
-        # @option [String,Integer] :data same as +:value+
-        def initialize(options={})
-          options[:type] = options[:code] unless options.key? :type
-          options[:value] = options[:data] unless options.key? :value
-          super
-        end
-
-        alias code type
-        alias code= type=
-        alias data value
-        alias data= value=
-      end
+                                         length_class: Types::Int16,
+                                         aliases: { code: :type, data: :value })
 
       # Array of {Option}.
       # @since 3.1.1
