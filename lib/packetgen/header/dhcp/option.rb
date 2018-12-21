@@ -56,19 +56,47 @@ module PacketGen
         'end' => 255
       }.freeze
 
-      # Option class with string value
+      # @!parse
+      #  # Option class with string value. {#type #type} and {#length #length} are
+      #  # {Types::Int8}.
+      #  #
+      #  # See also {IPAddrOption}, {Int8Option}, {Int16Option} and {Int32Option}.
+      #  # @since 2.2.0
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class Option < Types::AbstractTLV; end
+      # @private
       Option = Types::AbstractTLV.create
       Option.define_type_enum DHCP_OPTIONS
-      # Option class with IP address value
+      # @!parse
+      #  # {Option} class with IP address value
+      #  # @since 2.2.0
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class IPAddrOption < Types::AbstractTLV; end
+      # @private
       IPAddrOption = Types::AbstractTLV.create(value_class: IP::Addr)
       IPAddrOption.define_type_enum DHCP_OPTIONS
-      # Option class with int8 value
+      # @!parse
+      #  # {Option} class with int8 value
+      #  # @since 2.2.0
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class Int8Option < Types::AbstractTLV; end
+      # @private
       Int8Option = Types::AbstractTLV.create(value_class: Types::Int8)
       Int8Option.define_type_enum DHCP_OPTIONS
-      # Option class with int16 value
+      # @!parse
+      #  # {Option} class with int16 value
+      #  # @since 2.2.0
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class Int16Option < Types::AbstractTLV; end
+      # @private
       Int16Option = Types::AbstractTLV.create(value_class: Types::Int16)
       Int16Option.define_type_enum DHCP_OPTIONS
-      # Option class with int32 value
+      # @!parse
+      #  # {Option} class with int32 value
+      #  # @since 2.2.0
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class Int32Option < Types::AbstractTLV; end
+      # @private
       Int32Option = Types::AbstractTLV.create(value_class: Types::Int32)
       Int32Option.define_type_enum DHCP_OPTIONS
 

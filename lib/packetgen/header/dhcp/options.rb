@@ -8,7 +8,7 @@
 module PacketGen
   module Header
     class DHCP
-      # Container class for DHCP Options
+      # Container class for {Option DHCP Options}.
       #
       # == Add DHCP options to an +Options+ instance
       #   options = PacketGen::Header::DHCP::Options.new
