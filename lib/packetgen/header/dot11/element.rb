@@ -9,9 +9,14 @@
 module PacketGen
   module Header
     class Dot11
-      # IEEE 802.11 information element
-      #
-      # An {Element} is a piece of data contained in a Dot11 management frame.
+      # @!parse
+      #  # IEEE 802.11 information element
+      #  #
+      #  # An {Element} is a piece of data contained in a Dot11 management frame.
+      #  # @since 1.4.0
+      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  class Element < Types::AbstractTLV; end
+      # @private
       Element = Types::AbstractTLV.create
 
       class Element
