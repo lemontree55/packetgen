@@ -35,6 +35,12 @@ module PacketGen
         }.freeze
       end
       Element.define_type_enum Element::TYPES.invert
+
+      # Array of {Element}.
+      # @since 3.1.1
+      class ArrayOfElements < Types::Array
+        set_of Element
+      end
     end
   end
 end

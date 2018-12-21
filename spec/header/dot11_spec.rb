@@ -243,7 +243,7 @@ module PacketGen
           expect(pkt.dot11_management.sequence_ctrl).to eq(0xc1)
 
           expect do
-            pkt.dot11_beacon.add_element(type: 'SSID', value: 'abcd')
+            pkt.dot11_beacon.elements << { type: 'SSID', value: 'abcd' }
           end.to change { pkt.dot11_beacon.elements.size }.by(1)
 
           expect do

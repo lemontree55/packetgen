@@ -19,60 +19,30 @@ module PacketGen
       # @author Sylvain Daubert
       class SubMngt < Base
         # @return [Array<Element>]
-        attr_accessor :elements
-
-        # @param [Hash] options
-        # @see Base#initialize
-        def initialize(options={})
-          super
-          @elements = []
-        end
-
-        # Populate object from binary string
-        # @param [String] str
-        # @return [SubMngt] self
-        def read(str)
-          super
-          read_elements str[sz, str.size] || ''
-          self
-        end
+        define_field :elements, ArrayOfElements
 
         # @return [String]
-        def to_s
-          super + @elements.map(&:to_s).join
-        end
-
-        # @return [String]
-        def inspect
-          str = super
-          str << Inspect.dashed_line('Dot11 Elements', 2)
-          @elements.each do |el|
-            str << Inspect.shift_level(2) << el.to_human << "\n"
-          end
-          str
-        end
+        #def inspect
+        #  str = super
+        #  str << Inspect.dashed_line('Dot11 Elements', 2)
+        #  @elements.each do |el|
+        #    str << Inspect.shift_level(2) << el.to_human << "\n"
+        #  end
+        #  str
+        #end
 
         # Add an {Element} to header
         # @param [Integer,String] type element type
         # @param [Object] value element value
         # @return [self]
         # @since 2.1.3
+        # @since 3.1.1 #elements in no more an Array but an {ArrayOfElements}
+        # @deprecated Prefer use of +submngt.element << {type: type, value: value}+
         def add_element(type:, value:)
+          Deprecation.deprecated(self.class, __method__, 'elements')
           element = Element.new(type: type, value: value)
-          @elements << element
+          self.elements << element
           self
-        end
-
-        private
-
-        def read_elements(str)
-          start = 0
-          elsz = Element.new.sz
-          while str.size - start >= elsz
-            el = Element.new.read(str[start, str.size])
-            @elements << el
-            start += el.sz
-          end
         end
       end
 
@@ -87,10 +57,10 @@ module PacketGen
       class AssoReq < SubMngt
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field :cap, Types::Int16le
+        define_field_before :elements, :cap, Types::Int16le
         # @!attribute listen_interval
         #  @return [Integer] 16-bit listen interval value
-        define_field :listen_interval, Types::Int16le, default: 0x00c8
+        define_field_before :elements, :listen_interval, Types::Int16le, default: 0x00c8
       end
       Header.add_class AssoReq
       Management.bind AssoReq, type: 0, subtype: 0
@@ -107,13 +77,13 @@ module PacketGen
       class AssoResp < SubMngt
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field :cap, Types::Int16le
+        define_field_before :elements, :cap, Types::Int16le
         # @!attribute status
         #  @return [Integer] 16-bit status word
-        define_field :status, Types::Int16le
+        define_field_before :elements, :status, Types::Int16le
         # @!attribute aid
         #  @return [Integer] 16-bit AID word
-        define_field :aid, Types::Int16le
+        define_field_before :elements, :aid, Types::Int16le
       end
       Header.add_class AssoResp
       Management.bind AssoResp, type: 0, subtype: 1
@@ -130,7 +100,7 @@ module PacketGen
       class ReAssoReq < AssoReq
         # @!attribute current_ap
         #  @return [Eth::MAcAddr]
-        define_field :current_ap, Eth::MacAddr
+        define_field_before :elements, :current_ap, Eth::MacAddr
       end
       Header.add_class ReAssoReq
       Management.bind ReAssoReq, type: 0, subtype: 2
@@ -172,13 +142,13 @@ module PacketGen
       class ProbeResp < SubMngt
         # @!attribute timestamp
         #  @return [Integer] 64-bit timestamp
-        define_field :timestamp, Types::Int64le
+        define_field_before :elements, :timestamp, Types::Int64le
         # @!attribute beacon_interval
         #  @return [Integer] 16-bit beacon interval value
-        define_field :beacon_interval, Types::Int16le, default: 0x0064
+        define_field_before :elements, :beacon_interval, Types::Int16le, default: 0x0064
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field :cap, Types::Int16le
+        define_field_before :elements, :cap, Types::Int16le
       end
       Header.add_class ProbeResp
       Management.bind ProbeResp, type: 0, subtype: 5
@@ -195,13 +165,13 @@ module PacketGen
       class Beacon < SubMngt
         # @!attribute timestamp
         #  @return [Integer] 64-bit timestamp
-        define_field :timestamp, Types::Int64le
+        define_field_before :elements, :timestamp, Types::Int64le
         # @!attribute interval
         #  @return [Integer] 16-bit interval value
-        define_field :interval, Types::Int16le, default: 0x64
+        define_field_before :elements, :interval, Types::Int16le, default: 0x64
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field :cap, Types::Int16le
+        define_field_before :elements, :cap, Types::Int16le
       end
       Header.add_class Beacon
       Management.bind Beacon, type: 0, subtype: 8
@@ -226,7 +196,7 @@ module PacketGen
       class Disas < SubMngt
         # @!attribute reason
         #  @return [Integer] 16-bit reason value
-        define_field :reason, Types::Int16le
+        define_field_before :elements, :reason, Types::Int16le
       end
       Header.add_class Disas
       Management.bind Disas, type: 0, subtype: 10
@@ -243,13 +213,13 @@ module PacketGen
       class Auth < SubMngt
         # @!attribute algo
         #  @return [Integer] 16-bit algo value
-        define_field :algo, Types::Int16le
+        define_field_before :elements, :algo, Types::Int16le
         # @!attribute seqnum
         #  @return [Integer] 16-bit seqnum value
-        define_field :seqnum, Types::Int16le
+        define_field_before :elements, :seqnum, Types::Int16le
         # @!attribute status
         #  @return [Integer] 16-bit status word
-        define_field :status, Types::Int16le
+        define_field_before :elements, :status, Types::Int16le
       end
       Header.add_class Auth
       Management.bind Auth, type: 0, subtype: 11
@@ -264,7 +234,7 @@ module PacketGen
       class DeAuth < SubMngt
         # @!attribute reason
         #  @return [Integer] 16-bit reason value
-        define_field :reason, Types::Int16le
+        define_field_before :elements, :reason, Types::Int16le
       end
       Header.add_class DeAuth
       Management.bind DeAuth, type: 0, subtype: 12

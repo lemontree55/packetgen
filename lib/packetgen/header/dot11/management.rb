@@ -54,8 +54,7 @@ module PacketGen
         # @since 2.1.3
         def add_element(type:, value:)
           if self[:body].is_a? SubMngt
-            element = Element.new(type: type, value: value)
-            self[:body].elements << element
+            self[:body].elements << { type: type, value: value }
           else
             raise FormatError, 'Before adding an Element, you have to add a Dot11::SubMngt subclass instance'
           end
