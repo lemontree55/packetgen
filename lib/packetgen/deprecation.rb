@@ -38,7 +38,7 @@ module PacketGen
     def self.deprecated_class(klass, new_klass=nil, remove_version: REMOVE_VERSION)
       file, line = caller(2..2).first.split(':')[0, 2]
       message = +"#{file}:#{line}: #{klass} is deprecated"
-      message << " in favor od #{new_klass}" unless new_klass.nil?
+      message << " in favor of #{new_klass}" unless new_klass.nil?
       message << ". It will be remove in PacketGen #{remove_version}."
       warn message
     end
