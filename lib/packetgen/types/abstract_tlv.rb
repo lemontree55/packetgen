@@ -160,7 +160,7 @@ module PacketGen
       # @abstract Should only be called on real TLV class instances.
       # @return [String]
       def to_human
-        my_value = self[:value].is_a?(String) ? value.inspect : value.to_human
+        my_value = self[:value].is_a?(String) ? self[:value].inspect : self[:value].to_human
         "type:%s,length:%u,value:#{my_value}" % [human_type, length]
       end
     end
