@@ -318,6 +318,20 @@ module PacketGen
       to_s == other.to_s
     end
 
+    # @param [Packet] other
+    # @return [Boolean]
+    # @since 3.1.2
+    def ===(other)
+      case other
+      when PacketGen::Packet
+        self == other
+      when String
+        is? other
+      else
+        false
+      end
+    end
+
     # Invert all possible fields in packet to create a reply.
     # @return [self]
     # @since 2.7.0
