@@ -21,7 +21,7 @@ module PacketGen
     describe '#start', :sudo do
       it 'capture packets and returns a array of Packet' do
         cap = capture(iface: 'lo') do
-          system 'ping 127.0.0.1 -c 3 -i 0.2 > /dev/null'
+          ping('127.0.0.1', count: 3, interval: 0.2)
         end
 
         packets = cap.packets
@@ -54,7 +54,7 @@ module PacketGen
 
       it 'capture raw packets with option parse: false' do
         cap = capture(iface: 'lo', parse: false) do
-          system 'ping 127.0.0.1 -c 1 > /dev/null'
+          ping('127.0.0.1', count: 1)
         end
 
         packets = cap.raw_packets
@@ -64,7 +64,7 @@ module PacketGen
 
       it 'capture :max packets' do
         cap = capture(iface: 'lo', max: 2) do
-          system 'ping -c 2 -i 0.2 127.0.0.1 > /dev/null'
+          ping('127.0.0.1', count: 2, interval: 0.2)
         end
 
         packets = cap.packets
@@ -76,7 +76,7 @@ module PacketGen
         cap = Capture.new(iface: 'lo', timeout: 3)
         cap_thread = Thread.new { cap.start { |pkt| yielded_packets << pkt } }
         sleep 0.1
-        system 'ping -c 2 127.0.0.1 > /dev/null'
+        ping('127.0.0.1', count: 2)
         cap_thread.join(0.5)
         expect(cap.packets.size).to be >= 4
         expect(yielded_packets.size).to eq(cap.packets.size)
@@ -88,7 +88,7 @@ module PacketGen
         cap = Capture.new(iface: 'lo', parse: false, timeout: 3)
         cap_thread = Thread.new { cap.start { |pkt| yielded_packets << pkt } }
         sleep 0.1
-        system 'ping -c 2 127.0.0.1 > /dev/null'
+        ping('127.0.0.1', count: 2)
         cap_thread.join(0.5)
         expect(cap.raw_packets.size).to be >= 4
         expect(yielded_packets.size).to eq(cap.raw_packets.size)
