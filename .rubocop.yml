@@ -1,5 +1,9 @@
+require:
+  - rubocop-performance
 AllCops:
   TargetRubyVersion: '2.3'
+Layout/LineLength:
+  Enabled: false
 Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 Lint/EmptyWhen:
@@ -7,6 +11,8 @@ Lint/EmptyWhen:
 Lint/Void:
   Enabled: false
 Metrics:
+  Enabled: false
+Style/AccessModifierDeclarations:
   Enabled: false
 Style/AsciiComments:
   Enabled: false

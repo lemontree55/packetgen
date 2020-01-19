@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module PcapNG
@@ -34,7 +34,7 @@ module PacketGen
       # @return [Boolean]
       # @since 2.7.0
       def options?
-        @fields.key?(:options) && @fields[:options].sz > 0
+        @fields.key?(:options) && @fields[:options].sz.positive?
       end
 
       # Calculate block length and update :block_len and block_len2 fields
@@ -49,9 +49,7 @@ module PacketGen
       # @return [void]
       def pad_field(*fields)
         fields.each do |field|
-          unless (@fields[field].sz % 4).zero?
-            @fields[field] << "\x00" * (4 - (@fields[field].sz % 4))
-          end
+          @fields[field] << "\x00" * (4 - (@fields[field].sz % 4)) unless (@fields[field].sz % 4).zero?
         end
       end
 
@@ -62,9 +60,7 @@ module PacketGen
       # @param [:little, :big] endian
       # @return [:little, :big] returns endian
       def set_endianness(endian)
-        unless %i[little big].include? endian
-          raise ArgumentError, "unknown endianness for #{self.class}"
-        end
+        raise ArgumentError, "unknown endianness for #{self.class}" unless %i[little big].include?(endian)
 
         @endian = endian
         @fields.each { |_f, v| v.endian = endian if v.is_a?(Types::Int) }
@@ -72,9 +68,7 @@ module PacketGen
       end
 
       def check_len_coherency
-        unless self.block_len == self.block_len2
-          raise InvalidFileError, 'Incoherency in Block length'
-        end
+        raise InvalidFileError, 'Incoherency in Block length' unless self.block_len == self.block_len2
       end
     end
   end

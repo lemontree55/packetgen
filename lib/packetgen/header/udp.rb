@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -71,7 +71,7 @@ module PacketGen
       # option is set.
       def initialize(options={})
         super
-        self.length += self[:body].sz if self[:body].sz > 0
+        self.length += self[:body].sz if self[:body].sz.positive?
       end
 
       # Compute checksum and set +checksum+ field

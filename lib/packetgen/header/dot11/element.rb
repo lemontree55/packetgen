@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -22,20 +22,20 @@ module PacketGen
       class Element
         # Known element types
         TYPES = {
-          0 =>   'SSID',
-          1 =>   'Rates',
-          2 =>   'FHset',
-          3 =>   'DSset',
-          4 =>   'CFset',
-          5 =>   'TIM',
-          6 =>   'IBSSset',
-          16 =>  'challenge',
-          42 =>  'ERPinfo',
-          46 =>  'QoS Cap.',
-          47 =>  'ERPinfo',
-          48 =>  'RSNinfo',
-          50 =>  'ESRates',
-          68 =>  'reserved',
+          0 => 'SSID',
+          1 => 'Rates',
+          2 => 'FHset',
+          3 => 'DSset',
+          4 => 'CFset',
+          5 => 'TIM',
+          6 => 'IBSSset',
+          16 => 'challenge',
+          42 => 'ERPinfo',
+          46 => 'QoS Cap.',
+          47 => 'ERPinfo',
+          48 => 'RSNinfo',
+          50 => 'ESRates',
+          68 => 'reserved',
           221 => 'vendor'
         }.freeze
       end

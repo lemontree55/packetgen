@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -42,12 +42,12 @@ module PacketGen
       class GroupRecord < Types::Fields
         # Known record types
         RECORD_TYPES = {
-          'MODE_IS_INCLUDE'        => 1,
-          'MODE_IS_EXCLUDE'        => 2,
+          'MODE_IS_INCLUDE' => 1,
+          'MODE_IS_EXCLUDE' => 2,
           'CHANGE_TO_INCLUDE_MODE' => 3,
           'CHANGE_TO_EXCLUDE_MODE' => 4,
-          'ALLOW_NEW_SOURCES'      => 5,
-          'BLOCK_OLD_SOURCES'      => 6
+          'ALLOW_NEW_SOURCES' => 5,
+          'BLOCK_OLD_SOURCES' => 6
         }.freeze
 
         # @!attribute type

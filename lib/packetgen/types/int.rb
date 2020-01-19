@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Types
@@ -56,9 +56,7 @@ module PacketGen
       # @return [::String]
       # @raise [ParseError] This is an abstrat method and must be redefined
       def to_s
-        unless defined? @packstr
-          raise ParseError, 'PacketGen::Types::Int#to_s is an abstract method'
-        end
+        raise ParseError, 'PacketGen::Types::Int#to_s is an abstract method' unless defined? @packstr
 
         [to_i].pack(@packstr[@endian])
       end

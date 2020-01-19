@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -25,9 +25,9 @@ module PacketGen
       class Control < Dot11
         # Control subtypes
         SUBTYPES = {
-          7  => 'Wrapper',
-          8  => 'Block Ack Request',
-          9  => 'Block Ack',
+          7 => 'Wrapper',
+          8 => 'Block Ack Request',
+          9 => 'Block Ack',
           10 => 'PS-Poll',
           11 => 'RTS',
           12 => 'CTS',

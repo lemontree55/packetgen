@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -58,25 +58,25 @@ module PacketGen
     class EAP < Base
       # EAP known codes
       CODES = {
-        'Request'   => 1,
-        'Response'  => 2,
-        'Success'   => 3,
-        'Failure'   => 4
+        'Request' => 1,
+        'Response' => 2,
+        'Success' => 3,
+        'Failure' => 4
       }.freeze
 
       # EAP known request/response types
       TYPES = {
-        'Identity'           => 1,
-        'Notification'       => 2,
-        'Nak'                => 3,
-        'MD5-Challenge'      => 4,
-        'One Time Password'  => 5,
+        'Identity' => 1,
+        'Notification' => 2,
+        'Nak' => 3,
+        'MD5-Challenge' => 4,
+        'One Time Password' => 5,
         'Generic Token Card' => 6,
-        'EAP-TLS'            => 13,
-        'EAP-TTLS'           => 21,
-        'EAP-FAST'           => 43,
-        'Expanded Types'     => 254,
-        'Experimental Use'   => 255
+        'EAP-TLS' => 13,
+        'EAP-TTLS' => 21,
+        'EAP-FAST' => 43,
+        'Expanded Types' => 254,
+        'Experimental Use' => 255
       }.freeze
 
       # @!attribute code

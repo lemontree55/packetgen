@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -106,7 +106,7 @@ module PacketGen
         # @!attribute options
         #  Specific options of extension header
         #  @return [Options]
-        define_field_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2} ) }
+        define_field_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2 }) }
       end
     end
 

@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -31,13 +31,13 @@ module PacketGen
       class LSAHeader < Types::Fields
         # LSA known types
         TYPES = {
-          'Router'            => 0x2001,
-          'Network'           => 0x2002,
+          'Router' => 0x2001,
+          'Network' => 0x2002,
           'Inter-Area-Prefix' => 0x2003,
           'Inter-Area-Router' => 0x2004,
-          'AS-External'       => 0x4005,
-          'NSSA'              => 0x2007,
-          'Link'              => 0x0008,
+          'AS-External' => 0x4005,
+          'NSSA' => 0x2007,
+          'Link' => 0x0008,
           'Intra-Area-Prefix' => 0x2009
         }.freeze
 

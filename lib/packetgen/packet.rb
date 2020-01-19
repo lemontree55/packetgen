@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 require 'pcaprub'
 
@@ -254,7 +254,7 @@ module PacketGen
     # @since 1.1.0
     def encapsulate(other, parsing: false)
       other.headers.each_with_index do |h, i|
-        add_header h, parsing: (i > 0) || parsing
+        add_header h, parsing: i.positive? || parsing
       end
     end
 
@@ -269,13 +269,13 @@ module PacketGen
         idx = headers.index(hdr)
         raise FormatError, 'header not in packet!' if idx.nil?
 
-        prev_hdr = idx > 0 ? headers[idx - 1] : nil
+        prev_hdr = idx.positive? ? headers[idx - 1] : nil
         next_hdr = (idx + 1) < headers.size ? headers[idx + 1] : nil
         headers.delete_at(idx)
         add_header(next_hdr, previous_header: prev_hdr) if prev_hdr && next_hdr
       end
-    rescue ArgumentError => ex
-      raise FormatError, ex.message
+    rescue ArgumentError => e
+      raise FormatError, e.message
     end
 
     # Parse a binary string and populate Packet from it.
@@ -289,9 +289,7 @@ module PacketGen
       if first_header.nil?
         # No decoding forced for first header. Have to guess it!
         first_header = guess_first_header(binary_str)
-        if first_header.nil?
-          raise ParseError, 'cannot identify first header in string'
-        end
+        raise ParseError, 'cannot identify first header in string' if first_header.nil?
       end
 
       add first_header
@@ -388,9 +386,8 @@ module PacketGen
       return header unless arg.is_a? Hash
 
       arg.each do |key, value|
-        unless header.respond_to? "#{key}="
-          raise ArgumentError, "unknown #{key} attribute for #{klass}"
-        end
+        raise ArgumentError, "unknown #{key} attribute for #{klass}" unless header.respond_to? "#{key}="
+
         header.send "#{key}=", value
       end
 
@@ -418,7 +415,7 @@ module PacketGen
         bindings = prev_header.class.known_headers[header.class]
         bindings = prev_header.class.known_headers[header.class.superclass] if bindings.nil?
         if bindings.nil?
-          msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. ".dup
+          msg = +"#{prev_header.class} knowns no layer association with #{header.protocol_name}. "
           msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
           msg << "#{prev_header.method_name}_proto_field: "
           msg << "value_for_#{header.method_name})"

@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -55,16 +55,16 @@ module PacketGen
 
       # DHCPv6 message types
       MESSAGE_TYPES = {
-        'SOLLICIT'            => 1,
-        'ADVERTISE'           => 2,
-        'REQUEST'             => 3,
-        'CONFIRM'             => 4,
-        'RENEW'               => 5,
-        'REBIND'              => 6,
-        'REPLY'               => 7,
-        'RELEASE'             => 8,
-        'DECLINE'             => 9,
-        'RECONFIGURE'         => 10,
+        'SOLLICIT' => 1,
+        'ADVERTISE' => 2,
+        'REQUEST' => 3,
+        'CONFIRM' => 4,
+        'RENEW' => 5,
+        'REBIND' => 6,
+        'REPLY' => 7,
+        'RELEASE' => 8,
+        'DECLINE' => 9,
+        'RECONFIGURE' => 10,
         'INFORMATION-REQUEST' => 11
       }.freeze
 

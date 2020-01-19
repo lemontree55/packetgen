@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module PcapNG
@@ -57,9 +57,7 @@ module PacketGen
       # @return [Integer] return number of yielded blocks (only if a block is given)
       # @raise [ArgumentError] cannot read +fname+
       def readfile(fname, &blk)
-        unless ::File.readable?(fname)
-          raise ArgumentError, "cannot read file #{fname}"
-        end
+        raise ArgumentError, "cannot read file #{fname}" unless ::File.readable?(fname)
 
         ::File.open(fname, 'rb') do |f|
           parse_section(f) until f.eof?
@@ -233,9 +231,8 @@ module PacketGen
         when Hash
           filename = options[:filename] || options[:file]
           ary = options[:array] || options[:arr]
-          unless ary.is_a? Array
-            raise ArgumentError, ':array parameter needs to be an array'
-          end
+          raise ArgumentError, ':array parameter needs to be an array' unless ary.is_a? Array
+
           ts = options[:timestamp] || options[:ts] || Time.now
           ts_inc = options[:ts_inc] || 1
           append = !options[:append].nil?
@@ -268,13 +265,13 @@ module PacketGen
           this_ts = (this_ts / itf.ts_resol).to_i
           this_tsh = this_ts >> 32
           this_tsl = this_ts & 0xffffffff
-          this_pkt = EPB.new(endian:       section.endian,
+          this_pkt = EPB.new(endian: section.endian,
                              interface_id: 0,
-                             tsh:          this_tsh,
-                             tsl:          this_tsl,
-                             cap_len:      this_cap_len,
-                             orig_len:     this_cap_len,
-                             data:         this_data)
+                             tsh: this_tsh,
+                             tsl: this_tsl,
+                             cap_len: this_cap_len,
+                             orig_len: this_cap_len,
+                             data: this_data)
           classify_block section, this_pkt
         end
 

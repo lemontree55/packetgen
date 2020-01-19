@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -13,44 +13,44 @@ module PacketGen
       class Question < Types::Fields
         # Ressource Record types
         TYPES = {
-          'A'        => 1,
-          'NS'       => 2,
-          'MD'       => 3,
-          'MF'       => 4,
-          'CNAME'    => 5,
-          'SOA'      => 6,
-          'MB'       => 7,
-          'MG'       => 8,
-          'MR'       => 9,
-          'NULL'     => 10,
-          'WKS'      => 11,
-          'PTR'      => 12,
-          'HINFO'    => 13,
-          'MINFO'    => 14,
-          'MX'       => 15,
-          'TXT'      => 16,
-          'AAAA'     => 28,
-          'SRV'      => 33,
-          'NAPTR'    => 35,
-          'KX'       => 36,
-          'CERT'     => 37,
-          'OPT'      => 41,
-          'DS'       => 43,
-          'RRSIG'    => 46,
-          'NSEC'     => 47,
-          'DNSKEY'   => 48,
-          'TKEY'     => 249,
-          'TSIG'     => 250,
-          '*'        => 255
+          'A' => 1,
+          'NS' => 2,
+          'MD' => 3,
+          'MF' => 4,
+          'CNAME' => 5,
+          'SOA' => 6,
+          'MB' => 7,
+          'MG' => 8,
+          'MR' => 9,
+          'NULL' => 10,
+          'WKS' => 11,
+          'PTR' => 12,
+          'HINFO' => 13,
+          'MINFO' => 14,
+          'MX' => 15,
+          'TXT' => 16,
+          'AAAA' => 28,
+          'SRV' => 33,
+          'NAPTR' => 35,
+          'KX' => 36,
+          'CERT' => 37,
+          'OPT' => 41,
+          'DS' => 43,
+          'RRSIG' => 46,
+          'NSEC' => 47,
+          'DNSKEY' => 48,
+          'TKEY' => 249,
+          'TSIG' => 250,
+          '*' => 255
         }.freeze
 
         # Ressource Record classes
         CLASSES = {
-          'IN'   => 1,
-          'CH'   => 3,
-          'HS'   => 4,
+          'IN' => 1,
+          'CH' => 3,
+          'HS' => 4,
           'NONE' => 254,
-          '*'    => 255
+          '*' => 255
         }.freeze
 
         # @!attribute name

@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 require 'socket'
 
@@ -182,9 +182,7 @@ module PacketGen
       # @param [Integer] checksum checksum to reduce
       # @return [Integer] reduced checksum
       def self.reduce_checksum(checksum)
-        while checksum > 0xffff
-          checksum = (checksum & 0xffff) + (checksum >> 16)
-        end
+        checksum = (checksum & 0xffff) + (checksum >> 16) while checksum > 0xffff
         checksum = ~checksum & 0xffff
         checksum.zero? ? 0xffff : checksum
       end

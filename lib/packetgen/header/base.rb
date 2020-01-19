@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -193,7 +193,6 @@ module PacketGen
         end
       end
 
-
       # Helper method to calculate length of +hdr+ and set its +length+ field.
       # To be used by +#calc_length+ in Base subclasses.
       # @param [Base] hdr
@@ -220,7 +219,6 @@ module PacketGen
         @packet = options.delete(:packet) if options.key?(:packet)
         super
       end
-
 
       # @api private
       # Get +header+ id in {Packet#headers} array

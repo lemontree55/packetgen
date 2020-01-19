@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -46,10 +46,10 @@ module PacketGen
 
       # Known types
       TYPES = {
-        'MembershipQuery'    => 0x11,
+        'MembershipQuery' => 0x11,
         'MembershipReportv1' => 0x12,
         'MembershipReportv2' => 0x16,
-        'LeaveGroup'         => 0x17,
+        'LeaveGroup' => 0x17,
       }.freeze
 
       # @!attribute type

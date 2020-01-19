@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -113,9 +113,7 @@ module PacketGen
         # @return [String]
         def to_human
           str = self.class == Option ? +"unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
-          if (length > 2) && !self[:value].to_s.empty?
-            str << ":#{self[:value].to_s.inspect}"
-          end
+          str << ":#{self[:value].to_s.inspect}" if (length > 2) && !self[:value].to_s.empty?
           str
         end
 

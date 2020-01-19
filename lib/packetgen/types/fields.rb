@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Types
@@ -183,14 +183,14 @@ module PacketGen
                       "  else\n" \
                       "    self[:#{name}]\n" \
                       "  end\n" \
-                      "end"
+                      'end'
             define << "def #{name}=(val)\n" \
                       "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
                       "    self[:#{name}].from_human val\n" \
                       "  else\n" \
                       "    self[:#{name}].read val\n" \
                       "  end\n" \
-                      "end"
+                      'end'
           end
 
           define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
@@ -295,9 +295,7 @@ module PacketGen
           raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
 
           type = attr_def.type
-          unless type < Types::Int
-            raise TypeError, "#{attr} is not a PacketGen::Types::Int"
-          end
+          raise TypeError, "#{attr} is not a PacketGen::Types::Int" unless type < Types::Int
 
           total_size = type.new.width * 8
           idx = total_size - 1

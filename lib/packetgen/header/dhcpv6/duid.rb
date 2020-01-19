@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -13,8 +13,8 @@ module PacketGen
       class DUID < Types::Fields
         TYPES = {
           'DUID-LLT' => 1,
-          'DUID-EN'  => 2,
-          'DUID-LL'  => 3
+          'DUID-EN' => 2,
+          'DUID-LL' => 3
         }.freeze
 
         # @!attribute type
@@ -57,6 +57,8 @@ module PacketGen
           "DUID<#{type},#{body.inspect}>"
         end
       end
+
+      # rubocop:disable Naming/ClassAndModuleCamelCase
 
       # DUID Based on Link-layer Address Plus Time
       # @author Sylvain Daubert
@@ -140,3 +142,5 @@ module PacketGen
     end
   end
 end
+
+# rubocop:enable Naming/ClassAndModuleCamelCase

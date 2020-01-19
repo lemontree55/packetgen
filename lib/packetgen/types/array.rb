@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 require 'forwardable'
 
@@ -106,7 +106,7 @@ module PacketGen
       # @return [void]
       def clear!
         @array.clear
-        @counter.read(0) if @counter
+        @counter&.read(0)
       end
 
       # Delete an object from this array. Update associated counter if any
@@ -150,7 +150,7 @@ module PacketGen
       # @return [Array] self
       def <<(obj)
         push obj
-        @counter.read(@counter.to_i + 1) if @counter
+        @counter&.read(@counter.to_i + 1)
         self
       end
 
@@ -160,7 +160,7 @@ module PacketGen
       def read(str)
         clear
         return self if str.nil?
-        return self if @counter && @counter.to_i.zero?
+        return self if @counter&.to_i&.zero?
 
         str = read_with_length_from(str)
         klass = self.class.set_of_klass

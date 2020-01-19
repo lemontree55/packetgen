@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -68,10 +68,10 @@ module PacketGen
         # @return [PacketGen::HTTP::Response]
         def read(str)
           str = str.bytes.map!(&:chr).join unless str.valid_encoding?
-          arr     = str.split("\r\n")
+          arr = str.split("\r\n")
           headers = [] # header stream
-          data    = [] # data stream
-          switch  = false
+          data = [] # data stream
+          switch = false
           arr.each do |line|
             if line.empty?
               data << line if switch # already done
@@ -103,7 +103,7 @@ module PacketGen
           raise FormatError, 'Missing #status_mesg.' if self.status_mesg.empty?
           raise FormatError, 'Missing #version.'     if self.version.empty?
 
-          str = ''.dup # build 'dat string
+          str = +''
           str << self[:version] << ' ' << self[:status_code] << ' ' << self[:status_mesg] << "\r\n"
           str << self[:headers].to_s if self[:headers].given?
           str << self.body

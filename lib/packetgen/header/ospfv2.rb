@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -75,18 +75,18 @@ module PacketGen
 
       # OSPF packet types
       TYPES = {
-        'HELLO'          => 1,
+        'HELLO' => 1,
         'DB_DESCRIPTION' => 2,
-        'LS_REQUEST'     => 3,
-        'LS_UPDATE'      => 4,
-        'LS_ACK'         => 5
+        'LS_REQUEST' => 3,
+        'LS_UPDATE' => 4,
+        'LS_ACK' => 5
       }.freeze
 
       # Authentication types
       AU_TYPES = {
-        'NO_AUTH'         => 0,
-        'PASSWORD'        => 1,
-        'CRYPTO'          => 2,
+        'NO_AUTH' => 0,
+        'PASSWORD' => 1,
+        'CRYPTO' => 2,
         'CRYPTO_WITH_ESN' => 3
       }.freeze
 

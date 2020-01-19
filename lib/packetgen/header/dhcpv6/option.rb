@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -55,7 +55,7 @@ module PacketGen
               case options[:type]
               when Integer
                 klass = Option.subclasses[options[:type]]
-                klass.new(options) if klass
+                klass&.new(options)
               when String
                 if DHCPv6.const_defined?(options[:type])
                   klass = DHCPv6.const_get(options[:type])
@@ -95,7 +95,7 @@ module PacketGen
         # Get a human-readable string for this option
         # @return [String]
         def to_human
-          str = "#{human_type}:".dup
+          str = +"#{human_type}:"
           if respond_to?(:human_data) && !human_data.empty?
             str << human_data
           elsif !self[:data].nil?

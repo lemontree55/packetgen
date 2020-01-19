@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -83,7 +83,7 @@ module PacketGen
 
         # Factory to build an option from its type
         # @return [Option]
-        def Option.build(options={})
+        def self.build(options={})
           type = options.delete(:type)
           klass = case type
                   when String
@@ -99,9 +99,7 @@ module PacketGen
         def initialize(options={})
           unless options[:type]
             opt_name = self.class.to_s.gsub(/.*::/, '')
-            if Option.const_defined? "#{opt_name}_TYPE"
-              options[:type] = Option.const_get("#{opt_name}_TYPE")
-            end
+            options[:type] = Option.const_get("#{opt_name}_TYPE") if Option.const_defined? "#{opt_name}_TYPE"
           end
           super
           self.length = sz if respond_to?(:length) && options[:length].nil?

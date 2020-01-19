@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module PcapNG
@@ -149,9 +149,8 @@ module PacketGen
       # @return [String]
       def to_s
         body = @interfaces.map(&:to_s).join
-        unless self.section_len == SECTION_LEN_UNDEFINED
-          self.section_len = body.size
-        end
+        self.section_len = body.size unless self.section_len == SECTION_LEN_UNDEFINED
+
         pad_field :options
         recalc_block_len
         super + body

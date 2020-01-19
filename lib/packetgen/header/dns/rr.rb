@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -98,7 +98,7 @@ module PacketGen
         def human_rrclass
           if self[:name].dns.is_a? MDNS
             str = self.class::CLASSES.key(self.rrclass & 0x7fff) || '0x%04x' % (self.rrclass & 0x7fff)
-            str += ' CACHE-FLUSH' if self.rrclass & 0x8000 > 0
+            str += ' CACHE-FLUSH' if (self.rrclass & 0x8000).positive?
             str
           else
             self.class::CLASSES.key(self.rrclass) || '0x%04x' % self.rrclass

@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -20,16 +20,6 @@ module PacketGen
       class SubMngt < Base
         # @return [Array<Element>]
         define_field :elements, ArrayOfElements
-
-        # @return [String]
-        #def inspect
-        #  str = super
-        #  str << Inspect.dashed_line('Dot11 Elements', 2)
-        #  @elements.each do |el|
-        #    str << Inspect.shift_level(2) << el.to_human << "\n"
-        #  end
-        #  str
-        #end
 
         # Add an {Element} to header
         # @param [Integer,String] type element type

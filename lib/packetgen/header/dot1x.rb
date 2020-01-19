@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -27,10 +27,10 @@ module PacketGen
 
       # IEEE 802.1X packet types
       TYPES = {
-        'EAP Packet'      => 0,
-        'Start'           => 1,
-        'Logoff'          => 2,
-        'Key'             => 3,
+        'EAP Packet' => 0,
+        'Start' => 1,
+        'Logoff' => 2,
+        'Key' => 3,
         'Encap-ASF-Alert' => 4
       }.freeze
 

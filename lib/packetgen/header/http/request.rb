@@ -1,9 +1,9 @@
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -39,7 +39,7 @@ module PacketGen
         # @!attribute verb
         #   @return [Types::String]
         #   @since 3.1.0
-        define_field :verb,  Types::String
+        define_field :verb, Types::String
         # @!attribute path
         #   @return [Types::String]
         define_field :path,    Types::String
@@ -90,11 +90,11 @@ module PacketGen
         # String representation of data.
         # @return [String]
         def to_s
-          raise FormatError, 'Missing #verb.'  if self.verb.empty?
+          raise FormatError, 'Missing #verb.' if self.verb.empty?
           raise FormatError, 'Missing #path.'    if self.path.empty?
           raise FormatError, 'Missing #version.' if self.version.empty?
 
-          str = ''.dup # build 'dat string
+          str = +''
           str << self[:verb] << ' ' << self[:path] << ' ' << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
         end
       end

@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -22,6 +22,8 @@ module PacketGen
       # Configuration sinks listen to this port
       UDP_PORT2 = 162
 
+      # rubocop:disable Naming/ConstantName
+
       PDU_GET      = 0
       PDU_NEXT     = 1
       PDU_RESPONSE = 2
@@ -31,27 +33,28 @@ module PacketGen
       PDU_INFORM   = 6
       PDU_TRAPv2   = 7
       PDU_REPORT   = 8
+      # rubocop:enable Naming/ConstantName
 
       ERRORS = {
-        'no_error'              => 0,
-        'too_big'               => 1,
-        'no_such_name'          => 2,
-        'bad_value'             => 3,
-        'read_only'             => 4,
-        'generic_error'         => 5,
-        'no_access'             => 6,
-        'wrong_type'            => 7,
-        'wrong_length'          => 8,
-        'wrong_encoding'        => 9,
-        'wrong_value'           => 10,
-        'no_creation'           => 11,
-        'inconsistent_value'    => 12,
+        'no_error' => 0,
+        'too_big' => 1,
+        'no_such_name' => 2,
+        'bad_value' => 3,
+        'read_only' => 4,
+        'generic_error' => 5,
+        'no_access' => 6,
+        'wrong_type' => 7,
+        'wrong_length' => 8,
+        'wrong_encoding' => 9,
+        'wrong_value' => 10,
+        'no_creation' => 11,
+        'inconsistent_value' => 12,
         'ressource_unavailable' => 13,
-        'commit_failed'         => 14,
-        'undo_failed'           => 15,
-        'authorization_error'   => 16,
-        'not_writable'          => 17,
-        'inconsistent_name'     => 18
+        'commit_failed' => 14,
+        'undo_failed' => 15,
+        'authorization_error' => 16,
+        'not_writable' => 17,
+        'inconsistent_name' => 18
       }.freeze
 
       # Class to handle SNMP VarBind
@@ -162,13 +165,13 @@ module PacketGen
                  implicit: SNMP::PDU_TRAPv1, constructed: true,
                  content: [objectid(:enterprise),
                            octet_string(:agent_addr),
-                           integer(:generic_trap, enum: { 'cold_start'        => 0,
-                                                          'warm_start'        => 1,
-                                                          'link_down'         => 2,
-                                                          'link_up'           => 3,
-                                                          'auth_failure'      => 4,
+                           integer(:generic_trap, enum: { 'cold_start' => 0,
+                                                          'warm_start' => 1,
+                                                          'link_down' => 2,
+                                                          'link_up' => 3,
+                                                          'auth_failure' => 4,
                                                           'egp_neighbor_loss' => 5,
-                                                          'specific'          => 6 }),
+                                                          'specific' => 6 }),
                            integer(:specific_trap),
                            integer(:timestamp),
                            model(:varbindlist, VariableBindings)]
@@ -291,8 +294,8 @@ module PacketGen
           str << data.chosen_value.inspect(1)
           begin
             str << Inspect.inspect_body(self[:message].to_der, 'ASN.1 DER')
-          rescue StandardError => ex
-            raise unless ex.message =~ /TAG.*not handled/
+          rescue StandardError => e
+            raise unless e.message =~ /TAG.*not handled/
           end
           str
         end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PacketGen
   # Deprecation module
   # @since 2.7.0
@@ -22,7 +24,7 @@ module PacketGen
       complete_deprecated_method_name = base_name + deprecated_method.to_s
       complete_new_method_name = base_name + new_method.to_s unless new_method.nil?
 
-      file, line = caller(2).first.split(':')[0, 2]
+      file, line = caller(2..2).split(':')[0, 2]
       message = +"#{file}:#{line}: #{complete_deprecated_method_name} is deprecated"
       message << " in favor of #{complete_new_method_name}" unless new_method.nil?
       message << ". It will be remove in PacketGen #{remove_version}."

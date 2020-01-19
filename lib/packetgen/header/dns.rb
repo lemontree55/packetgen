@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Header
@@ -120,7 +120,7 @@ module PacketGen
 
       # DNS opcodes
       OPCODES = {
-        'query'  => 0,
+        'query' => 0,
         'iquery' => 1,
         'status' => 2,
         'notify' => 4,
@@ -129,13 +129,13 @@ module PacketGen
 
       # DNS Response codes
       RCODES = {
-        'ok'              => 0,
-        'no-error'        => 0,
-        'format-error'    => 1,
-        'server-failure'  => 2,
-        'name-error'      => 3,
+        'ok' => 0,
+        'no-error' => 0,
+        'format-error' => 1,
+        'server-failure' => 2,
+        'name-error' => 3,
         'not-implemented' => 4,
-        'refused'         => 5
+        'refused' => 5
       }.freeze
 
       # @!attribute id

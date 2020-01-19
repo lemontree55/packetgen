@@ -1,10 +1,10 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # This file is part of PacketGen
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
-
-# frozen_string_literal: true
 
 module PacketGen
   module Types
@@ -37,7 +37,7 @@ module PacketGen
                   else
                     s.size
                   end
-        str_end = 0 if str_end < 0
+        str_end = 0 if str_end.negative?
         s[0, str_end]
       end
     end
