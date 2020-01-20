@@ -85,9 +85,10 @@ module PacketGen
     # @return [self]
     # @raise [NotImplementedError]
     def read(str)
+      # Do not call super and rescue NoMethodError: too slow
+      raise NotImplementedError, "#{self.class} should implement #read" if method(:read).super_method.nil?
+
       super
-    rescue NoMethodError
-      raise NotImplementedError, "#{self.class} should implement #read"
     end
   end
 end

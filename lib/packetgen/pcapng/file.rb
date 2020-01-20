@@ -251,16 +251,18 @@ module PacketGen
         itf = IDB.new(endian: section.endian)
         classify_block section, itf
 
-        ary.each_with_index do |pkt, i|
+        ts_add_val = 0 # value to add to ts in Array case
+        ary.each do |pkt|
           case pkt
           when Hash
             this_ts = pkt.keys.first.to_i
             this_cap_len = pkt.values.first.to_s.size
             this_data = pkt.values.first.to_s
           else
-            this_ts = (ts + ts_inc * i).to_i
+            this_ts = (ts + ts_add_val).to_i
             this_cap_len = pkt.to_s.size
             this_data = pkt.to_s
+            ts_add_val += ts_inc
           end
           this_ts = (this_ts / itf.ts_resol).to_i
           this_tsh = this_ts >> 32
