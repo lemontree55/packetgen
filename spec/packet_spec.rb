@@ -18,7 +18,7 @@ module PacketGen
       end
 
       it 'generates a packet with good protocol' do
-        expect(@pkt.is? 'IP').to be(true)
+        expect(@pkt.is?('IP')).to be(true)
       end
 
       it 'accepts options for given protocol' do
@@ -27,7 +27,7 @@ module PacketGen
       end
 
       it 'magically defines `protocol` method' do
-        expect(@pkt.respond_to? :ip).to be(true)
+        expect(@pkt.respond_to?(:ip)).to be(true)
         expect(@pkt.ip).to be_a(Header::IP)
       end
 
@@ -39,8 +39,8 @@ module PacketGen
 
       it 'magic methods raise on unknown attribute' do
         attr = :unknown_attr
-        expect { @pkt.ip(attr => nil) }.to raise_error(ArgumentError).
-                                            with_message(/unknown #{attr} attribute/)
+        expect { @pkt.ip(attr => nil) }
+          .to raise_error(ArgumentError).with_message(/unknown #{attr} attribute/)
       end
     end
 
@@ -140,7 +140,7 @@ module PacketGen
       end
     end
 
-    describe '.capture', :sudo  do
+    describe '.capture', :sudo do
       it 'captures packets using options' do
         before = Time.now
         Packet.capture(iface: 'lo', timeout: 1)
@@ -208,11 +208,11 @@ module PacketGen
       end
 
       it 'returns true for contained header type' do
-        expect(@pkt.is? 'IP').to be(true)
+        expect(@pkt.is?('IP')).to be(true)
       end
 
       it 'returns false for absent header type' do
-        expect(@pkt.is? 'Eth').to be(false)
+        expect(@pkt.is?('Eth')).to be(false)
       end
 
       it 'raises on unknown protocol' do
@@ -222,8 +222,8 @@ module PacketGen
 
     describe '#calc_checksum' do
       it 'recalculates packet checksums' do
-        pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff).
-              add('UDP', sport: 45_768, dport: 80)
+        pkt = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff)
+                    .add('UDP', sport: 45_768, dport: 80)
         pkt.body = 'abcdef'
         expect(pkt.ip.checksum).to eq(0)
         expect(pkt.udp.checksum).to eq(0)
@@ -235,8 +235,10 @@ module PacketGen
     end
 
     describe '#to_w' do
-      let(:pkt) { Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: 'ff:ff:ff:ff:ff:ff')
-                        .add('IP', src: '128.1.2.3', dst: '129.1.2.3') }
+      let(:pkt) do
+        Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: 'ff:ff:ff:ff:ff:ff')
+              .add('IP', src: '128.1.2.3', dst: '129.1.2.3')
+      end
 
       it 'sends a packet on wire', :sudo do
         Thread.new { sleep 0.1; pkt.to_w('lo') }
@@ -244,7 +246,7 @@ module PacketGen
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
         packet = packets.first
-        expect(packet.is? 'Eth').to be(true)
+        expect(packet.is?('Eth')).to be(true)
         expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
         expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
         expect(packet.eth.ethertype).to eq(0x0800)
@@ -253,7 +255,7 @@ module PacketGen
 
       it 'calculates sum and length before sending a packet on wire', :sudo do
         pkt.body = '123'
-        pkt.ip.id = 0   # to remove randomness on checksum computation
+        pkt.ip.id = 0 # to remove randomness on checksum computation
 
         Thread.new { sleep 0.1; pkt.to_w('lo') }
         packets = Packet.capture(iface: 'lo', max: 1,
@@ -345,8 +347,8 @@ module PacketGen
                        .add('ICMP', type: 8, code: 0)
         pkt.decapsulate(pkt.ip)
         expect(pkt.headers.size).to eq(2)
-        expect(pkt.is? 'IP').to be(true)
-        expect(pkt.is? 'ICMP').to be(true)
+        expect(pkt.is?('IP')).to be(true)
+        expect(pkt.is?('ICMP')).to be(true)
         expect(pkt.ip.src).to eq('10.0.0.1')
       end
 
@@ -357,9 +359,9 @@ module PacketGen
                     .add('ICMP', type: 8, code: 0)
         pkt.decapsulate(pkt.ip)
         expect(pkt.headers.size).to eq(3)
-        expect(pkt.is? 'Eth').to be(true)
-        expect(pkt.is? 'IP').to be(true)
-        expect(pkt.is? 'ICMP').to be(true)
+        expect(pkt.is?('Eth')).to be(true)
+        expect(pkt.is?('IP')).to be(true)
+        expect(pkt.is?('ICMP')).to be(true)
         expect(pkt.ip.src).to eq('10.0.0.1')
       end
 
@@ -370,8 +372,8 @@ module PacketGen
                     .add('ICMP', type: 8, code: 0)
         pkt.decapsulate(pkt. eth, pkt.ip)
         expect(pkt.headers.size).to eq(2)
-        expect(pkt.is? 'IP').to be(true)
-        expect(pkt.is? 'ICMP').to be(true)
+        expect(pkt.is?('IP')).to be(true)
+        expect(pkt.is?('ICMP')).to be(true)
         expect(pkt.ip.src).to eq('10.0.0.1')
       end
 

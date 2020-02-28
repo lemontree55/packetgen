@@ -415,26 +415,28 @@ module PacketGen
     # @return [void]
     def add_header(header, previous_header: nil, parsing: false)
       prev_header = previous_header || last_header
-      if prev_header
-        bindings = prev_header.class.known_headers[header.class]
-        bindings = prev_header.class.known_headers[header.class.superclass] if bindings.nil?
-        if bindings.nil?
-          msg = +"#{prev_header.class} knowns no layer association with #{header.protocol_name}. "
-          msg << "Try #{prev_header.class}.bind_layer(#{header.class}, "
-          msg << "#{prev_header.method_name}_proto_field: "
-          msg << "value_for_#{header.method_name})"
-          raise ArgumentError, msg
-        end
+      add_to_previous_header(prev_header, header, parsing) if prev_header
 
-        bindings.set(prev_header) if !bindings.empty? && !parsing
-        prev_header[:body] = header
-      end
       header.packet = self
       headers << header unless previous_header
 
       return if respond_to? header.method_name
 
       add_magic_header_method header
+    end
+
+    def add_to_previous_header(prev_header, header, parsing)
+      bindings = prev_header.class.known_headers[header.class] || prev_header.class.known_headers[header.class.superclass]
+      if bindings.nil?
+        msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. " \
+          "Try #{prev_header.class}.bind_layer(#{header.class}, " \
+          "#{prev_header.method_name}_proto_field: " \
+          "value_for_#{header.method_name})"
+        raise ArgumentError, msg
+      end
+
+      bindings.set(prev_header) if !bindings.empty? && !parsing
+      prev_header[:body] = header
     end
 
     # Add method to access +header+

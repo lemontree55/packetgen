@@ -1,5 +1,5 @@
 language: ruby
-sudo: required
+os: linux
 rvm:
   - 2.4
   - 2.5
