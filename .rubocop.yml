@@ -10,8 +10,12 @@ Lint/EmptyWhen:
   Enabled: false
 Lint/Void:
   Enabled: false
-Metrics:
-  Enabled: false
+Metrics/AbcSize:
+    Max: 17
+Metrics/ClassLength:
+    Max: 200
+Metrics/MethodLength:
+    Max: 20
 Style/AccessModifierDeclarations:
   Enabled: false
 Style/AsciiComments:

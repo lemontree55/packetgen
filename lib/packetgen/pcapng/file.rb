@@ -20,6 +20,15 @@ module PacketGen
         LINKTYPE_IPV6 => 'IPv6'
       }.freeze
 
+      # @private
+      BLOCK_TYPES = Hash[
+        PcapNG.constants(false).select { |c| c.to_s =~ /_TYPE/ }.map do |c|
+          type_value = PcapNG.const_get(c).to_i
+          klass = PcapNG.const_get(c.to_s.delete_suffix('_TYPE'))
+          [type_value, klass]
+        end
+      ].freeze
+
       # Get file sections
       # @return [Array]
       attr_accessor :sections
@@ -151,29 +160,28 @@ module PacketGen
 
       # Translates a {File} into an array of packets.
       # @param [Hash] options
-      # @option options [String] :filename if given, object is cleared and filename
+      # @option options [String] :file if given, object is cleared and filename
       #   is analyzed before generating array. Else, array is generated from +self+
-      # @option options [String] :file same as +:filename+
       # @option options [Boolean] :keep_timestamps if +true+ (default value: +false+),
       #   generates an array of hashes, each one with timestamp as key and packet
       #   as value. There is one hash per packet.
-      # @option options [Boolean] :keep_ts same as +:keep_timestamp+
       # @return [Array<Packet>,Array<Hash>]
       def file_to_array(options={})
+        Deprecation.deprecated_option(self.class, __method__, :filename) if options[:filename]
+        Deprecation.deprecated_option(self.class, __method__, :keep_ts) if options[:keep_ts]
+
         filename = options[:filename] || options[:file]
-        if filename
-          clear
-          readfile filename
-        end
+        reread filename
 
         ary = []
         @sections.each do |section|
           section.interfaces.each do |itf|
-            if options[:keep_timestamps] || options[:keep_ts]
-              ary.concat(itf.packets.map { |pkt| { pkt.timestamp => pkt.data.to_s } })
-            else
-              ary.concat(itf.packets.map { |pkt| pkt.data.to_s })
-            end
+            blk = if options[:keep_timestamps] || options[:keep_ts]
+                    proc { |pkt| { pkt.timestamp => pkt.data.to_s } }
+                  else
+                    proc { |pkt| pkt.data.to_s }
+                  end
+            ary.concat(itf.packets.map(&blk))
           end
         end
         ary
@@ -217,7 +225,7 @@ module PacketGen
       # @overload array_to_file(options={})
       #  Update {File} and/or write it to a file
       #  @param [Hash] options
-      #  @option options [String] :filename file written on disk only if given
+      #  @option options [String] :file file written on disk only if given
       #  @option options [Array] :array can either be an array of packet data,
       #                                 or a hash-value pair of timestamp => data.
       #  @option options [Time] :timestamp set an initial timestamp
@@ -227,54 +235,15 @@ module PacketGen
       #                                    the file
       #  @return [Array] see return value from {#to_file}
       def array_to_file(options={})
-        case options
-        when Hash
-          filename = options[:filename] || options[:file]
-          ary = options[:array] || options[:arr]
-          raise ArgumentError, ':array parameter needs to be an array' unless ary.is_a? Array
+        filename, ary, ts, ts_inc, append = array_to_file_options(options)
 
-          ts = options[:timestamp] || options[:ts] || Time.now
-          ts_inc = options[:ts_inc] || 1
-          append = !options[:append].nil?
-        when Array
-          ary = options
-          ts = Time.now
-          ts_inc = 1
-          filename = nil
-          append = false
-        else
-          raise ArgumentError, 'unknown argument. Need either a Hash or Array'
-        end
-
-        section = SHB.new
-        @sections << section
-        itf = IDB.new(endian: section.endian)
-        classify_block section, itf
+        section = create_new_shb_section
+        ts_resol = section.interfaces.last.ts_resol
 
         ts_add_val = 0 # value to add to ts in Array case
         ary.each do |pkt|
-          case pkt
-          when Hash
-            this_ts = pkt.keys.first.to_i
-            this_cap_len = pkt.values.first.to_s.size
-            this_data = pkt.values.first.to_s
-          else
-            this_ts = (ts + ts_add_val).to_i
-            this_cap_len = pkt.to_s.size
-            this_data = pkt.to_s
-            ts_add_val += ts_inc
-          end
-          this_ts = (this_ts / itf.ts_resol).to_i
-          this_tsh = this_ts >> 32
-          this_tsl = this_ts & 0xffffffff
-          this_pkt = EPB.new(endian: section.endian,
-                             interface_id: 0,
-                             tsh: this_tsh,
-                             tsl: this_tsl,
-                             cap_len: this_cap_len,
-                             orig_len: this_cap_len,
-                             data: this_data)
-          classify_block section, this_pkt
+          classify_block(section, epb_from_pkt(pkt, section.endian, ts, ts_resol, ts_add_val))
+          ts_add_val += ts_inc
         end
 
         if filename
@@ -287,53 +256,51 @@ module PacketGen
       private
 
       # Parse a section. A section is made of at least a SHB. It than may contain
-      # others blocks, such as  IDB, SPB or EPB.
+      # others blocks, such as IDB, SPB or EPB.
       # @param [IO] io
       # @return [void]
       def parse_section(io)
         shb = SHB.new
-        type = Types::Int32.new(0, shb.endian).read(io.read(4))
-        io.seek(-4, IO::SEEK_CUR)
-        shb = parse(type, io, shb)
+        shb = parse_shb(shb, io)
         raise InvalidFileError, 'no Section header found' unless shb.is_a?(SHB)
 
-        if shb.section_len.to_i != 0xffffffffffffffff
-          # Section length is defined
-          section = StringIO.new(io.read(shb.section_len.to_i))
-          until section.eof?
-            shb = @sections.last
-            type = Types::Int32.new(0, shb.endian).read(section.read(4))
-            section.seek(-4, IO::SEEK_CUR)
-            parse(type, section, shb)
-          end
-        else
-          # section length is undefined
-          until io.eof?
-            shb = @sections.last
-            type = Types::Int32.new(0, shb.endian).read(io.read(4))
-            io.seek(-4, IO::SEEK_CUR)
-            parse(type, io, shb)
-          end
+        to_parse = if shb.section_len.to_i != 0xffffffffffffffff
+                     # Section length is defined
+                     StringIO.new(io.read(shb.section_len.to_i))
+                   else
+                     # section length is undefined
+                     io
+                   end
+
+        until to_parse.eof?
+          shb = @sections.last
+          parse_shb shb, to_parse
         end
+      end
+
+      # Parse a SHB
+      # @param [SHB] shb SHB to parse
+      # @param [IO] io stream from which parse SHB
+      # @return [SHB]
+      def parse_shb(shb, io)
+        type = Types::Int32.new(0, shb.endian).read(io.read(4))
+        io.seek(-4, IO::SEEK_CUR)
+        parse(type, io, shb)
       end
 
       # Parse a block from its type
       # @param [Types::Int32] type
       # @param [IO] io stream from which parse block
       # @param [SHB] shb header of current section
-      # @return [void]
+      # @return [Block]
       def parse(type, io, shb)
-        types = PcapNG.constants(false).select { |c| c.to_s =~ /_TYPE/ }
-                      .map { |c| [PcapNG.const_get(c).to_i, c] }
-        types = Hash[types]
+        klass = if BLOCK_TYPES.key?(type.to_i)
+                  BLOCK_TYPES[type.to_i]
+                else
+                  UnknownBlock
+                end
 
-        if types.key?(type.to_i)
-          klass = PcapNG.const_get(types[type.to_i].to_s.gsub(/_TYPE/, '').to_sym)
-          block = klass.new(endian: shb.endian)
-        else
-          block = UnknownBlock.new(endian: shb.endian)
-        end
-
+        block = klass.new(endian: shb.endian)
         classify_block shb, block
         block.read(io)
       end
@@ -359,6 +326,79 @@ module PacketGen
           shb.unknown_blocks << block
           block.section = shb
         end
+      end
+
+      def array_to_file_options(options)
+        case options
+        when Hash
+          array_to_file_options_from_hash(options)
+        when Array
+          [nil, options, Time.now, 1, false]
+        else
+          raise ArgumentError, 'unknown argument. Need either a Hash or Array'
+        end
+      end
+
+      # Extract and check options for #array_to_file
+      def array_to_file_options_from_hash(options)
+        Deprecation.deprecated_option(self.class, :array_to_file, :filename) if options[:filename]
+        Deprecation.deprecated_option(self.class, :array_to_file, :arr) if options[:arr]
+        Deprecation.deprecated_option(self.class, :array_to_file, :ts) if options[:ts]
+
+        filename = options[:filename] || options[:file]
+        ary = options[:array] || options[:arr]
+        raise ArgumentError, ':array parameter needs to be an array' unless ary.is_a? Array
+
+        ts = options[:timestamp] || options[:ts] || Time.now
+        ts_inc = options[:ts_inc] || 1
+        append = !options[:append].nil?
+
+        [filename, ary, ts, ts_inc, append]
+      end
+
+      def create_new_shb_section
+        section = SHB.new
+        @sections << section
+        itf = IDB.new(endian: section.endian)
+        classify_block section, itf
+
+        section
+      end
+
+      # Compute tsh and tsl from ts
+      def calc_ts(timeslot, ts_resol)
+        this_ts = (timeslot / ts_resol).to_i
+        this_tsh = this_ts >> 32
+        this_tsl = this_ts & 0xffffffff
+
+        [this_tsh, this_tsl]
+      end
+
+      def reread(filename)
+        return if filename.nil?
+
+        clear
+        readfile filename
+      end
+
+      def epb_from_pkt(pkt, endian, ts, ts_resol, ts_add_val)
+        case pkt
+        when Hash
+          this_ts = pkt.keys.first.to_i
+          this_data = pkt.values.first.to_s
+        else
+          this_ts = (ts + ts_add_val).to_i
+          this_data = pkt.to_s
+        end
+        this_cap_len = this_data.size
+        this_tsh, this_tsl = calc_ts(this_ts, ts_resol)
+        EPB.new(endian: endian,
+                interface_id: 0,
+                tsh: this_tsh,
+                tsl: this_tsl,
+                cap_len: this_cap_len,
+                orig_len: this_cap_len,
+                data: this_data)
       end
     end
   end

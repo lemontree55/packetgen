@@ -70,6 +70,12 @@ module PacketGen
       def check_len_coherency
         raise InvalidFileError, 'Incoherency in Block length' unless self.block_len == self.block_len2
       end
+
+      def to_io(str_or_io)
+        return str_or_io if str_or_io.respond_to? :read
+
+        StringIO.new(force_binary(str_or_io.to_s))
+      end
     end
   end
 end

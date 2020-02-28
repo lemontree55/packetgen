@@ -71,11 +71,7 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        io = if str_or_io.respond_to? :read
-               str_or_io
-             else
-               StringIO.new(force_binary(str_or_io.to_s))
-             end
+        io = to_io(str_or_io)
         return self if io.eof?
 
         self[:type].read io.read(4)
@@ -105,29 +101,7 @@ module PacketGen
         if @options_decoded && !force
           @ts_resol
         else
-          packstr = endian == :little ? 'v' : 'n'
-          idx = 0
-          options = self[:options]
-
-          while idx < options.length
-            opt_code, opt_len = options[idx, 4].unpack("#{packstr}2")
-            if opt_code == OPTION_IF_TSRESOL && opt_len == 1
-              tsresol = options[idx + 4, 1].unpack('C').first
-              @ts_resol = if (tsresol & 0x80).zero?
-                            10**-tsresol
-                          else
-                            2**-(tsresol & 0x7f)
-                          end
-
-              @options_decoded = true
-              return @ts_resol
-            else
-              idx += 4 + opt_len
-            end
-          end
-
-          @options_decoded = true
-          @ts_resol = 1E-6 # default value
+          decode_ts_resol
         end
       end
 
@@ -137,6 +111,32 @@ module PacketGen
         pad_field :options
         recalc_block_len
         super << @packets.map(&:to_s).join
+      end
+
+      private
+
+      def decode_ts_resol
+        tsresol = search_for_ts_resol_opt(self[:options])
+        @options_decoded = true
+        return @ts_resol = 1E-6 if tsresol.nil?
+
+        @ts_resol = if (tsresol & 0x80).zero?
+                      10**-tsresol
+                    else
+                      2**-(tsresol & 0x7f)
+                    end
+      end
+
+      def search_for_ts_resol_opt(options)
+        packstr = endian == :little ? 'v' : 'n'
+        idx = 0
+
+        while idx < options.length
+          opt_code, opt_len = options[idx, 4].unpack("#{packstr}2")
+          return options[idx + 4, 1].unpack('C').first if opt_code == OPTION_IF_TSRESOL && opt_len == 1
+
+          idx += 4 + opt_len
+        end
       end
     end
   end

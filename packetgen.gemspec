@@ -36,4 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop-performance', '~> 1.5'
   spec.add_development_dependency 'simplecov', '~> 0.16'
   spec.add_development_dependency 'yard', '~> 0.9'
+  spec.add_development_dependency 'ruby-debug-ide', '~> 0.7'
+  spec.add_development_dependency 'debase', '~>0.2'
+  spec.add_development_dependency 'rufo', '~>0.11'
 end

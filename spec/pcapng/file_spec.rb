@@ -50,10 +50,11 @@ module PacketGen
         end
 
         it 'reads many kinds of pcapng file' do
-          [:little, :big].each do |endian|
+          %i[little big].each do |endian|
             base_dir = ::File.join(__dir__, endian == :little ? 'output_le' : 'output_be')
             PCAPNG_TEST_FILES.each do |file, sections|
-              next if file == 'difficult/test202.pcapng'  # specific spec below
+              next if file == 'difficult/test202.pcapng' # specific spec below
+
               @pcapng.clear
               @pcapng.readfile ::File.join(base_dir, file)
               expect(@pcapng.sections[0].endian).to eq(endian)
@@ -71,7 +72,7 @@ module PacketGen
 
         it 'reads a file with different sections, with different endians' do
           sections = PCAPNG_TEST_FILES['difficult/test202.pcapng']
-          [:little, :big].each do |endian|
+          %i[little big].each do |endian|
             other_endian = endian == :little ? :big : :little
             base_dir = ::File.join(__dir__, endian == :little ? 'output_le' : 'output_be')
 
@@ -102,8 +103,8 @@ module PacketGen
         end
 
         it 'raises when file cannot be read' do
-          expect { @pcapng.readfile 'inexistent_file.pcapng' }.
-            to raise_error(ArgumentError, /cannot read/)
+          expect { @pcapng.readfile 'inexistent_file.pcapng' }
+            .to raise_error(ArgumentError, /cannot read/)
         end
       end
 
@@ -158,7 +159,7 @@ module PacketGen
 
         it 'generates an array from given file, clearing object state' do
           @pcapng.readfile @file
-          ary = @pcapng.file_to_array(filename: @file_spb)
+          ary = @pcapng.file_to_array(file: @file_spb)
           expect(@pcapng.sections.size).to eq(1)
           expect(@pcapng.sections[0].interfaces[0].packets[0]).to be_a(SPB)
 
@@ -200,7 +201,7 @@ module PacketGen
           @pcapng.readfile @file
           @pcapng.to_file @write_file.path
 
-          @pcapng.to_file @write_file.path, :append => true
+          @pcapng.to_file @write_file.path, append: true
 
           @pcapng.clear
           @pcapng.readfile @write_file.path
@@ -213,7 +214,7 @@ module PacketGen
         before(:each) { @write_file = Tempfile.new('pcapng') }
         after(:each) { @write_file.close; @write_file.unlink }
 
-        it "appends a section to an existing file" do
+        it 'appends a section to an existing file' do
           @pcapng.readfile @file
           @pcapng.to_file @write_file.path
 
@@ -251,7 +252,7 @@ module PacketGen
           packets = @pcapng.read_packets(@file)[0..1]
 
           @pcapng.clear
-          @pcapng.array_to_file(:array => packets)
+          @pcapng.array_to_file(array: packets)
           @pcapng.write @tmpfilename
 
           @pcapng.clear
@@ -263,45 +264,45 @@ module PacketGen
           packets = @pcapng.read_packets(@file)[0..1]
 
           @pcapng.clear
-          @pcapng.array_to_file(:array => packets,
-                                :timestamp => Time.utc(2000, 1, 1),
-                                :ts_inc => 3600*24)
+          @pcapng.array_to_file(array: packets,
+                                timestamp: Time.utc(2000, 1, 1),
+                                ts_inc: 3600 * 24)
           @pcapng.write @tmpfilename
 
           @pcapng.clear
           @pcapng.readfile(@tmpfilename)
           @pcapng.sections[0].interfaces[0].packets.each_with_index do |pkt, i|
             expect(pkt.data).to eq(packets[i].to_s)
-            expect(pkt.timestamp).to eq(Time.utc(2000, 1, 1+i))
+            expect(pkt.timestamp).to eq(Time.utc(2000, 1, 1 + i))
           end
         end
 
         it 'gets a hash containing couples of Time and Packet objects' do
           packets = @pcapng.read_packets(@file)[0..3]
           timestamp = Time.utc(2000, 1, 1)
-          ts_inc = 3600*24 * 2
+          ts_inc = 3600 * 24 * 2
           array = []
           packets.each_with_index do |pkt, i|
             array << { (timestamp + ts_inc * i) => pkt }
           end
 
           @pcapng.clear
-          @pcapng.array_to_file(:array => array)
+          @pcapng.array_to_file(array: array)
           @pcapng.write @tmpfilename
 
           @pcapng.clear
           @pcapng.readfile(@tmpfilename)
           @pcapng.sections[0].interfaces[0].packets.each_with_index do |pkt, i|
             expect(pkt.data).to eq(packets[i].to_s)
-            expect(pkt.timestamp).to eq(Time.utc(2000, 1, 1+2*i))
+            expect(pkt.timestamp).to eq(Time.utc(2000, 1, 1 + 2 * i))
           end
         end
 
-        it 'gets a hash containing a :filename key' do
+        it 'gets a hash containing a :file key' do
           packets = @pcapng.read_packets(@file)[0..2]
 
           @pcapng.clear
-          @pcapng.array_to_file(:array => packets, :filename => @tmpfilename)
+          @pcapng.array_to_file(array: packets, file: @tmpfilename)
 
           @pcapng.clear
           packets2 = @pcapng.read_packets(@tmpfilename)
@@ -310,14 +311,14 @@ module PacketGen
 
         it 'raises when :array argument is not an Array' do
           packets = @pcapng.read_packets(@file)[0..2]
-          expect { @pcapng.array_to_file array: packets.map(&:to_s).join }.
-            to raise_error(ArgumentError, /needs to be an array/)
+          expect { @pcapng.array_to_file array: packets.map(&:to_s).join }
+            .to raise_error(ArgumentError, /needs to be an array/)
         end
 
         it 'raises when argument is nor an Array neither a Hash' do
           packets = @pcapng.read_packets(@file)[0..2]
-          expect { @pcapng.array_to_file packets.map(&:to_s).join }.
-            to raise_error(ArgumentError, /Need either/)
+          expect { @pcapng.array_to_file packets.map(&:to_s).join }
+            .to raise_error(ArgumentError, /Need either/)
         end
       end
 

@@ -89,39 +89,20 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        io = if str_or_io.respond_to? :read
-               str_or_io
-             else
-               StringIO.new(force_binary(str_or_io.to_s))
-             end
+        io = to_io(str_or_io)
         return self if io.eof?
 
-        type_str = io.read(4)
-        unless type_str == PcapNG::SHB_TYPE.to_s
-          type = type_str.unpack('H*').join
-          raise InvalidFileError, "Incorrect type (#{type})for Section Header Block"
-        end
-
+        type_str = check_shb(io)
         block_len_str = io.read(4)
-
         magic_str = io.read(4)
-        case @endian
-        when :little
-          case magic_str
-          when MAGIC_LITTLE
-          when MAGIC_BIG
-            force_endianness :big
-          else
-            raise InvalidFileError, 'Incorrect magic for Section Header Block'
-          end
-        when :big
-          case magic_str
-          when MAGIC_BIG
-          when MAGIC_LITTLE
-            force_endianness :little
-          else
-            raise InvalidFileError, 'Incorrect magic for Section Header Block'
-          end
+
+        case magic_str
+        when MAGIC_LITTLE
+          force_endianness :little if @endian == :big
+        when MAGIC_BIG
+          force_endianness :big if @endian == :little
+        else
+          raise InvalidFileError, 'Incorrect magic for Section Header Block'
         end
 
         self[:type].read type_str
@@ -167,6 +148,17 @@ module PacketGen
         self[:ver_minor] = Types::Int16.new(self[:ver_minor].to_i, endian)
         self[:section_len] = Types::Int64.new(self[:section_len].to_i, endian)
         self[:block_len2] = Types::Int32.new(self[:block_len2].to_i, endian)
+      end
+
+      # Check io contains a SHB
+      # @param [IO] io
+      # @return [String] type string
+      def check_shb(io)
+        type_str = io.read(4)
+        return type_str if type_str == PcapNG::SHB_TYPE.to_s
+
+        type = type_str.unpack('H*').join
+        raise InvalidFileError, "Incorrect type (#{type})for Section Header Block"
       end
     end
   end

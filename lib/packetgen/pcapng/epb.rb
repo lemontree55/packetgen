@@ -82,11 +82,7 @@ module PacketGen
       # @param [::String,IO] str_or_io
       # @return [self]
       def read(str_or_io)
-        io = if str_or_io.respond_to? :read
-               str_or_io
-             else
-               StringIO.new(force_binary(str_or_io.to_s))
-             end
+        io = to_io(str_or_io)
         return self if io.eof?
 
         self[:type].read io.read(4)

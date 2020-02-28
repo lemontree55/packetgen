@@ -10,6 +10,14 @@ module PacketGen
     # @since 3.1.0
     REMOVE_VERSION = '4.0.0'
 
+    # @private
+    # @param [String] remove_version
+    # @return [String]
+    # @since 3.1.4
+    def self.removed(remove_version)
+      "It will be removed in PacketGen #{remove_version}"
+    end
+
     # Warn when using a deprecated method
     # @param [Module] klass class/module of deprecated method
     # @param [Symbol,String] deprecated_method
@@ -19,15 +27,14 @@ module PacketGen
     # @param [String] remove_version version from which +deprecated_method+ will
     #                 no more exist.
     def self.deprecated(klass, deprecated_method, new_method=nil, klass_method: false, remove_version: REMOVE_VERSION)
-      separator = klass_method ? '.' : '#'
-      base_name = klass.to_s + separator
-      complete_deprecated_method_name = base_name + deprecated_method.to_s
-      complete_new_method_name = base_name + new_method.to_s unless new_method.nil?
+      base_name = "#{klass}#{klass_method ? '.' : '#'}"
+      complete_deprecated_method_name = "#{base_name}#{deprecated_method}"
+      complete_new_method_name = "#{base_name}#{new_method}" unless new_method.nil?
 
       file, line = caller(2..2).split(':')[0, 2]
       message = +"#{file}:#{line}: #{complete_deprecated_method_name} is deprecated"
       message << " in favor of #{complete_new_method_name}" unless new_method.nil?
-      message << ". It will be remove in PacketGen #{remove_version}."
+      message << '. ' << self.removed(remove_version)
       warn message
     end
 
@@ -41,7 +48,24 @@ module PacketGen
       file, line = caller(2..2).first.split(':')[0, 2]
       message = +"#{file}:#{line}: #{klass} is deprecated"
       message << " in favor of #{new_klass}" unless new_klass.nil?
-      message << ". It will be remove in PacketGen #{remove_version}."
+      message << '. ' << self.removed(remove_version)
+      warn message
+    end
+
+    # Warn when using a deprecated method's option
+    # @param [Module] klass deprecated class/module
+    # @param [Module] method method name
+    # @param [Symbol] option option name
+    # @param [Boolean] klass_method +deprecated_method+ is a class method (+true+)
+    #                  or a, instance one (+false+)
+    # @param [String] remove_version version from which +klass+ will
+    #                 no more exist.
+    # @since 3.1.4
+    def self.deprecated_option(klass, method, option, klass_method: false, remove_version: REMOVE_VERSION)
+      base_name = "#{klass}#{klass_method ? '.' : '#'}"
+      method_name = "#{base_name}#{method}"
+      message = +"option #{option} is deprecated for method #{method_name}. "
+      message << self.removed(remove_version)
       warn message
     end
   end
