@@ -1,9 +1,7 @@
 # coding: utf-8
 # frozen_string_literal: true
 
-lib = File.expand_path('lib', __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'packetgen/version'
+require_relative 'lib/packetgen/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'packetgen'
@@ -13,30 +11,37 @@ Gem::Specification.new do |spec|
   spec.email         = ['sylvain.daubert@laposte.net']
 
   spec.summary       = 'Network packet generator and dissector'
-  # spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.description   = <<~DESC
+  PacketGen is a network packet manipulation library. It allows reading, parsing
+  and sending network packets with fun.
+  DESC
   spec.homepage      = 'https://github.com/sdaubert/packetgen'
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features)/})
-  end
+  spec.metadata = {
+    'bug_tracker_uri' => 'https://github.com/sdaubert/packetgen/issues',
+    'documentation_uri' => 'https://www.rubydoc.info/gems/packetgen',
+    'source_code_uri' => spec.homepage
+  }
+
+  spec.files = Dir['lib/**/*']
   spec.bindir        = 'bin'
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.require_paths = ['lib']
+  spec.executables   = %w[pgconsole]
+
+  spec.extra_rdoc_files = Dir['README.md', 'LICENSE']
+  spec.rdoc_options += [
+    '--title', 'PacketGen - network packet dissector',
+    '--main', 'README.md',
+    '--inline-source',
+    '--quiet'
+  ]
 
   spec.required_ruby_version = '>= 2.3.0'
 
   spec.add_dependency 'interfacez', '~>1.0'
   spec.add_dependency 'pcaprub', '~>0.12.4'
-  spec.add_dependency 'rasn1', '~>0.5', '>= 0.6.6'
+  spec.add_dependency 'rasn1', '~>0.7', '>= 0.7.1'
 
-  spec.add_development_dependency 'bundler', '>=1.17', '<3'
   spec.add_development_dependency 'rake', '~> 12.3'
   spec.add_development_dependency 'rspec', '~> 3.7'
-  spec.add_development_dependency 'rubocop', '~> 0.79'
-  spec.add_development_dependency 'rubocop-performance', '~> 1.5'
-  spec.add_development_dependency 'simplecov', '~> 0.16'
   spec.add_development_dependency 'yard', '~> 0.9'
-  spec.add_development_dependency 'ruby-debug-ide', '~> 0.7'
-  spec.add_development_dependency 'debase', '~>0.2'
-  spec.add_development_dependency 'rufo', '~>0.11'
 end
