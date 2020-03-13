@@ -10,7 +10,7 @@ module PacketGen
   module Types
     # This class is an abstract class to define type-length-value data.
     #
-    # This class supersede {TLV} class, which is not well defined on some corner
+    # This class supersedes {TLV} class, which is not well defined on some corner
     # cases.
     #
     # ===Usage
@@ -33,7 +33,7 @@ module PacketGen
     #   tlv.value       #=> "abcd"
     #
     # ===Advanced usage
-    # Each field's type may be change at generating TLV class:
+    # Each field's type may be changed at generating TLV class:
     #   MyTLV = PacketGen::Types::AbstractTLV.create(type_class: PacketGen::Types::Int16,
     #                                                length_class: PacketGen::Types::Int16,
     #                                                value_class: PacketGen::Header::IP::Addr)
@@ -61,6 +61,7 @@ module PacketGen
       class <<self
         # @return [Hash]
         attr_accessor :aliases
+        attr_accessor :header_in_length
       end
       self.aliases = {}
 
@@ -68,12 +69,17 @@ module PacketGen
       # @param [Class] type_class Class to use for +type+
       # @param [Class] length_class Class to use for +length+
       # @param [Class] value_class Class to use for +value+
+      # @param [Boolean] header_in_length if +true +, +type+ and +length+ fields are
+      #   included in length
       # @return [Class]
-      def self.create(type_class: Int8Enum, length_class: Int8, value_class: String, aliases: {})
+      # @since 3.1.4 Add +header_in_length+ parameter
+      def self.create(type_class: Int8Enum, length_class: Int8, value_class: String,
+                      aliases: {}, header_in_length: false)
         raise Error, '.create cannot be called on a subclass of PacketGen::Types::AbstractTLV' unless self.equal? AbstractTLV
 
         klass = Class.new(self)
         klass.aliases = aliases
+        klass.header_in_length = header_in_length
 
         if type_class < Enum
           klass.define_field :type, type_class, enum: {}
@@ -117,6 +123,7 @@ module PacketGen
       # @option options [Integer] :length
       # @option options [Object] :value
       def initialize(options={})
+        @header_in_length = self.class.header_in_length
         self.class.aliases.each do |al, orig|
           options[orig] = options[al] if options.key?(al)
         end
@@ -136,7 +143,7 @@ module PacketGen
         idx += self[:type].sz
         self[:length].read str[idx, self[:length].sz]
         idx += self[:length].sz
-        self[:value].read str[idx, self.length]
+        self[:value].read str[idx, real_length]
         self
       end
 
@@ -147,6 +154,7 @@ module PacketGen
       def value=(val)
         self[:value].from_human val
         self.length = self[:value].sz
+        self.length += self[:type].sz + self[:length].sz if @header_in_length
         val
       end
 
@@ -162,6 +170,16 @@ module PacketGen
       def to_human
         my_value = self[:value].is_a?(String) ? self[:value].inspect : self[:value].to_human
         "type:%s,length:%u,value:#{my_value}" % [human_type, length]
+      end
+
+      private
+
+      def real_length
+        if @header_in_length
+          self.length - self[:type].sz - self[:length].sz
+        else
+          self.length
+        end
       end
     end
   end
