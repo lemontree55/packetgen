@@ -85,6 +85,11 @@ module PacketGen
         def mcast?
           self.a1 & 0xff00 == 0xff00
         end
+
+        def ==(other)
+          other.is_a?(self.class) &&
+            fields.all? { |attr| self[attr].value == other[attr].value }
+        end
       end
 
       # Class to handle series of IPv6 addresses

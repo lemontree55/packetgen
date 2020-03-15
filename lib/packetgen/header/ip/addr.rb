@@ -60,6 +60,11 @@ module PacketGen
         def mcast?
           self.a1 >= 224 && self.a1 <= 239
         end
+
+        def ==(other)
+          other.is_a?(self.class) &&
+            fields.all? { |attr| self[attr].value == other[attr].value }
+        end
       end
     end
   end

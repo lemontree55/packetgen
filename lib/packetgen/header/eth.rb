@@ -75,6 +75,11 @@ module PacketGen
         def to_human
           fields.map { |m| '%02x' % self[m] }.join(':')
         end
+
+        def ==(other)
+          other.is_a?(self.class) &&
+            fields.all? { |attr| self[attr].value == other[attr].value }
+        end
       end
 
       # @!attribute dst
