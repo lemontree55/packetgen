@@ -37,6 +37,25 @@ module PacketGen
       "%-16s (0x%0#{hexsize}x)" % [value.to_i, value.to_i]
     end
 
+    # @param [String] str
+    # @param [Integer] int
+    # @param [Integer] hexsize
+    # @return [String]
+    def self.enum_human_hex(str, int, hexsize)
+      "%-16s (0x%0#{hexsize}x)" % [str, int]
+    end
+
+    # Simple formatter to inspect an attribute
+    # @param [String] type attribute type
+    # @param [String] attr attribute name
+    # @param [String] value
+    # @param [Integer] level
+    # @return [String]
+    def self.format(type, attr, value, level=1)
+      str = Inspect.shift_level(level)
+      str << Inspect::FMT_ATTR % [type, attr, value]
+    end
+
     # Format an attribute for +#inspect+.
     # 3 cases are handled:
     # * attribute value is a {Types::Int}: show value as integer and in
@@ -48,10 +67,10 @@ module PacketGen
     # @param [Integer] level
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
-      str = shift_level(level)
+      type = value.class.to_s.sub(/.*::/, '')
       val = case value
             when Types::Enum
-              "%-16s (0x%0#{value.sz * 2}x)" % [value.to_human, value.to_i]
+              enum_human_hex(value.to_human, value.to_i, value.sz * 2)
             when Types::Int
               int_dec_hex(value, value.sz * 2)
             when Integer
@@ -65,7 +84,7 @@ module PacketGen
                 value.to_s.inspect
               end
             end
-      str << FMT_ATTR % [value.class.to_s.sub(/.*::/, ''), attr, val]
+      self.format(type, attr, val, level)
     end
 
     # Format a ASN.1 attribute for +#inspect+.
