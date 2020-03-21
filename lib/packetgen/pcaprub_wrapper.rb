@@ -34,12 +34,23 @@ module PacketGen
     # @param [Boolean] promisc
     # @param [String] filter BPF filter
     # @yieldparam [String] packet_data binary packet data
+    # @return [void]
     def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil)
       pcap = self.open_iface(iface: iface, snaplen: snaplen, promisc: promisc)
       pcap.setfilter filter unless filter.nil?
       pcap.each do |packet_data|
         yield packet_data
       end
+    end
+
+    # Inject given data onto wire
+    # @param [String] iface interface name
+    # @param [String] data to inject
+    # @return [void]
+    def self.inject(iface:, data:)
+      pcap = self.open_iface(iface: iface)
+      pcap.inject(data)
+      pcap.close
     end
   end
 end

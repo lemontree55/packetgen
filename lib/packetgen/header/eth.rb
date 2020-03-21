@@ -99,9 +99,7 @@ module PacketGen
       # @param [String] iface interface name
       # @return [void]
       def to_w(iface)
-        pcap = PCAPRUB::Pcap.open_live(iface, PCAP_SNAPLEN, PCAP_PROMISC, PCAP_TIMEOUT)
-        pcap.inject self.to_s
-        pcap.close
+        Inject.inject(iface: iface, data: self)
       end
 
       # Invert destination and source addresses

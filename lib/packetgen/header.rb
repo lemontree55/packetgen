@@ -30,13 +30,6 @@ module PacketGen
   #  pkt.myheader.field2.read 0x01
   # @author Sylvain Daubert
   module Header
-    # @private snap length for PCAPRUB
-    PCAP_SNAPLEN = 0xffff
-    # @private promiscuous (or not) for PCAPRUB
-    PCAP_PROMISC = false
-    # @private timeout for PCAPRUB
-    PCAP_TIMEOUT = 1
-
     @added_header_classes = {}
 
     class << self
