@@ -4,18 +4,16 @@
 # See https://github.com/sdaubert/packetgen for more informations
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
+require_relative 'pcaprub_wrapper'
 
 module PacketGen
   # Capture packets from wire
   # @author Sylvain Daubert
   # @author Kent 'picat' Gruber
   class Capture
-    # Default snaplen to use if :snaplen option not defined.
-    DEFAULT_SNAPLEN = 0xffff
-
     private
 
-    attr_reader :filter, :cap_thread
+    attr_reader :filter, :cap_thread, :snaplen, :promisc
 
     public
 
@@ -44,8 +42,8 @@ module PacketGen
     # @param [Integer] snaplen maximum number of bytes to capture for
     #    each packet.
     # @since 2.0.0 remove old 1.x API
-    # @since 3.0.0 arguments are kwargs and nor more a hash
-    def initialize(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: DEFAULT_SNAPLEN)
+    # @since 3.0.0 arguments are kwargs and no more a hash
+    def initialize(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil)
       @iface = iface || Interfacez.default || Interfacez.loopback
 
       @packets     = []
@@ -57,23 +55,13 @@ module PacketGen
     # @see {#initialize} for parameters
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
-    # @since 3.0.0 arguments are kwargs and nor more a hash
-    def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: DEFAULT_SNAPLEN)
+    # @since 3.0.0 arguments are kwargs and no more a hash
+    def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, &block)
       set_options iface, max, timeout, filter, promisc, parse, snaplen
 
-      pcap = PCAPRUB::Pcap.open_live(self.iface, @snaplen, @promisc, 1)
-      set_filter_on pcap
-
       @cap_thread = Thread.new do
-        pcap.each do |packet_data|
-          raw_packets << packet_data
-          if @parse
-            packet = Packet.parse(packet_data)
-            packets << packet
-            yield packet if block_given?
-          elsif block_given?
-            yield packet_data
-          end
+        PCAPRUBWrapper.capture(**capture_args) do |packet_data|
+          add_packet(packet_data, &block)
           break if defined?(@max) && (raw_packets.size >= @max)
         end
       end
@@ -101,10 +89,28 @@ module PacketGen
       @iface = iface unless iface.nil?
     end
 
-    def set_filter_on(pcap)
+    def capture_args
+      h = { iface: iface, filter: filter }
+      h[:snaplen] = snaplen unless snaplen.nil?
+      h[:promisc] = promisc unless promisc.nil?
+      h
+    end
+
+    def filter_on(pcap)
       return if filter.nil? || filter.empty?
 
-      pcap.setfilter filter
+      PCAPRUBWrapper.filter_on(pcap: pcap, filter: filter)
+    end
+
+    def add_packet(data, &block)
+      raw_packets << data
+      if @parse
+        packet = Packet.parse(data)
+        packets << packet
+        block&.call(packet)
+      elsif block
+        yield data
+      end
     end
   end
 end

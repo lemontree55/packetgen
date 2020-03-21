@@ -6,8 +6,6 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
-require 'pcaprub'
-
 module PacketGen
   # An object of type {Packet} handles a network packet. This packet may contain
   # multiple protocol headers, starting from MAC layer or from Network (OSI) layer.

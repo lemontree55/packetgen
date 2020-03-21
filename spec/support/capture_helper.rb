@@ -1,6 +1,5 @@
 module CaptureHelper
-
-  SYS_ENV = { 'LC_ALL' => 'C' }
+  SYS_ENV = { 'LC_ALL' => 'C' }.freeze
 
   def ping(addr, options={})
     opts = []
