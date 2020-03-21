@@ -104,11 +104,11 @@ module PacketGen
     end
 
     describe '.read' do
-      let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
+      let(:pcapng_file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
       let(:pcap_file) { ::File.join(__dir__, 'sample.pcap') }
 
       it 'reads a PcapNG file and returns a Array of Packet' do
-        ary = Packet.read(file)
+        ary = Packet.read(pcapng_file)
         expect(ary).to be_a(Array)
         expect(ary.all? { |el| el.is_a? Packet }).to be(true)
       end

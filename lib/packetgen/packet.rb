@@ -87,26 +87,21 @@ module PacketGen
       capture.packets
     end
 
-    # Read packets from +filename+. Mays read Pcap and Pcap-NG formats.
+    # Read packets from +filename+. May read Pcap and Pcap-NG formats.
     #
-    # For more control, see {PcapNG::File} or +PCAPRUB::Pcap+.
+    # For more control (on Pcap-ng only), see {PcapNG::File}.
     # @param [String] filename PcapNG or Pcap file.
     # @return [Array<Packet>]
+    # @raise [ArgumentError] unknown file format
     # @author Sylvain Daubert
     # @author Kent Gruber - Pcap format
     # @since 2.0.0 Also read Pcap format.
     def self.read(filename)
-      PcapNG::File.new.read_packets filename
+      PcapNG::File.new.read_packets(filename)
     rescue StandardError => e
       raise ArgumentError, e unless File.extname(filename.downcase) == '.pcap'
 
-      packets = []
-      PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
-        next unless (packet = PacketGen.parse(packet.to_s))
-
-        packets << packet
-      end
-      packets
+      Pcap.read(filename)
     end
 
     # Write packets to +filename+

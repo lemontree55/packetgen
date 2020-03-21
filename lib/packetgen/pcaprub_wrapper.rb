@@ -52,5 +52,16 @@ module PacketGen
       pcap.inject(data)
       pcap.close
     end
+
+    # Read a PCAP file
+    # @param [String] filename
+    # @yieldparam [String] data binary packet data
+    # @return [void]
+    # @author Kent Gruber
+    def self.read_pcap(filename:)
+      PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
+        yield packet
+      end
+    end
   end
 end
