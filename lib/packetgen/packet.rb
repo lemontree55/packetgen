@@ -263,12 +263,9 @@ module PacketGen
     # @since 1.1.0
     def decapsulate(*hdrs)
       hdrs.each do |hdr|
-        idx = headers.index(hdr)
-        raise FormatError, 'header not in packet!' if idx.nil?
-
-        prev_hdr = idx.positive? ? headers[idx - 1] : nil
-        next_hdr = (idx + 1) < headers.size ? headers[idx + 1] : nil
-        headers.delete_at(idx)
+        prev_hdr = previous_header(hdr)
+        next_hdr = next_header(hdr)
+        headers.delete(hdr)
         add_header(next_hdr, previous_header: prev_hdr) if prev_hdr && next_hdr
       end
     rescue ArgumentError => e
@@ -367,6 +364,35 @@ module PacketGen
     # @return [Header::Base]
     def last_header
       headers.last
+    end
+
+    # Give header index in packet
+    # @param [Headerable] hdr
+    # @return [Integer]
+    # @raise [FormatError] +hdr+ not in packet
+    def header_index(hdr)
+      idx = headers.index(hdr)
+      raise FormatError, 'header not in packet!' if idx.nil?
+
+      idx
+    end
+
+    # Give header previous +hdr+ in packet
+    # @param [Headerable] hdr
+    # @return [Headerable,nil] May return +nil+ if +hdr+ is the first header in packet
+    # @raise [FormatError] +hdr+ not in packet
+    def previous_header(hdr)
+      idx = header_index(hdr)
+      idx.positive? ? headers[idx - 1] : nil
+    end
+
+    # Give header next +hdr+ in packet
+    # @param [Headerable] hdr
+    # @return [Headerable,nil] May return +nil+ if +hdr+ is the last header in packet
+    # @raise [FormatError] +hdr+ not in packet
+    def next_header(hdr)
+      idx = header_index(hdr)
+      (idx + 1) < headers.size ? headers[idx + 1] : nil
     end
 
     # @overload header(klass, layer=1)
