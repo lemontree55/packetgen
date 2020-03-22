@@ -24,6 +24,26 @@ module PacketGen
   # Sending packet on wire error
   class WireError < Error; end
 
+  # No known binding
+  class BindingError < Error
+    # @return [Headerable]
+    attr_reader :prev_hdr
+    # @return [Headerable]
+    attr_reader :hdr
+
+    def initialize(prev_hdr, hdr)
+      @prev_hdr = prev_hdr
+      @hdr = hdr
+    end
+
+    def message
+      "#{prev_hdr.class} knowns no layer association with #{hdr.protocol_name}. " \
+          "Try #{prev_hdr.class}.bind_layer(#{hdr.class}, " \
+          "#{prev_hdr.method_name}_proto_field: " \
+          "<value_for_#{hdr.method_name}>)"
+    end
+  end
+
   # Shortcut for {Packet.gen}
   # @param [String] protocol base protocol for packet
   # @param [Hash] options specific options for +protocol+

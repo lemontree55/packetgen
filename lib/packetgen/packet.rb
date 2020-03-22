@@ -125,7 +125,7 @@ module PacketGen
     # @param [String] protocol
     # @param [Hash] options protocol specific options
     # @return [self]
-    # @raise [ArgumentError] unknown protocol
+    # @raise [BindingError] unknown protocol
     def add(protocol, options={})
       klass = check_protocol(protocol)
 
@@ -141,7 +141,7 @@ module PacketGen
     # @param [String] protocol protocol to insert
     # @param [Hash] options protocol specific options
     # @return [self]
-    # @raise [ArgumentError] unknown protocol
+    # @raise [BindingError] unknown protocol
     def insert(prev, protocol, options={})
       klass = check_protocol(protocol)
 
@@ -248,6 +248,7 @@ module PacketGen
     #    from binding with first other's one. Use only when current header field
     #    has its value set accordingly.
     # @return [self] +self+ with new headers from +other+
+    # @raise [BindingError] do not known how to encapsulate
     # @since 1.1.0
     def encapsulate(other, parsing: false)
       other.headers.each_with_index do |h, i|
@@ -259,7 +260,7 @@ module PacketGen
     # @param [Array<Header>] hdrs
     # @return [self] +self+ with some headers removed
     # @raise [FormatError] any headers not in +self+
-    # @raise [FormatError] removed headers result in an unknown binding
+    # @raise [BindingError] removed headers result in an unknown binding
     # @since 1.1.0
     def decapsulate(*hdrs)
       hdrs.each do |hdr|
@@ -276,7 +277,8 @@ module PacketGen
     # @param [String] binary_str
     # @param [String,nil] first_header First protocol header. +nil+ means discover it!
     # @return [Packet] self
-    # @raise [ArgumentError] +first_header+ is an unknown header
+    # @raise [ParseError] +first_header+ is an unknown header
+    # @raise [BindingError] unknwon binding between some headers
     def parse(binary_str, first_header: nil)
       headers.clear
 
@@ -428,10 +430,11 @@ module PacketGen
     end
 
     # Add a header to packet
-    # @param [Header::Base] header
-    # @param [Header::Base] previous_header
+    # @param [Headerable] header
+    # @param [Headerable] previous_header
     # @param [Boolean] parsing
     # @return [void]
+    # @raise [BindingError]
     def add_header(header, previous_header: nil, parsing: false)
       prev_header = previous_header || last_header
       add_to_previous_header(prev_header, header, parsing) if prev_header
@@ -444,15 +447,15 @@ module PacketGen
       add_magic_header_method header
     end
 
+    # Bind +header+ to +prev_header+.
+    # @param [Headerable] prev_header
+    # @param [Headerable] header
+    # @param [Boolean] parsing
+    # @return [void]
+    # @raise [BindingError]
     def add_to_previous_header(prev_header, header, parsing)
       bindings = prev_header.class.known_headers[header.class] || prev_header.class.known_headers[header.class.superclass]
-      if bindings.nil?
-        msg = "#{prev_header.class} knowns no layer association with #{header.protocol_name}. " \
-          "Try #{prev_header.class}.bind_layer(#{header.class}, " \
-          "#{prev_header.method_name}_proto_field: " \
-          "value_for_#{header.method_name})"
-        raise ArgumentError, msg
-      end
+      raise BindingError.new(prev_header, header) if bindings.nil?
 
       bindings.set(prev_header) if !bindings.empty? && !parsing
       prev_header[:body] = header

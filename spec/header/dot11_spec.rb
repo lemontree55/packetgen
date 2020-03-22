@@ -259,7 +259,7 @@ module PacketGen
         it 'builds a IP packet over IEEE 802.11 (no encryption)' do
           pkt = PacketGen.gen('Dot11::Data', mac1: '00:01:02:03:04:05',
                               mac2: '06:07:08:09:0a:0b', mac3: '0c:0d:0e:0f:10:11')
-          expect { pkt.add('IP') }.to raise_error(ArgumentError, /no layer assoc/)
+          expect { pkt.add('IP') }.to raise_error(BindingError, /no layer assoc/)
 
           pkt.add('LLC').add('SNAP').add('IP', src: '192.168.0.1', dst: '192.168.0.2')
           expect(pkt.dot11.wep?).to be(false)

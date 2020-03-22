@@ -198,7 +198,7 @@ module PacketGen
       end
 
       it 'raises on unknown association' do
-        expect { @pkt.add 'Eth' }.to raise_error(ArgumentError, /IP\.bind_layer\(.*Eth/)
+        expect { @pkt.add 'Eth' }.to raise_error(BindingError, /IP\.bind_layer\(.*Eth/)
       end
     end
 
@@ -381,7 +381,14 @@ module PacketGen
         pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05')
                     .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
                     .add('ICMP', type: 8, code: 0)
-        expect { pkt.decapsulate pkt.ip }.to raise_error(FormatError)
+        expect { pkt.decapsulate pkt.ip }.to raise_error(BindingError)
+      end
+
+      it 'raises if removed header is not in packet' do
+        pkt = Packet.gen('Eth', dst: '00:00:00:00:00:01', src: '00:01:02:03:04:05')
+                    .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
+                    .add('ICMP', type: 8, code: 0)
+        expect { pkt.decapsulate Header::IPv6.new }.to raise_error(FormatError)
       end
     end
 
