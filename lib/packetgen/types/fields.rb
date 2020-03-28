@@ -172,37 +172,15 @@ module PacketGen
         #   Define enumeration: hash's keys are +String+, and values are +Integer+.
         # @return [void]
         def define_field(name, type, options={})
-          define = []
-          if type < Types::Enum
-            define << "def #{name}; self[:#{name}].to_i; end"
-            define << "def #{name}=(val) self[:#{name}].value = val; end"
-          else
-            define << "def #{name}\n" \
-                      "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
-                      "    self[:#{name}].to_human\n" \
-                      "  else\n" \
-                      "    self[:#{name}]\n" \
-                      "  end\n" \
-                      'end'
-            define << "def #{name}=(val)\n" \
-                      "  if self[:#{name}].respond_to?(:to_human) && self[:#{name}].respond_to?(:from_human)\n" \
-                      "    self[:#{name}].from_human val\n" \
-                      "  else\n" \
-                      "    self[:#{name}].read val\n" \
-                      "  end\n" \
-                      'end'
-          end
-
-          define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
-          define.delete_at(0) if instance_methods.include? name
-          class_eval define.join("\n")
+          fields << name
           field_defs[name] = FieldDef.new(type,
                                           options.delete(:default),
                                           options.delete(:builder),
                                           options.delete(:optional),
                                           options.delete(:enum),
                                           options)
-          fields << name
+
+          add_methods(name, type)
         end
 
         # Define a field, before another one
@@ -359,6 +337,27 @@ module PacketGen
             undef_method "#{field}="
             undef_method(size == 1 ? "#{field}?" : field)
           end
+        end
+
+        private
+
+        def add_methods(name, type)
+          define = []
+          if type < Types::Enum
+            define << "def #{name}; self[:#{name}].to_i; end"
+            define << "def #{name}=(val) self[:#{name}].value = val; end"
+          else
+            define << "def #{name}\n" \
+                      "  to_and_from_human?(:#{name}) ? self[:#{name}].to_human : self[:#{name}]\n" \
+                      'end'
+            define << "def #{name}=(val)\n" \
+                      "  to_and_from_human?(:#{name}) ? self[:#{name}].from_human(val) : self[:#{name}].read(val)\n" \
+                      'end'
+          end
+
+          define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
+          define.delete_at(0) if instance_methods.include? name
+          class_eval define.join("\n")
         end
       end
 
@@ -546,6 +545,12 @@ module PacketGen
       # @return [String]
       def force_binary(str)
         PacketGen.force_binary(str)
+      end
+
+      # @param [Symbol] attr attribute
+      # @return [Boolean] +tru+e if #from_human and #to_human are both defined for given attribute
+      def to_and_from_human?(attr)
+        self[attr].respond_to?(:to_human) && self[attr].respond_to?(:from_human)
       end
     end
   end
