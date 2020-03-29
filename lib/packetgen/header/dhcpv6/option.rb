@@ -230,17 +230,7 @@ module PacketGen
 
         # @!attribute options
         #   @return [RequestedOptions]
-        define_field :options, RequestedOptions
-
-        # Populate object from +str+
-        # @param [String] str
-        # @return [self]
-        def read(str)
-          self[:type].read str[0, 2]
-          self[:length].read str[2, 2]
-          self[:options].read str[4, self.length]
-          self
-        end
+        define_field :options, RequestedOptions, builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         # Get human-readable data
         # @return [String]

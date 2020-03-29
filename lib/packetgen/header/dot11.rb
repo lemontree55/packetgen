@@ -28,28 +28,13 @@ module PacketGen
       define_field :dlt, Types::Int32le
       # @!attribute ppi_fields
       #  @return [Type::String] concatenation of PPI fields
-      define_field :ppi_fields, Types::String
+      define_field :ppi_fields, Types::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 8 }) }
       # @!attribute body
       #  @return [Type::String]
       define_field :body, Types::String
       # @!attribute align
       #  @return [Boolean] align flag from {#flags} attribute
       define_bit_fields_on :flags, :reserved, 7, :align
-
-      # @param [String] str
-      # @return [PPI] self
-      def read(str)
-        return self if str.nil?
-
-        force_binary str
-        self[:version].read str[0, 1]
-        self[:flags].read str[1, 1]
-        self[:length].read str[2, 2]
-        self[:dlt].read str[4, 4]
-        self[:ppi_fields].read str[8, length - 8]
-        self[:body].read str[length, str.size]
-        self
-      end
 
       # Check version field
       # @see [Base#parse?]
@@ -91,25 +76,10 @@ module PacketGen
       define_field :present_flags, Types::Int32le
       # @!attribute radio_fields
       #  @return [Type::String] concatenation of RadioTap fields
-      define_field :radio_fields, Types::String
+      define_field :radio_fields, Types::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 8 }) }
       # @!attribute body
       #  @return [Type::String]
       define_field :body, Types::String
-
-      # @param [String] str
-      # @return [RadioTap] self
-      def read(str)
-        return self if str.nil?
-
-        force_binary str
-        self[:version].read str[0, 1]
-        self[:pad].read str[1, 1]
-        self[:length].read str[2, 2]
-        self[:present_flags].read str[4, 4]
-        self[:radio_fields].read str[8, length - 8]
-        self[:body].read str[length, str.size]
-        self
-      end
 
       # Check version field
       # @see [Base#parse?]

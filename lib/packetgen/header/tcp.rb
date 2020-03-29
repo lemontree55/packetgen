@@ -121,7 +121,7 @@ module PacketGen
       # @!attribute options
       #  TCP options
       #  @return [Options]
-      define_field :options, TCP::Options
+      define_field :options, TCP::Options, builder: ->(h, t) { t.new(length_from: -> { h.data_offset > 5 ? (h.data_offset - 5) * 4 : 0 }) }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
@@ -189,25 +189,6 @@ module PacketGen
       #  @return [Boolean] 1-bit FIN flag
       define_bit_fields_on :u16, :_, 7, :flag_ns, :flag_cwr, :flag_ece, :flag_urg,
                            :flag_ack, :flag_psh, :flag_rst, :flag_syn, :flag_fin
-      # Read a TCP header from a string
-      # @param [String] str binary string
-      # @return [self]
-      def read(str)
-        return self if str.nil?
-
-        force_binary str
-        self[:sport].read str[0, 2]
-        self[:dport].read str[2, 2]
-        self[:seqnum].read str[4, 4]
-        self[:acknum].read str[8, 4]
-        self[:u16].read str[12, 2]
-        self[:window].read str[14, 2]
-        self[:checksum].read str[16, 2]
-        self[:urg_pointer].read str[18, 2]
-        self[:options].read str[20, (self.data_offset - 5) * 4] if self.data_offset > 5
-        self[:body].read str[self.data_offset * 4..-1]
-        self
-      end
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]

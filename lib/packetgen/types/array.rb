@@ -28,6 +28,8 @@ module PacketGen
     class Array
       extend Forwardable
       include Inspectable
+      include Enumerable
+      include LengthFrom
 
       # @!method [](index)
       #   Return the element at +index+.
@@ -54,9 +56,6 @@ module PacketGen
       #   @return [Integer]
       def_delegators :@array, :[], :clear, :each, :empty?, :first, :last, :size
       alias length size
-
-      include Enumerable
-      include LengthFrom
 
       # Separator used in {#to_human}.
       # May be ovverriden by subclasses
