@@ -68,23 +68,7 @@ module PacketGen
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
       type = value.class.to_s.sub(/.*::/, '')
-      val = case value
-            when Types::Enum
-              enum_human_hex(value.to_human, value.to_i, value.sz * 2)
-            when Types::Int
-              int_dec_hex(value, value.sz * 2)
-            when Integer
-              int_dec_hex(value, value.sz * 2)
-            when String
-              value.to_s.inspect
-            else
-              if value.respond_to? :to_human
-                value.to_human
-              else
-                value.to_s.inspect
-              end
-            end
-      self.format(type, attr, val, level)
+      self.format(type, attr, value.format_inspect, level)
     end
 
     # Format a ASN.1 attribute for +#inspect+.

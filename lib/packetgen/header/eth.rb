@@ -33,6 +33,8 @@ module PacketGen
       # Ethernet MAC address, as a group of 6 bytes
       # @author Sylvain Daubert
       class MacAddr < Types::Fields
+        include Inspectable
+
         # @!attribute a0
         #  @return [Integer] first byte from MacAddr
         define_field :a0, Types::Int8
@@ -75,6 +77,7 @@ module PacketGen
         def to_human
           fields.map { |m| '%02x' % self[m] }.join(':')
         end
+        alias format_inspect to_human
 
         def ==(other)
           other.is_a?(self.class) &&

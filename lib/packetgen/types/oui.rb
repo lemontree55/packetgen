@@ -14,6 +14,8 @@ module PacketGen
     #  oui.to_human   # => "00:01:02"
     # @author Sylvain Daubert
     class OUI < Types::Fields
+      include Inspectable
+
       # @attribute b2
       #  @return [Integer] left-most byte
       define_field :b2, Types::Int8
@@ -44,6 +46,7 @@ module PacketGen
       def to_human
         fields.map { |m| '%02x' % self[m] }.join(':')
       end
+      alias format_inspect to_human
     end
   end
 end

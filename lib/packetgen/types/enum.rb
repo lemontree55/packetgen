@@ -71,6 +71,10 @@ module PacketGen
       def to_human
         @enum.key(to_i) || "<unknown:#{@value}>"
       end
+
+      def format_inspect
+        format_str % [to_human, to_i]
+      end
     end
 
     # Enumeration on one byte. See {Enum}.

@@ -14,6 +14,7 @@ module PacketGen
     # @author Sylvain Daubert
     class String < ::String
       include LengthFrom
+      include Inspectable
 
       # @return [Integer]
       attr_reader :static_length

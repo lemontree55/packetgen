@@ -12,6 +12,8 @@ module PacketGen
     # By default, a null string will have one byte length (length byte set to 0).
     # @author Sylvain Daubert
     class IntString
+      include Inspectable
+
       # internal string
       # @return [String]
       attr_reader :string
@@ -76,6 +78,7 @@ module PacketGen
       def to_human
         @string
       end
+      alias format_inspect to_human
 
       # Set length from internal string length
       # @return [Integer]

@@ -120,8 +120,9 @@ module PacketGen
 end
 
 require 'packetgen/deprecation'
-require 'packetgen/types'
 require 'packetgen/inspect'
+require 'packetgen/inspectable'
+require 'packetgen/types'
 require 'packetgen/pcapng'
 require 'packetgen/pcap'
 require 'packetgen/packet'

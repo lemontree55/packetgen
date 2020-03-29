@@ -12,6 +12,8 @@ module PacketGen
     # @abstract
     # @author Sylvain Daubert
     class Int
+      include Inspectable
+
       # Integer value
       # @return [Integer]
       attr_accessor :value
@@ -79,6 +81,18 @@ module PacketGen
       # @return [Integer]
       def sz
         width
+      end
+
+      # Format Int type when inspecting header or packet
+      # @return [String]
+      def format_inspect
+        format_str % [to_i.to_s, to_i]
+      end
+
+      private
+
+      def format_str
+        "%-16s (0x%0#{width * 2}x)"
       end
     end
 

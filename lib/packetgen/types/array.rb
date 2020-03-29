@@ -27,6 +27,7 @@ module PacketGen
     # @author Sylvain Daubert
     class Array
       extend Forwardable
+      include Inspectable
 
       # @!method [](index)
       #   Return the element at +index+.
@@ -198,6 +199,7 @@ module PacketGen
       def to_human
         @array.map(&:to_human).join(self.class::HUMAN_SEPARATOR)
       end
+      alias format_inspect to_human
 
       private
 

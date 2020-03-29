@@ -58,6 +58,8 @@ module PacketGen
     # @since 3.1.0
     # @since 3.1.1 add +:aliases+ keyword to {#initialize}
     class AbstractTLV < Types::Fields
+      include Inspectable
+
       class <<self
         # @return [Hash]
         attr_accessor :aliases
@@ -171,6 +173,7 @@ module PacketGen
         my_value = self[:value].is_a?(String) ? self[:value].inspect : self[:value].to_human
         "type:%s,length:%u,value:#{my_value}" % [human_type, length]
       end
+      alias format_inspect to_human
 
       private
 

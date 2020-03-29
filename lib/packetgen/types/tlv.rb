@@ -31,6 +31,8 @@ module PacketGen
     # @deprecated Use {AbstractTLV} instead.
     # @since 3.1.0 deprecated
     class TLV < Fields
+      include Inspectable
+
       # @!attribute type
       #  @return [Integer]
       define_field :type, Int8
@@ -139,6 +141,7 @@ module PacketGen
         "#{name} type:#{@typestr} length:#{@lenstr} value:#{value.inspect}" % [human_type,
                                                                                length]
       end
+      alias format_inspect to_human
 
       private
 

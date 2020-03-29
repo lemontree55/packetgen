@@ -6,6 +6,7 @@
 * Refactor Config to isolate use of Interfacez in a dedicated method.
 * Add Types::fields.bit_fields to get bit field definitions for given class.
 * Work on Types::Fields: refactor .define_field, .define_bit_fields_on and #initialize.
+* Add Inspectable module to share methods to format types when inspecting headers.
 
 ## Packetgen 3.1.4
 
