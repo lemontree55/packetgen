@@ -119,6 +119,10 @@ module PacketGen
         # @return [Hash]
         # @since 3.1.0
         attr_reader :field_defs
+        # Get bit fields defintions for this class
+        # @return [Hash]
+        # @since 3.1.5
+        attr_reader :bit_fields
 
         # On inheritage, create +@field_defs+ class variable
         # @param [Class] klass
@@ -129,7 +133,7 @@ module PacketGen
             field_defs[k] = v.clone
           end
           ordered = @ordered_fields.clone
-          bf = @bit_fields.clone
+          bf = bit_fields.clone
 
           klass.class_eval do
             @ordered_fields = ordered
@@ -330,7 +334,7 @@ module PacketGen
         # @return [void]
         # @since 2.8.4
         def remove_bit_fields_on(attr)
-          fields = @bit_fields.delete(attr)
+          fields = bit_fields.delete(attr)
           return if fields.nil?
 
           fields.each do |field, size|
@@ -374,7 +378,7 @@ module PacketGen
           initialize_optional field
         end
 
-        self.class.class_eval { @bit_fields }.each do |_, hsh|
+        self.class.bit_fields.each do |_, hsh|
           hsh.each_key do |bit_field|
             self.send "#{bit_field}=", options[bit_field] if options[bit_field]
           end
@@ -504,7 +508,7 @@ module PacketGen
       # @return [Hash,nil] keys: bit fields, values: their size in bits
       # @since 2.8.3
       def bits_on(field)
-        self.class.class_eval { @bit_fields }[field]
+        self.class.bit_fields[field]
       end
 
       private
