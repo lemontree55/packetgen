@@ -368,35 +368,12 @@ module PacketGen
         @fields = {}
         @optional_fields = {}
 
-        field_defs = self.class.field_defs
         self.class.fields.each do |field|
-          type = field_defs[field].type
-          default = field_defs[field].default
-          default = default.to_proc.call(self) if default.is_a?(Proc)
-          builder = field_defs[field].builder
-          optional = field_defs[field].optional
-          enum = field_defs[field].enum
-          field_options = field_defs[field].options
-
-          @fields[field] = if builder
-                             builder.call(self, type)
-                           elsif enum
-                             type.new(enum)
-                           elsif !field_options.empty?
-                             type.new(field_options)
-                           else
-                             type.new
-                           end
-
-          value = options[field] || default
-          if value.class <= type
-            @fields[field] = value
-          elsif @fields[field].respond_to? :from_human
-            @fields[field].from_human(value)
-          end
-
-          @optional_fields[field] = optional if optional
+          build_field field
+          initialize_value field, options[field]
+          initialize_optional field
         end
+
         self.class.class_eval { @bit_fields }.each do |_, hsh|
           hsh.each_key do |bit_field|
             self.send "#{bit_field}=", options[bit_field] if options[bit_field]
@@ -551,6 +528,45 @@ module PacketGen
       # @return [Boolean] +tru+e if #from_human and #to_human are both defined for given attribute
       def to_and_from_human?(attr)
         self[attr].respond_to?(:to_human) && self[attr].respond_to?(:from_human)
+      end
+
+      def field_defs
+        self.class.field_defs
+      end
+
+      def build_field(field)
+        type = field_defs[field].type
+        builder = field_defs[field].builder
+        enum = field_defs[field].enum
+        field_options = field_defs[field].options
+
+        @fields[field] = if builder
+                           builder.call(self, type)
+                         elsif enum
+                           type.new(enum)
+                         elsif !field_options.empty?
+                           type.new(field_options)
+                         else
+                           type.new
+                         end
+      end
+
+      def initialize_value(field, val)
+        type = field_defs[field].type
+        default = field_defs[field].default
+        default = default.to_proc.call(self) if default.is_a?(Proc)
+
+        value = val || default
+        if value.class <= type
+          @fields[field] = value
+        elsif @fields[field].respond_to? :from_human
+          @fields[field].from_human(value)
+        end
+      end
+
+      def initialize_optional(field)
+        optional = field_defs[field].optional
+        @optional_fields[field] = optional if optional
       end
     end
   end
