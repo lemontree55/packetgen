@@ -22,37 +22,43 @@ module PacketGen
     attr_reader :default_iface
 
     def initialize
-      @default_iface = Interfacez.default || Interfacez.loopback
+      @default_iface = PacketGen.default_iface || PacketGen.loopback_iface
       @hwaddr = {}
       @ipaddr = {}
       @ip6addr = {}
 
-      Interfacez.all do |iface_name|
-        @hwaddr[iface_name] = Interfacez.mac_address_of(iface_name)
-        @ipaddr[iface_name] = Interfacez.ipv4_address_of(iface_name)
-        @ip6addr[iface_name] = Interfacez.ipv6_addresses_of(iface_name)
-      end
+      initialize_local_addresses
     end
 
     # Get MAC address for given network interface
     # @param [String,nil] iface network interface. If +nil+, use default one.
     # @return [String]
     def hwaddr(iface=nil)
-      @hwaddr[iface || @default_iface]
+      @hwaddr[iface || default_iface]
     end
 
     # Get IP address for given network interface
     # @param [String,nil] iface network interface. If +nil+, use default one.
     # @return [String]
     def ipaddr(iface=nil)
-      @ipaddr[iface || @default_iface]
+      @ipaddr[iface || default_iface]
     end
 
     # Get IPv6 addresses for given network interface
     # @param [String,nil] iface network interface. If +nil+, use default one.
     # @return [Array<String>]
     def ip6addr(iface=nil)
-      @ip6addr[iface || @default_iface]
+      @ip6addr[iface || default_iface]
+    end
+
+    private
+
+    def initialize_local_addresses
+      Interfacez.all do |iface_name|
+        @hwaddr[iface_name] = Interfacez.mac_address_of(iface_name)
+        @ipaddr[iface_name] = Interfacez.ipv4_address_of(iface_name)
+        @ip6addr[iface_name] = Interfacez.ipv6_addresses_of(iface_name)
+      end
     end
   end
 end
