@@ -282,8 +282,8 @@ module PacketGen
           total_size = type.new.width * 8
           idx = total_size - 1
 
-          field = args.shift
-          while field
+          until args.empty?
+            field = args.shift
             next unless field.is_a? Symbol
 
             size = if args.first.is_a? Integer
@@ -291,41 +291,13 @@ module PacketGen
                    else
                      1
                    end
+
             unless field == :_
-              shift = idx - (size - 1)
-              field_mask = (2**size - 1) << shift
-              clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
-
-              if size == 1
-                class_eval <<-METHODS
-                def #{field}?
-                  val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-                  val != 0
-                end
-                def #{field}=(v)
-                  val = v ? 1 : 0
-                  self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-                  self[:#{attr}].value |= val << #{shift}
-                end
-                METHODS
-              else
-                class_eval <<-METHODS
-                def #{field}
-                  (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-                end
-                def #{field}=(v)
-                  self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-                  self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
-                end
-                METHODS
-              end
-
-              @bit_fields[attr] = {} if @bit_fields[attr].nil?
-              @bit_fields[attr][field] = size
+              add_bit_methods(attr, field, size, total_size, idx)
+              register_bit_field_size(attr, field, size)
             end
 
             idx -= size
-            field = args.shift
           end
         end
 
@@ -362,6 +334,41 @@ module PacketGen
           define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
           define.delete_at(0) if instance_methods.include? name
           class_eval define.join("\n")
+        end
+
+        def add_bit_methods(attr, name, size, total_size, idx)
+          shift = idx - (size - 1)
+          field_mask = (2**size - 1) << shift
+          clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
+
+          if size == 1
+            class_eval <<-METHODS
+            def #{name}?
+              val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+              val != 0
+            end
+            def #{name}=(v)
+              val = v ? 1 : 0
+              self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+              self[:#{attr}].value |= val << #{shift}
+            end
+            METHODS
+          else
+            class_eval <<-METHODS
+            def #{name}
+              (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+            end
+            def #{name}=(v)
+              self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+              self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
+            end
+            METHODS
+          end
+        end
+
+        def register_bit_field_size(attr, field, size)
+          bit_fields[attr] = {} if bit_fields[attr].nil?
+          bit_fields[attr][field] = size
         end
       end
 
