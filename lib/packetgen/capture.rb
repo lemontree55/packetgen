@@ -44,7 +44,7 @@ module PacketGen
     # @since 2.0.0 remove old 1.x API
     # @since 3.0.0 arguments are kwargs and no more a hash
     def initialize(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil)
-      @iface = iface || Interfacez.default || Interfacez.loopback
+      @iface = iface || PacketGen.default_iface || PacketGen.loopback_iface
 
       @packets     = []
       @raw_packets = []

@@ -97,6 +97,12 @@ module PacketGen
     Interfacez.default
   end
 
+  # Get loopback network interface
+  # @return [String]
+  def self.loopback_iface
+    Interfacez.loopback
+  end
+
   # Shortcut to get a header class
   # @example builtin class
   #   # same as PacketGen::Header::Dot11:Data.new(id: 0xfedc)
