@@ -15,12 +15,12 @@ Gem::Specification.new do |spec|
   PacketGen is a network packet manipulation library. It allows reading, parsing
   and sending network packets with fun.
   DESC
-  spec.homepage      = 'https://github.com/sdaubert/packetgen'
 
   spec.metadata = {
+    'homepage_uri' => 'https://github.com/sdaubert/packetgen',
     'bug_tracker_uri' => 'https://github.com/sdaubert/packetgen/issues',
     'documentation_uri' => 'https://www.rubydoc.info/gems/packetgen',
-    'source_code_uri' => spec.homepage
+    'source_code_uri' => 'https://github.com/sdaubert/packetgen'
   }
 
   spec.files = Dir['lib/**/*']
