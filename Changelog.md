@@ -1,9 +1,16 @@
 # Changelog
 
+## Master
+
+* Add PacketGen.loopback_iface to get loopback interface.
+* Refactor Config to isolate use of Interfacez in a dedicated method.
+* Add Types::fields.bit_fields to get bit field definitions for given class.
+* Work on Types::Fields: refactor .define_field, .define_bit_fields_on and #initialize.
+
 ## Packetgen 3.1.4
 
 * Add this Changelog.
-* Make some little spped improvement on Headerable#read, Packet#add, Packet#insert and PcapNG::File#array_to_file.
+* Make some little speed improvement on Headerable#read, Packet#add, Packet#insert and PcapNG::File#array_to_file.
 * Clean up PcapNG module and Packet class.
 * Drop Ruby 2.3 support on travis CI.
 * Clean up gemspec.
