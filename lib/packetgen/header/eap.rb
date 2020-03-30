@@ -132,21 +132,17 @@ module PacketGen
       def read(str)
         super str
         return self unless self.class == EAP
+        return self unless type?
 
-        if type?
-          obj = case self.type
-                when 4
-                  EAP::MD5.new.read(str)
-                when 13
-                  EAP::TLS.new.read(str)
-                when 21
-                  EAP::TTLS.new.read(str)
-                when 43
-                  EAP::FAST.new.read(str)
-                else
-                  self
-                end
-          obj
+        case self.type
+        when 4
+          EAP::MD5.new.read(str)
+        when 13
+          EAP::TLS.new.read(str)
+        when 21
+          EAP::TTLS.new.read(str)
+        when 43
+          EAP::FAST.new.read(str)
         else
           self
         end
