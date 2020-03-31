@@ -9,6 +9,8 @@
 * Add Inspectable module to share methods to format types when inspecting headers.
 * Remove unneeded #read (Header::DHCPv6::Option, Header::PPI, Header::RadioTap, Header::Dot1x and Header::TCP).
 * Refactor Header::EAP#read.
+* Bugs:
+    * Fix Utils.arp: really use iface information.
 
 ## Packetgen 3.1.4
 

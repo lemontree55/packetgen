@@ -53,7 +53,7 @@ module PacketGen
       timeout = options[:timeout] || 1
       my_hwaddr = Config.instance.hwaddr(iface)
       arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: my_hwaddr)
-      arp_pkt.add('ARP', sha: Config.instance.hwaddr, spa: Config.instance.ipaddr,
+      arp_pkt.add('ARP', sha: Config.instance.hwaddr(iface), spa: Config.instance.ipaddr(iface),
                          tpa: ipaddr)
 
       capture = Capture.new(iface: iface, timeout: timeout, max: 1,
