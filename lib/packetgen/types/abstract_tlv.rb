@@ -171,7 +171,7 @@ module PacketGen
       # @return [String]
       def to_human
         my_value = self[:value].is_a?(String) ? self[:value].inspect : self[:value].to_human
-        "type:%s,length:%u,value:#{my_value}" % [human_type, length]
+        "type:%s,length:%u,value:%s" % [human_type, length, my_value]
       end
       alias format_inspect to_human
 
