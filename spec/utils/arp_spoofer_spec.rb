@@ -12,10 +12,9 @@ class TestARPSpoofer < PacketGen::Utils::ARPSpoofer
   end
 end
 
-
-module PacketGen
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    module PacketGen
   module Utils
-    describe ARPSpoofer do 
+    describe ARPSpoofer do
       let(:as) { TestARPSpoofer.new timeout: 0.4, interval: 0.1 }
 
       describe '#initialize' do
@@ -40,13 +39,13 @@ module PacketGen
           expect(as.registered_targets).to_not include('5.6.7.8', '5.6.7.9')
           expect(as.active?('1.2.3.4')).to be(false)
         end
-        
+
         it 'accepts options' do
           expect { as.add '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00' }.
             to_not raise_error
         end
       end
-      
+
       describe '#remove' do
         it 'remove a target from registered targets' do
           as.add '1.2.3.4', '5.6.7.8'
@@ -55,7 +54,7 @@ module PacketGen
           expect(as.registered_targets).to_not include('1.2.3.4')
         end
       end
-      
+
       describe '#start' do
         it 'adds and activates spoof on target' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
@@ -84,13 +83,13 @@ module PacketGen
           as.stop '1.2.3.4'
           expect(as.active_targets).to eq(['1.2.3.5'])
           expect(as.registered_targets).to eq(['1.2.3.5'])
-          
+
           as.wait
           expect(as.all_packets.last.length).to eq(1)
           packet = as.all_packets.last.first
           expect(packet.arp.tpa).to_not eq('1.2.3.4')
         end
-        
+
         it 'stops sending thread when last target is removed' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
                    target_mac: '00:00:00:00:00:01'
@@ -99,7 +98,7 @@ module PacketGen
           expect(as.instance_eval { @spoof_thread }).to be(nil)
         end
       end
-      
+
       describe '#active?' do
         it 'returns true for active target' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
