@@ -23,9 +23,16 @@ module PacketGen
     # @param [String] iface interface name
     # @param [Integer] snaplen
     # @param [Boolean] promisc
+    # @param [Boolean] monitor
     # @return [PCAPRUB::Pcap]
-    def self.open_iface(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC)
-      PCAPRUB::Pcap.open_live(iface, snaplen, promisc, TIMEOUT)
+    def self.open_iface(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, monitor: nil)
+      pcap = PCAPRUB::Pcap.create(iface)
+      pcap.setsnaplen(snaplen)
+      pcap.setpromisc(promisc)
+      pcap.settimeout(TIMEOUT)
+      # Monitor MUST be set before pcap is activated
+      pcap.setmonitor monitor unless monitor.nil?
+      pcap.activate
     end
 
     # Capture packets from a network interface
@@ -33,10 +40,11 @@ module PacketGen
     # @param [Integer] snaplen
     # @param [Boolean] promisc
     # @param [String] filter BPF filter
+    # @param [Boolean] monitor
     # @yieldparam [String] packet_data binary packet data
     # @return [void]
-    def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil)
-      pcap = self.open_iface(iface: iface, snaplen: snaplen, promisc: promisc)
+    def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil, monitor: nil)
+      pcap = self.open_iface(iface: iface, snaplen: snaplen, promisc: promisc, monitor: monitor)
       pcap.setfilter filter unless filter.nil?
       pcap.each do |packet_data|
         yield packet_data
