@@ -1,6 +1,6 @@
 # Changelog
 
-## Master
+## Packetgen 3.1.5
 
 * Add support for setting monitor mode when capturing packets (optix2000).
 * Add PacketGen.loopback_iface to get loopback interface.
