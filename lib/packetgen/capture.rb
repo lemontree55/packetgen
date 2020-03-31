@@ -41,9 +41,10 @@ module PacketGen
     #    yielding.  Default: +true+
     # @param [Integer] snaplen maximum number of bytes to capture for
     #    each packet.
-    # @param [Boolean] monitor enable or disable monitor mode on interface (if supported).
+    # @param [Boolean] monitor enable or disable monitor mode on interface (if supported by +iface+).
     # @since 2.0.0 remove old 1.x API
     # @since 3.0.0 arguments are kwargs and no more a hash
+    # @since 3.1.5 add monitor argument
     def initialize(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, monitor: nil)
       @iface = iface || PacketGen.default_iface || PacketGen.loopback_iface
 
@@ -57,6 +58,7 @@ module PacketGen
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @since 3.0.0 arguments are kwargs and no more a hash
+    # @since 3.1.5 add monitor argument
     def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, monitor: nil, &block)
       set_options iface, max, timeout, filter, promisc, parse, snaplen, monitor
 
