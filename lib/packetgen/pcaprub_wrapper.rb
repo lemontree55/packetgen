@@ -25,6 +25,9 @@ module PacketGen
     # @param [Boolean] promisc
     # @param [Boolean] monitor
     # @return [PCAPRUB::Pcap]
+    # @author Sylvain Daubert
+    # @author optix2000 - add support for setting monitor mode
+    # @since 3.1.5 add monitor argument
     def self.open_iface(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, monitor: nil)
       pcap = PCAPRUB::Pcap.create(iface)
       pcap.setsnaplen(snaplen)
@@ -43,6 +46,9 @@ module PacketGen
     # @param [Boolean] monitor
     # @yieldparam [String] packet_data binary packet data
     # @return [void]
+    # @author Sylvain Daubert
+    # @author optix2000 - add support for setting monitor mode
+    # @since 3.1.5 add monitor argument
     def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil, monitor: nil)
       pcap = self.open_iface(iface: iface, snaplen: snaplen, promisc: promisc, monitor: monitor)
       pcap.setfilter filter unless filter.nil?

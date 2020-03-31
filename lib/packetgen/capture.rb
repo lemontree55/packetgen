@@ -45,6 +45,8 @@ module PacketGen
     # @since 2.0.0 remove old 1.x API
     # @since 3.0.0 arguments are kwargs and no more a hash
     # @since 3.1.5 add monitor argument
+    # @author Sylvain Daubert
+    # @author optix2000 - add monitor argument
     def initialize(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, monitor: nil)
       @iface = iface || PacketGen.default_iface || PacketGen.loopback_iface
 
@@ -59,6 +61,8 @@ module PacketGen
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @since 3.0.0 arguments are kwargs and no more a hash
     # @since 3.1.5 add monitor argument
+    # @author Sylvain Daubert
+    # @author optix2000 - add monitor argument
     def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, monitor: nil, &block)
       set_options iface, max, timeout, filter, promisc, parse, snaplen, monitor
 

@@ -2,6 +2,7 @@
 
 ## Master
 
+* Add support for setting monitor mode when capturing packets (optix2000).
 * Add PacketGen.loopback_iface to get loopback interface.
 * Refactor Config to isolate use of Interfacez in a dedicated method.
 * Add Types::fields.bit_fields to get bit field definitions for given class.
@@ -11,6 +12,8 @@
 * Refactor Header::EAP#read.
 * Bugs:
     * Fix Utils.arp: really use iface information.
+    * Fix string interpolation in Types::AbstractTLV#to_human (optix2000).
+    * Fix Deprecation.deprecated and Deprecation.deprecated_class in some obsure cases (optix2000).
 
 ## Packetgen 3.1.4
 
