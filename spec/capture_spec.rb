@@ -13,7 +13,7 @@ module PacketGen
       end
 
       it 'accepts options' do
-        options = { max: 12, timeout: 30, filter: 'ip', promisc: true, snaplen: 45 }
+        options = { max: 12, timeout: 30, filter: 'ip', promisc: true, snaplen: 45, monitor: true }
         expect { Capture.new(options) }.to_not raise_error
       end
     end
