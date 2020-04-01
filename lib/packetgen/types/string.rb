@@ -38,9 +38,21 @@ module PacketGen
       # @return [String] self
       def read(str)
         s = read_with_length_from(str)
-        s = s[0, static_length] if static_length?
         set_internal_string s
         self
+      end
+
+      alias old_sz_to_read sz_to_read
+      private :old_sz_to_read
+
+      # Size to read.
+      # Computed from static_length or length_from, if defined.
+      # @return [Integer]
+      # @since 3.1.6
+      def sz_to_read
+        return static_length if static_length?
+
+        old_sz_to_read
       end
 
       # Say if a static length is defined
