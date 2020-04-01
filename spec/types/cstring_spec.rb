@@ -63,7 +63,7 @@ module PacketGen
         it 'is fixed' do
           pkt = Packet.gen('BOOTP', file: 'test.txt')
           expect(pkt.bootp.file).to eq('test.txt')
-          expect(pkt.bootp.file.to_s).to eq("test.txt\x00")
+          expect(pkt.bootp[:file].to_s).to eq('test.txt' + ([0] * 120).pack('C*'))
         end
       end
     end

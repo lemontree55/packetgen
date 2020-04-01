@@ -69,7 +69,7 @@ module PacketGen
             src = parsed_pkt.mldv2_mlq.source_addr.first
             expect(src.to_human).to eq('2000::1')
           end
-          
+
           it 'reads a MLDv2 MLQ header from a pcap' do
             pkt = PacketGen.read(File.join(__dir__, 'mldv2.pcapng'))[1]
             expect(pkt.is? 'MLDv2::MLQ').to be(true)
@@ -130,7 +130,7 @@ module PacketGen
             expect(mlq.to_s).to eq(expected)
           end
         end
-      
+
         describe '#inspect' do
           it 'returns a String with all attributes' do
             mlq = MLDv2::MLQ.new
