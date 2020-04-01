@@ -97,7 +97,7 @@ module PacketGen
           case self[:value]
           when Types::Int
             self.length = 2 + self[:value].sz
-          when String
+          when Types::String
             self.length = 2 + Types::String.new.read(v).sz
           end
           self[:value].read v

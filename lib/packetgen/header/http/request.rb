@@ -95,7 +95,7 @@ module PacketGen
           raise FormatError, 'Missing #version.' if self.version.empty?
 
           str = +''
-          str << self[:verb] << ' ' << self[:path] << ' ' << self[:version] << "\r\n" << self[:headers].to_s << self[:body]
+          str << self.verb << ' ' << self.path << ' ' << self.version << "\r\n" << self[:headers].to_s << self.body
         end
       end
     end
