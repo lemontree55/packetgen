@@ -121,7 +121,6 @@ end
 
 require 'packetgen/deprecation'
 require 'packetgen/inspect'
-require 'packetgen/inspectable'
 require 'packetgen/types'
 require 'packetgen/pcapng'
 require 'packetgen/pcap'
