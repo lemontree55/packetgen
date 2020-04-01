@@ -12,6 +12,7 @@ module PacketGen
 end
 
 require_relative 'types/length_from'
+require_relative 'types/fieldable'
 require_relative 'types/int'
 require_relative 'types/enum'
 require_relative 'types/string'
