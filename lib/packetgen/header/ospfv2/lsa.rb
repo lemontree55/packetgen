@@ -23,6 +23,8 @@ module PacketGen
       # LSA router payload}.
       # @author Sylvain Daubert
       class TosMetric < Types::Fields
+        include Types::Fieldable
+
         # @!attribute tos
         #  8-bit IP Type of Service that this metric refers to.
         #  @return [Integer]
@@ -52,6 +54,8 @@ module PacketGen
       # This class handles links in a {LSARouter LSA router payload}.
       # @author Sylvain Daubert
       class Link < Types::Fields
+        include Types::Fieldable
+
         # @!attribute id
         #  @return [IP::Addr]
         define_field :id, IP::Addr
@@ -136,6 +140,8 @@ module PacketGen
       # This class handles external links in {LSAASExternal LSA AS-External payloads}.
       # @author Sylvain Daubert
       class External < Types::Fields
+        include Types::Fieldable
+
         # @!attribute u8
         #  @return [Integer]
         define_field :u8, Types::Int8

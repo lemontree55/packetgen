@@ -14,6 +14,8 @@ module PacketGen
       # * and {#advertising_router}.
       # @author Sylvain Daubert
       class LSR < Types::Fields
+        include Types::Fieldable
+
         # @!attribute type
         #  The type of the LSA to request.
         #  @return [Integer]

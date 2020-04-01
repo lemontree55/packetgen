@@ -12,7 +12,7 @@ module PacketGen
     # @abstract
     # @author Sylvain Daubert
     class Int
-      include Inspectable
+      include Fieldable
 
       # Integer value
       # @return [Integer]

@@ -27,6 +27,8 @@ module PacketGen
       # * and a 32-bit {#advertising_router} field.
       # @author Sylvain Daubert
       class LSR < Types::Fields
+        include Types::Fieldable
+
         # @!attribute reserved
         #  reserved field.
         #  @return [Integer]

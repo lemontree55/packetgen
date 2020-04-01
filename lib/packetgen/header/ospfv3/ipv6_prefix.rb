@@ -17,6 +17,8 @@ module PacketGen
       #   array consumes ((PrefixLength + 31) / 32) 32-bit words.
       # @author Sylvain Daubert
       class IPv6Prefix < Types::Fields
+        include Types::Fieldable
+
         # @!attribute length
         #  Prefix length, in bits
         #  @return [Integer]

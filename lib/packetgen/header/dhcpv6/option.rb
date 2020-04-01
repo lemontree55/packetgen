@@ -17,6 +17,8 @@ module PacketGen
       # field to replace it by specific option field(s).
       # @author Sylvain Daubert
       class Option < Types::Fields
+        include Types::Fieldable
+
         # @!attribute type
         #  16-bit option type
         #  @return [Integer]

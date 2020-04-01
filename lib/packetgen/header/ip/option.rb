@@ -26,6 +26,8 @@ module PacketGen
       # Base class for IP options
       # @author Sylvain Daubert
       class Option < Types::Fields
+        include Types::Fieldable
+
         # EOL option type
         EOL_TYPE = 0x00
         # NOP option type

@@ -11,6 +11,8 @@ module PacketGen
       # Base class to describe a TCP option
       # @author Sylvain Daubert
       class Option < Types::Fields
+        include Types::Fieldable
+
         # EOL option value
         EOL_KIND       = 0
         # NOP option value

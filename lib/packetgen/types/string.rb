@@ -14,7 +14,7 @@ module PacketGen
     # @author Sylvain Daubert
     class String < ::String
       include LengthFrom
-      include Inspectable
+      include Fieldable
 
       # @return [Integer]
       attr_reader :static_length
@@ -36,6 +36,10 @@ module PacketGen
         s = s[0, static_length] if static_length
         self.replace(s)
         self
+      end
+
+      def format_inspect
+        inspect
       end
 
       alias sz length

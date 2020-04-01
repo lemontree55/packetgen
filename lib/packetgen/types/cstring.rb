@@ -11,7 +11,7 @@ module PacketGen
     # This class handles null-terminated strings (aka C strings).
     # @author Sylvain Daubert
     class CString < ::String
-      include Inspectable
+      include Fieldable
 
       # @param [Hash] options
       # @option options [Integer] :static_length set a static length for this string
@@ -68,7 +68,6 @@ module PacketGen
         idx = self.index(+"\x00".encode(self.encoding)) || self.sz
         self[0, idx]
       end
-      alias format_inspect to_human
     end
   end
 end
