@@ -18,9 +18,10 @@ Gem::Specification.new do |spec|
 
   spec.metadata = {
     'homepage_uri' => 'https://github.com/sdaubert/packetgen',
+    'source_code_uri' => 'https://github.com/sdaubert/packetgen',
     'bug_tracker_uri' => 'https://github.com/sdaubert/packetgen/issues',
     'documentation_uri' => 'https://www.rubydoc.info/gems/packetgen',
-    'source_code_uri' => 'https://github.com/sdaubert/packetgen'
+    'wiki_uri' => 'https://github.com/sdaubert/packetgen/wiki'
   }
 
   spec.files = Dir['lib/**/*']
