@@ -444,11 +444,7 @@ module PacketGen
           next unless present?(field)
 
           obj = self[field].read str[start..-1]
-          if self[field].respond_to? :sz
-            start += self[field].sz
-          else
-            start = str.size
-          end
+          start += self[field].sz
           self[field] = obj unless obj == self[field]
         end
 
@@ -572,6 +568,8 @@ module PacketGen
           @fields[field] = value
         elsif @fields[field].respond_to? :from_human
           @fields[field].from_human(value)
+        else
+          @fields[field].read(value)
         end
       end
 
