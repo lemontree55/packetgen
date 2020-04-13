@@ -29,6 +29,8 @@ module PacketGen
       # But this class is also a base class for different LSA class, as {LSARouter}.
       # @author Sylvain Daubert
       class LSAHeader < Types::Fields
+        include Types::Fieldable
+
         # LSA known types
         TYPES = {
           'Router' => 0x2001,

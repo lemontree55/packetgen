@@ -11,6 +11,8 @@ module PacketGen
       # This class handles links in a {LSARouter OSPFv3 LSA router payload}.
       # @author Sylvain Daubert
       class Link < Types::Fields
+        include Types::Fieldable
+
         # @!attribute type
         #  @return [Integer]
         define_field :type, Types::Int8

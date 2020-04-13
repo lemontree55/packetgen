@@ -11,6 +11,8 @@ module PacketGen
       # @abstract Base class for DUID (DHCP Unique ID)
       # @author Sylvain Daubert
       class DUID < Types::Fields
+        include Types::Fieldable
+
         TYPES = {
           'DUID-LLT' => 1,
           'DUID-EN' => 2,

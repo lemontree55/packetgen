@@ -40,6 +40,8 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class GroupRecord < Types::Fields
+        include Types::Fieldable
+
         # Known record types
         RECORD_TYPES = {
           'MODE_IS_INCLUDE' => 1,

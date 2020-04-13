@@ -11,7 +11,7 @@ module PacketGen
       # IP address, as a group of 4 bytes
       # @author Sylvain Daubert
       class Addr < Types::Fields
-        include Inspectable
+        include Types::Fieldable
 
         # @!attribute a1
         #  @return [Integer] IP address first byte
@@ -49,7 +49,6 @@ module PacketGen
         def to_human
           fields.map { |f| self[f].to_i.to_s }.join('.')
         end
-        alias format_inspect to_human
 
         # Addr as an integer
         # @return [Integer]

@@ -12,7 +12,7 @@ module PacketGen
       # @abstract Base class for HTTP headers.
       # @author Kent 'picat' Gruber
       class Headers
-        include Inspectable
+        include Types::Fieldable
 
         # Underlying Headers data (or nil).
         # @return [Hash, nil]
@@ -58,7 +58,6 @@ module PacketGen
         def to_human
           @data
         end
-        alias format_inspect to_human
 
         # Read human-readable data to populate header data.
         # @param [String, Hash] data

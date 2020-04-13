@@ -10,13 +10,23 @@ module PacketGen
   module Types
     # This class handles null-terminated strings (aka C strings).
     # @author Sylvain Daubert
-    class CString < ::String
-      include Inspectable
+    # @since 3.1.6 no more a subclass or regular String
+    class CString
+      extend Forwardable
+      include Fieldable
+
+      def_delegators :@string, :[], :to_s, :length, :size, :inspect, :==, :<<,
+                     :unpack, :force_encoding, :encoding, :index
+
+      # @return [::String]
+      attr_reader :string
+      # @return [Integer]
+      attr_reader :static_length
 
       # @param [Hash] options
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
-        super()
+        set_internal_string ''
         @static_length = options[:static_length]
       end
 
@@ -24,36 +34,43 @@ module PacketGen
       # @return [String] self
       def read(str)
         s = str.to_s
-        s = s[0, @static_length] if @static_length.is_a? Integer
+        s = s[0, static_length] if static_length?
         idx = s.index(0.chr)
         s = s[0, idx] unless idx.nil?
-        self.replace s
+        set_internal_string s
         self
       end
 
       # get null-terminated string
       # @return [String]
       def to_s
-        if defined?(@static_length) && @static_length.is_a?(Integer)
-          if self.size >= @static_length
-            s = self[0, @static_length]
+        if static_length?
+          if string.size >= static_length
+            s = string[0, static_length]
             s[-1] = "\x00".encode(s.encoding)
             PacketGen.force_binary s
           else
-            PacketGen.force_binary(self + "\0" * (@static_length - self.length))
+            PacketGen.force_binary(string + "\0" * (static_length - length))
           end
         else
-          PacketGen.force_binary(self + +"\x00".encode(self.encoding))
+          PacketGen.force_binary(string + +"\x00")
         end
       end
 
       # @return [Integer]
       def sz
-        if @static_length.is_a? Integer
-          @static_length
+        if static_length?
+          static_length
         else
           to_s.size
         end
+      end
+
+      # Say if a static length is defined
+      # @return [Boolean]
+      # @since 3.1.6
+      def static_length?
+        !static_length.nil?
       end
 
       # Populate CString from a human readable string
@@ -68,7 +85,13 @@ module PacketGen
         idx = self.index(+"\x00".encode(self.encoding)) || self.sz
         self[0, idx]
       end
-      alias format_inspect to_human
+
+      private
+
+      def set_internal_string(str)
+        @string = str
+        force_binary(@string)
+      end
     end
   end
 end

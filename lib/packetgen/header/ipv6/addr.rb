@@ -14,7 +14,7 @@ module PacketGen
       # IPv6 address, as a group of 8 2-byte words
       # @author Sylvain Daubert
       class Addr < Types::Fields
-        include Inspectable
+        include Types::Fieldable
 
         # @!attribute a1
         #  1st 2-byte word of IPv6 address
@@ -75,7 +75,6 @@ module PacketGen
         def to_human
           IPAddr.new(to_a.map { |a| a.to_i.to_s(16) }.join(':')).to_s
         end
-        alias format_inspect to_human
 
         # Return an array of address 16-bit words
         # @return [Array<Integer>]

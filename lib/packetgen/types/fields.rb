@@ -13,8 +13,7 @@ module PacketGen
     #
     # == Basics
     # A {Fields} subclass is generaly composed of multiple binary fields. These fields
-    # have each a given type. All types from {Types} module are supported, and all
-    # {Fields} subclasses may also be used as field type.
+    # have each a given type. All {Fieldable} types are supported.
     #
     # To define a new subclass, it has to inherit from {Fields}. And some class
     # methods have to be used to declare attributes/fields:
@@ -162,7 +161,7 @@ module PacketGen
         #   bs[value1]   # => Types::Int8
         #   bs.value1    # => Integer
         # @param [Symbol] name field name
-        # @param [Object] type class or instance
+        # @param [Fieldable] type class or instance
         # @param [Hash] options Unrecognized options are passed to object builder if
         #   +:builder+ option is not set.
         # @option options [Object] :default default value. May be a proc. This lambda
@@ -191,7 +190,7 @@ module PacketGen
         # @param [Symbol,nil] other field name to create a new one before. If +nil+,
         #    new field is appended.
         # @param [Symbol] name field name to create
-        # @param [Object] type class or instance
+        # @param [Fieldable] type class or instance
         # @param [Hash] options See {.define_field}.
         # @return [void]
         # @see .define_field
@@ -210,7 +209,7 @@ module PacketGen
         # @param [Symbol,nil] other field name to create a new one after. If +nil+,
         #    new field is appended.
         # @param [Symbol] name field name to create
-        # @param [Object] type class or instance
+        # @param [Fieldable] type class or instance
         # @param [Hash] options See {.define_field}.
         # @return [void]
         # @see .define_field
@@ -394,7 +393,7 @@ module PacketGen
 
       # Get field object
       # @param [Symbol] field
-      # @return [Object]
+      # @return [Fieldable]
       def [](field)
         @fields[field]
       end
@@ -414,6 +413,7 @@ module PacketGen
       end
 
       # Get all optional field name
+      # @return[Array<Symbol>,nil]
       def optional_fields
         @optional_fields.keys
       end
@@ -444,11 +444,7 @@ module PacketGen
           next unless present?(field)
 
           obj = self[field].read str[start..-1]
-          if self[field].respond_to? :sz
-            start += self[field].sz
-          else
-            start = str.size
-          end
+          start += self[field].sz
           self[field] = obj unless obj == self[field]
         end
 
@@ -572,6 +568,8 @@ module PacketGen
           @fields[field] = value
         elsif @fields[field].respond_to? :from_human
           @fields[field].from_human(value)
+        else
+          @fields[field].read(value)
         end
       end
 

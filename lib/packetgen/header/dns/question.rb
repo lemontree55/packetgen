@@ -11,6 +11,8 @@ module PacketGen
       # DNS Question
       # @author Sylvain Daubert
       class Question < Types::Fields
+        include Types::Fieldable
+
         # Ressource Record types
         TYPES = {
           'A' => 1,

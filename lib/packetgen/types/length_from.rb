@@ -14,6 +14,9 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 3.0.0
     module LengthFrom
+      # Max value returned by {#sz_to_read}.
+      MAX_SZ_TO_READ = 65_535
+
       # Initialize +length from+ capacity.
       # Should be call by extensed object's initialize.
       # @param [Hash] options
@@ -29,16 +32,21 @@ module PacketGen
       # @return [String]
       def read_with_length_from(str)
         s = PacketGen.force_binary(str.to_s)
-        str_end = case @length_from
-                  when Types::Int
-                    @length_from.to_i
-                  when Proc
-                    @length_from.call
-                  else
-                    s.size
-                  end
-        str_end = 0 if str_end.negative?
-        s[0, str_end]
+        s[0, sz_to_read]
+      end
+
+      # Size to read, from length_from
+      # @return [Integer]
+      def sz_to_read
+        len = case @length_from
+              when Types::Int
+                @length_from.to_i
+              when Proc
+                @length_from.call
+              else
+                MAX_SZ_TO_READ
+              end
+        [0, len].max
       end
     end
   end

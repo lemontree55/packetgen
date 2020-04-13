@@ -52,6 +52,8 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class McastAddressRecord < Types::Fields
+        include Types::Fieldable
+
         # Known record types
         RECORD_TYPES = IGMPv3::GroupRecord::RECORD_TYPES
 
