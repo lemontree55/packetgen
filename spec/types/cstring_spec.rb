@@ -55,7 +55,7 @@ module PacketGen
           expect(cs.length).to eq(20)
           expect(cs).to eq('This is a too too lo')
           expect(cs.sz).to eq(20)
-          expect(cs.to_s).to eq("This is a too too l\x00")
+          expect(cs.to_s).to eq(force_binary("This is a too too l\x00"))
         end
       end
 

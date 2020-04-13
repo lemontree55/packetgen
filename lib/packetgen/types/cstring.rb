@@ -15,7 +15,7 @@ module PacketGen
       extend Forwardable
       include Fieldable
 
-      def_delegators :@string, :[], :to_s, :length, :size, :inspect, :==, :<<,
+      def_delegators :@string, :[], :length, :size, :inspect, :==, :<<,
                      :unpack, :force_encoding, :encoding, :index
 
       # @return [::String]
@@ -45,16 +45,12 @@ module PacketGen
       # @return [String]
       def to_s
         if static_length?
-          if string.size >= static_length
-            s = string[0, static_length]
-            s[-1] = "\x00".encode(s.encoding)
-            PacketGen.force_binary s
-          else
-            PacketGen.force_binary(string + "\0" * (static_length - length))
-          end
+          s = string[0, static_length - 1]
+          s << "\0" * (static_length - s.length)
         else
-          PacketGen.force_binary(string + +"\x00")
+          s = string + "\x00"
         end
+        PacketGen.force_binary(s)
       end
 
       # @return [Integer]
