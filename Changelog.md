@@ -1,5 +1,11 @@
 # Changelog
 
+## Master
+
+* Add Types::Fieldable mixin to document API needed for a class to be used as
+  a field in Typess:Fields subclasses.
+* Types::String and Types::CString are no more subclasses or Ruby String.
+
 ## Packetgen 3.1.5
 
 * Add support for setting monitor mode when capturing packets (optix2000).
