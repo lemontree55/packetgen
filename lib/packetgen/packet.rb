@@ -78,7 +78,7 @@ module PacketGen
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @return [Array<Packet>] captured packet
     def self.capture(**kwargs)
-      capture = Capture.new(kwargs)
+      capture = Capture.new(**kwargs)
       if block_given?
         capture.start { |packet| yield packet }
       else

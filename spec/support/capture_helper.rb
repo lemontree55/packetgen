@@ -23,7 +23,7 @@ module CaptureHelper
   def capture(options={}, &blk)
     timeout = options[:timeout] || 0
     cap = PacketGen::Capture.new
-    cap_thread = Thread.new { cap.start(options) }
+    cap_thread = Thread.new { cap.start(**options) }
     sleep 0.1
     blk.call
     sleep timeout + 2

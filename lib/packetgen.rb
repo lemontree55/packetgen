@@ -66,7 +66,7 @@ module PacketGen
   # @yieldparam [Packet] packet
   # @return [Array<Packet>]
   def self.capture(**kwargs)
-    Packet.capture(kwargs) { |packet| yield packet if block_given? }
+    Packet.capture(**kwargs) { |packet| yield packet if block_given? }
   end
 
   # Shortcut for {Packet.read}
