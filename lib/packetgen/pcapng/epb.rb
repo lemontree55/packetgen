@@ -73,7 +73,7 @@ module PacketGen
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
         super
-        set_endianness(options[:endian] || :little)
+        endianness(options[:endian] || :little)
         recalc_block_len
         self.type = options[:type] || PcapNG::EPB_TYPE.to_i
       end
@@ -93,8 +93,7 @@ module PacketGen
         self[:cap_len].read io.read(4)
         self[:orig_len].read io.read(4)
         self[:data].read io.read(self.cap_len)
-        data_pad_len = (4 - (self[:cap_len].to_i % 4)) % 4
-        io.read data_pad_len
+        data_pad_len = remove_padding(io, self.cap_len)
         options_len = self.block_len - self.cap_len - data_pad_len
         options_len -= MIN_SIZE
         self[:options].read io.read(options_len)

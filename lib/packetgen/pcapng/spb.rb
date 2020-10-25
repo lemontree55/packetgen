@@ -44,7 +44,7 @@ module PacketGen
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
         super
-        set_endianness(options[:endian] || :little)
+        endianness(options[:endian] || :little)
         recalc_block_len
         self.type = options[:type] || PcapNG::SPB_TYPE.to_i
       end
@@ -66,16 +66,9 @@ module PacketGen
         self[:type].read io.read(4)
         self[:block_len].read io.read(4)
         self[:orig_len].read io.read(4)
-        # Take care of IDB snaplen
-        # CAUTION: snaplen == 0 -> no capture limit
-        data_len = if interface && interface.snaplen.to_i.positive?
-                     [self[:orig_len].to_i, interface.snaplen.to_i].min
-                   else
-                     self[:orig_len].to_i
-                   end
-        data_pad_len = (4 - (data_len % 4)) % 4
+        data_len = compute_data_len
         self[:data].read io.read(data_len)
-        io.read data_pad_len
+        remove_padding(io, data_len)
         self[:block_len2].read io.read(4)
 
         check_len_coherency
@@ -89,6 +82,18 @@ module PacketGen
         pad_field :data
         recalc_block_len
         super
+      end
+
+      private
+
+      # Take care of IDB snaplen
+      # CAUTION: snaplen == 0 -> no capture limit
+      def compute_data_len
+        if interface && interface.snaplen.to_i.positive?
+          [self[:orig_len].to_i, interface.snaplen.to_i].min
+        else
+          self[:orig_len].to_i
+        end
       end
     end
   end

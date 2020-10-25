@@ -43,28 +43,32 @@ module PacketGen
           self << Types::IntString.new
         end
 
+        # Clear name
+        #   @return [void]
+        def clear
+          super
+          @pointer = nil
+          @pointer_name = nil
+        end
+
         # Read a sequence of label from a string
         # @param [String] str binary string
         # @return [Name] self
         def read(str)
-          @pointer = nil
-          @pointer_name = nil
           clear
           return self if str.nil?
 
           PacketGen.force_binary str
           start = 0
           loop do
-            index = str[start, 2].unpack('n').first
+            index = str[start, 2].unpack1('n')
             if pointer? index
               # Pointer on another label
               @pointer = str[start, 2]
               break
             else
-              label = Types::IntString.new
-              label.read(str[start..-1])
+              label = add_label_from(str[start..-1])
               start += label.sz
-              self << label
               break if label.length.zero? || str[start..-1].length.zero?
             end
           end
@@ -101,7 +105,7 @@ module PacketGen
           return nil unless @pointer
           return @pointer_name if @pointer_name
 
-          index = @pointer.unpack('n').first
+          index = @pointer.unpack1('n')
           mask = ~POINTER_MASK & 0xffff
           ptr = index & mask
           name = Name.new
@@ -111,6 +115,13 @@ module PacketGen
 
         def record_from_hash(_hsh)
           raise NotImplementedError, "not supported by #{self.class}"
+        end
+
+        def add_label_from(str)
+          label = Types::IntString.new
+          label.read(str)
+          self << label
+          label
         end
       end
     end

@@ -32,6 +32,7 @@ module PacketGen
     attr_reader :hdr
 
     def initialize(prev_hdr, hdr)
+      super()
       @prev_hdr = prev_hdr
       @hdr = hdr
     end

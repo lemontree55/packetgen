@@ -47,7 +47,7 @@ module PacketGen
         @value = if value.is_a?(Integer)
                    value.to_i
                  elsif defined? @packstr
-                   value.to_s.unpack(@packstr[@endian]).first
+                   value.to_s.unpack1(@packstr[@endian])
                  else
                    raise ParseError, 'Int#read is abstract and cannot read'
                  end

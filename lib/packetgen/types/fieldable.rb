@@ -22,6 +22,9 @@ module PacketGen
         self.class.to_s.split('::').last
       end
 
+      # rubocop:disable Lint/UselessMethodDefinition
+      # These methods are defined for documentation.
+
       # Populate object from a binary string
       # @param [String] str
       # @return [Fields] self
@@ -49,6 +52,8 @@ module PacketGen
       def to_human
         super
       end
+
+      # rubocop:enable Lint/UselessMethodDefinition
 
       # Format object when inspecting a {Field} object
       # @return [String]

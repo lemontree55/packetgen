@@ -38,6 +38,8 @@ module PacketGen
       pcap.activate
     end
 
+    # rubocop:disable Metrics/ParameterLists
+
     # Capture packets from a network interface
     # @param [String] iface interface name
     # @param [Integer] snaplen
@@ -49,13 +51,13 @@ module PacketGen
     # @author Sylvain Daubert
     # @author optix2000 - add support for setting monitor mode
     # @since 3.1.5 add monitor argument
-    def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil, monitor: nil)
+    def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil, monitor: nil, &block)
       pcap = self.open_iface(iface: iface, snaplen: snaplen, promisc: promisc, monitor: monitor)
       pcap.setfilter filter unless filter.nil?
-      pcap.each do |packet_data|
-        yield packet_data
-      end
+      pcap.each(&block)
     end
+
+    # rubocop:enable Metrics/ParameterLists
 
     # Inject given data onto wire
     # @param [String] iface interface name
@@ -72,10 +74,8 @@ module PacketGen
     # @yieldparam [String] data binary packet data
     # @return [void]
     # @author Kent Gruber
-    def self.read_pcap(filename:)
-      PCAPRUB::Pcap.open_offline(filename).each_packet do |packet|
-        yield packet
-      end
+    def self.read_pcap(filename:, &block)
+      PCAPRUB::Pcap.open_offline(filename).each_packet(&block)
     end
   end
 end

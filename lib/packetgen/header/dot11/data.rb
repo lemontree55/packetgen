@@ -44,22 +44,22 @@ module PacketGen
           case ds
           when 0
             # MAC1: RA/DA, MAC2: TA/SA
-            self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+            invert_mac :mac1, :mac2
           when 1
             # MAC1: RA/BSSID, MAC2: TA/SA, MAC3: DA
-            self[:mac2], self[:mac1] = self[:mac1], self[:mac2]
+            invert_mac :mac1, :mac2
             self.to_ds = false
             self.from_ds = true
           when 2
             # MAC1: RA/DA, MAC2: BSSID, MAC3: SA or BSSID
-            self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+            invert_mac :mac1, :mac2
             self.to_ds = true
             self.from_ds = false
           when 3
             # MAC1: RA, MAC2: TA
-            self[:mac1], self[:mac2] = self[:mac2], self[:mac1]
+            invert_mac :mac1, :mac2
             # MAC3: DA, MAC4: SA
-            self[:mac4], self[:mac3] = self[:mac3], self[:mac4]
+            invert_mac :mac3, :mac4
           end
           self
         end
@@ -134,6 +134,10 @@ module PacketGen
           elsif subtype < 8
             @applicable_fields -= %i[qos_ctrl]
           end
+        end
+
+        def invert_mac(mac1, mac2)
+          self[mac1], self[mac2] = self[mac2], self[mac1]
         end
       end
     end

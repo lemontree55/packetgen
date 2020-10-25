@@ -131,7 +131,7 @@ module PacketGen
       #  @since 2.2.0
       #  @return [Types::String]
       define_field :options, Options, optional: ->(h) { h.ihl > 5 },
-                  builder: ->(h, t) { t.new(length_from: -> { (h.ihl - 5) * 4 }) }
+                                      builder: ->(h, t) { t.new(length_from: -> { (h.ihl - 5) * 4 }) }
       # @!attribute body
       #  @return [Types::String,Header::Base]
       define_field :body, Types::String
@@ -166,7 +166,7 @@ module PacketGen
 
         data = hdr.to_s
         data << "\x00" if data.size.odd?
-        sum = data.unpack('n*').reduce(:+)
+        sum = data.unpack('n*').sum
 
         hdr.checksum = old_checksum if old_checksum
 
@@ -191,17 +191,10 @@ module PacketGen
       # @return [Integer]
       def calc_checksum
         # Checksum is only on header, so cannot use IP.sum16,
-        # which also calcultes checksum on #body.
-        checksum = (self[:u8].to_i << 8) | self.tos
-        checksum += self.length
-        checksum += self.id
-        checksum += self.frag
-        checksum += (self.ttl << 8) | self.protocol
-        checksum += (self[:src].to_i >> 16)
-        checksum += (self[:src].to_i & 0xffff)
-        checksum += self[:dst].to_i >> 16
-        checksum += self[:dst].to_i & 0xffff
-        options.to_s.unpack('n*').each { |x| checksum += x }
+        # which also calculates checksum on #body.
+        nb_words = ihl * 2
+        self.checksum = 0
+        checksum = to_s.unpack("n#{nb_words}").sum
         self[:checksum].value = IP.reduce_checksum(checksum)
       end
 
@@ -238,20 +231,9 @@ module PacketGen
         super do |attr|
           case attr
           when :u8
-            shift = Inspect.shift_level
-            str = Inspect.inspect_attribute(attr, self[attr])
-            str << shift << Inspect::FMT_ATTR % ['', 'version', version]
-            str << shift << Inspect::FMT_ATTR % ['', 'ihl', ihl]
+            inspect_u8
           when :frag
-            shift = Inspect.shift_level
-            str = Inspect.inspect_attribute(attr, self[attr])
-            flags = flag_rsv? ? %w[RSV] : []
-            flags << 'DF' if flag_df?
-            flags << 'MF' if flag_mf?
-            flags_str = flags.empty? ? 'none' : flags.join(',')
-            str << shift << Inspect::FMT_ATTR % ['', 'flags', flags_str]
-            foff = Inspect.int_dec_hex(fragment_offset, 4)
-            str << shift << Inspect::FMT_ATTR % ['', 'frag_offset', foff]
+            inspect_frag
           end
         end
       end
@@ -275,6 +257,25 @@ module PacketGen
       def reply!
         self[:src], self[:dst] = self[:dst], self[:src]
         self
+      end
+
+      private
+
+      def inspect_u8
+        shift = Inspect.shift_level
+        str = Inspect.inspect_attribute(:u8, self[:u8])
+        str << shift << Inspect::FMT_ATTR % ['', 'version', version]
+        str << shift << Inspect::FMT_ATTR % ['', 'ihl', ihl]
+      end
+
+      def inspect_frag
+        shift = Inspect.shift_level
+        str = Inspect.inspect_attribute(:frag, self[:frag])
+        flags = %i[rsv df mf].select { |flag| send("flag_#{flag}?") }.map(&:upcase)
+        flags_str = flags.empty? ? 'none' : flags.join(',')
+        str << shift << Inspect::FMT_ATTR % ['', 'flags', flags_str]
+        foff = Inspect.int_dec_hex(fragment_offset, 4)
+        str << shift << Inspect::FMT_ATTR % ['', 'frag_offset', foff]
       end
     end
 

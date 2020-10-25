@@ -77,7 +77,6 @@ module PacketGen
         # Compute and set Fletcher-16 checksum on LSA
         # @return [Integer]
         def calc_checksum
-          self.checksum = 0
           bytes = to_s[2..-1].unpack('C*')
 
           c0 = c1 = 0

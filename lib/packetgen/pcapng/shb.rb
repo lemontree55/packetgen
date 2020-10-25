@@ -80,7 +80,7 @@ module PacketGen
         super
         @interfaces = []
         @unknown_blocks = []
-        set_endianness(options[:endian] || :little)
+        endianness(options[:endian] || :little)
         recalc_block_len
         self.type = options[:type] || PcapNG::SHB_TYPE.to_i
       end

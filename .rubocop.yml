@@ -1,7 +1,8 @@
 require:
   - rubocop-performance
 AllCops:
-  TargetRubyVersion: '2.3'
+  TargetRubyVersion: '2.4'
+  NewCops: enable
 Layout/LineLength:
   Enabled: false
 Layout/SpaceAroundEqualsInParameterDefault:
@@ -11,7 +12,7 @@ Lint/EmptyWhen:
 Lint/Void:
   Enabled: false
 Metrics/AbcSize:
-    Max: 17
+    Max: 20
 Metrics/ClassLength:
     Max: 200
 Metrics/MethodLength:
@@ -19,6 +20,9 @@ Metrics/MethodLength:
 Style/AccessModifierDeclarations:
   Enabled: false
 Style/AsciiComments:
+  Enabled: false
+Style/Documentation:
+  # Too many false positives!
   Enabled: false
 Style/Encoding:
   Enabled: false

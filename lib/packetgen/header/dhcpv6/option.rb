@@ -87,7 +87,7 @@ module PacketGen
         # Get human-readable {#type}
         # @return [String]
         def human_type
-          if self.class == Option
+          if self.instance_of?(Option)
             "option#{type}"
           else
             self.class.to_s.sub(/.*::/, '')

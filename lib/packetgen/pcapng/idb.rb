@@ -60,7 +60,7 @@ module PacketGen
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
         super
-        set_endianness(options[:endian] || :little)
+        endianness(options[:endian] || :little)
         @packets = []
         @options_decoded = false
         recalc_block_len
@@ -133,7 +133,7 @@ module PacketGen
 
         while idx < options.length
           opt_code, opt_len = options[idx, 4].unpack("#{packstr}2")
-          return options[idx + 4, 1].unpack('C').first if opt_code == OPTION_IF_TSRESOL && opt_len == 1
+          return options[idx + 4, 1].unpack1('C') if opt_code == OPTION_IF_TSRESOL && opt_len == 1
 
           idx += 4 + opt_len
         end

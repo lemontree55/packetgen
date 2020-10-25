@@ -15,6 +15,8 @@ module PacketGen
 
     attr_reader :filter, :cap_thread, :snaplen, :promisc, :monitor
 
+    # rubocop:disable Metrics/ParameterLists
+
     public
 
     # Get captured packets.
@@ -86,6 +88,9 @@ module PacketGen
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
+
     def set_options(iface, max, timeout, filter, promisc, parse, snaplen, monitor)
       @max = max if max
       @filter = filter unless filter.nil?
@@ -96,6 +101,10 @@ module PacketGen
       @iface = iface unless iface.nil?
       @monitor = monitor unless monitor.nil?
     end
+
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/ParameterLists
 
     def capture_args
       h = { iface: iface, filter: filter, monitor: monitor }

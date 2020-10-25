@@ -29,7 +29,7 @@ module PacketGen
       #   takes length when reading
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
-        set_internal_string ''
+        register_internal_string ''
         initialize_length_from(options)
         @static_length = options[:static_length]
       end
@@ -38,7 +38,7 @@ module PacketGen
       # @return [String] self
       def read(str)
         s = read_with_length_from(str)
-        set_internal_string s
+        register_internal_string s
         self
       end
 
@@ -72,7 +72,7 @@ module PacketGen
 
       private
 
-      def set_internal_string(str)
+      def register_internal_string(str)
         @string = str
         force_binary(@string)
       end

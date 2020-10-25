@@ -95,7 +95,8 @@ module PacketGen
       #  This field is present only for Request or Response packets,
       #  with type different from Expanded Types (254).
       #  @return [Integer] 8-bit request or response type
-      define_field :type, Types::Int8Enum, enum: TYPES,
+      define_field :type, Types::Int8Enum,
+                   enum: TYPES,
                    optional: ->(eap) { eap.type? }
 
       # @!attribute vendor_id
@@ -131,7 +132,7 @@ module PacketGen
       #   may be determined
       def read(str)
         super str
-        return self unless self.class == EAP
+        return self unless self.instance_of?(EAP)
         return self unless type?
 
         case self.type

@@ -59,7 +59,7 @@ module PacketGen
       # Must be called by all subclass #initialize method.
       # @param [:little, :big] endian
       # @return [:little, :big] returns endian
-      def set_endianness(endian)
+      def endianness(endian)
         raise ArgumentError, "unknown endianness for #{self.class}" unless %i[little big].include?(endian)
 
         @endian = endian
@@ -75,6 +75,12 @@ module PacketGen
         return str_or_io if str_or_io.respond_to? :read
 
         StringIO.new(force_binary(str_or_io.to_s))
+      end
+
+      def remove_padding(io, data_len)
+        data_pad_len = (4 - (data_len % 4)) % 4
+        io.read data_pad_len
+        data_pad_len
       end
     end
   end

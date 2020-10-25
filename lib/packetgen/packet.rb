@@ -6,6 +6,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# rubocop:disable Metrics/ClassLength
+
 module PacketGen
   # An object of type {Packet} handles a network packet. This packet may contain
   # multiple protocol headers, starting from MAC layer or from Network (OSI) layer.
@@ -77,10 +79,10 @@ module PacketGen
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
     # @return [Array<Packet>] captured packet
-    def self.capture(**kwargs)
+    def self.capture(**kwargs, &block)
       capture = Capture.new(**kwargs)
       if block_given?
-        capture.start { |packet| yield packet }
+        capture.start(&block)
       else
         capture.start
       end
@@ -521,6 +523,8 @@ module PacketGen
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
 
 require_relative 'headerable'
 require_relative 'header'

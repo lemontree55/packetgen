@@ -20,7 +20,7 @@ module PacketGen
         alias to_h data
 
         def initialize
-          @data = nil
+          @data = {}
         end
 
         # Populate object from a string or directly from a hash.
@@ -48,7 +48,7 @@ module PacketGen
 
           d = []
           @data.map do |k, v|
-            d << k + ': ' + v
+            d << "#{k}: #{v}"
           end
           d.join("\r\n") << "\r\n\r\n"
         end

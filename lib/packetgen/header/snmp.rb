@@ -246,7 +246,8 @@ module PacketGen
       end
 
       sequence :message,
-               content: [integer(:version, value: 'v2c',
+               content: [integer(:version,
+                                 value: 'v2c',
                                  enum: { 'v1' => 0, 'v2c' => 1, 'v2' => 2, 'v3' => 3 }),
                          octet_string(:community, value: 'public'),
                          model(:data, PDUs)]
@@ -295,7 +296,7 @@ module PacketGen
           begin
             str << Inspect.inspect_body(self[:message].to_der, 'ASN.1 DER')
           rescue StandardError => e
-            raise unless e.message =~ /TAG.*not handled/
+            raise unless e.message.match?(/TAG.*not handled/)
           end
           str
         end

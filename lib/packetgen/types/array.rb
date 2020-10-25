@@ -163,11 +163,8 @@ module PacketGen
         return self if @counter&.to_i&.zero?
 
         str = read_with_length_from(str)
-        klass = self.class.set_of_klass
         until str.empty?
-          obj = klass.new.read(str)
-          real_klass = real_type(obj)
-          obj = real_klass.new.read(str) unless real_klass == klass
+          obj = create_object_from_str(str)
           @array << obj
           str.slice!(0, obj.sz)
           break if @counter && self.size == @counter.to_i
@@ -203,9 +200,7 @@ module PacketGen
 
       def record_from_hash(hsh)
         obj_klass = self.class.set_of_klass
-        unless obj_klass
-          raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of'
-        end
+        raise NotImplementedError, 'class should define #record_from_hash or declare type of elements in set with .set_of' unless obj_klass
 
         obj = obj_klass.new(hsh) if obj_klass
         klass = real_type(obj)
@@ -214,6 +209,18 @@ module PacketGen
 
       def real_type(obj)
         obj.class
+      end
+
+      def create_object_from_str(str)
+        klass = self.class.set_of_klass
+        obj = klass.new.read(str)
+        real_klass = real_type(obj)
+
+        if real_klass == klass
+          obj
+        else
+          real_klass.new.read(str)
+        end
       end
     end
 

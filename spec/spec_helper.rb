@@ -15,7 +15,7 @@ end
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'packetgen'
 
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].sort.each { |f| require f }
 
 RSpec.configure do |c|
   c.include CaptureHelper

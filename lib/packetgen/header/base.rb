@@ -99,10 +99,8 @@ module PacketGen
 
         # each iterator
         # @return [void]
-        def each
-          @bindings.each do |b|
-            yield b
-          end
+        def each(&block)
+          @bindings.each(&block)
         end
 
         # @return [Boolean]
@@ -144,74 +142,74 @@ module PacketGen
         klass.class_eval { @known_headers = {} }
       end
 
-      # Bind a upper header to current one.
-      # @param [Class] header_klass header class to bind to current class
-      # @param [Hash] args current class fields and their value when +header_klass+
-      #   is embedded in current class.
-      #
-      #   Given value may be a lambda, whose alone argument is the value extracted
-      #   from header field (or +nil+ when lambda is used to set  field while adding
-      #   a header).
-      #
-      #   Special key +procs+ may be used to set 2 lambdas, the former to set
-      #   fields, the latter to check bindings. This may be used when multiple and
-      #   non-trivial checks should be made.
-      # @return [void]
-      # @example Basic examples
-      #   # Bind Header2 to Header1 when field1 from Header1 has a value of 42
-      #   Header1.bind Header2, field1: 42
-      #   # Bind Header3 to Header1 when field1 from Header1 has a value of 43
-      #   # and field2 has value 43 or 44
-      #   Header1.bind Header3, field1: 43, field2: 43
-      #   Header1.bind Header3, field1: 43, field2: 44
-      # @example Defining a binding on a field using a lambda.
-      #   # Bind Header4 to Header1 when field1 from Header1 has a value
-      #   # greater or equal to 44. When adding a Header2 to a Header1
-      #   # with Packet#add, force value to 44.
-      #   Header1.bind Header4, field1: ->(v) { v.nil? ? 44 : v >= 44 }
-      # @example Defining a binding using procs key
-      #   # Bind Header5 to Header1 when field1 from Header1 has a value of 41
-      #   # and first two bytes of header1's body are null.
-      #   # When adding a Header2 to a Header1 with Packet#add, force value to 44.
-      #   Header1.bind Header5, procs: [->(hdr) { hdr.field1 = 41 }
-      #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
-      # @since 2.7.0
-      def self.bind(header_klass, args={})
-        if @known_headers[header_klass].nil?
-          bindings = Bindings.new
-          @known_headers[header_klass] = bindings
-        else
-          bindings = @known_headers[header_klass]
-        end
-        bindings.new_set
-        args.each do |key, value|
-          bindings << if key == :procs
-                        ProcBinding.new(value)
-                      else
-                        Binding.new(key, value)
-                      end
-        end
-      end
+      class <<self
+        # @api private
+        # Get known headers
+        # @return [Hash] keys: header classes, values: hashes
+        attr_reader :known_headers
 
-      # Helper method to calculate length of +hdr+ and set its +length+ field.
-      # To be used by +#calc_length+ in Base subclasses.
-      # @param [Base] hdr
-      # @param [Boolean] header_in_size if +true+ header is included in length,
-      #   if +false+, only +body+ is taken into account
-      def self.calculate_and_set_length(hdr, header_in_size: true)
-        length = if header_in_size
-                   hdr.sz
-                 else
-                   hdr[:body].sz
-                 end
-        hdr.length = length
-      end
+        # Bind a upper header to current one.
+        # @param [Class] header_klass header class to bind to current class
+        # @param [Hash] args current class fields and their value when +header_klass+
+        #   is embedded in current class.
+        #
+        #   Given value may be a lambda, whose alone argument is the value extracted
+        #   from header field (or +nil+ when lambda is used to set  field while adding
+        #   a header).
+        #
+        #   Special key +procs+ may be used to set 2 lambdas, the former to set
+        #   fields, the latter to check bindings. This may be used when multiple and
+        #   non-trivial checks should be made.
+        # @return [void]
+        # @example Basic examples
+        #   # Bind Header2 to Header1 when field1 from Header1 has a value of 42
+        #   Header1.bind Header2, field1: 42
+        #   # Bind Header3 to Header1 when field1 from Header1 has a value of 43
+        #   # and field2 has value 43 or 44
+        #   Header1.bind Header3, field1: 43, field2: 43
+        #   Header1.bind Header3, field1: 43, field2: 44
+        # @example Defining a binding on a field using a lambda.
+        #   # Bind Header4 to Header1 when field1 from Header1 has a value
+        #   # greater or equal to 44. When adding a Header2 to a Header1
+        #   # with Packet#add, force value to 44.
+        #   Header1.bind Header4, field1: ->(v) { v.nil? ? 44 : v >= 44 }
+        # @example Defining a binding using procs key
+        #   # Bind Header5 to Header1 when field1 from Header1 has a value of 41
+        #   # and first two bytes of header1's body are null.
+        #   # When adding a Header2 to a Header1 with Packet#add, force value to 44.
+        #   Header1.bind Header5, procs: [->(hdr) { hdr.field1 = 41 }
+        #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
+        # @since 2.7.0
+        def bind(header_klass, args={})
+          if @known_headers[header_klass].nil?
+            bindings = Bindings.new
+            @known_headers[header_klass] = bindings
+          else
+            bindings = @known_headers[header_klass]
+          end
+          bindings.new_set
+          args.each do |key, value|
+            bindings << if key == :procs
+                          ProcBinding.new(value)
+                        else
+                          Binding.new(key, value)
+                        end
+          end
+        end
 
-      # @api private
-      # Get known headers
-      # @return [Hash] keys: header classes, values: hashes
-      def self.known_headers
-        @known_headers
+        # Helper method to calculate length of +hdr+ and set its +length+ field.
+        # To be used by +#calc_length+ in Base subclasses.
+        # @param [Base] hdr
+        # @param [Boolean] header_in_size if +true+ header is included in length,
+        #   if +false+, only +body+ is taken into account
+        def calculate_and_set_length(hdr, header_in_size: true)
+          length = if header_in_size
+                     hdr.sz
+                   else
+                     hdr[:body].sz
+                   end
+          hdr.length = length
+        end
       end
 
       # @see Types::Fields#initialize

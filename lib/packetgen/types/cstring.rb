@@ -26,7 +26,7 @@ module PacketGen
       # @param [Hash] options
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
-        set_internal_string ''
+        register_internal_string ''
         @static_length = options[:static_length]
       end
 
@@ -37,7 +37,7 @@ module PacketGen
         s = s[0, static_length] if static_length?
         idx = s.index(0.chr)
         s = s[0, idx] unless idx.nil?
-        set_internal_string s
+        register_internal_string s
         self
       end
 
@@ -46,9 +46,9 @@ module PacketGen
       def to_s
         if static_length?
           s = string[0, static_length - 1]
-          s << "\0" * (static_length - s.length)
+          s << "\x00" * (static_length - s.length)
         else
-          s = string + "\x00"
+          s = "#{string}\x00"
         end
         PacketGen.force_binary(s)
       end
@@ -84,7 +84,7 @@ module PacketGen
 
       private
 
-      def set_internal_string(str)
+      def register_internal_string(str)
         @string = str
         force_binary(@string)
       end

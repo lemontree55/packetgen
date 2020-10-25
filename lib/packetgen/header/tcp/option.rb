@@ -93,15 +93,15 @@ module PacketGen
         # Setter for value attribute
         # @param[String,Integer]
         # @return [String, Integer]
-        def value=(v)
+        def value=(val)
           case self[:value]
           when Types::Int
             self.length = 2 + self[:value].sz
           when Types::String
-            self.length = 2 + Types::String.new.read(v).sz
+            self.length = 2 + Types::String.new.read(val).sz
           end
-          self[:value].read v
-          v
+          self[:value].read val
+          val
         end
 
         # Get binary string
@@ -114,7 +114,7 @@ module PacketGen
         # Get option as a human readable string
         # @return [String]
         def to_human
-          str = self.class == Option ? +"unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
+          str = self.instance_of?(Option) ? +"unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
           str << ":#{self[:value].to_s.inspect}" if (length > 2) && !self[:value].to_s.empty?
           str
         end

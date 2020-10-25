@@ -46,10 +46,10 @@ module PacketGen
   end
 end
 
-require_relative 'pcapng/block.rb'
-require_relative 'pcapng/unknown_block.rb'
-require_relative 'pcapng/shb.rb'
-require_relative 'pcapng/idb.rb'
-require_relative 'pcapng/epb.rb'
-require_relative 'pcapng/spb.rb'
-require_relative 'pcapng/file.rb'
+require_relative 'pcapng/block'
+require_relative 'pcapng/unknown_block'
+require_relative 'pcapng/shb'
+require_relative 'pcapng/idb'
+require_relative 'pcapng/epb'
+require_relative 'pcapng/spb'
+require_relative 'pcapng/file'

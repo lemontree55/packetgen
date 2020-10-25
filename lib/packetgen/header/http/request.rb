@@ -67,23 +67,17 @@ module PacketGen
         # Read in the HTTP portion of the packet, and parse it.
         # @return [PacketGen::HTTP::Request]
         def read(str)
-          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
-          vrb = HTTP::VERBS.detect { |verb| str.include?(verb) }
-          str = vrb + str.split(vrb)[-1]
-          str = str.split("\n").map(&:chomp)
-          first_line = str.shift.split
-          self[:verb].read first_line[0]
-          self[:path].read first_line[1]
-          self[:version].read first_line[2]
+          lines = lines(str)
+          first_line_words = lines.shift.split
+          self[:verb].read first_line_words[0]
+          self[:path].read first_line_words[1]
+          self[:version].read first_line_words[2]
+
           # requests can sometimes have a payload
-          if (data_index = str.find_index(''))
-            data    = str[data_index + 1..-1].join("\n")
-            headers = str[0..data_index - 1].join("\n")
-          else
-            headers = str.join("\n")
-          end
+          headers, data = headers_and_payload_from_lines(lines)
           self[:headers].read(headers)
-          self[:body].read data
+          self[:body].read(data)
+
           self
         end
 
@@ -94,8 +88,29 @@ module PacketGen
           raise FormatError, 'Missing #path.'    if self.path.empty?
           raise FormatError, 'Missing #version.' if self.version.empty?
 
-          str = +''
-          str << self.verb << ' ' << self.path << ' ' << self.version << "\r\n" << self[:headers].to_s << self.body
+          "#{self.verb.dup} #{self.path} #{self.version}\r\n#{self[:headers]}#{self.body}"
+        end
+
+        private
+
+        def lines(str)
+          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
+          # TODO: check verb is correct or raise a ParseError
+          # vrb = HTTP::VERBS.detect { |verb| str.include?(verb) }
+
+          str.split("\r\n").map(&:chomp)
+        end
+
+        def headers_and_payload_from_lines(lines)
+          if (data_index = lines.find_index(''))
+            data    = lines[data_index + 1..-1].join("\n")
+            headers = lines[0..data_index - 1].join("\n")
+          else
+            headers = lines.join("\n")
+            data = nil
+          end
+
+          [headers, data]
         end
       end
     end

@@ -5,6 +5,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+# rubocop:disable Metrics/ClassLength
+
 module PacketGen
   module Types
     # @abstract Set of fields
@@ -127,6 +129,8 @@ module PacketGen
         # @param [Class] klass
         # @return [void]
         def inherited(klass)
+          super
+
           field_defs = {}
           @field_defs.each do |k, v|
             field_defs[k] = v.clone
@@ -245,10 +249,10 @@ module PacketGen
         def update_field(field, options)
           raise ArgumentError, "unkown #{field} field for #{self}" unless field_defs.key?(field)
 
-          field_defs[field].default = options.delete(:default) if options.key?(:default)
-          field_defs[field].builder = options.delete(:builder) if options.key?(:builder)
-          field_defs[field].optional = options.delete(:optional) if options.key?(:optional)
-          field_defs[field].enum = options.delete(:enum) if options.key?(:enum)
+          %i[default builder optional enum].each do |property|
+            field_defs_property_from(field, property, options)
+          end
+
           field_defs[field].options.merge!(options)
         end
 
@@ -272,10 +276,9 @@ module PacketGen
         #   by bitfield size. If no size is given, 1 bit is assumed.
         # @return [void]
         def define_bit_fields_on(attr, *args)
-          attr_def = field_defs[attr]
-          raise ArgumentError, "unknown #{attr} field" if attr_def.nil?
+          raise ArgumentError, "unknown #{attr} field" if field_defs[attr].nil?
 
-          type = attr_def.type
+          type = field_defs[attr].type
           raise TypeError, "#{attr} is not a PacketGen::Types::Int" unless type < Types::Int
 
           total_size = type.new.width * 8
@@ -285,11 +288,7 @@ module PacketGen
             field = args.shift
             next unless field.is_a? Symbol
 
-            size = if args.first.is_a? Integer
-                     args.shift
-                   else
-                     1
-                   end
+            size = size_from(args)
 
             unless field == :_
               add_bit_methods(attr, field, size, total_size, idx)
@@ -337,37 +336,69 @@ module PacketGen
 
         def add_bit_methods(attr, name, size, total_size, idx)
           shift = idx - (size - 1)
-          field_mask = (2**size - 1) << shift
-          clear_mask = (2**total_size - 1) & (~field_mask & (2**total_size - 1))
 
           if size == 1
-            class_eval <<-METHODS
-            def #{name}?
-              val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-              val != 0
-            end
-            def #{name}=(v)
-              val = v ? 1 : 0
-              self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-              self[:#{attr}].value |= val << #{shift}
-            end
-            METHODS
+            add_single_bit_methods(attr, name, size, total_size, shift)
           else
-            class_eval <<-METHODS
-            def #{name}
-              (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-            end
-            def #{name}=(v)
-              self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-              self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
-            end
-            METHODS
+            add_multibit_methods(attr, name, size, total_size, shift)
           end
+        end
+
+        def compute_field_mask(size, shift)
+          (2**size - 1) << shift
+        end
+
+        def compute_clear_mask(total_size, field_mask)
+          (2**total_size - 1) & (~field_mask & (2**total_size - 1))
+        end
+
+        def add_single_bit_methods(attr, name, size, total_size, shift)
+          field_mask = compute_field_mask(size, shift)
+          clear_mask = compute_clear_mask(total_size, field_mask)
+
+          class_eval <<-METHODS
+          def #{name}?
+            val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+            val != 0
+          end
+          def #{name}=(v)
+            val = v ? 1 : 0
+            self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+            self[:#{attr}].value |= val << #{shift}
+          end
+          METHODS
+        end
+
+        def add_multibit_methods(attr, name, size, total_size, shift)
+          field_mask = compute_field_mask(size, shift)
+          clear_mask = compute_clear_mask(total_size, field_mask)
+
+          class_eval <<-METHODS
+          def #{name}
+            (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
+          end
+          def #{name}=(v)
+            self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
+            self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
+          end
+          METHODS
         end
 
         def register_bit_field_size(attr, field, size)
           bit_fields[attr] = {} if bit_fields[attr].nil?
           bit_fields[attr][field] = size
+        end
+
+        def field_defs_property_from(field, property, options)
+          field_defs[field].send("#{property}=", options.delete(property)) if options.key?(property)
+        end
+
+        def size_from(args)
+          if args.first.is_a? Integer
+            args.shift
+          else
+            1
+          end
         end
       end
 
@@ -541,22 +572,21 @@ module PacketGen
         self.class.field_defs
       end
 
+      # rubocop:disable Metrics/AbcSize
       def build_field(field)
         type = field_defs[field].type
-        builder = field_defs[field].builder
-        enum = field_defs[field].enum
-        field_options = field_defs[field].options
 
-        @fields[field] = if builder
-                           builder.call(self, type)
-                         elsif enum
-                           type.new(enum)
-                         elsif !field_options.empty?
-                           type.new(field_options)
+        @fields[field] = if field_defs[field].builder
+                           field_defs[field].builder.call(self, type)
+                         elsif field_defs[field].enum
+                           type.new(field_defs[field].enum)
+                         elsif !field_defs[field].options.empty?
+                           type.new(field_defs[field].options)
                          else
                            type.new
                          end
       end
+      # rubocop:enable Metrics/AbcSize
 
       def initialize_value(field, val)
         type = field_defs[field].type
@@ -580,3 +610,5 @@ module PacketGen
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength

@@ -36,7 +36,7 @@ module PacketGen
         # @param [String] str
         # @return [DUID]
         def read(str)
-          if self.class == DUID
+          if self.instance_of?(DUID)
             super
             case type
             when 1

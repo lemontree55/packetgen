@@ -280,7 +280,7 @@ module PacketGen
       def read(str)
         fcs = Dot11.fcs?
 
-        if self.class == Dot11
+        if self.instance_of? Dot11
           return self if str.nil?
 
           force_binary str
@@ -323,7 +323,7 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = if self.class == Dot11
+        str = if self.instance_of? Dot11
                 Inspect.dashed_line("#{self.class} #{human_type}", 1)
               elsif self.respond_to? :human_subtype
                 Inspect.dashed_line("#{self.class} #{human_subtype}", 1)
@@ -360,25 +360,42 @@ module PacketGen
 
       private
 
-      def define_applicable_fields
+      def remove_from_applicable_fields(fields)
+        fields = [fields] unless fields.is_a? Array
+        @applicable_fields -= fields
+      end
+
+      def handle_mac4
         if to_ds? && from_ds?
           @applicable_fields[6, 0] = :mac4 unless @applicable_fields.include? :mac4
         else
-          @applicable_fields -= %i[mac4]
+          remove_from_applicable_fields :mac4
         end
+      end
+
+      def handle_ht_ctrl
         if order?
           unless @applicable_fields.include? :ht_ctrl
             idx = @applicable_fields.index(:body)
             @applicable_fields[idx, 0] = :ht_ctrl
           end
         else
-          @applicable_fields -= %i[ht_ctrl]
+          remove_from_applicable_fields %i[ht_ctrl]
         end
+      end
+
+      def handle_fcs
         if Dot11.fcs?
           @applicable_fields << :fcs unless @applicable_fields.include? :fcs
         else
-          @applicable_fields -= %i[fcs]
+          remove_from_applicable_fields :fcs
         end
+      end
+
+      def define_applicable_fields
+        handle_mac4
+        handle_ht_ctrl
+        handle_fcs
       end
 
       def private_read(str, fcs)
