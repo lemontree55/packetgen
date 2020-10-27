@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -53,13 +55,13 @@ module PacketGen
           FTest.class_eval { define_field :f1, Int8, default: 255 }
           expect(FTest.new.f1).to eq(255)
 
-          FTest.class_eval { define_field :f2, Int16, default: ->(h) { rand(8) +1 } }
+          FTest.class_eval { define_field :f2, Int16, default: ->(_h) { rand(1...9) } }
           expect(FTest.new.f2).to be > 0
           expect(FTest.new.f2).to be < 9
         end
 
         it 'adds a field with given builder' do
-          FTest.class_eval { define_field :f1, Int8, builder: ->(x,t) { Int16.new } }
+          FTest.class_eval { define_field :f1, Int8, builder: ->(_x, _t) { Int16.new } }
           expect(FTest.new[:f1]).to be_a(Int16)
         end
       end
@@ -78,8 +80,8 @@ module PacketGen
         end
 
         it 'raises on unknown before field' do
-          expect { FTest.class_eval { define_field_before :unk, :f3, Int8 } }.
-            to raise_error(ArgumentError, 'unknown unk field')
+          expect { FTest.class_eval { define_field_before :unk, :f3, Int8 } }
+            .to raise_error(ArgumentError, 'unknown unk field')
         end
       end
 
@@ -97,8 +99,8 @@ module PacketGen
         end
 
         it 'raises on unknown after field' do
-          expect { FTest.class_eval { define_field_after :unk, :f3, Int8 } }.
-            to raise_error(ArgumentError, 'unknown unk field')
+          expect { FTest.class_eval { define_field_after :unk, :f3, Int8 } }
+            .to raise_error(ArgumentError, 'unknown unk field')
         end
       end
 
@@ -113,7 +115,7 @@ module PacketGen
         end
 
         it 'updates builder of given field' do
-          FTest.update_field :f2, builder: ->(h, t) { Int16.new }
+          FTest.update_field :f2, builder: ->(_h, _t) { Int16.new }
           expect(FTest.new[:f2]).to be_a(Int16)
         end
 
@@ -179,14 +181,14 @@ module PacketGen
         end
 
         it 'raises on unknown attribute' do
-          expect { FTest.class_eval { define_bit_fields_on :unk, :bit } }.
-            to raise_error(ArgumentError, 'unknown unk field')
+          expect { FTest.class_eval { define_bit_fields_on :unk, :bit } }
+            .to raise_error(ArgumentError, /^unknown unk field/)
         end
 
         it 'raises on non-Int attribute' do
           FTest.class_eval { define_field :f1, Types::String }
-          expect { FTest.class_eval { define_bit_fields_on :f1, :bit } }.
-            to raise_error(TypeError, 'f1 is not a PacketGen::Types::Int')
+          expect { FTest.class_eval { define_bit_fields_on :f1, :bit } }
+            .to raise_error(TypeError, 'f1 is not a PacketGen::Types::Int')
         end
       end
 

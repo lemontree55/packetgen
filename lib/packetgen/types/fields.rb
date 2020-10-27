@@ -247,7 +247,7 @@ module PacketGen
         # @raise [ArgumentError] unknown +field+
         # @since 2.8.4
         def update_field(field, options)
-          raise ArgumentError, "unkown #{field} field for #{self}" unless field_defs.key?(field)
+          check_existence_of field
 
           %i[default builder optional enum].each do |property|
             field_defs_property_from(field, property, options)
@@ -274,9 +274,10 @@ module PacketGen
         #   subclass)
         # @param [Array] args list of bitfield names. Name may be followed
         #   by bitfield size. If no size is given, 1 bit is assumed.
+        # @raise [ArgumentError] unknown +attr+
         # @return [void]
         def define_bit_fields_on(attr, *args)
-          raise ArgumentError, "unknown #{attr} field" if field_defs[attr].nil?
+          check_existence_of attr
 
           type = field_defs[attr].type
           raise TypeError, "#{attr} is not a PacketGen::Types::Int" unless type < Types::Int
@@ -399,6 +400,10 @@ module PacketGen
           else
             1
           end
+        end
+
+        def check_existence_of(field)
+          raise ArgumentError, "unknown #{field} field for #{self}" unless field_defs.key?(field)
         end
       end
 
