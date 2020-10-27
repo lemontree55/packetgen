@@ -6,6 +6,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+require 'forwardable'
+
 module PacketGen
   module Types
     # This class mimics regular String, but it is {Fieldable}.
@@ -74,7 +76,7 @@ module PacketGen
 
       def register_internal_string(str)
         @string = str
-        force_binary(@string)
+        PacketGen.force_binary(@string)
       end
     end
   end
