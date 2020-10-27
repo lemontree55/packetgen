@@ -90,6 +90,12 @@ module PacketGen
       def sz
         to_s.size
       end
+
+      # Say if IntString is empty
+      # @return [Boolean]
+      def empty?
+        length.zero?
+      end
     end
   end
 end

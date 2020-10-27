@@ -18,7 +18,7 @@ module PacketGen
       include Fieldable
 
       def_delegators :@string, :[], :length, :size, :inspect, :==, :<<,
-                     :unpack, :force_encoding, :encoding, :index
+                     :unpack, :force_encoding, :encoding, :index, :empty?
 
       # @return [::String]
       attr_reader :string

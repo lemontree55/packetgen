@@ -19,7 +19,7 @@ module PacketGen
       include LengthFrom
 
       def_delegators :@string, :[], :to_s, :length, :size, :inspect, :==, :<<,
-                     :unpack, :force_encoding, :encoding, :index
+                     :unpack, :force_encoding, :encoding, :index, :empty?
 
       # @return [::String]
       attr_reader :string
