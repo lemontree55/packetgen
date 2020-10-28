@@ -82,6 +82,11 @@ module PacketGen
         io.read data_pad_len
         data_pad_len
       end
+
+      def read_blocklen2_and_check(io)
+        self[:block_len2].read io.read(4)
+        check_len_coherency
+      end
     end
   end
 end

@@ -92,29 +92,15 @@ module PacketGen
         io = to_io(str_or_io)
         return self if io.eof?
 
-        type_str = check_shb(io)
-        block_len_str = io.read(4)
-        magic_str = io.read(4)
-
-        case magic_str
-        when MAGIC_LITTLE
-          force_endianness :little if @endian == :big
-        when MAGIC_BIG
-          force_endianness :big if @endian == :little
-        else
-          raise InvalidFileError, 'Incorrect magic for Section Header Block'
+        self[:type].read check_shb(io)
+        %i[block_len magic ver_major ver_minor section_len].each do |attr|
+          self[attr].read io.read(self[attr].sz)
         end
+        handle_magic_and_check(self[:magic].to_s)
 
-        self[:type].read type_str
-        self[:block_len].read block_len_str
-        self[:magic].read magic_str
-        self[:ver_major].read io.read(2)
-        self[:ver_minor].read io.read(2)
-        self[:section_len].read io.read(8)
-        self[:options].read io.read(self.block_len - MIN_SIZE)
-        self[:block_len2].read io.read(4)
+        read_options(io)
+        read_blocklen2_and_check(io)
 
-        check_len_coherency
         self
       end
 
@@ -141,13 +127,13 @@ module PacketGen
 
       def force_endianness(endian)
         @endian = endian
-        self[:type] = Types::Int32.new(self[:type].to_i, endian)
-        self[:block_len] = Types::Int32.new(self[:block_len].to_i, endian)
-        self[:magic] = Types::Int32.new(self[:magic].to_i, endian)
-        self[:ver_major] = Types::Int16.new(self[:ver_major].to_i, endian)
-        self[:ver_minor] = Types::Int16.new(self[:ver_minor].to_i, endian)
-        self[:section_len] = Types::Int64.new(self[:section_len].to_i, endian)
-        self[:block_len2] = Types::Int32.new(self[:block_len2].to_i, endian)
+        %i[type block_len magic block_len2].each do |attr|
+          self[attr] = Types::Int32.new(0, endian).read(self[attr].to_s)
+        end
+        %i[ver_major ver_minor].each do |attr|
+          self[attr] = Types::Int16.new(0, endian).read(self[attr].to_s)
+        end
+        self[:section_len] = Types::Int64.new(0, endian).read(self[:section_len].to_s)
       end
 
       # Check io contains a SHB
@@ -159,6 +145,21 @@ module PacketGen
 
         type = type_str.unpack('H*').join
         raise InvalidFileError, "Incorrect type (#{type})for Section Header Block"
+      end
+
+      def handle_magic_and_check(magic_str)
+        case magic_str
+        when MAGIC_LITTLE
+          force_endianness :little if endian == :big
+        when MAGIC_BIG
+          force_endianness :big if endian == :little
+        else
+          raise InvalidFileError, 'Incorrect magic for Section Header Block'
+        end
+      end
+
+      def read_options(io)
+        self[:options].read io.read(self.block_len - MIN_SIZE)
       end
     end
   end

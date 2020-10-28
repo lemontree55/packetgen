@@ -74,15 +74,12 @@ module PacketGen
         io = to_io(str_or_io)
         return self if io.eof?
 
-        self[:type].read io.read(4)
-        self[:block_len].read io.read(4)
-        self[:link_type].read io.read(2)
-        self[:reserved].read io.read(2)
-        self[:snaplen].read io.read(4)
+        %i[type block_len link_type reserved snaplen].each do |attr|
+          self[attr].read io.read(self[attr].sz)
+        end
         self[:options].read io.read(self.block_len - MIN_SIZE)
-        self[:block_len2].read io.read(4)
+        read_blocklen2_and_check(io)
 
-        check_len_coherency
         self
       end
 

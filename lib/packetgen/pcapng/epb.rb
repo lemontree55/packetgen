@@ -85,21 +85,13 @@ module PacketGen
         io = to_io(str_or_io)
         return self if io.eof?
 
-        self[:type].read io.read(4)
-        self[:block_len].read io.read(4)
-        self[:interface_id].read io.read(4)
-        self[:tsh].read io.read(4)
-        self[:tsl].read io.read(4)
-        self[:cap_len].read io.read(4)
-        self[:orig_len].read io.read(4)
+        %i[type block_len interface_id tsh tsl cap_len orig_len].each do |attr|
+          self[attr].read io.read(self[attr].sz)
+        end
         self[:data].read io.read(self.cap_len)
-        data_pad_len = remove_padding(io, self.cap_len)
-        options_len = self.block_len - self.cap_len - data_pad_len
-        options_len -= MIN_SIZE
-        self[:options].read io.read(options_len)
-        self[:block_len2].read io.read(4)
+        read_options(io)
+        read_blocklen2_and_check(io)
 
-        check_len_coherency
         self
       end
 
@@ -125,6 +117,12 @@ module PacketGen
         else
           @interface.ts_resol
         end
+      end
+
+      def read_options(io)
+        data_pad_len = remove_padding(io, self.cap_len)
+        options_len = self.block_len - self.cap_len - data_pad_len - MIN_SIZE
+        self[:options].read io.read(options_len)
       end
     end
   end

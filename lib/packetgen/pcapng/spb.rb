@@ -69,9 +69,8 @@ module PacketGen
         data_len = compute_data_len
         self[:data].read io.read(data_len)
         remove_padding(io, data_len)
-        self[:block_len2].read io.read(4)
+        read_blocklen2_and_check(io)
 
-        check_len_coherency
         self.type ||= PcapNG::IDB_TYPE.to_i
         self
       end

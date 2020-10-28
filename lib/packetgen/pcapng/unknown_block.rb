@@ -50,9 +50,7 @@ module PacketGen
         self[:type].read io.read(4)
         self[:block_len].read io.read(4)
         self[:body].read io.read(self[:block_len].to_i - MIN_SIZE)
-        self[:block_len2].read io.read(4)
-
-        check_len_coherency
+        read_blocklen2_and_check(io)
 
         self
       end

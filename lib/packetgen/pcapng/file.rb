@@ -98,12 +98,10 @@ module PacketGen
       #  @return [Integer] number of packets
       # @raise [ArgumentError] cannot read +fname+
       def read_packet_bytes(fname, &blk)
-        count = 0
         packets = [] unless blk
 
-        readfile(fname) do |packet|
+        count = readfile(fname) do |packet|
           if blk
-            count += 1
             yield packet.data.to_s, packet.interface.link_type
           else
             packets << packet.data.to_s
@@ -124,19 +122,12 @@ module PacketGen
       #  @return [Integer] number of packets
       # @raise [ArgumentError] cannot read +fname+
       def read_packets(fname, &blk)
-        count = 0
         packets = [] unless blk
 
-        read_packet_bytes(fname) do |packet, link_type|
+        count = read_packet_bytes(fname) do |packet, link_type|
           first_header = KNOWN_LINK_TYPES[link_type]
-          parsed_pkt = if first_header.nil?
-                         # unknown link type, try to guess
-                         Packet.parse(packet)
-                       else
-                         Packet.parse(packet, first_header: first_header)
-                       end
+          parsed_pkt = Packet.parse(packet, first_header: first_header)
           if blk
-            count += 1
             yield parsed_pkt
           else
             packets << parsed_pkt
@@ -170,8 +161,8 @@ module PacketGen
         Deprecation.deprecated_option(self.class, __method__, :filename) if options[:filename]
         Deprecation.deprecated_option(self.class, __method__, :keep_ts) if options[:keep_ts]
 
-        filename = options[:filename] || options[:file]
-        reread filename
+        file = options[:file] || options[:filename]
+        reread file
 
         ary = []
         @sections.each do |section|
@@ -260,8 +251,7 @@ module PacketGen
       # @param [IO] io
       # @return [void]
       def parse_section(io)
-        shb = SHB.new
-        shb = parse_shb(shb, io)
+        shb = parse_shb(SHB.new, io)
         raise InvalidFileError, 'no Section header found' unless shb.is_a?(SHB)
 
         to_parse = if shb.section_len.to_i != 0xffffffffffffffff
@@ -294,15 +284,16 @@ module PacketGen
       # @param [SHB] shb header of current section
       # @return [Block]
       def parse(type, io, shb)
-        klass = if BLOCK_TYPES.key?(type.to_i)
-                  BLOCK_TYPES[type.to_i]
-                else
-                  UnknownBlock
-                end
-
-        block = klass.new(endian: shb.endian)
+        block = guess_block_type(type).new(endian: shb.endian)
         classify_block shb, block
         block.read(io)
+      end
+
+      # Guess class to use from type
+      # @param [Types::Int] type
+      # @return [Block]
+      def guess_block_type(type)
+        BLOCK_TYPES.key?(type.to_i) ? BLOCK_TYPES[type.to_i] : UnknownBlock
       end
 
       # Classify block from its type
@@ -316,12 +307,10 @@ module PacketGen
         when IDB
           shb << block
           block.section = shb
-        when EPB
-          shb.interfaces[block.interface_id] << block
-          block.interface = shb.interfaces[block.interface_id]
-        when SPB
-          shb.interfaces[0] << block
-          block.interface = shb.interfaces[0]
+        when SPB, EPB
+          ifid = block.is_a?(EPB) ? block.interface_id : 0
+          shb.interfaces[ifid] << block
+          block.interface = shb.interfaces[ifid]
         else
           shb.unknown_blocks << block
           block.section = shb
@@ -341,9 +330,9 @@ module PacketGen
 
       # Extract and check options for #array_to_file
       def array_to_file_options_from_hash(options)
-        Deprecation.deprecated_option(self.class, :array_to_file, :filename) if options[:filename]
-        Deprecation.deprecated_option(self.class, :array_to_file, :arr) if options[:arr]
-        Deprecation.deprecated_option(self.class, :array_to_file, :ts) if options[:ts]
+        %i[filename arr ts].each do |deprecated_opt|
+          Deprecation.deprecated_option(self.class, :array_to_file, deprecated_opt) if options[deprecated_opt]
+        end
 
         filename = options[:filename] || options[:file]
         ary = options[:array] || options[:arr]
@@ -368,10 +357,8 @@ module PacketGen
       # Compute tsh and tsl from ts
       def calc_ts(timeslot, ts_resol)
         this_ts = (timeslot / ts_resol).to_i
-        this_tsh = this_ts >> 32
-        this_tsl = this_ts & 0xffffffff
 
-        [this_tsh, this_tsl]
+        [this_ts >> 32, this_ts & 0xffffffff]
       end
 
       def reread(filename)
@@ -382,14 +369,12 @@ module PacketGen
       end
 
       def epb_from_pkt(pkt, endian, ts, ts_resol, ts_add_val)
-        case pkt
-        when Hash
-          this_ts = pkt.keys.first.to_i
-          this_data = pkt.values.first.to_s
-        else
-          this_ts = (ts + ts_add_val).to_i
-          this_data = pkt.to_s
-        end
+        this_ts, this_data = case pkt
+                             when Hash
+                               [pkt.keys.first.to_i, pkt.values.first.to_s]
+                             else
+                               [(ts + ts_add_val).to_i, pkt.to_s]
+                             end
         this_cap_len = this_data.size
         this_tsh, this_tsl = calc_ts(this_ts, ts_resol)
         EPB.new(endian: endian,
