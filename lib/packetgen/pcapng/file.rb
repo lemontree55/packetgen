@@ -195,6 +195,17 @@ module PacketGen
       # Translates a {File} into a hash with timestamps as keys.
       # @return [Hash{Time => Packet}]
       def to_h
+        hsh = {}
+        @sections.each do |section|
+          section.interfaces.each do |itf|
+            fh = KNOWN_LINK_TYPES[itf.link_type]
+            itf.packets.map do |pkt|
+              hsh[pkt.timestamp] = Packet.parse(pkt.data.to_s, first_header: fh)
+            end
+          end
+        end
+
+        hsh
       end
 
       # Writes the {File} to a file.
