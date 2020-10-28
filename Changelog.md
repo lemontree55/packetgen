@@ -5,6 +5,14 @@
 * Add Types::Fieldable mixin to document API needed for a class to be used as
   a field in Typess:Fields subclasses.
 * Types::String and Types::CString are no more subclasses or Ruby String.
+* Types::String, Types::CString and Types::IntString: add #empty?
+* Fix some kwargs in prevision of ruby 3.
+* Clean code.
+* Bugs:
+    * require forwardable in Types::String and Types::CString, as requiring from
+      Types::Array is not always done before.
+    * PacketGen.force_binary is used instead of #force_binary in Types::String and
+      Types::CString. Worked in spec because #force_binary was a spec helper.
 
 ## Packetgen 3.1.5
 
