@@ -178,6 +178,25 @@ module PacketGen
         ary
       end
 
+      # Translates a {File} into an array of packets.
+      # @return [Array<Packet>]
+      def to_a
+        ary = []
+        @sections.each do |section|
+          section.interfaces.each do |itf|
+            fh = KNOWN_LINK_TYPES[itf.link_type]
+            ary.concat(itf.packets.map { |pkt| Packet.parse(pkt.data.to_s, first_header: fh) })
+          end
+        end
+
+        ary
+      end
+
+      # Translates a {File} into a hash with timestamps as keys.
+      # @return [Hash{Time => Packet}]
+      def to_h
+      end
+
       # Writes the {File} to a file.
       # @param [Hash] options
       # @option options [Boolean] :append (default: +false+) if set to +true+,

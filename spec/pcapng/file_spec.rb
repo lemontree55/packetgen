@@ -186,6 +186,22 @@ module PacketGen
         end
       end
 
+      describe '#to_a' do
+        it 'generates an array from object state' do
+          @pcapng.readfile @file
+          ary = @pcapng.to_a
+          expect(ary).to be_a(Array)
+          ary.each do |p|
+            expect(p).to be_a(Packet)
+          end
+          expect(ary[0]).to eq(Packet.parse(@pcapng.sections[0].interfaces[0].packets[0].data))
+        end
+      end
+
+      describe '#to_h' do
+        it 'generates a hash with timestamps as keys and packets as values'
+      end
+
       describe '#to_file' do
         before(:each) { @write_file = Tempfile.new('pcapng') }
         after(:each) { @write_file.close; @write_file.unlink }
