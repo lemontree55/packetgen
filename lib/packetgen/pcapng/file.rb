@@ -149,6 +149,8 @@ module PacketGen
         @sections.clear
       end
 
+      # @deprecated
+      #  Prefer use of {#to_a} or {#to_h}.
       # Translates a {File} into an array of packets.
       # @param [Hash] options
       # @option options [String] :file if given, object is cleared and filename
@@ -158,8 +160,7 @@ module PacketGen
       #   as value. There is one hash per packet.
       # @return [Array<Packet>,Array<Hash>]
       def file_to_array(options={})
-        Deprecation.deprecated_option(self.class, __method__, :filename) if options[:filename]
-        Deprecation.deprecated_option(self.class, __method__, :keep_ts) if options[:keep_ts]
+        Deprecation.deprecated(self.class, __method__)
 
         file = options[:file] || options[:filename]
         reread file

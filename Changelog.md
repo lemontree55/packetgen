@@ -2,6 +2,8 @@
 
 ## Master
 
+* Deprecate PcapNG::File#file_to_array in favor of PcapNG::File#to_a and
+  PcapNG::File#to_h.
 * Add Types::Fieldable mixin to document API needed for a class to be used as
   a field in Typess:Fields subclasses.
 * Types::String and Types::CString are no more subclasses or Ruby String.
