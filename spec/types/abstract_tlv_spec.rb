@@ -65,7 +65,7 @@ module PacketGen
             tlv.read(bin_str)
             expect(tlv.type).to eq(1)
             expect(tlv.length).to eq(3)
-            expect(tlv.value).to eq(force_binary("\x12\x34\x56"))
+            expect(tlv.value).to eq(binary("\x12\x34\x56"))
           end
 
           it 'reads a TLV from a binary string when header_in_length is set' do

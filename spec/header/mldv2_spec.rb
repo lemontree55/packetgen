@@ -162,7 +162,7 @@ module PacketGen
             expect(mar.human_type).to eq('MODE_IS_INCLUDE')
             expect(mar.aux_data_len).to eq(2)
             expect(mar.aux_data.size).to eq(8)
-            expect(mar.aux_data).to eq(force_binary("\xde\xad\xbe\xef\xbe\xad\xfe\xed"))
+            expect(mar.aux_data).to eq(binary("\xde\xad\xbe\xef\xbe\xad\xfe\xed"))
             expect(mar.number_of_sources).to eq(8)
             expect(mar.source_addr.size).to eq(8)
             sources = mar.source_addr.map(&:to_human)

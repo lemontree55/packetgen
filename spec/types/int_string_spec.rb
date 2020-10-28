@@ -22,11 +22,11 @@ module PacketGen
         let(:is32) { IntString.new(Int32) }
 
         it 'reads an IntString' do
-          is8.read force_binary("\x04abcd")
+          is8.read binary("\x04abcd")
           expect(is8.length).to eq(4)
           expect(is8.string).to eq('abcd')
 
-          is32.read force_binary("\x00\x00\x00\x06abcdef")
+          is32.read binary("\x00\x00\x00\x06abcdef")
           expect(is32.length).to eq(6)
           expect(is32.string).to eq('abcdef')
         end
@@ -43,17 +43,17 @@ module PacketGen
 
         it 'gets binary form for IntString' do
           is8.string = 'This is a String'
-          expect(is8.to_s).to eq(force_binary("\x10This is a String"))
+          expect(is8.to_s).to eq(binary("\x10This is a String"))
           is16.string = 'This is another String'
-          expect(is16.to_s).to eq(force_binary("\x00\x16This is another String"))
+          expect(is16.to_s).to eq(binary("\x00\x16This is another String"))
         end
 
         it 'gets binary form for IntString with previously forced length' do
           is8.string = 'This is a String'
           is8.length = 17
-          expect(is8.to_s).to eq(force_binary("\x11This is a String"))
+          expect(is8.to_s).to eq(binary("\x11This is a String"))
           is8.length = 10
-          expect(is8.to_s).to eq(force_binary("\x0aThis is a String"))
+          expect(is8.to_s).to eq(binary("\x0aThis is a String"))
         end
       end
 

@@ -75,8 +75,8 @@ module PacketGen
           expect(ospf.area_id).to eq(1)
           expect(ospf.checksum).to eq(0xfb86)
           expect(ospf.instance_id).to eq(0)
-          expect(ospf.body.to_s[0]).to eq(force_binary("\x00"))
-          expect(ospf.body.to_s[-1]).to eq(force_binary("\x00"))
+          expect(ospf.body.to_s[0]).to eq(binary("\x00"))
+          expect(ospf.body.to_s[-1]).to eq(binary("\x00"))
         end
       end
 
@@ -95,7 +95,7 @@ module PacketGen
           pkt.ospfv3.calc_length
           pkt.ospfv3.calc_checksum
 
-          expected = force_binary("\x03\x01\x00\x10\xc0\xa8\xaa\x08" +
+          expected = binary("\x03\x01\x00\x10\xc0\xa8\xaa\x08" +
                                   "\x00\x00\x00\x01\x91\xd1\x00\x00")
           expect(pkt.ospfv3.to_s).to eq(expected)
         end

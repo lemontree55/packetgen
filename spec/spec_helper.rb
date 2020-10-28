@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'simplecov'
 SimpleCov.start do
-  add_filter "/spec/"
-  add_filter "/vendor/"
+  add_filter '/spec/'
+  add_filter '/vendor/'
 end
 
 RSpec.configure do |c|
@@ -32,6 +34,6 @@ def read_raw_packets(filename)
   PacketGen::PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'header', filename))
 end
 
-def force_binary(str)
+def binary(str)
   PacketGen.force_binary(str)
 end

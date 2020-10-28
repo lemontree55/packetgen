@@ -42,13 +42,13 @@ module PacketGen
           tlv = TLV.new.read(bin_str)
           expect(tlv.type).to eq(1)
           expect(tlv.length).to eq(2)
-          expect(tlv.value).to eq(force_binary "\x12\x34")
+          expect(tlv.value).to eq(binary "\x12\x34")
 
           bin_str = [1, 3, 0x12345678].pack('nnN')
           tlv = TLV.new(l: Int16, t: Int16).read(bin_str)
           expect(tlv.type).to eq(1)
           expect(tlv.length).to eq(3)
-          expect(tlv.value).to eq(force_binary "\x12\x34\x56")
+          expect(tlv.value).to eq(binary "\x12\x34\x56")
         end
       end
 

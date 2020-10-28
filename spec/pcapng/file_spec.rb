@@ -323,20 +323,20 @@ module PacketGen
       end
 
       it '#to_s returns object as a String' do
-        orig_str = force_binary(::File.read(@file))
+        orig_str = binary(::File.read(@file))
         @pcapng.read orig_str
         expect(@pcapng.to_s).to eq(orig_str)
 
         @pcapng.clear
-        orig_str = force_binary(::File.read(@file_spb))
+        orig_str = binary(::File.read(@file_spb))
         @pcapng.read orig_str
         expect(@pcapng.to_s).to eq(orig_str)
       end
 
       describe '#read!' do
         it 'clears object and reads a string' do
-          str1 = force_binary(::File.read(@file))
-          str2 = force_binary(::File.read(@file_spb))
+          str1 = binary(::File.read(@file))
+          str2 = binary(::File.read(@file_spb))
           @pcapng.read str1
 
           @pcapng.read! str2

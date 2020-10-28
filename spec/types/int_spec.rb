@@ -72,8 +72,8 @@ module PacketGen
         expect(int.read("\x80").to_i).to eq(128)
       end
       it 'transforms #to_s an unsigned 8-bit integer' do
-        expect(int.read(127).to_s).to eq(force_binary("\x7f"))
-        expect(int.read(128).to_s).to eq(force_binary("\x80"))
+        expect(int.read(127).to_s).to eq(binary("\x7f"))
+        expect(int.read(128).to_s).to eq(binary("\x80"))
       end
       it '#sz returns 1' do
         expect(int.sz).to eq(1)
@@ -87,8 +87,8 @@ module PacketGen
         expect(int.read("\x80").to_i).to eq(-128)
       end
       it 'transforms #to_s a signed 8-bit integer' do
-        expect(int.read(127).to_s).to eq(force_binary("\x7f"))
-        expect(int.read(-128).to_s).to eq(force_binary("\x80"))
+        expect(int.read(127).to_s).to eq(binary("\x7f"))
+        expect(int.read(-128).to_s).to eq(binary("\x80"))
       end
     end
 
@@ -99,8 +99,8 @@ module PacketGen
         expect(int.read("\x80\x00").to_i).to eq(32_768)
       end
       it 'transforms #to_s an unsigned 16-bit big-endian integer' do
-        expect(int.read(32_767).to_s).to eq(force_binary("\x7f\xff"))
-        expect(int.read(32_768).to_s).to eq(force_binary("\x80\x00"))
+        expect(int.read(32_767).to_s).to eq(binary("\x7f\xff"))
+        expect(int.read(32_768).to_s).to eq(binary("\x80\x00"))
       end
       it '#sz returns 2' do
         expect(int.sz).to eq(2)
@@ -114,8 +114,8 @@ module PacketGen
         expect(int.read("\x00\x80").to_i).to eq(32_768)
       end
       it 'transforms #to_s an unsigned 16-bit little-endian integer' do
-        expect(int.read(32_767).to_s).to eq(force_binary("\xff\x7f"))
-        expect(int.read(32_768).to_s).to eq(force_binary("\x00\x80"))
+        expect(int.read(32_767).to_s).to eq(binary("\xff\x7f"))
+        expect(int.read(32_768).to_s).to eq(binary("\x00\x80"))
       end
     end
 
@@ -126,8 +126,8 @@ module PacketGen
         expect(int.read("\x80\x00").to_i).to eq(-32_768)
       end
       it 'transforms #to_s a signed 16-bit big-endian integer' do
-        expect(int.read(32_767).to_s).to eq(force_binary("\x7f\xff"))
-        expect(int.read(-32_768).to_s).to eq(force_binary("\x80\x00"))
+        expect(int.read(32_767).to_s).to eq(binary("\x7f\xff"))
+        expect(int.read(-32_768).to_s).to eq(binary("\x80\x00"))
       end
     end
 
@@ -138,15 +138,15 @@ module PacketGen
         expect(int.read("\x00\x80").to_i).to eq(-32_768)
       end
       it 'transforms #to_s a signed 16-bit little-endian integer' do
-        expect(int.read(32_767).to_s).to eq(force_binary("\xff\x7f"))
-        expect(int.read(-32_768).to_s).to eq(force_binary("\x00\x80"))
+        expect(int.read(32_767).to_s).to eq(binary("\xff\x7f"))
+        expect(int.read(-32_768).to_s).to eq(binary("\x00\x80"))
       end
     end
 
     describe Int24 do
       let(:int) { Int24.new }
-      let(:strint1) { force_binary("\x7f\xff\xff") }
-      let(:strint2) { force_binary("\x80\x00\x00") }
+      let(:strint1) { binary("\x7f\xff\xff") }
+      let(:strint2) { binary("\x80\x00\x00") }
       it '#read an unsigned 24-bit big-endian integer' do
         expect(int.read(strint1).to_i).to eq(0x7f_ffff)
         expect(int.read(strint2).to_i).to eq(0x80_0000)
@@ -162,8 +162,8 @@ module PacketGen
 
     describe Int24le do
       let(:int) { Int24le.new }
-      let(:strint1) { force_binary("\xff\xff\x7f") }
-      let(:strint2) { force_binary("\x00\x00\x80") }
+      let(:strint1) { binary("\xff\xff\x7f") }
+      let(:strint2) { binary("\x00\x00\x80") }
       it '#read an unsigned 24-bit little-endian integer' do
         expect(int.read(strint1).to_i).to eq(0x7f_ffff)
         expect(int.read(strint2).to_i).to eq(0x80_0000)
@@ -181,8 +181,8 @@ module PacketGen
         expect(int.read("\x80\x00\x00\x00").to_i).to eq(0x8000_0000)
       end
       it 'transforms #to_s an unsigned 32-bit big-endian integer' do
-        expect(int.read(0x7fff_ffff).to_s).to eq(force_binary("\x7f\xff\xff\xff"))
-        expect(int.read(0x8000_0000).to_s).to eq(force_binary("\x80\x00\x00\x00"))
+        expect(int.read(0x7fff_ffff).to_s).to eq(binary("\x7f\xff\xff\xff"))
+        expect(int.read(0x8000_0000).to_s).to eq(binary("\x80\x00\x00\x00"))
       end
       it '#sz returns 4' do
         expect(int.sz).to eq(4)
@@ -196,8 +196,8 @@ module PacketGen
         expect(int.read("\x00\x00\x00\x80").to_i).to eq(0x8000_0000)
       end
       it 'transforms #to_s an unsigned 32-bit little-endian integer' do
-        expect(int.read(0x7fff_ffff).to_s).to eq(force_binary("\xff\xff\xff\x7f"))
-        expect(int.read(0x8000_0000).to_s).to eq(force_binary("\x00\x00\x00\x80"))
+        expect(int.read(0x7fff_ffff).to_s).to eq(binary("\xff\xff\xff\x7f"))
+        expect(int.read(0x8000_0000).to_s).to eq(binary("\x00\x00\x00\x80"))
       end
     end
 
@@ -208,8 +208,8 @@ module PacketGen
         expect(int.read("\x80\x00\x00\x00").to_i).to eq(-0x8000_0000)
       end
       it 'transforms #to_s a signed 32-bit big-endian integer' do
-        expect(int.read(0x7fff_ffff).to_s).to eq(force_binary("\x7f\xff\xff\xff"))
-        expect(int.read(-0x8000_0000).to_s).to eq(force_binary("\x80\x00\x00\x00"))
+        expect(int.read(0x7fff_ffff).to_s).to eq(binary("\x7f\xff\xff\xff"))
+        expect(int.read(-0x8000_0000).to_s).to eq(binary("\x80\x00\x00\x00"))
       end
     end
 
@@ -220,8 +220,8 @@ module PacketGen
         expect(int.read("\x00\x00\x00\x80").to_i).to eq(-0x8000_0000)
       end
       it 'transforms #to_s a signed 32-bit little-endian integer' do
-        expect(int.read(0x7fff_ffff).to_s).to eq(force_binary("\xff\xff\xff\x7f"))
-        expect(int.read(-0x8000_0000).to_s).to eq(force_binary("\x00\x00\x00\x80"))
+        expect(int.read(0x7fff_ffff).to_s).to eq(binary("\xff\xff\xff\x7f"))
+        expect(int.read(-0x8000_0000).to_s).to eq(binary("\x00\x00\x00\x80"))
       end
     end
 
@@ -286,8 +286,8 @@ module PacketGen
           end
           it "transforms #to_s an unsigned 64-bit #{endian}-endian integer" do
             fixtures = INT64[endian][us]
-            expect(@int.read(fixtures[0][:int]).to_s).to eq(force_binary(fixtures[0][:str]))
-            expect(@int.read(fixtures[1][:int]).to_s).to eq(force_binary(fixtures[1][:str]))
+            expect(@int.read(fixtures[0][:int]).to_s).to eq(binary(fixtures[0][:str]))
+            expect(@int.read(fixtures[1][:int]).to_s).to eq(binary(fixtures[1][:str]))
           end
           it '#sz returns 8' do
             expect(@int.sz).to eq(8)

@@ -49,7 +49,7 @@ module PacketGen
             opt = Option.new.read("\xfd\x06\x00\x00\x00\x01")
             expect(opt.kind).to eq(253)
             expect(opt.length).to eq(6)
-            expect(opt.value).to eq(force_binary "\x00\x00\x00\x01")
+            expect(opt.value).to eq(binary "\x00\x00\x00\x01")
           end
 
           it 'reads a long Option' do
@@ -63,21 +63,21 @@ module PacketGen
         describe '#to_s' do
           it 'generates a string for Option with only a kind' do
             opt = Option.new(kind: 1)
-            expect(opt.to_s).to eq(force_binary "\x01")
+            expect(opt.to_s).to eq(binary "\x01")
           end
 
           it 'generates a string for complete Option' do
             opt = Option.new(kind: 253, length: 4, value: 1)
             expected = "\xfd\x04\x00\x01"
-            expect(opt.to_s).to eq(force_binary expected)
+            expect(opt.to_s).to eq(binary expected)
 
             opt = Option.new(kind: 253, length: 6, value: 1)
             expected = "\xfd\x06\x00\x00\x00\x01"
-            expect(opt.to_s).to eq(force_binary expected)
+            expect(opt.to_s).to eq(binary expected)
 
             opt = Option.new(kind: 32, value: 'abcdefg')
             expected = "\x20\x09abcdefg"
-            expect(opt.to_s).to eq(force_binary expected)
+            expect(opt.to_s).to eq(binary expected)
           end
         end
       end
@@ -98,7 +98,7 @@ module PacketGen
         end
 
         it 'is a single byte option' do
-          expect(NOP.new.to_s).to eq(force_binary "\x01")
+          expect(NOP.new.to_s).to eq(binary "\x01")
         end
       end
 
@@ -109,9 +109,9 @@ module PacketGen
 
         it 'is a 4-byte option' do
           mss = MSS.new
-          expect(mss.to_s).to eq(force_binary "\x02\x04\x00\x00")
+          expect(mss.to_s).to eq(binary "\x02\x04\x00\x00")
           mss.value = 0x123
-          expect(mss.to_s).to eq(force_binary "\x02\x04\x01\x23")
+          expect(mss.to_s).to eq(binary "\x02\x04\x01\x23")
         end
       end
 
@@ -122,9 +122,9 @@ module PacketGen
 
         it 'is a 3-byte option' do
           ws = WS.new
-          expect(ws.to_s).to eq(force_binary "\x03\x03\x00")
+          expect(ws.to_s).to eq(binary "\x03\x03\x00")
           ws.value = 0x12
-          expect(ws.to_s).to eq(force_binary "\x03\x03\x12")
+          expect(ws.to_s).to eq(binary "\x03\x03\x12")
         end
       end
 
@@ -134,7 +134,7 @@ module PacketGen
         end
 
         it 'is a 2-byte option' do
-          expect(SACKOK.new.to_s).to eq(force_binary "\x04\x02")
+          expect(SACKOK.new.to_s).to eq(binary "\x04\x02")
         end
       end
 
@@ -145,11 +145,11 @@ module PacketGen
 
         it 'is a multi-byte option' do
           sack = SACK.new
-          expect(sack.to_s).to eq(force_binary "\x05\x02")
+          expect(sack.to_s).to eq(binary "\x05\x02")
           1.upto(12) do |i|
             sack.value = 'z' * i
             expected = [5, 2 + i].pack('C*') + 'z' * i
-            expect(sack.to_s).to eq(force_binary expected)
+            expect(sack.to_s).to eq(binary expected)
           end
         end
       end
@@ -161,9 +161,9 @@ module PacketGen
 
         it 'is a 6-byte option' do
           echo = ECHO.new
-          expect(echo.to_s).to eq(force_binary "\x06\x06\x00\x00\x00\x00")
+          expect(echo.to_s).to eq(binary "\x06\x06\x00\x00\x00\x00")
           echo.value = 0xff010203
-          expect(echo.to_s).to eq(force_binary "\x06\x06\xff\x01\x02\x03")
+          expect(echo.to_s).to eq(binary "\x06\x06\xff\x01\x02\x03")
         end
       end
 
@@ -174,9 +174,9 @@ module PacketGen
 
         it 'is a 6-byte option' do
           echor = ECHOREPLY.new
-          expect(echor.to_s).to eq(force_binary "\x07\x06\x00\x00\x00\x00")
+          expect(echor.to_s).to eq(binary "\x07\x06\x00\x00\x00\x00")
           echor.value = 0xff010203
-          expect(echor.to_s).to eq(force_binary "\x07\x06\xff\x01\x02\x03")
+          expect(echor.to_s).to eq(binary "\x07\x06\xff\x01\x02\x03")
         end
       end
 
@@ -187,9 +187,9 @@ module PacketGen
 
         it 'is a 10-byte option' do
           ts = TS.new
-          expect(ts.to_s).to eq(force_binary("\x08\x0a" + "\x00" * 8))
+          expect(ts.to_s).to eq(binary("\x08\x0a" + "\x00" * 8))
           ts.value = "\x7f" + "\x01" * 7
-          expect(ts.to_s).to eq(force_binary("\x08\x0a\x7f" + "\x01" * 7))
+          expect(ts.to_s).to eq(binary("\x08\x0a\x7f" + "\x01" * 7))
         end
       end
     end

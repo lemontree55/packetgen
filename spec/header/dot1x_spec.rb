@@ -56,7 +56,7 @@ module PacketGen
             expect(packets[2].dot1x.length).to eq(19)
             expect(packets[2].dot1x.body.to_s[0..3]).to eq("\x02\x01\x00\x13")
           end
-          
+
           it 'only parses Dot1x data, and no Ethernet padding' do
             pkt = read_packets('dot1x.pcapng')[3]
             expect(pkt.to_s.size).to eq(24)
@@ -67,7 +67,7 @@ module PacketGen
           it 'returns a binary string' do
             dot1x = Dot1x.new
             expected = "\x01\x00\x00\x00"
-            expect(dot1x.to_s).to eq(force_binary expected)
+            expect(dot1x.to_s).to eq(binary expected)
           end
         end
 

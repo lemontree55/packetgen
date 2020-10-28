@@ -170,12 +170,12 @@ module PacketGen
 
         describe '#read' do
           it 'reads two bytes in enum range' do
-            enum32.read(force_binary("\x00\x00\x00\x01"))
+            enum32.read(binary("\x00\x00\x00\x01"))
             expect(enum32.to_human).to eq('medium')
           end
 
           it 'reads two bytes, even out of range' do
-            enum32.read(force_binary("\x7f\x00\x00\x01"))
+            enum32.read(binary("\x7f\x00\x00\x01"))
             expect(enum32.to_human).to eq('<unknown:2130706433>')
             expect(enum32.value).to eq(0x7f000001)
           end
@@ -184,14 +184,14 @@ module PacketGen
         describe '#to_s' do
           it 'returns binary string from value' do
             enum32.value = 2
-            expect(enum32.to_s).to eq(force_binary("\x00\x00\x00\x02"))
+            expect(enum32.to_s).to eq(binary("\x00\x00\x00\x02"))
             enum32.value = 'low'
-            expect(enum32.to_s).to eq(force_binary("\x00\x00\x00\x00"))
+            expect(enum32.to_s).to eq(binary("\x00\x00\x00\x00"))
           end
 
           it 'returns binary string from value, even out of range' do
-            enum32.read(force_binary("\x01\x00\x00\x7f"))
-            expect(enum32.to_s).to eq(force_binary("\x01\x00\x00\x7f"))
+            enum32.read(binary("\x01\x00\x00\x7f"))
+            expect(enum32.to_s).to eq(binary("\x01\x00\x00\x7f"))
           end
         end
       end
@@ -202,12 +202,12 @@ module PacketGen
 
       describe '#read' do
         it 'reads two bytes in enum range' do
-          enum32le.read(force_binary("\x01\x00\x00\x00"))
+          enum32le.read(binary("\x01\x00\x00\x00"))
           expect(enum32le.to_human).to eq('medium')
         end
 
         it 'reads two bytes, even out of range' do
-          enum32le.read(force_binary("\x00\x01\x7f\x00"))
+          enum32le.read(binary("\x00\x01\x7f\x00"))
           expect(enum32le.to_human).to eq('<unknown:8323328>')
           expect(enum32le.value).to eq(0x7f0100)
         end
@@ -216,14 +216,14 @@ module PacketGen
       describe '#to_s' do
         it 'returns binary string from value' do
           enum32le.value = 2
-          expect(enum32le.to_s).to eq(force_binary("\x02\x00\x00\x00"))
+          expect(enum32le.to_s).to eq(binary("\x02\x00\x00\x00"))
           enum32le.value = 'low'
-          expect(enum32le.to_s).to eq(force_binary("\x00\x00\x00\x00"))
+          expect(enum32le.to_s).to eq(binary("\x00\x00\x00\x00"))
         end
 
         it 'returns binary string from value, even out of range' do
-          enum32le.read(force_binary("\x00\x7f\x01\x00"))
-          expect(enum32le.to_s).to eq(force_binary("\x00\x7f\x01\x00"))
+          enum32le.read(binary("\x00\x7f\x01\x00"))
+          expect(enum32le.to_s).to eq(binary("\x00\x7f\x01\x00"))
         end
       end
     end

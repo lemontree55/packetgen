@@ -9,7 +9,7 @@ module PacketGen
           expect(UDP).to know_header(TFTP).with(dport: 69)
         end
       end
-      
+
       describe '#read' do
         let(:tftp) { TFTP.new }
 
@@ -28,7 +28,7 @@ module PacketGen
           mytftp = tftp.read(raw)
           expect(mytftp.opcode).to eq(8)
           expect(mytftp.human_opcode).to eq('<unknown:8>')
-          expect(mytftp.body).to eq(force_binary "\x09\x0a\x0b\x0c\x0d\x0e\x0f")
+          expect(mytftp.body).to eq(binary "\x09\x0a\x0b\x0c\x0d\x0e\x0f")
         end
       end
     end

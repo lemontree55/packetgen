@@ -22,7 +22,7 @@ module PacketGen
           expected_str = "\x00" * 5 + "\x01" + "\x00" * 6 +
                          generate_label_str(%w(www example org)) +
                          "\x00\x01\x00\x01"
-          expect(dns.to_s).to eq(force_binary expected_str)
+          expect(dns.to_s).to eq(binary expected_str)
         end
 
         it 'may add a RR to answer section' do
@@ -33,10 +33,10 @@ module PacketGen
                          generate_label_str(%w(www example org)) +
                          "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" +
                          "\x00" * 14 + "\x01"
-          expect(dns.to_s).to eq(force_binary expected_str)
+          expect(dns.to_s).to eq(binary expected_str)
         end
       end
-      
+
       describe '#read' do
         it 'reads a mDNS question header' do
           pkt = Packet.parse(mdns_raw_packets[0])
@@ -48,10 +48,10 @@ module PacketGen
           expect(mdns.ancount).to eq(0)
           expect(mdns.nscount).to eq(2)
           expect(mdns.arcount).to eq(0)
-          
+
           expect(mdns.qd[0].to_human).to eq('* IN QU Host-002.local.')
           expect(mdns.qd[1].to_human).to eq('* IN QU Officejet 6500 E710n-z [B25D97]._pdl-datastream._tcp.local.')
-          
+
           expect(mdns.ns[0].to_human).to eq('A IN Host-002.local. TTL 120 192.168.0.96')
           expect(mdns.ns[1].to_human).to eq('SRV IN Officejet 6500 E710n-z [B25D97]._pdl-datastream._tcp.local. TTL 120 0 0 9100 Host-002.local.')
         end
@@ -66,13 +66,13 @@ module PacketGen
           expect(mdns.ancount).to eq(5)
           expect(mdns.nscount).to eq(0)
           expect(mdns.arcount).to eq(0)
-          
+
           expect(mdns.an[0].to_human).to eq('A IN CACHE-FLUSH Host-002.local. TTL 120 192.168.0.96')
           expect(mdns.an[1].to_human).to eq('PTR IN CACHE-FLUSH 96.0.168.192.in-addr.arpa. TTL 120 Host-002.local.')
           expect(mdns.an[2].to_human).to eq('SRV IN CACHE-FLUSH Officejet 6500 E710n-z [B25D97]._pdl-datastream._tcp.local. TTL 120 0 0 9100 Host-002.local.')
         end
       end
-      
+
       describe '#mdnsize' do
         context '(IPv4)' do
           let(:pkt) { Packet.gen('Eth').add('IP').add('UDP').add('MDNS') }

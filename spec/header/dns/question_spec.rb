@@ -50,7 +50,7 @@ module PacketGen
           it 'returns a binary string' do
             q = Question.new(dns, name: 'example.net')
             expected_str = generate_label_str(%w(example net)) << [1, 1].pack('nn')
-            expect(q.to_s).to eq(force_binary expected_str)
+            expect(q.to_s).to eq(binary expected_str)
           end
         end
 
