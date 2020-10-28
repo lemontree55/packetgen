@@ -74,6 +74,14 @@ module PacketGen
 
         expect(@epb.timestamp.round).to eq(Time.utc(2009, 10, 11, 19, 29, 6))
       end
+
+      context '#timestamp=' do
+        it 'sets timestamp from a Time object' do
+          @epb.timestamp = Time.utc(2009, 10, 11, 19, 29, 6.244202r)
+          expect(@epb.tsh).to eq(292_269)
+          expect(@epb.tsl).to eq(3_549_609_578)
+        end
+      end
     end
   end
 end

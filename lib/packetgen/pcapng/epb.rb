@@ -101,6 +101,16 @@ module PacketGen
         Time.at((self.tsh << 32 | self.tsl) * ts_resol)
       end
 
+      # Set timestamp from a Time object
+      # @param [Time] time
+      # @return [Time] time
+      def timestamp=(time)
+        tstamp = (time.to_r / ts_resol).to_i
+        self.tsh = (tstamp & 0xffffffff00000000) >> 32
+        self.tsl = tstamp & 0xffffffff
+        time
+      end
+
       # Return the object as a String
       # @return [String]
       def to_s
