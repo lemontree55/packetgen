@@ -207,7 +207,7 @@ module PacketGen
             expect(tstp).to be_a(Time)
             expect(pkt).to be_a(Packet)
           end
-          expect(hsh.keys.first).to eq(Time.new(2009, 10, 11, 21, 29, 6.244202r))
+          expect(hsh.keys.first).to eq(Time.utc(2009, 10, 11, 19, 29, 6.244202r))
           expect(hsh.values.first).to eq(Packet.parse(@pcapng.sections[0].interfaces[0].packets[0].data))
         end
       end
