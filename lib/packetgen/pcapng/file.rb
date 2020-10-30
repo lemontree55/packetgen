@@ -75,13 +75,9 @@ module PacketGen
         return unless blk
 
         count = 0
-        @sections.each do |section|
-          section.interfaces.each do |intf|
-            intf.packets.each do |pkt|
-              count += 1
-              yield pkt
-            end
-          end
+        each_packet_with_interface do |pkt, _itf|
+          count += 1
+          yield pkt
         end
         count
       end
@@ -125,8 +121,7 @@ module PacketGen
         packets = [] unless blk
 
         count = read_packet_bytes(fname) do |packet, link_type|
-          first_header = KNOWN_LINK_TYPES[link_type]
-          parsed_pkt = Packet.parse(packet, first_header: first_header)
+          parsed_pkt = parse_packet(packet, link_type)
           if blk
             yield parsed_pkt
           else
@@ -166,16 +161,15 @@ module PacketGen
         reread file
 
         ary = []
-        @sections.each do |section|
-          section.interfaces.each do |itf|
-            blk = if options[:keep_timestamps] || options[:keep_ts]
-                    proc { |pkt| { pkt.timestamp => pkt.data.to_s } }
-                  else
-                    proc { |pkt| pkt.data.to_s }
-                  end
-            ary.concat(itf.packets.map(&blk))
-          end
+        blk = if options[:keep_timestamps] || options[:keep_ts]
+                proc { |pkt| { pkt.timestamp => pkt.data.to_s } }
+              else
+                proc { |pkt| pkt.data.to_s }
+              end
+        each_packet_with_interface do |pkt, _itf|
+          ary << blk.call(pkt)
         end
+
         ary
       end
 
@@ -184,11 +178,8 @@ module PacketGen
       # @since 3.1.6
       def to_a
         ary = []
-        @sections.each do |section|
-          section.interfaces.each do |itf|
-            fh = KNOWN_LINK_TYPES[itf.link_type]
-            ary.concat(itf.packets.map { |pkt| Packet.parse(pkt.data.to_s, first_header: fh) })
-          end
+        each_packet_with_interface do |pkt, itf|
+          ary << parse_packet(pkt.data.to_s, itf.link_type)
         end
 
         ary
@@ -200,15 +191,10 @@ module PacketGen
       # @since 3.1.6
       def to_h
         hsh = {}
-        @sections.each do |section|
-          section.interfaces.each do |itf|
-            fh = KNOWN_LINK_TYPES[itf.link_type]
-            itf.packets.map do |pkt|
-              next if pkt.is_a?(SPB)
+        each_packet_with_interface do |pkt, itf|
+          next if pkt.is_a?(SPB)
 
-              hsh[pkt.timestamp] = Packet.parse(pkt.data.to_s, first_header: fh)
-            end
-          end
+          hsh[pkt.timestamp] = parse_packet(pkt.data.to_s, itf.link_type)
         end
 
         hsh
@@ -266,9 +252,7 @@ module PacketGen
         filename, ary, ts, ts_inc, append = array_to_file_options(options)
 
         section = create_new_shb_section
-        ts_resol = section.interfaces.last.ts_resol
 
-        ts_add_val = 0 # value to add to ts in Array case
         ary.each do |pkt|
           classify_block(section, epb_from_pkt(pkt, section, ts))
           ts += ts_inc
@@ -453,11 +437,11 @@ module PacketGen
         readfile filename
       end
 
-      def create_block_from_pkt(pkt, section, ts, ts_inc)
-        if (ts.nil? || ts_inc.nil?)
+      def create_block_from_pkt(pkt, section, timestamp, ts_inc)
+        if timestamp.nil? || ts_inc.nil?
           spb_from_pkt(pkt, section)
         else
-          epb_from_pkt(pkt, section, ts)
+          epb_from_pkt(pkt, section, timestamp)
         end
       end
 
@@ -471,12 +455,12 @@ module PacketGen
       end
 
       # TODO: remove hash case when #array_to_file will be removed
-      def epb_from_pkt(pkt, section, ts)
+      def epb_from_pkt(pkt, section, timestamp)
         this_ts, this_data = case pkt
                              when Hash
                                [pkt.keys.first.to_i, pkt.values.first.to_s]
                              else
-                               [ts.to_r, pkt.to_s]
+                               [timestamp.to_r, pkt.to_s]
                              end
         this_cap_len = this_data.size
         this_tsh, this_tsl = calc_ts(this_ts, section.interfaces.last.ts_resol)
@@ -489,11 +473,26 @@ module PacketGen
                 data: this_data)
       end
 
-      def update_ts(ts, ts_inc)
-        return nil if ts.nil?
-        return nil if ts_inc.nil?
+      def update_ts(timestamp, ts_inc)
+        return nil if timestamp.nil? || ts_inc.nil?
 
-        ts + ts_inc
+        timestamp + ts_inc
+      end
+
+      # Iterate over each xPB with its associated interface
+      # @return [void]
+      # @yieldparam [String] xpb
+      # @yieldparam [IDB] itf
+      def each_packet_with_interface
+        sections.each do |section|
+          section.interfaces.each do |itf|
+            itf.packets.each { |xpb| yield xpb, itf }
+          end
+        end
+      end
+
+      def parse_packet(data, link_type)
+        Packet.parse(data, first_header: KNOWN_LINK_TYPES[link_type])
       end
     end
   end
