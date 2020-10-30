@@ -368,6 +368,7 @@ module PacketGen
 
       describe '#read_array' do
         let(:ref_pcapng) { file = File.new; file.readfile(@file_spb); file }
+
         it 'gets an array of Packet objects' do
           file_clear_options(ref_pcapng)
           packets = ref_pcapng.to_a
@@ -407,6 +408,27 @@ module PacketGen
           pcapng.read_array(packets, timestamp: Time.now)
           pcapng.sections.first.interfaces.first.packets.each do |pkt|
             expect(pkt).to be_a(SPB)
+          end
+        end
+      end
+
+      describe '#read_hash' do
+        let(:ref_pcapng) { file = File.new; file.readfile(@file); file }
+
+        it 'gets a hash of timestamps=>packets' do
+          file_clear_options(ref_pcapng)
+          hsh = ref_pcapng.to_h
+          pcapng.read_hash(hsh)
+          pcapng.sections.first.interfaces.first.snaplen = 65535
+
+          expect(pcapng.to_s).to eq(ref_pcapng.to_s)
+        end
+
+        it 'generates EPB packet blocks' do
+          hsh = ref_pcapng.to_h
+          pcapng.read_hash(hsh)
+          pcapng.sections.first.interfaces.first.packets.each do |pkt|
+            expect(pkt).to be_a(EPB)
           end
         end
       end
