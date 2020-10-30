@@ -228,6 +228,23 @@ module PacketGen
           expect(hsh.keys.first).to eq(Time.utc(2009, 10, 11, 19, 29, 6.244202r))
           expect(hsh.values.first).to eq(Packet.parse(pcapng.sections[0].interfaces[0].packets[0].data))
         end
+
+        it 'only embeds packets from EPB blocks in resulting hash' do
+          pcapng.readfile(::File.join(__dir__, '..', 'header', 'dhcp.pcapng'))
+          idb = pcapng.sections.first.interfaces.first
+          # Replace 4th block (DHCP ACK packet) by an SPB one
+          data = idb.packets[3].data
+          spb = SPB.new(data: data, orig_len: data.size)
+          spb.recalc_block_len
+          idb.packets[3] = spb
+
+          # Check 4th message (ACK one) is not present
+          hsh = pcapng.to_h
+          expect(hsh.values.size).to eq(3)
+          hsh.values.each_with_index do |pkt, i|
+            expect(pkt.dhcp.options.first.to_human).to eq("type:message-type,length:1,value:#{i + 1}")
+          end
+        end
       end
 
       describe '#to_file' do

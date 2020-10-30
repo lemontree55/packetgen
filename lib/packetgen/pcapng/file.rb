@@ -195,6 +195,7 @@ module PacketGen
       end
 
       # Translates a {File} into a hash with timestamps as keys.
+      # @note Only packets from {EPB} sections are extracted, as {SPB} ones do not have timestamp.
       # @return [Hash{Time => Packet}]
       # @since 3.1.6
       def to_h
@@ -203,6 +204,8 @@ module PacketGen
           section.interfaces.each do |itf|
             fh = KNOWN_LINK_TYPES[itf.link_type]
             itf.packets.map do |pkt|
+              next if pkt.is_a?(SPB)
+
               hsh[pkt.timestamp] = Packet.parse(pkt.data.to_s, first_header: fh)
             end
           end
