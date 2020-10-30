@@ -88,6 +88,7 @@ module PacketGen
       # @return [self]
       def <<(xpb)
         @packets << xpb
+        xpb.interface = self
         self
       end
 

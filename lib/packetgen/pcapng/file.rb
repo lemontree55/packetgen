@@ -375,14 +375,11 @@ module PacketGen
           @sections << block
         when IDB
           shb << block
-          block.section = shb
         when SPB, EPB
           ifid = block.is_a?(EPB) ? block.interface_id : 0
           shb.interfaces[ifid] << block
-          block.interface = shb.interfaces[ifid]
         else
-          shb.unknown_blocks << block
-          block.section = shb
+          shb.add_unknown_block(block)
         end
       end
 

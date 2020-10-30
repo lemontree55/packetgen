@@ -109,6 +109,7 @@ module PacketGen
       # @return [self]
       def <<(idb)
         @interfaces << idb
+        idb.section = self
         self
       end
 
@@ -121,6 +122,11 @@ module PacketGen
         pad_field :options
         recalc_block_len
         super + body
+      end
+
+      def add_unknown_block(block)
+        self.unknown_blocks << block
+        block.section = self
       end
 
       private
