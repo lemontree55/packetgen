@@ -181,6 +181,7 @@ module PacketGen
 
       # Translates a {File} into an array of packets.
       # @return [Array<Packet>]
+      # @since 3.1.6
       def to_a
         ary = []
         @sections.each do |section|
@@ -195,6 +196,7 @@ module PacketGen
 
       # Translates a {File} into a hash with timestamps as keys.
       # @return [Hash{Time => Packet}]
+      # @since 3.1.6
       def to_h
         hsh = {}
         @sections.each do |section|
@@ -273,6 +275,23 @@ module PacketGen
         else
           self
         end
+      end
+
+      # @return [String]
+      # @since 3.1.6
+      def inspect
+        str = +''
+        sections.each do |section|
+          str << section.inspect
+          section.interfaces.each do |itf|
+            str << itf.inspect
+            itf.packets.each do |block|
+              str << block.inspect
+            end
+          end
+        end
+
+        str
       end
 
       private
