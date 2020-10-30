@@ -49,7 +49,9 @@ module PacketGen
       # @return [void]
       def pad_field(*fields)
         fields.each do |field|
-          @fields[field] << "\x00" * (4 - (@fields[field].sz % 4)) unless (@fields[field].sz % 4).zero?
+          obj = @fields[field]
+          pad_size = (obj.sz % 4).zero? ? 0 : (4 - (obj.sz % 4))
+          obj << "\x00" * pad_size
         end
       end
 

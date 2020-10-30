@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -46,7 +48,6 @@ module PacketGen
           expect(@epb.orig_len).to eq(@epb.cap_len)
           expect(@epb.options?).to be(false)
         end
-
       end
 
       it 'should decode packet timestamp with default resolution' do

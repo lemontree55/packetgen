@@ -266,14 +266,33 @@ module PacketGen
 
         ts_add_val = 0 # value to add to ts in Array case
         ary.each do |pkt|
-          classify_block(section, epb_from_pkt(pkt, section.endian, ts, ts_resol, ts_add_val))
-          ts_add_val += ts_inc
+          classify_block(section, epb_from_pkt(pkt, section, ts))
+          ts += ts_inc
         end
 
         if filename
           self.to_f(filename, append: append)
         else
           self
+        end
+      end
+
+      # Update current object from an array of packets
+      # @param [Array<Packet>] packets
+      # @param [Time, nil] timestamp initial timestamp, used for first packet
+      # @param [Numeric, nil] ts_inc timestamp increment, in seconds, to increment
+      #                       initial timestamp for each packet
+      # @return [void]
+      # @note if +timestamp+ and/or +ts_inc+ are nil, {SPB} sections are created
+      #  for each packet, else {EPB} ones are used
+      # @since 3.1.6
+      def read_array(packets, timestamp: nil, ts_inc: nil)
+        ts = timestamp
+        section = create_new_shb_section
+        packets.each do |pkt|
+          block = create_block_from_pkt(pkt, section, ts, ts_inc)
+          classify_block(section, block)
+          ts = update_ts(ts, ts_inc)
         end
       end
 
@@ -418,22 +437,47 @@ module PacketGen
         readfile filename
       end
 
-      def epb_from_pkt(pkt, endian, ts, ts_resol, ts_add_val)
+      def create_block_from_pkt(pkt, section, ts, ts_inc)
+        if (ts.nil? || ts_inc.nil?)
+          spb_from_pkt(pkt, section)
+        else
+          epb_from_pkt(pkt, section, ts)
+        end
+      end
+
+      def spb_from_pkt(pkt, section)
+        pkt_s = pkt.to_s
+        size = pkt_s.size
+        SPB.new(endian: section.endian,
+                block_len: size,
+                orig_len: size,
+                data: pkt_s)
+      end
+
+      # TODO: remove hash case when #array_to_file will be removed
+      def epb_from_pkt(pkt, section, ts)
         this_ts, this_data = case pkt
                              when Hash
                                [pkt.keys.first.to_i, pkt.values.first.to_s]
                              else
-                               [(ts + ts_add_val).to_i, pkt.to_s]
+                               [ts.to_r, pkt.to_s]
                              end
         this_cap_len = this_data.size
-        this_tsh, this_tsl = calc_ts(this_ts, ts_resol)
-        EPB.new(endian: endian,
+        this_tsh, this_tsl = calc_ts(this_ts, section.interfaces.last.ts_resol)
+        EPB.new(endian: section.endian,
                 interface_id: 0,
                 tsh: this_tsh,
                 tsl: this_tsl,
                 cap_len: this_cap_len,
                 orig_len: this_cap_len,
                 data: this_data)
+      end
+
+      def update_ts(ts, ts_inc)
+        return nil if ts.nil?
+        return nil if ts_inc.nil?
+
+        ts + ts_inc
       end
     end
   end
