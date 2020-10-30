@@ -24,7 +24,7 @@ module PacketGen
       BLOCK_TYPES = Hash[
         PcapNG.constants(false).select { |c| c.to_s.include?('_TYPE') }.map do |c|
           type_value = PcapNG.const_get(c).to_i
-          klass = PcapNG.const_get(c.to_s[0..-6]) # TODO: use delete_suffix('_TYPE') when support for Ruby 2.4 will stop
+          klass = PcapNG.const_get(c.to_s[0..-6]) # @todo use delete_suffix('_TYPE') when support for Ruby 2.4 will stop
           [type_value, klass]
         end
       ].freeze
@@ -68,10 +68,7 @@ module PacketGen
       def readfile(fname, &blk)
         raise ArgumentError, "cannot read file #{fname}" unless ::File.readable?(fname)
 
-        ::File.open(fname, 'rb') do |f|
-          parse_section(f) until f.eof?
-        end
-
+        ::File.open(fname, 'rb') { |f| parse_section(f) until f.eof? }
         return unless blk
 
         count = 0
@@ -205,12 +202,9 @@ module PacketGen
       # @option options [Boolean] :append (default: +false+) if set to +true+,
       #   the packets are appended to the file, rather than overwriting it
       # @return [Array] array of 2 elements: filename and size written
+      # @todo for 4.0, replace +options+ by +append+ kwarg
       def to_file(filename, options={})
-        mode = if options[:append] && ::File.exist?(filename)
-                 'ab'
-               else
-                 'wb'
-               end
+        mode = (options[:append] && ::File.exist?(filename)) ? 'ab' : 'wb'
         ::File.open(filename, mode) { |f| f.write(self.to_s) }
         [filename, self.to_s.size]
       end
@@ -304,9 +298,7 @@ module PacketGen
           str << section.inspect
           section.interfaces.each do |itf|
             str << itf.inspect
-            itf.packets.each do |block|
-              str << block.inspect
-            end
+            itf.packets.each { |block| str << block.inspect }
           end
         end
 
@@ -451,7 +443,7 @@ module PacketGen
                 data: pkt_s)
       end
 
-      # TODO: remove hash case when #array_to_file will be removed
+      # @todo remove hash case when #array_to_file will be removed
       def epb_from_pkt(pkt, section, timestamp)
         this_ts, this_data = case pkt
                              when Hash

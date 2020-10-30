@@ -93,9 +93,9 @@ module PacketGen
 
         private
 
+        # @todo check verb is correct or raise a ParseError
         def lines(str)
           str = str.bytes.map!(&:chr).join unless str.valid_encoding?
-          # TODO: check verb is correct or raise a ParseError
           # vrb = HTTP::VERBS.detect { |verb| str.include?(verb) }
 
           str.split("\r\n").map(&:chomp)
