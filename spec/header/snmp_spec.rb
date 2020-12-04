@@ -102,7 +102,7 @@ module PacketGen
           pdus = SNMP::PDUs.new
 
           (0..8).each do |i|
-            expect(pdus.value[i].tag & 0x1f).to eq(i)
+            expect(pdus.value[i].id).to eq(i)
           end
         end
       end
