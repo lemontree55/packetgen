@@ -32,5 +32,3 @@ jobs:
         bundler-cache: true
     - name: Run tests
       run: bundle exec rake
-    - name: Run injection tests
-      run: sudo bundle exec rake spec:sudo
