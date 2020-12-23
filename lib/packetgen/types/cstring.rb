@@ -17,8 +17,9 @@ module PacketGen
       extend Forwardable
       include Fieldable
 
-      def_delegators :@string, :[], :length, :size, :inspect, :==, :<<,
-                     :unpack, :force_encoding, :encoding, :index, :empty?
+      def_delegators :@string, :[], :length, :size, :inspect, :==,
+                     :unpack, :force_encoding, :encoding, :index, :empty?,
+                     :encode, :slice, :slice!
 
       # @return [::String]
       attr_reader :string
@@ -28,7 +29,7 @@ module PacketGen
       # @param [Hash] options
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
-        register_internal_string ''
+        register_internal_string(+'')
         @static_length = options[:static_length]
       end
 
@@ -37,9 +38,8 @@ module PacketGen
       def read(str)
         s = str.to_s
         s = s[0, static_length] if static_length?
-        idx = s.index(0.chr)
-        s = s[0, idx] unless idx.nil?
         register_internal_string s
+        remove_null_character
         self
       end
 
@@ -53,6 +53,15 @@ module PacketGen
           s = "#{string}\x00"
         end
         PacketGen.force_binary(s)
+      end
+
+      # Append the given string to CString
+      # @param [#to_s] str
+      # @return [self]
+      def <<(str)
+        @string << str.to_s
+        remove_null_character
+        self
       end
 
       # @return [Integer]
@@ -80,8 +89,7 @@ module PacketGen
 
       # @return [String]
       def to_human
-        idx = self.index(+"\x00".encode(self.encoding)) || self.sz
-        self[0, idx]
+        string
       end
 
       private
@@ -89,6 +97,11 @@ module PacketGen
       def register_internal_string(str)
         @string = str
         PacketGen.force_binary(@string)
+      end
+
+      def remove_null_character
+        idx = string.index(0.chr)
+        register_internal_string(string[0, idx]) unless idx.nil?
       end
     end
   end

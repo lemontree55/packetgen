@@ -18,8 +18,9 @@ module PacketGen
       include Fieldable
       include LengthFrom
 
-      def_delegators :@string, :[], :to_s, :length, :size, :inspect, :==, :<<,
-                     :unpack, :force_encoding, :encoding, :index, :empty?
+      def_delegators :@string, :[], :to_s, :length, :size, :inspect, :==,
+                     :unpack, :force_encoding, :encoding, :index, :empty?,
+                     :encode, :slice, :slice!, :[]=
 
       # @return [::String]
       attr_reader :string
@@ -31,9 +32,13 @@ module PacketGen
       #   takes length when reading
       # @option options [Integer] :static_length set a static length for this string
       def initialize(options={})
-        register_internal_string ''
+        register_internal_string(+'')
         initialize_length_from(options)
         @static_length = options[:static_length]
+      end
+
+      def initialize_copy(_orig)
+        @string = @string.dup
       end
 
       # @param [::String] str
@@ -66,6 +71,14 @@ module PacketGen
 
       def format_inspect
         inspect
+      end
+
+      # Append the given string to String
+      # @param [#to_s] str
+      # @return [self]
+      def <<(str)
+        @string << str.to_s
+        self
       end
 
       alias sz length

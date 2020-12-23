@@ -67,5 +67,29 @@ module PacketGen
         end
       end
     end
+
+    describe '#<<' do
+      let(:cs) { CString.new }
+      it 'accepts a string' do
+        cs.read "abcd\x00"
+        cs << 'efgh'
+        expect(cs.to_human).to eq('abcdefgh')
+      end
+
+      it 'accepts another CString' do
+        cs.read "abcd\x00"
+        cs2 = CString.new
+        cs2.read "efgh\x00"
+        cs << cs2
+        expect(cs.to_human).to eq('abcdefgh')
+      end
+
+      it 'returns itself' do
+        cs.read "abcd\x00"
+        cs2 = cs << 'efgh'
+        expect(cs2.to_human).to eq('abcdefgh')
+        expect(cs2.object_id).to eq(cs.object_id)
+      end
+    end
   end
 end
