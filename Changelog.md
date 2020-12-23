@@ -1,5 +1,12 @@
 # Changelog
 
+## Packetgen 3.1.7
+
+* Remove some limitations on Types::String and Types::CString:
+    * Add #encode, #slice, #slice!,
+    * Make #<< return itself,
+    * Add #[]= (Types::String only).
+
 ## Packetgen 3.1.6
 
 * Update PcapNG module:
