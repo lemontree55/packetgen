@@ -2,7 +2,6 @@ require_relative 'spec_helper'
 
 module PacketGen
   describe Capture do
-
     let(:iface) { Pcap.lookupdev }
 
     describe '#initialize' do
@@ -14,7 +13,7 @@ module PacketGen
 
       it 'accepts options' do
         options = { max: 12, timeout: 30, filter: 'ip', promisc: true, snaplen: 45, monitor: true }
-        expect { Capture.new(options) }.to_not raise_error
+        expect { Capture.new(**options) }.to_not raise_error
       end
     end
 
