@@ -2,11 +2,12 @@ source 'https://rubygems.org' do
   # Specify your gem's dependencies in packetgen.gemspec
   gemspec
 
-  group :development do
-    gem 'bundler', '>=1.17', '<3'
+  gem 'bundler', '>=1.17', '<3'
+
+  group :noci do
     gem 'debase', '~>0.2'
     gem 'ruby-debug-ide', '~> 0.7'
     gem 'rufo', '~>0.11'
-    gem 'simplecov', '~> 0.16'
+    gem 'simplecov', '~> 0.16', '< 0.19' # ruby 2.4
   end
 end
