@@ -1,5 +1,15 @@
 # Changelog
 
+## Head
+
+* Bugs:
+  * Fix an exception when adding a HTTP::Request header to a packet.
+  * Fix an exception when adding a HTTP::Response header to a packet.
+
+## Packetgen 3.1.8
+
+* Revert dependency on pcaprub from 0.13 to 0.12 to support Ruby 3.
+
 ## Packetgen 3.1.7
 
 * Remove some limitations on Types::String and Types::CString:
