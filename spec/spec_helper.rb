@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
-require 'simplecov'
-SimpleCov.start do
-  add_filter '/spec/'
-  add_filter '/vendor/'
-end
-
-RSpec.configure do |c|
-  if c.filter[:sudo]
-    SimpleCov.command_name 'rspec:sudo'
-  else
-    SimpleCov.command_name 'rspec'
+begin
+  require 'simplecov'
+  SimpleCov.start do
+    add_filter '/spec/'
+    add_filter '/vendor/'
   end
+
+  RSpec.configure do |c|
+    if c.filter[:sudo]
+      SimpleCov.command_name 'rspec:sudo'
+    else
+      SimpleCov.command_name 'rspec'
+    end
+  end
+rescue LoadError
+  nil
 end
 
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
