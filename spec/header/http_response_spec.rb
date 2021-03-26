@@ -8,6 +8,11 @@ module PacketGen
           it 'in TCP packets' do
             expect(TCP).to know_header(HTTP::Response)
           end
+
+          it 'adding a HTTP::Response does not raise' do
+            pkt = PacketGen.gen('IP').add('TCP')
+            expect { pkt.add('HTTP::Response') }.to_not raise_error
+          end
         end
 
         describe '#initialize' do
@@ -52,14 +57,14 @@ module PacketGen
             http_resp.status_code = "200"
             expect{ http_resp.to_s }.to raise_error(FormatError)
             http_resp.status_mesg = "OK"
-            expect(http_resp.to_s).to be_a(String) 
+            expect(http_resp.to_s).to be_a(String)
             expect(http_resp.to_s).to eq("HTTP/1.1 200 OK\r\n")
           end
-          it 'returns a string with the needed fields' do 
+          it 'returns a string with the needed fields' do
             http_resp.version = "HTTP/1.1"
             http_resp.status_code = "200"
             http_resp.status_mesg = "OK"
-            expect(http_resp.to_s).to be_a(String) 
+            expect(http_resp.to_s).to be_a(String)
             expect(http_resp.to_s).to eq("HTTP/1.1 200 OK\r\n")
           end
         end
@@ -67,14 +72,14 @@ module PacketGen
         describe '#read' do
           let(:http_resp) { Response.new }
           it 'parses http response data from a string' do
-            http_resp.read("HTTP/1.1 200 OK\r\nHost: tcpdump.org\r\ndogs: lol\r\n\r\n")	
+            http_resp.read("HTTP/1.1 200 OK\r\nHost: tcpdump.org\r\ndogs: lol\r\n\r\n")
             expect(http_resp.version).to eq("HTTP/1.1")
             expect(http_resp.status_code).to eq("200")
             expect(http_resp.status_mesg).to eq("OK")
             expect(http_resp.headers).to eq({"Host"=>"tcpdump.org", "dogs"=>"lol"})
           end
           it 'parses weird http response data from a string with invalid encoding' do
-            http_resp.read("HTTP/1.1 200 OK\r\nHost: tcpdump.org\r\ndogs: lol\r\n\r\n\r\xD1")	
+            http_resp.read("HTTP/1.1 200 OK\r\nHost: tcpdump.org\r\ndogs: lol\r\n\r\n\r\xD1")
             expect(http_resp.version).to eq("HTTP/1.1")
             expect(http_resp.status_code).to eq("200")
             expect(http_resp.status_mesg).to eq("OK")
