@@ -8,6 +8,19 @@ module PacketGen
           it 'in TCP packets' do
             expect(TCP).to know_header(HTTP::Request)
           end
+
+          it 'parsing a HTTP::Request does not raise if some characters are not valid in encoding' do
+            str = PacketGen.gen('TCP', body: binary("GET / HTTP/1.1\r\n\r\n\x81")).to_s
+            pkt = PacketGen.parse(str, first_header: 'TCP')
+            expect(pkt.http_request.verb).to eq('GET')
+            expect(pkt.http_request.path).to eq('/')
+            expect(pkt.http_request.body).to eq(binary("\x81"))
+          end
+
+          it 'issue-112: adding a HTTP::Request does not raise' do
+            pkt = PacketGen.gen('IP').add('TCP')
+            expect { pkt.add('HTTP::Request') }.to_not raise_error
+          end
         end
 
         describe '#initialize' do
