@@ -35,6 +35,8 @@ module PacketGen
           expect(dhcpv6.options.first.length).to eq(14)
           expect(dhcpv6.options.first.duid.to_human).to eq('DUID_LLT<2015-01-02 21:52:08 UTC,08:00:27:fe:8f:95>')
         end
+
+        it 'reads a DHCPv6::Relay header'  # TODO: need a file to parse
       end
 
       describe '#options' do
