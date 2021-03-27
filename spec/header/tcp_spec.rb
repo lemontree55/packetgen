@@ -2,12 +2,21 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe TCP do
       describe 'binding' do
         it 'in IP packets' do
           expect(IP).to know_header(TCP).with(protocol: 6)
           expect(IPv6).to know_header(TCP).with(next: 6)
+        end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('TCP') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(6)
+        end
+        it 'accepts to be added in IPv6 packets' do
+          pkt = PacketGen.gen('IPv6')
+          expect { pkt.add('TCP') }.to_not raise_error
+          expect(pkt.ipv6.next).to eq(6)
         end
       end
 

@@ -8,6 +8,20 @@ module PacketGen
         it 'in Eth packets' do
           expect(Eth).to know_header(Dot1x).with(ethertype: 0x888e)
         end
+        it 'in SNAP packets' do
+          expect(SNAP).to know_header(Dot1x).with(proto_id: 0x888e)
+        end
+
+        it 'accepts to be added in Eth packets' do
+          pkt = PacketGen.gen('Eth')
+          expect { pkt.add('Dot1x') }.to_not raise_error
+          expect(pkt.eth.ethertype).to eq(0x888e)
+        end
+        it 'accepts to be added in SNAP packets' do
+          pkt = PacketGen.gen('SNAP')
+          expect { pkt.add('Dot1x') }.to_not raise_error
+          expect(pkt.snap.proto_id).to eq(0x888e)
+        end
       end
 
       describe '#initialize' do

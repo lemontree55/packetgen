@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe IP::Addr do
       before(:each) do
         @ipaddr = IP::Addr.new.from_human('192.168.25.43')
@@ -25,16 +24,32 @@ module PacketGen
     end
 
     describe IP do
-
       describe 'binding' do
         it 'in Eth packets' do
           expect(Eth).to know_header(IP).with(ethertype: 0x800)
         end
+        it 'accepts to be added in Eth packets' do
+          pkt = PacketGen.gen('Eth')
+          expect { pkt.add('IP') }.to_not raise_error
+          expect(pkt.eth.ethertype).to eq(0x800)
+        end
+
         it 'in SNAP packets' do
           expect(SNAP).to know_header(IP).with(proto_id: 0x800)
         end
+        it 'accepts to be added in SNAP packets' do
+          pkt = PacketGen.gen('SNAP')
+          expect { pkt.add('IP') }.to_not raise_error
+          expect(pkt.snap.proto_id).to eq(0x800)
+        end
+
         it 'in IP packets' do
           expect(IP).to know_header(IP).with(protocol: 4)
+        end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('IP') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(4)
         end
       end
 

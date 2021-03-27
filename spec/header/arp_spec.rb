@@ -2,8 +2,27 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe ARP do
+      describe 'binding' do
+        it 'in Eth packets' do
+          expect(Eth).to know_header(ARP).with(ethertype: 0x806)
+        end
+        it 'accepts to be added in Eth packets' do
+          pkt = PacketGen.gen('Eth')
+          expect { pkt.add('ARP') }.to_not raise_error
+          expect(pkt.eth.ethertype).to eq(0x806)
+        end
+
+        it 'in Dot1q packets' do
+          expect(Dot1q).to know_header(ARP).with(ethertype: 0x806)
+        end
+        it 'accepts to be added in Dot1q packets' do
+          pkt = PacketGen.gen('Dot1q')
+          expect { pkt.add('ARP') }.to_not raise_error
+          expect(pkt.dot1q.ethertype).to eq(0x806)
+        end
+      end
+
       describe '#initialize' do
         it 'creates a ARP header with default values' do
           arp = ARP.new

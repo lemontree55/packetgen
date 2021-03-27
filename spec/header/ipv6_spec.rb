@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe IPv6::Addr do
       before(:each) do
         @ipv6addr = IPv6::Addr.new.from_human('fe80::21a:c5ff:fe00:152')
@@ -31,16 +30,32 @@ module PacketGen
     end
 
     describe IPv6 do
-
       describe 'binding' do
         it 'in Eth packets' do
           expect(Eth).to know_header(IPv6).with(ethertype: 0x86dd)
         end
+        it 'accepts to be added in Eth packets' do
+          pkt = PacketGen.gen('Eth')
+          expect { pkt.add('IPv6') }.to_not raise_error
+          expect(pkt.eth.ethertype).to eq(0x86dd)
+        end
+
         it 'in SNAP packets' do
           expect(SNAP).to know_header(IPv6).with(proto_id: 0x86dd)
         end
+        it 'accepts to be added in SNAP packets' do
+          pkt = PacketGen.gen('SNAP')
+          expect { pkt.add('IPv6') }.to_not raise_error
+          expect(pkt.snap.proto_id).to eq(0x86dd)
+        end
+
         it 'in IP packets' do
           expect(IP).to know_header(IPv6).with(protocol: 41)
+        end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('IPv6') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(41)
         end
       end
 

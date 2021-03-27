@@ -2,13 +2,17 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe ICMPv6 do
       let(:pcapng_file) { File.join(__dir__, '..', 'pcapng', 'icmpv6.pcapng') }
 
       describe 'bindings' do
         it 'in IP packets' do
           expect(IPv6).to know_header(ICMPv6).with(next: 58)
+        end
+        it 'accepts to be added in IPv6 packets' do
+          pkt = PacketGen.gen('IPv6')
+          expect { pkt.add('ICMPv6') }.to_not raise_error
+          expect(pkt.ipv6.next).to eq(58)
         end
       end
 

@@ -7,14 +7,37 @@ module PacketGen
         it 'in IP packets' do
           expect(IP).to know_header(GRE).with(protocol: 47)
         end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('GRE') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(47)
+        end
+
         it 'in IPv6 packets' do
           expect(IPv6).to know_header(GRE).with(next: 47)
         end
+        it 'accepts to be added in IPv6 packets' do
+          pkt = PacketGen.gen('IPv6')
+          expect { pkt.add('GRE') }.to_not raise_error
+          expect(pkt.ipv6.next).to eq(47)
+        end
+
         it 'of IP packets' do
           expect(GRE).to know_header(IP).with(protocol_type: 0x800)
         end
+        it 'accepts IP headers to be added' do
+          pkt = PacketGen.gen('GRE')
+          expect { pkt.add('IP') }.to_not raise_error
+          expect(pkt.gre.protocol_type).to eq(0x800)
+        end
+
         it 'of IPv6 packets' do
           expect(GRE).to know_header(IPv6).with(protocol_type: 0x86dd)
+        end
+        it 'accepts IPv6 headers to be added' do
+          pkt = PacketGen.gen('GRE')
+          expect { pkt.add('IPv6') }.to_not raise_error
+          expect(pkt.gre.protocol_type).to eq(0x86dd)
         end
       end
 
@@ -159,4 +182,3 @@ module PacketGen
     end
   end
 end
-

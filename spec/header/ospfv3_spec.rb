@@ -4,11 +4,15 @@ OSPFv3_PCAP = File.join(__dir__, 'ospfv3.pcapng')
 
 module PacketGen
   module Header
-
     describe OSPFv3 do
       describe 'bindings' do
         it 'in IP packets with protocol 89' do
           expect(IPv6).to know_header(OSPFv3).with(next: 89)
+        end
+        it 'accepts to be added in IPv6 packets' do
+          pkt = PacketGen.gen('IPv6')
+          expect { pkt.add('OSPFv3') }.to_not raise_error
+          expect(pkt.ipv6.next).to eq(89)
         end
       end
 

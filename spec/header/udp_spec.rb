@@ -2,13 +2,21 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe UDP do
-
       describe 'binding' do
         it 'in IP packets' do
           expect(IP).to know_header(UDP).with(protocol: 17)
           expect(IPv6).to know_header(UDP).with(next: 17)
+        end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('UDP') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(17)
+        end
+        it 'accepts to be added in IPv6 packets' do
+          pkt = PacketGen.gen('IPv6')
+          expect { pkt.add('UDP') }.to_not raise_error
+          expect(pkt.ipv6.next).to eq(17)
         end
       end
 

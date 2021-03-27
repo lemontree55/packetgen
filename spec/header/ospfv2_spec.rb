@@ -4,11 +4,15 @@ OSPFv2_PCAP = File.join(__dir__, 'ospfv2.pcapng')
 
 module PacketGen
   module Header
-
     describe OSPFv2 do
       describe 'bindings' do
         it 'in IP packets with protocol 89' do
           expect(IP).to know_header(OSPFv2).with(protocol: 89)
+        end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('OSPFv2') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(89)
         end
       end
 

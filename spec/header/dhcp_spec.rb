@@ -2,13 +2,14 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe DHCP do
-      #let(:dhcp_pcapng) { File.join(__dir__, 'dhcp.pcapng') }
-
       describe 'binding' do
         it 'in BOOTP packets' do
           expect(BOOTP).to know_header(DHCP)
+        end
+        it 'accepts to be added in BOOTP packets' do
+          pkt = PacketGen.gen('BOOTP')
+          expect { pkt.add('DHCP') }.to_not raise_error
         end
       end
 

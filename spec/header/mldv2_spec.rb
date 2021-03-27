@@ -8,6 +8,11 @@ module PacketGen
           it 'in ICMPv6 packets' do
             expect(ICMPv6).to know_header(MLQ).with(type: 130, body: '0' * 24)
           end
+          it 'accepts to be added in ICMPv6 packets' do
+            pkt = PacketGen.gen('ICMPv6')
+            expect { pkt.add('MLDv2::MLQ') }.to_not raise_error
+            expect(pkt.icmpv6.type).to eq(130)
+          end
         end
 
         describe '#initialize' do
@@ -147,6 +152,11 @@ module PacketGen
         describe 'bindings' do
           it 'in ICMPv6 packets' do
             expect(ICMPv6).to know_header(MLR).with(type: 143)
+          end
+          it 'accepts to be added in ICMPv6 packets' do
+            pkt = PacketGen.gen('ICMPv6')
+            expect { pkt.add('MLDv2::MLR') }.to_not raise_error
+            expect(pkt.icmpv6.type).to eq(143)
           end
         end
 

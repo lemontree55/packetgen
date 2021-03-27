@@ -7,6 +7,11 @@ module PacketGen
         it 'in Dot1x packets' do
           expect(Dot1x).to know_header(EAP).with(type: 0)
         end
+        it 'accepts to be added in Dot1x packets' do
+          pkt = PacketGen.gen('Dot1x')
+          expect { pkt.add('EAP') }.to_not raise_error
+          expect(pkt.dot1x.type).to eq(0)
+        end
       end
 
       describe '#initialize' do

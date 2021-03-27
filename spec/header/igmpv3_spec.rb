@@ -8,6 +8,14 @@ module PacketGen
         it 'in IP packets' do
           expect(IP).to know_header(IGMPv3).with(protocol: 2, frag: 0, ttl: 1, tos: 0xc0)
         end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('IGMPv3') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(2)
+          expect(pkt.ip.frag).to eq(0)
+          expect(pkt.ip.ttl).to eq(1)
+          expect(pkt.ip.tos).to eq(0xc0)
+        end
       end
 
       describe '#initialize' do

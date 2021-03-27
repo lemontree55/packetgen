@@ -2,12 +2,17 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe BOOTP do
       describe 'binding' do
         it 'in UDP packets' do
           expect(UDP).to know_header(BOOTP).with(sport: 67, dport: 68)
           expect(UDP).to know_header(BOOTP).with(sport: 68, dport: 67)
+        end
+        it 'accepts to be added in UDP packets' do
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('BOOTP') }.to_not raise_error
+          expect(pkt.udp.sport).to eq(67)
+          expect(pkt.udp.dport).to eq(68)
         end
       end
 

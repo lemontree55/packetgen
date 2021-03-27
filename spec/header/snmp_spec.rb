@@ -13,6 +13,11 @@ module PacketGen
           expect(UDP).to know_header(SNMP).with(sport: 162)
           expect(UDP).to know_header(SNMP).with(dport: 162)
         end
+        it 'accepts to be added in UDP packets' do
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('SNMP') }.to_not raise_error
+          expect(pkt.udp.dport).to eq(161)
+        end
       end
 
       describe '#initialize' do

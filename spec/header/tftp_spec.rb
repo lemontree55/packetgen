@@ -2,11 +2,15 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe TFTP do
       describe 'binding' do
         it 'in UDP packets' do
           expect(UDP).to know_header(TFTP).with(dport: 69)
+        end
+        it 'accepts to be added in UDP packets' do
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('TFTP') }.to_not raise_error
+          expect(pkt.udp.dport).to eq(69)
         end
       end
 

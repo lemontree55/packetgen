@@ -43,8 +43,18 @@ module PacketGen
         it 'in PPI packets' do
           expect(PPI).to know_header(Dot11).with(dlt: 105)
         end
+        it 'accepts to be added in PPI packets' do
+          pkt = PacketGen.gen('PPI')
+          expect { pkt.add('Dot11') }.to_not raise_error
+          expect(pkt.ppi.dlt).to eq(105)
+        end
+
         it 'in RadioTap packets' do
           expect(RadioTap).to know_header(Dot11)
+        end
+        it 'accepts to be added in RadioTap packets' do
+          pkt = PacketGen.gen('RadioTap')
+          expect { pkt.add('Dot11') }.to_not raise_error
         end
       end
 

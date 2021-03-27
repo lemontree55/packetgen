@@ -10,6 +10,11 @@ module PacketGen
           expect(ICMPv6).to know_header(MLD).with(type: 131)
           expect(ICMPv6).to know_header(MLD).with(type: 132)
         end
+        it 'accepts to be added in ICMPv6 packets' do
+          pkt = PacketGen.gen('ICMPv6')
+          expect { pkt.add('MLD') }.to_not raise_error
+          expect(pkt.icmpv6.type).to eq(130)
+        end
       end
 
       describe '#initialize' do

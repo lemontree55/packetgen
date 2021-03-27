@@ -2,11 +2,15 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe ICMP do
       describe 'bindings' do
         it 'in IP packets' do
           expect(IP).to know_header(ICMP).with(protocol: 1)
+        end
+        it 'accepts to be added in IP packets' do
+          pkt = PacketGen.gen('IP')
+          expect { pkt.add('ICMP') }.to_not raise_error
+          expect(pkt.ip.protocol).to eq(1)
         end
       end
 
@@ -76,7 +80,7 @@ module PacketGen
           expect(icmp.to_s).to eq(([1, 8, 0xc6, 0xb7] + (0..15).to_a).pack('C*'))
         end
       end
-      
+
       describe '#inspect' do
         it 'returns a String with all attributes' do
           icmp = ICMP.new

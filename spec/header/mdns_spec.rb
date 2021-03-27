@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe MDNS do
       let(:mdns_raw_packets) { read_raw_packets('mdns.pcapng') }
 
@@ -10,6 +9,11 @@ module PacketGen
         it 'in UDP packets' do
           expect(UDP).to know_header(MDNS).with(sport: 5353)
           expect(UDP).to know_header(MDNS).with(dport: 5353)
+        end
+        it 'accepts to be added in UDP packets' do
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('MDNS') }.to_not raise_error
+          expect(pkt.udp.dport).to eq(5353)
         end
       end
 

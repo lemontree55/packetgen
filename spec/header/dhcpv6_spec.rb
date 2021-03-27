@@ -2,17 +2,26 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe DHCPv6 do
       describe 'binding' do
         it 'in UDP packets' do
           expect(UDP).to know_header(DHCPv6)
           expect(UDP).to know_header(DHCPv6::Relay)
         end
+        it 'accepts to be added in UDP packets' do
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('DHCPv6') }.to_not raise_error
+          expect(pkt.udp.sport).to eq(546)
+          expect(pkt.udp.dport).to eq(547)
+
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('DHCPv6::Relay') }.to_not raise_error
+          expect(pkt.udp.sport).to eq(546)
+        end
       end
 
       describe '#read' do
-        it 'read a DHCPv6 header' do
+        it 'reads a DHCPv6 header' do
           raw = read_raw_packets('dhcpv6.pcapng').first
           pkt = PacketGen.parse(raw)
           expect(pkt.is? 'DHCPv6').to be(true)
@@ -65,7 +74,7 @@ module PacketGen
           dhcpv6.options << {
             type: 'IAAddr',
             ipv6: '::1',
-            preferred_lifetime: 150, 
+            preferred_lifetime: 150,
             valid_lifetime: 50
           }
           expect(dhcpv6.options.size).to eq(1)

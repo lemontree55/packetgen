@@ -2,7 +2,6 @@ require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe DNS do
       let(:dns_pcapng) { 'dns.pcapng' }
 
@@ -12,6 +11,16 @@ module PacketGen
           expect(UDP).to know_header(DNS).with(dport: 53)
           expect(TCP).to know_header(DNS).with(sport: 53)
           expect(TCP).to know_header(DNS).with(dport: 53)
+        end
+        it 'accepts to be added in UDP packets' do
+          pkt = PacketGen.gen('UDP')
+          expect { pkt.add('DNS') }.to_not raise_error
+          expect(pkt.udp.dport).to eq(53)
+        end
+        it 'accepts to be added in TCP packets' do
+          pkt = PacketGen.gen('TCP')
+          expect { pkt.add('DNS') }.to_not raise_error
+          expect(pkt.tcp.dport).to eq(53)
         end
       end
 
