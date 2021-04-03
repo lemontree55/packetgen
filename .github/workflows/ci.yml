@@ -24,8 +24,8 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
     - name: Run tests
       run: |
-        whoami
         bundle config set path 'vendor/bundle'
         bundle config set --local without noci
         bundle install
         bundle exec rake
+        sudo bundle exec rake spec:sudo
