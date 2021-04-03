@@ -40,8 +40,8 @@ module PacketGen
           Inject.inject(iface: 'lo', data: unk_pack)
         end
 
-        packet = cap.packets.first
-        expect(packet).to be_a(UnknownPacket)
+        packet = cap.packets.find { |pkt| pkt.is_a?(UnknownPacket) }
+        expect(packet).to_not be(nil)
         expect(packet.body).to eq(bin_str)
       end
 
