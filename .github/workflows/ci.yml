@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  test:
+  normal-tests:
     strategy:
       fail-fast: false
       matrix:
@@ -22,10 +22,32 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-    - name: Run tests
+    - name: Run parsing/generating tests
       run: |
         bundle config set path 'vendor/bundle'
         bundle config set --local without noci
         bundle install
         bundle exec rake
+
+  cap-inj-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        ruby: [2.4, 2.5, 2.6, 2.7, 3.0]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: sudo apt-get update -qq && sudo apt-get install libpcap-dev -qq
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+    - name: Run capture and injection tests
+      run: |
+        sudo bundle config set path 'vendor/bundle'
+        sudo bundle config set --local without noci
+        sudo bundle install
+        sudo bundle exec rake
         sudo bundle exec rake spec:sudo
