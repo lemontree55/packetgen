@@ -229,9 +229,13 @@ module PacketGen
 
         def get_lsa_class_by_human_type(htype)
           klassname = "LSA#{htype.to_s.delete('-')}"
-          if OSPFv2.const_defined? klassname
-            OSPFv2.const_get klassname
-          else
+          begin
+            if OSPFv2.const_defined? klassname
+              OSPFv2.const_get klassname
+            else
+              LSA
+            end
+          rescue NameError
             LSA
           end
         end

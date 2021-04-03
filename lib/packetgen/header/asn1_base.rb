@@ -19,14 +19,20 @@ module PacketGen
     class ASN1Base < RASN1::Model
       include Headerable
 
-      # Define some methods from given ASN.1 fields to mimic {Base} attributes
-      # @param [Array<Symbol>] attributes
-      # @return [void]
-      def self.define_attributes(*attributes)
-        @attributes = attributes
-        attributes.each do |attr|
-          class_eval "def #{attr}; @elements[:#{attr}].value; end\n" \
-                     "def #{attr}=(v); @elements[:#{attr}].value = v; end"
+      class <<self
+        # Define some methods from given ASN.1 fields to mimic {Base} attributes
+        # @param [Array<Symbol>] attributes
+        # @return [void]
+        def define_attributes(*attributes)
+          @attributes = attributes
+          attributes.each do |attr|
+            class_eval "def #{attr}; @elements[:#{attr}].value; end\n" \
+                      "def #{attr}=(v); @elements[:#{attr}].value = v; end"
+          end
+        end
+
+        def known_headers
+          @known_headers ||= {}.freeze
         end
       end
 
@@ -37,7 +43,11 @@ module PacketGen
       # @param [String] str
       # @return [ASN1Base] self
       def read(str)
-        parse(str, ber: true)
+        begin
+          parse(str, ber: true)
+        rescue RASN1::ASN1Error
+          # suppress exception to allow guessing
+        end
         self
       end
 

@@ -87,13 +87,19 @@ module PacketGen
           end
           unless headers.empty?
             first_line = headers.shift.split
-            self[:version].read first_line[0]
-            self[:status_code].read first_line[1]
-            self[:status_mesg].read first_line[2..-1].join(' ')
+            if first_line.size >= 3
+              self[:version].read first_line[0]
+              self[:status_code].read first_line[1]
+              self[:status_mesg].read first_line[2..-1].join(' ')
+            end
             self[:headers].read(headers.join("\n"))
           end
           self[:body].read data.join("\n")
           self
+        end
+
+        def parse?
+          version.start_with?('HTTP/1.')
         end
 
         # String representation of data.

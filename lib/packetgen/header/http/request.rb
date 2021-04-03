@@ -81,6 +81,10 @@ module PacketGen
           self
         end
 
+        def parse?
+          VERBS.include?(self.verb) && self.version.start_with?('HTTP/1.')
+        end
+
         # String representation of data.
         # @return [String]
         def to_s

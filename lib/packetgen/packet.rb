@@ -287,7 +287,7 @@ module PacketGen
       if first_header.nil?
         # No decoding forced for first header. Have to guess it!
         first_header = guess_first_header(binary_str)
-        raise ParseError, 'cannot identify first header in string' if first_header.nil?
+        raise ParseError, "cannot identify first header in string: #{binary_str.inspect}" if first_header.nil?
       end
 
       add first_header
