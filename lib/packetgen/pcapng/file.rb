@@ -264,7 +264,7 @@ module PacketGen
       # @param [Time, nil] timestamp initial timestamp, used for first packet
       # @param [Numeric, nil] ts_inc timestamp increment, in seconds, to increment
       #                       initial timestamp for each packet
-      # @return [void]
+      # @return [self]
       # @note if +timestamp+ and/or +ts_inc+ are nil, {SPB} sections are created
       #  for each packet, else {EPB} ones are used
       # @since 3.1.6
@@ -276,11 +276,12 @@ module PacketGen
           classify_block(section, block)
           ts = update_ts(ts, ts_inc)
         end
+        self
       end
 
       # Update current object from a hash of packets and timestamps
       # @param [Hash{Time => Packet}] hsh
-      # @return [void]
+      # @return [self]
       # @since 3.1.6
       def read_hash(hsh)
         section = create_new_shb_section
@@ -288,6 +289,7 @@ module PacketGen
           block = create_block_from_pkt(pkt, section, ts, 0)
           classify_block(section, block)
         end
+        self
       end
 
       # @return [String]
