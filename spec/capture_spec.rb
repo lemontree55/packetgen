@@ -18,7 +18,7 @@ module PacketGen
     end
 
     describe '#start', :sudo do
-      it 'capture packets and returns a array of Packet' do
+      it 'captures packets and returns a array of Packet' do
         cap = capture(iface: 'lo') do
           ping('127.0.0.1', count: 3, interval: 0.2)
         end
@@ -32,6 +32,19 @@ module PacketGen
         end
       end
 
+      it 'captures unknown packets' do
+        bin_str = PacketGen.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', ethertype: 42, body: (1..4).to_a.pack('C*')).to_s
+
+        cap = capture(iface: 'lo') do
+          unk_pack = UnknownPacket.new.parse(bin_str)
+          Inject.inject(iface: 'lo', data: unk_pack)
+        end
+
+        packet = cap.packets.first
+        expect(packet).to be_a(UnknownPacket)
+        expect(packet.body).to eq(bin_str)
+      end
+
       it 'capture packets until :timeout seconds' do
         cap = Capture.new(iface: 'lo')
         before = Time.now
@@ -40,7 +53,7 @@ module PacketGen
         expect(after - before).to be < 2
       end
 
-      it 'capture packets using a filter' do
+      it 'captures packets using a filter' do
         cap = capture(iface: 'lo', filter: 'ip dst 127.0.0.2') do
           system '(ping -c 1 127.0.0.1; ping -c 1 127.0.0.2) > /dev/null'
         end
@@ -51,7 +64,7 @@ module PacketGen
         expect(packets.first.ip.dst).to eq('127.0.0.2')
       end
 
-      it 'capture raw packets with option parse: false' do
+      it 'captures raw packets with option parse: false' do
         cap = capture(iface: 'lo', parse: false) do
           ping('127.0.0.1', count: 1)
         end
@@ -61,7 +74,7 @@ module PacketGen
         expect(packets.all? { |p| p.is_a? String }).to be(true)
       end
 
-      it 'capture :max packets' do
+      it 'captures :max packets' do
         cap = capture(iface: 'lo', max: 2) do
           ping('127.0.0.1', count: 2, interval: 0.2)
         end

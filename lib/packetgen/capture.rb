@@ -122,7 +122,11 @@ module PacketGen
     def add_packet(data, &block)
       raw_packets << data
       if @parse
-        packet = Packet.parse(data)
+        begin
+          packet = Packet.parse(data)
+        rescue ParseError
+          packet = UnknownPacket.new.parse(data)
+        end
         packets << packet
         block&.call(packet)
       elsif block
