@@ -299,8 +299,21 @@ module PacketGen
     end
 
     describe Dot11::Data do
-      let(:data_pkts) { read_packets('ieee802.11-data.pcapng') }
+      let(:mac1) { '11:11:11:11:11:11' }
+      let(:mac2) { '22:22:22:22:22:22' }
+      let(:mac3) { '33:33:33:33:33:33' }
+      let(:mac4) { '44:44:44:44:44:44' }
+      let(:pkt) { PacketGen.gen('Dot11::Data', frame_ctrl: 0, mac1: mac1, mac2: mac2, mac3: mac3, mac4: mac4) }
+
       describe '#reply!' do
+        let(:data_pkts) { read_packets('ieee802.11-data.pcapng') }
+
+        it 'inverts RA/DA and TA/SA (DS status is 00)' do
+          pkt.reply!
+          expect(pkt.dot11.mac1).to eq(mac2)
+          expect(pkt.dot11.mac2).to eq(mac1)
+        end
+
         it 'inverts SA and DA and DS flags (DS status is 01)' do
           pkt1, pkt2 = data_pkts[0..1]
           pkt1.reply!
@@ -319,6 +332,93 @@ module PacketGen
           expect(pkt2.dot11.mac3).to eq(pkt1.dot11.mac3)
           expect(pkt2.dot11.from_ds?).to eq(pkt1.dot11.from_ds?)
           expect(pkt2.dot11.to_ds?).to eq(pkt1.dot11.to_ds?)
+        end
+
+        it 'inverts RA/TA and DA/SA (DS status is 11)' do
+          pkt.dot11.frame_ctrl = 3
+          pkt.reply!
+          expect(pkt.dot11.mac1).to eq(mac2)
+          expect(pkt.dot11.mac2).to eq(mac1)
+          expect(pkt.dot11.mac3).to eq(mac4)
+          expect(pkt.dot11.mac4).to eq(mac3)
+        end
+      end
+
+      describe '#dst' do
+        it 'returns MAC1 when to_ds is false' do
+          pkt.dot11.to_ds = false
+          expect(pkt.dot11.dst).to eq(mac1)
+        end
+
+        it 'returns MAC3 when to_ds is true' do
+          pkt.dot11.to_ds = true
+          expect(pkt.dot11.dst).to eq(mac3)
+        end
+      end
+
+      describe '#dst=' do
+        let(:new_mac) { 'cc:cc:cc:cc:cc:cc' }
+
+        it 'sets MAC1 when to_ds is false' do
+          pkt.dot11.to_ds = false
+          pkt.dot11.dst = new_mac
+          expect(pkt.dot11.mac1).to eq(new_mac)
+        end
+
+        it 'sets MAC3 when to_ds is true' do
+          pkt.dot11.to_ds = true
+          pkt.dot11.dst = new_mac
+          expect(pkt.dot11.mac3).to eq(new_mac)
+        end
+      end
+
+      describe '#src' do
+        it 'returns MAC2 when from_ds is false' do
+          pkt.dot11.from_ds = false
+          pkt.dot11.to_ds = false
+          expect(pkt.dot11.src).to eq(mac2)
+          pkt.dot11.to_ds = true
+          expect(pkt.dot11.src).to eq(mac2)
+        end
+
+        it 'returns MAC3 when (from_ds, to_ds) is (true, false)' do
+          pkt.dot11.from_ds = true
+          pkt.dot11.to_ds = false
+          expect(pkt.dot11.src).to eq(mac3)
+        end
+
+        it 'returns MAC4 when (from_ds, to_ds) is (true, true)' do
+          pkt.dot11.from_ds = true
+          pkt.dot11.to_ds = true
+          expect(pkt.dot11.src).to eq(mac4)
+        end
+      end
+
+      describe '#src=' do
+        let(:new_mac) { 'cc:cc:cc:cc:cc:cc' }
+
+        it 'sets MAC2 when from_ds is false' do
+          pkt.dot11.from_ds = false
+          pkt.dot11.to_ds = false
+          pkt.dot11.src = new_mac
+          expect(pkt.dot11.mac2).to eq(new_mac)
+          pkt.dot11.to_ds = true
+          pkt.dot11.src = new_mac
+          expect(pkt.dot11.mac2).to eq(new_mac)
+        end
+
+        it 'sets MAC3 when (from_ds, to_ds) is (true, false)' do
+          pkt.dot11.from_ds = true
+          pkt.dot11.to_ds = false
+          pkt.dot11.src = new_mac
+          expect(pkt.dot11.mac3).to eq(new_mac)
+        end
+
+        it 'sets MAC4 when (from_ds, to_ds) is (true, true)' do
+          pkt.dot11.from_ds = true
+          pkt.dot11.to_ds = true
+          pkt.dot11.src = new_mac
+          expect(pkt.dot11.mac4).to eq(new_mac)
         end
       end
     end
