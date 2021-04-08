@@ -1,10 +1,15 @@
 # Changelog
 
-## Head
+## HEAD (will be Packetgen 3.2.0)
 
+* Add UnknownPacket class, which handles non-parsable packets on capturing.
+* PacketGen.default_iface now tries hard to return an interface with addresses.
+* Update PacketGen.default_iface to return first interface with broadcast capability AND IPv4 and IPv6 addresses.
 * Bugs:
-  * Fix an exception when adding a HTTP::Request header to a packet.
+  * Fix an exception when adding a HTTP::Request header to a packet (#112).
   * Fix an exception when adding a HTTP::Response header to a packet.
+  * Fix headers which raised when binary string was badly formatted, as happened when
+trying to guess a header (Packet#parse).
 
 ## Packetgen 3.1.8
 

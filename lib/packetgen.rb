@@ -95,8 +95,16 @@ module PacketGen
   # Get default network interface (ie. first non-loopback declared interface)
   # @return [String]
   def self.default_iface
-    Interfacez.default
+    return @default_iface if defined? @default_iface
+
+    @default_iface = Interfacez.raw_interface_addresses.each do |iface|
+      next unless iface.broadaddr
+      next unless Interfacez.ipv4_address_of(iface.name)
+      next unless Interfacez.ipv6_address_of(iface.name)
+      break iface.name
+    end
   end
+
 
   # Get loopback network interface
   # @return [String]

@@ -11,7 +11,7 @@ module PacketGen
     end
 
     it 'gets configuration from default interface when none is given' do
-      expect(config.default_iface).to match(/lo|eth|en|wlan/)
+      expect(config.default_iface).to match(/lo|eth|en|wl/)
       expect(config.hwaddr).to match(/[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+:[0-9a-f]+/)
       expect(config.ipaddr).to match(/\d+\.\d+\.\d+\.\d+/)
     end
