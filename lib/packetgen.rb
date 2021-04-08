@@ -101,10 +101,10 @@ module PacketGen
       next unless iface.broadaddr
       next unless Interfacez.ipv4_address_of(iface.name)
       next unless Interfacez.ipv6_address_of(iface.name)
+
       break iface.name
     end
   end
-
 
   # Get loopback network interface
   # @return [String]

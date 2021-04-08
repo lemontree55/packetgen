@@ -23,7 +23,7 @@ module PacketGen
       raw_cache = `/usr/sbin/arp -an`
 
       cache = {}
-      raw_cache.split(/\n/).each do |line|
+      raw_cache.split("\n").each do |line|
         match = line.match(/\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/)
         cache[match[1]] = [match[2], match[4]] if match
       end
@@ -46,7 +46,7 @@ module PacketGen
     def self.arp(ipaddr, options={})
       unless options[:no_cache]
         local_cache = self.arp_cache
-        return local_cache[ipaddr].first if local_cache.key? ipaddr
+        return local_cache[ipaddr].first if local_cache.key?(ipaddr)
       end
 
       iface = options[:iface] || PacketGen.default_iface
@@ -54,13 +54,12 @@ module PacketGen
       my_hwaddr = Config.instance.hwaddr(iface)
       arp_pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: my_hwaddr)
                       .add('ARP', sha: Config.instance.hwaddr(iface),
-                           spa: Config.instance.ipaddr(iface), tpa: ipaddr)
+                                  spa: Config.instance.ipaddr(iface),
+                                  tpa: ipaddr)
 
       capture = Capture.new(iface: iface, timeout: timeout, max: 1,
                             filter: "arp src #{ipaddr} and ether dst #{my_hwaddr}")
-      cap_thread = Thread.new do
-        capture.start
-      end
+      cap_thread = Thread.new { capture.start }
 
       arp_pkt.to_w(iface)
       cap_thread.join

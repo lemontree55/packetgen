@@ -81,7 +81,7 @@ module PacketGen
     # @return [Array<Packet>] captured packet
     def self.capture(**kwargs, &block)
       capture = Capture.new(**kwargs)
-      if block_given?
+      if block
         capture.start(&block)
       else
         capture.start
