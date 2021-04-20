@@ -1,6 +1,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/packetgen.svg)](https://badge.fury.io/rb/packetgen)
-
+[![Action status](https://github.com/sdaubert/packetgen/workflows/ci/badge.svg?branch=master)](https://github.com/sdaubert/packetgen/actions?query=workflow%3Aci)
 # PacketGen
 
 PacketGen provides simple ways to generate, send and capture network packets.
