@@ -35,7 +35,9 @@ jobs:
       run: bundle add code-scanning-rubocop --version '= 0.5.0' --source 'https://rubygems.org' --skip-install
 
     - name: Install dependencies
-      run: bundle install
+      run: |
+        sudo apt-get update -qq && sudo apt-get install libpcap-dev -qq
+        bundle install
 
     - name: Rubocop run
       run: |
