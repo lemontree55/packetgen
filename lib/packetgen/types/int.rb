@@ -89,6 +89,13 @@ module PacketGen
         format_str % [to_i.to_s, to_i]
       end
 
+      # Return the number of bits used to encode this Int
+      # @return [Integer]
+      # @since 3.2.1
+      def nbits
+        width * 8
+      end
+
       private
 
       def format_str

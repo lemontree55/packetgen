@@ -137,9 +137,9 @@ module PacketGen
                      else
                        '%s'
                      end
-        @lenstr ||= "%-#{(2**(self[:length].width * 8) - 1).to_s.size}u"
-        "#{name} type:#{@typestr} length:#{@lenstr} value:#{value.inspect}" % [human_type,
-                                                                               length]
+        lenstr = "%-#{(2**self[:length].nbits - 1).to_s.size}u"
+        "#{name} type:#{@typestr} length:#{lenstr} value:#{value.inspect}" % [human_type,
+                                                                              length]
       end
 
       private

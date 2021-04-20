@@ -282,7 +282,7 @@ module PacketGen
           type = field_defs[attr].type
           raise TypeError, "#{attr} is not a PacketGen::Types::Int" unless type < Types::Int
 
-          total_size = type.new.width * 8
+          total_size = type.new.nbits
           idx = total_size - 1
 
           until args.empty?
