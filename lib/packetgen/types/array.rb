@@ -154,6 +154,8 @@ module PacketGen
         self
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+
       # Populate object from a string
       # @param [String] str
       # @return [self]
@@ -171,6 +173,7 @@ module PacketGen
         end
         self
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       # Get size in bytes
       # @return [Integer]
@@ -228,18 +231,22 @@ module PacketGen
     class ArrayOfInt8 < Array
       set_of Int8
     end
+
     # Specialized array to handle serie of {Int16}.
     class ArrayOfInt16 < Array
       set_of Int16
     end
+
     # Specialized array to handle serie of {Int16le}.
     class ArrayOfInt16le < Array
       set_of Int16le
     end
+
     # Specialized array to handle serie of {Int32}.
     class ArrayOfInt32 < Types::Array
       set_of Types::Int32
     end
+
     # Specialized array to handle serie of {Int32le}.
     class ArrayOfInt32le < Types::Array
       set_of Types::Int32le

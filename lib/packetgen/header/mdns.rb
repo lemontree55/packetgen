@@ -31,32 +31,10 @@ module PacketGen
         case iph
         when IP
           iph.dst = '224.0.0.251'
-          llh = ll_header(self)
-          mac = case llh
-                when Eth
-                  llh[:dst]
-                when Dot11
-                  if llh.to_ds?
-                    llh[:mac3]
-                  else
-                    llh[:mac1]
-                  end
-                end
-          mac.from_human('01:00:5E:00:00:FB')
+          dst_mac.from_human('01:00:5E:00:00:FB')
         when IPv6
           iph.dst = 'ff02::fb'
-          llh = ll_header(self)
-          mac = case llh
-                when Eth
-                  llh[:dst]
-                when Dot11
-                  if llh.to_ds?
-                    llh[:mac3]
-                  else
-                    llh[:mac1]
-                  end
-                end
-          mac.from_human('33:33:00:00:00:FB')
+          dst_mac.from_human('33:33:00:00:00:FB')
         end
       end
 
@@ -67,11 +45,27 @@ module PacketGen
       #  Needed by new bind API.
       def added_to_packet(packet)
         mdns_idx = packet.headers.size
-        packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end"
+        packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end" # def mdnsize() @headers[4].mdnsize; end
         return unless packet.is? 'UDP'
         return unless packet.udp.sport.zero?
 
         packet.udp.sport = UDP_PORT
+      end
+
+      private
+
+      def dst_mac
+        llh = ll_header(self)
+        case llh
+        when Eth
+          llh[:dst]
+        when Dot11
+          if llh.to_ds?
+            llh[:mac3]
+          else
+            llh[:mac1]
+          end
+        end
       end
     end
 

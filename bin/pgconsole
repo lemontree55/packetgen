@@ -31,7 +31,7 @@ class PgConsole
     define_method m, Utils.method(m).to_proc
   end
 
-  def get_binding
+  def console_binding
     binding
   end
 end
@@ -52,10 +52,10 @@ if use_pry
     }
   ]
   Pry.config.prompt_name = 'pg'
-  PgConsole.new.get_binding.pry
+  PgConsole.new.console_binding.pry
 else
   IRB.setup nil
-  irb = IRB::Irb.new(IRB::WorkSpace.new(PgConsole.new.get_binding))
+  irb = IRB::Irb.new(IRB::WorkSpace.new(PgConsole.new.console_binding))
   IRB.conf[:MAIN_CONTEXT] = irb.context
   irb.context.auto_indent_mode = true
   irb.context.prompt_i = 'pg> '

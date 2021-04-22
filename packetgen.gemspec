@@ -3,7 +3,7 @@
 
 require_relative 'lib/packetgen/version'
 
-Gem::Specification.new do |spec|
+Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.name          = 'packetgen'
   spec.version       = PacketGen::VERSION
   spec.license       = 'MIT'
@@ -12,8 +12,8 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Network packet generator and dissector'
   spec.description   = <<~DESC
-  PacketGen is a network packet manipulation library. It allows reading, parsing
-  and sending network packets with fun.
+    PacketGen is a network packet manipulation library. It allows reading, parsing
+    and sending network packets with fun.
   DESC
 
   spec.metadata = {

@@ -355,7 +355,7 @@ module PacketGen
       def added_to_packet(packet)
         return if packet.respond_to? :dot11
 
-        packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end")
+        packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end") # def dot11(arg=nil); header(Dot11, arg); end
       end
 
       private

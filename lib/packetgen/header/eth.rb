@@ -60,7 +60,7 @@ module PacketGen
         def from_human(str)
           return self if str.nil?
 
-          bytes = str.split(/:/)
+          bytes = str.split(':')
           raise ArgumentError, 'not a MAC address' unless bytes.size == 6
 
           6.times do |i|

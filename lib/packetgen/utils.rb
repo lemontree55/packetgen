@@ -16,6 +16,13 @@ module PacketGen
   # @author Sylvain Daubert
   # @since 2.1.3
   module Utils
+    # @private
+    MITM_FILTER = '((ip src %<target1> and not ip dst %<local_ip>) or' \
+                  ' (ip src %<target2> and not ip dst %<local_ip>) or' \
+                  ' (ip dst %<target1> and not ip src %<local_ip>) or' \
+                  ' (ip dst %<target2> and not ip src %<local_ip>))' \
+                  ' and ether dst %<local_mac>'
+
     # Get local ARP cache
     # @return [Hash] key: IP address, value: array containing MAC address and
     #    interface name
@@ -30,6 +37,8 @@ module PacketGen
 
       cache
     end
+
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize
 
     # Get MAC address from an IP address, or nil if this IP address is unknown
     # on local network.
@@ -70,6 +79,7 @@ module PacketGen
         break pkt.arp.sha.to_s if pkt.arp.spa.to_s == ipaddr
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     # Do ARP spoofing on given IP address. Call to this method blocks.
     # @note This method is provided for test purpose.
@@ -94,6 +104,8 @@ module PacketGen
       as.start(target_ip, spoofed_ip, mac: options[:mac])
       as.wait
     end
+
+    # rubocop:disable Metrics/AbcSize
 
     # Man in the middle attack. Capture all packets between two peers on
     # same local network.
@@ -132,14 +144,9 @@ module PacketGen
       spoofer.add target1, target2, options
       spoofer.add target2, target1, options
 
-      my_mac = Config.instance.hwaddr(options[:iface])
-      my_ip = Config.instance.ipaddr(options[:iface])
+      cfg = Config.instance
       capture = Capture.new(iface: options[:iface],
-                            filter: "((ip src #{target1} and not ip dst #{my_ip}) or" \
-                                    " (ip src #{target2} and not ip dst #{my_ip}) or" \
-                                    " (ip dst #{target1} and not ip src #{my_ip}) or" \
-                                    " (ip dst #{target2} and not ip src #{my_ip}))" \
-                                    " and ether dst #{my_mac}")
+                            filter: MITM_FILTER % { target1: target1, target2: target2, local_ip: cfg.ipaddr(options[:iface]), local_mac: cfg.hwaddr(options[:iface]) })
 
       spoofer.start_all
       capture.start do |pkt|
@@ -157,5 +164,6 @@ module PacketGen
         modified_pkt.to_w(options[:iface])
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
   end
 end

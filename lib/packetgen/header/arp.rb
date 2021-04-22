@@ -81,15 +81,7 @@ module PacketGen
       # @option options [String] :tha target hardware address
       # @option options [String] :tpa targetr internet address
       def initialize(options={})
-        options[:hrd] ||= options[:htype]
-        options[:pro] ||= options[:ptype]
-        options[:hln] ||= options[:hlen]
-        options[:pln] ||= options[:plen]
-        options[:op]  ||= options[:opcode]
-        options[:sha] ||= options[:src_mac]
-        options[:spa] ||= options[:src_ip]
-        options[:tha] ||= options[:dst_mac]
-        options[:tpa] ||= options[:dst_ip]
+        handle_options(options)
         super
       end
 
@@ -118,15 +110,34 @@ module PacketGen
         case opcode.to_i
         when 1
           self.opcode = 2
-          self.spa, self.tpa = self.tpa, self.spa
-          self.sha, self.tha = self.tha, self.sha
+          invert_addresses
         when 2
           self.opcode = 1
-          self.spa, self.tpa = self.tpa, self.spa
-          self.sha = self.tha
+          invert_addresses
           self[:tha].from_human('00:00:00:00:00:00')
         end
         self
+      end
+
+      private
+
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      def handle_options(options)
+        options[:hrd] ||= options[:htype]
+        options[:pro] ||= options[:ptype]
+        options[:hln] ||= options[:hlen]
+        options[:pln] ||= options[:plen]
+        options[:op]  ||= options[:opcode]
+        options[:sha] ||= options[:src_mac]
+        options[:spa] ||= options[:src_ip]
+        options[:tha] ||= options[:dst_mac]
+        options[:tpa] ||= options[:dst_ip]
+      end
+      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+
+      def invert_addresses
+        self.spa, self.tpa = self.tpa, self.spa
+        self.sha, self.tha = self.tha, self.sha
       end
     end
 
