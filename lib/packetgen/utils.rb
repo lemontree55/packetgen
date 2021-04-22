@@ -27,6 +27,8 @@ module PacketGen
     # @return [Hash] key: IP address, value: array containing MAC address and
     #    interface name
     def self.arp_cache
+      return {} unless File.exist?('/usr/sbin/arp')
+
       raw_cache = `/usr/sbin/arp -an`
 
       cache = {}
