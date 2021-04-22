@@ -218,7 +218,7 @@ module PacketGen
       def added_to_packet(packet)
         return if packet.respond_to? :eap
 
-        packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end")
+        packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end") # def eap(arg=nil); header(EAP, arg); end
       end
 
       # Invert between a request and a response packet. Not action for

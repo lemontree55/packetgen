@@ -50,48 +50,29 @@ module PacketGen
           self[:rdata].read data
         end
 
+        # rubocop:disable Metrics/AbcSize
+
         # Get human readable rdata
         # @return [String]
         def human_rdata
-          str = self[:rdata].inspect
+          str = human_ip_rdata || self[:rdata].inspect
 
-          # Need to mask: mDNS uses leftmost bit as a flag (CACHE FLUSH)
-          if self.rrclass & 0x7fff == CLASSES['IN']
-            case type
-            when TYPES['A'], TYPES['AAAA']
-              str = IPAddr.new_ntoh(self[:rdata]).to_s
-            end
-          end
-
-          name = Name.new
-          name.dns = self[:name].dns
           case type
           when TYPES['NS'], TYPES['PTR'], TYPES['CNAME']
+            name = Name.new
+            name.dns = self[:name].dns
             str = name.read(self[:rdata]).to_human
           when TYPES['SOA']
-            mname = name.read(self[:rdata]).dup
-            rname = name.read(self[:rdata][mname.sz..-1])
-            serial = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
-            refresh = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])
-            retryi = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 8, 4])
-            expire = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 12, 4])
-            minimum = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 16, 4])
-            str = "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
-                  "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
+            str = human_soa_rdata
           when TYPES['MX']
-            pref = Types::Int16.new.read(self[:rdata][0, 2])
-            exchange = name.read(self[:rdata][2..-1]).to_human
-            str = '%u %s' % [pref.to_i, exchange]
+            str = human_mx_data
           when TYPES['SRV']
-            priority = Types::Int16.new.read(self[:rdata][0, 2])
-            weight = Types::Int16.new.read(self[:rdata][2, 2])
-            port = Types::Int16.new.read(self[:rdata][4, 2])
-            target = name.read(self[:rdata][6, self[:rdata].size]).to_human
-            str = "#{priority.to_i} #{weight.to_i} #{port.to_i} #{target}"
+            str = human_srv_data
           end
 
           str
         end
+        # rubocop:enable Metrics/AbcSize
 
         # Get human readable class
         # @return [String]
@@ -109,6 +90,58 @@ module PacketGen
         def to_human
           "#{human_type} #{human_rrclass} #{name} TTL #{ttl} #{human_rdata}"
         end
+
+        private
+
+        def human_ip_rdata
+          # Need to mask: mDNS uses leftmost bit as a flag (CACHE FLUSH)
+          return unless self.rrclass & 0x7fff == CLASSES['IN']
+
+          case type
+          when TYPES['A'], TYPES['AAAA']
+            IPAddr.new_ntoh(self[:rdata]).to_s
+          end
+        end
+
+        def human_mx_data
+          name = Name.new
+          name.dns = self[:name].dns
+
+          pref = Types::Int16.new.read(self[:rdata][0, 2])
+          exchange = name.read(self[:rdata][2..-1]).to_human
+
+          '%u %s' % [pref.to_i, exchange]
+        end
+
+        # rubocop:disable Metrics/AbcSize
+        def human_soa_rdata
+          name = Name.new
+          name.dns = self[:name].dns
+          mname = name.read(self[:rdata]).dup
+          rname = name.read(self[:rdata][mname.sz..-1])
+
+          serial = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
+          refresh = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])
+          retryi = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 8, 4])
+          expire = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 12, 4])
+          minimum = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 16, 4])
+
+          "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
+            "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
+        end
+
+        def human_srv_data
+          name = Name.new
+          name.dns = self[:name].dns
+
+          priority = Types::Int16.new.read(self[:rdata][0, 2])
+          weight = Types::Int16.new.read(self[:rdata][2, 2])
+          port = Types::Int16.new.read(self[:rdata][4, 2])
+          target = name.read(self[:rdata][6, self[:rdata].size]).to_human
+
+          "#{priority.to_i} #{weight.to_i} #{port.to_i} #{target}"
+        end
+        # rubocop:enable Metrics/AbcSize
       end
     end
   end

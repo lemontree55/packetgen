@@ -241,17 +241,24 @@ module PacketGen
         super do |attr|
           next unless attr == :u16
 
-          flags = %i[qr aa tc rd ra].select! { |flag| send "#{flag}?" }
-                                    .map(&:to_s).join(',')
-          str = Inspect.shift_level
-          str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
+          str = inspect_flags
+
+          str << Inspect.shift_level
           opcode = '%-16s (%u)' % [OPCODES.key(self.opcode), self.opcode]
-          str << Inspect.shift_level
           str << Inspect::FMT_ATTR % ['Integer', 'opcode', opcode]
-          rcode = '%-16s (%u)' % [RCODES.key(self.rcode), self.rcode]
+
           str << Inspect.shift_level
+          rcode = '%-16s (%u)' % [RCODES.key(self.rcode), self.rcode]
           str << Inspect::FMT_ATTR % ['Integer', 'rcode', rcode]
         end
+      end
+
+      private
+
+      def inspect_flags
+        flags = %i[qr aa tc rd ra].select! { |flag| send "#{flag}?" }.map(&:to_s).join(',')
+        str = Inspect.shift_level
+        str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
       end
     end
 

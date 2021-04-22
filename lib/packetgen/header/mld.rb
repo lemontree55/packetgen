@@ -68,7 +68,7 @@ module PacketGen
       #       directly called
       def added_to_packet(packet)
         mld_idx = packet.headers.size
-        packet.instance_eval "def mldize() @headers[#{mld_idx}].mldize; end"
+        packet.instance_eval "def mldize() @headers[#{mld_idx}].mldize; end" # def mldize() @headers[3].mldize; end
       end
 
       # Fixup IP header according to RFC 2710:

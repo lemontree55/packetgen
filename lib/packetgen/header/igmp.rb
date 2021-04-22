@@ -77,7 +77,7 @@ module PacketGen
       #       directly called
       def added_to_packet(packet)
         igmp_idx = packet.headers.size
-        packet.instance_eval "def igmpize() @headers[#{igmp_idx}].igmpize; end"
+        packet.instance_eval "def igmpize() @headers[#{igmp_idx}].igmpize; end" # def igmpize() @headers[2].igmpize; end
       end
 
       # Get human readbale type

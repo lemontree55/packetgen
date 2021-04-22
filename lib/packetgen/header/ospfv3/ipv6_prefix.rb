@@ -71,11 +71,8 @@ module PacketGen
         # @param [String] str
         # @return [void]
         def from_human(str)
-          pfx, len = str.split('/')
-          len = (len || 128).to_i
-          addr = IPv6::Addr.new.from_human(pfx)
-          ary_size = (len + 31) / 32
-          ary = addr.to_a[0...ary_size * 2]
+          ary, len = ary_and_prefix_len_from_str(str)
+
           self.prefix.clear
           ary.each_with_index do |v, i|
             if i.even?
@@ -85,6 +82,18 @@ module PacketGen
             end
           end
           self.length = len
+        end
+
+        private
+
+        def ary_and_prefix_len_from_str(str)
+          pfx, len = str.split('/')
+          len = (len || 128).to_i
+          addr = IPv6::Addr.new.from_human(pfx)
+          ary_size = (len + 31) / 32
+          ary = addr.to_a[0...ary_size * 2]
+
+          [ary, len]
         end
       end
 
