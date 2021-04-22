@@ -29,14 +29,33 @@ module PacketGen
     # @return [Hash] key: IP address, value: array containing MAC address and
     #    interface name
     def self.arp_cache
-      return {} unless File.exist?('/usr/sbin/arp')
+      return self.cache_from_arp_command if File.exist?('/usr/sbin/arp')
+      return self.cache_from_ip_command if File.exist?('/usr/bin/ip')
 
+      {}
+    end
+
+    # @private
+    def self.cache_from_arp_command
       raw_cache = `/usr/sbin/arp -an`
 
       cache = {}
       raw_cache.split("\n").each do |line|
         match = line.match(/\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/)
         cache[match[1]] = [match[2], match[4]] if match
+      end
+
+      cache
+    end
+
+    # @private
+    def self.cache_from_ip_command
+      raw_cache = `ip neigh`
+
+      cache = {}
+      raw_cache.split("\n").each do |line|
+        match = line.match(/^(\d+\.\d+\.\d+\.\d+) dev (\w+) lladdr (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})/)
+        cache[match[1]] = [match[3], match[2]] if match
       end
 
       cache
