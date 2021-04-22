@@ -1,5 +1,9 @@
 # Changelog
 
+## Master
+
+* Add Types::Int#nbits to get size of Int as bits.
+
 ## Packetgen 3.2.0
 
 * Add UnknownPacket class, which handles non-parsable packets on capturing.
