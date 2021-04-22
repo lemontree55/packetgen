@@ -221,7 +221,6 @@ module PacketGen
           packet = packets.first
           expect(packet.is? 'IP').to be(true)
           expect(packet.ip.dst).to eq('127.0.0.1')
-          expect(packet.ip.src).to eq('127.0.0.1')
           expect(packet.ip.protocol).to eq(UDP::IP_PROTOCOL)
           expect(packet.udp.sport).to eq(35_535)
           expect(packet.udp.dport).to eq(65_535)
