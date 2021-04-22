@@ -17,11 +17,13 @@ module PacketGen
   # @since 2.1.3
   module Utils
     # @private
-    MITM_FILTER = '((ip src %<target1> and not ip dst %<local_ip>) or' \
-                  ' (ip src %<target2> and not ip dst %<local_ip>) or' \
-                  ' (ip dst %<target1> and not ip src %<local_ip>) or' \
-                  ' (ip dst %<target2> and not ip src %<local_ip>))' \
-                  ' and ether dst %<local_mac>'
+    ARP_FILTER = 'arp src %<ipaddr>s and ether dst %<hwaddr>s'
+    # @private
+    MITM_FILTER = '((ip src %<target1>s and not ip dst %<local_ip>s) or' \
+                  ' (ip src %<target2>s and not ip dst %<local_ip>s) or' \
+                  ' (ip dst %<target1>s and not ip src %<local_ip>s) or' \
+                  ' (ip dst %<target2>s and not ip src %<local_ip>s))' \
+                  ' and ether dst %<local_mac>s'
 
     # Get local ARP cache
     # @return [Hash] key: IP address, value: array containing MAC address and
@@ -51,7 +53,7 @@ module PacketGen
     # @option options [Boolean] :no_cache if +true+, do not query local ARP
     #   cache and always send an ARP request on wire. Default to +false+
     # @option options [Integer] :timeout timeout in seconds before stopping
-    #   request. Default to 2.
+    #   request. Default to 1.
     # @return [String,nil]
     # @raise [RuntimeError] user don't have permission to capture packets on network device.
     def self.arp(ipaddr, options={})
@@ -68,10 +70,10 @@ module PacketGen
                                   spa: Config.instance.ipaddr(iface),
                                   tpa: ipaddr)
 
-      capture = Capture.new(iface: iface, timeout: timeout, max: 1,
-                            filter: "arp src #{ipaddr} and ether dst #{my_hwaddr}")
+      capture = Capture.new(iface: iface, timeout: timeout, max: 1, filter: ARP_FILTER % { ipaddr: ipaddr, hwaddr: my_hwaddr })
       cap_thread = Thread.new { capture.start }
 
+      sleep 0.1
       arp_pkt.to_w(iface)
       cap_thread.join
 
