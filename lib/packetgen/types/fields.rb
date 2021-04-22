@@ -358,15 +358,15 @@ module PacketGen
           clear_mask = compute_clear_mask(total_size, field_mask)
 
           class_eval <<-METHODS
-          def #{name}?
-            val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-            val != 0
-          end
-          def #{name}=(v)
-            val = v ? 1 : 0
-            self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-            self[:#{attr}].value |= val << #{shift}
-          end
+          def #{name}?                                                  # def bit?
+            val = (self[:#{attr}].to_i & #{field_mask}) >> #{shift}     #   val = (self[:attr}].to_i & 1}) >> 1
+            val != 0                                                    #   val != 0
+          end                                                           # end
+          def #{name}=(v)                                               # def bit=(v)
+            val = v ? 1 : 0                                             #   val = v ? 1 : 0
+            self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}  #   self[:attr].value = self[:attr].to_i & 0xfffd
+            self[:#{attr}].value |= val << #{shift}                     #   self[:attr].value |= val << 1
+          end                                                           # end
           METHODS
         end
 
@@ -375,13 +375,13 @@ module PacketGen
           clear_mask = compute_clear_mask(total_size, field_mask)
 
           class_eval <<-METHODS
-          def #{name}
-            (self[:#{attr}].to_i & #{field_mask}) >> #{shift}
-          end
-          def #{name}=(v)
-            self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}
-            self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}
-          end
+          def #{name}                                                   # def multibit
+            (self[:#{attr}].to_i & #{field_mask}) >> #{shift}           #   (self[:attr].to_i & 6) >> 1
+          end                                                           # end
+          def #{name}=(v)                                               # def multibit=(v)
+            self[:#{attr}].value = self[:#{attr}].to_i & #{clear_mask}  #   self[:attr].value = self[:attr].to_i & 0xfff9
+            self[:#{attr}].value |= (v & #{2**size - 1}) << #{shift}    #   self[:attr].value |= (v & 3) << 1
+          end                                                           # end
           METHODS
         end
 
@@ -523,7 +523,7 @@ module PacketGen
       # Return object as a hash
       # @return [Hash] keys: attributes, values: attribute values
       def to_h
-        Hash[fields.map { |f| [f, @fields[f].to_human] }]
+        fields.map { |f| [f, @fields[f].to_human] }.to_h
       end
 
       # Get offset of given field in {Fields} structure.

@@ -286,20 +286,11 @@ module PacketGen
       def inspect
         str = super
         str << Inspect.shift_level
-        if self[:data].chosen.nil?
-          str << Inspect::FMT_ATTR % [self[:data].type, :data, '']
-        else
-          data = self[:data]
-          str << Inspect::FMT_ATTR % [data.type, :data, data.chosen_value.type]
-          str << Inspect.dashed_line('ASN.1 content')
-          str << data.chosen_value.inspect(1)
-          begin
-            str << Inspect.inspect_body(self[:message].to_der, 'ASN.1 DER')
-          rescue StandardError => e
-            raise unless e.message.match?(/TAG.*not handled/)
-          end
-          str
-        end
+        str << if self[:data].chosen.nil?
+                 Inspect::FMT_ATTR % [self[:data].type, :data, '']
+               else
+                 inspect_data
+               end
       end
 
       # @api private
@@ -314,6 +305,21 @@ module PacketGen
         return unless packet.udp.sport.zero?
 
         packet.udp.sport = packet.udp.dport
+      end
+
+      private
+
+      def inspect_data
+        data = self[:data]
+        str = Inspect::FMT_ATTR % [data.type, :data, data.chosen_value.type]
+        str << Inspect.dashed_line('ASN.1 content')
+        str << data.chosen_value.inspect(1)
+        begin
+          str << Inspect.inspect_body(self[:message].to_der, 'ASN.1 DER')
+        rescue StandardError => e
+          raise unless e.message.match?(/TAG.*not handled/)
+        end
+        str
       end
     end
 

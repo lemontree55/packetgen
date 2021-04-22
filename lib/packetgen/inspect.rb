@@ -12,6 +12,8 @@ module PacketGen
   module Inspect
     # Maximum number of characters on a line for INSPECT
     MAX_WIDTH = 70
+    # @private
+    SEPARATOR = ('-' * MAX_WIDTH << "\n").freeze
 
     # Format to inspect attribute
     FMT_ATTR = "%14s %16s: %s\n"
@@ -105,19 +107,23 @@ module PacketGen
       return '' if body.nil? || body.empty?
 
       str = dashed_line(name, 2)
-      str << (0..15).to_a.map { |v| ' %02d' % v }.join << "\n"
-      str << '-' * MAX_WIDTH << "\n"
+      0.upto(15) { |v| str << ' %02d' % v }
+      str << "\n" << SEPARATOR
       unless body.empty?
         (body.size / 16 + 1).times do |i|
-          octets = body.to_s[i * 16, 16].unpack('C*')
-          o_str = octets.map { |v| ' %02x' % v }.join
-          str << o_str
-          str << ' ' * (3 * 16 - o_str.size) unless o_str.size >= 3 * 16
-          str << '  ' << octets.map { |v| v < 128 && v > 31 ? v.chr : '.' }.join
-          str << "\n"
+          str << self.convert_body_slice(body.to_s[i * 16, 16])
         end
       end
-      str << '-' * MAX_WIDTH << "\n"
+      str << SEPARATOR
+    end
+
+    # @private
+    def self.convert_body_slice(bslice)
+      octets = bslice.unpack('C*')
+      str = octets.map { |v| ' %02x' % v }.join
+      str << ' ' * (48 - str.size) unless str.size >= 48
+      str << '  ' << octets.map { |v| (32..127).cover?(v) ? v.chr : '.' }.join
+      str << "\n"
     end
   end
 end

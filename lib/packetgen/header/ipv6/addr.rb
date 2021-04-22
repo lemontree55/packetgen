@@ -49,6 +49,8 @@ module PacketGen
         #  @return [Integer]
         define_field :a8, Types::Int16
 
+        # rubocop:disable Metrics/AbcSize
+
         # Read a colon-delimited address
         # @param [String] str
         # @return [self]
@@ -69,6 +71,7 @@ module PacketGen
           self.a8 = addri & 0xffff
           self
         end
+        # rubocop:enable Metrics/AbcSize
 
         # Addr6 in human readable form (colon-delimited hex string)
         # @return [String]

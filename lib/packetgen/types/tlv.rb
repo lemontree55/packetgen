@@ -56,12 +56,8 @@ module PacketGen
       def initialize(options={})
         Deprecation.deprecated_class(self.class, AbstractTLV)
         super
-        self[:type] = options[:t].new(self.type) if options[:t]
-        self[:length] = options[:l].new(self.length) if options[:l]
-        self[:value] = options[:v].new if options[:v]
-        self.type = options[:type] if options[:type]
-        self.value = options[:value] if options[:value]
-        self.length = options[:length] if options[:length]
+        initialize_types(options)
+        initialize_values(options)
       end
 
       # Populate object from a binary string
@@ -146,6 +142,18 @@ module PacketGen
 
       def human_types?
         self.class.const_defined? :TYPES
+      end
+
+      def initialize_types(options)
+        self[:type] = options[:t].new(self.type) if options[:t]
+        self[:length] = options[:l].new(self.length) if options[:l]
+        self[:value] = options[:v].new if options[:v]
+      end
+
+      def initialize_values(options)
+        self.type = options[:type] if options[:type]
+        self.value = options[:value] if options[:value]
+        self.length = options[:length] if options[:length]
       end
     end
   end

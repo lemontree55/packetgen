@@ -53,19 +53,17 @@ module PacketGen
           # @param [Hash] options
           # @return [Option]
           def new(options={})
-            if self == Option
-              case options[:type]
-              when Integer
-                klass = Option.subclasses[options[:type]]
-                klass&.new(options)
-              when String
-                if DHCPv6.const_defined?(options[:type])
-                  klass = DHCPv6.const_get(options[:type])
-                  options.delete :type
-                  klass.new(options) if klass < Option
-                end
-              else
-                super
+            return super unless self == Option
+
+            case options[:type]
+            when Integer
+              klass = Option.subclasses[options[:type]]
+              klass&.new(options)
+            when String
+              if DHCPv6.const_defined?(options[:type])
+                klass = DHCPv6.const_get(options[:type])
+                options.delete :type
+                klass.new(options) if klass < Option
               end
             else
               super

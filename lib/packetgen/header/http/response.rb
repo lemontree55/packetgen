@@ -67,11 +67,42 @@ module PacketGen
         # Read in the HTTP portion of the packet, and parse it.
         # @return [PacketGen::HTTP::Response]
         def read(str)
-          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
-          arr = str.split("\r\n")
+          headers, data = collect_headers_and_data(str)
+
+          unless headers.empty?
+            extract_info_from_first_line(headers)
+            self[:headers].read(headers.join("\n"))
+          end
+          self[:body].read data.join("\n")
+
+          self
+        end
+
+        def parse?
+          version.start_with?('HTTP/1.')
+        end
+
+        # String representation of data.
+        # @return [String]
+        def to_s
+          raise_on_bad_version_status
+
+          str = +''
+          str << self.version << ' ' << self.status_code << ' ' << self.status_mesg << "\r\n"
+          str << self[:headers].to_s if self[:headers].given?
+          str << self.body
+        end
+
+        private
+
+        def collect_headers_and_data(str)
           headers = [] # header stream
           data = [] # data stream
           switch = false
+
+          str = str.bytes.map!(&:chr).join unless str.valid_encoding?
+          arr = str.split("\r\n")
+
           arr.each do |line|
             if line.empty?
               data << line if switch # already done
@@ -85,34 +116,23 @@ module PacketGen
               headers << line
             end
           end
-          unless headers.empty?
-            first_line = headers.shift.split
-            if first_line.size >= 3
-              self[:version].read first_line[0]
-              self[:status_code].read first_line[1]
-              self[:status_mesg].read first_line[2..-1].join(' ')
-            end
-            self[:headers].read(headers.join("\n"))
-          end
-          self[:body].read data.join("\n")
-          self
+
+          [headers, data]
         end
 
-        def parse?
-          version.start_with?('HTTP/1.')
+        def extract_info_from_first_line(headers)
+          first_line = headers.shift.split
+          return if first_line.size < 3
+
+          self[:version].read first_line[0]
+          self[:status_code].read first_line[1]
+          self[:status_mesg].read first_line[2..-1].join(' ')
         end
 
-        # String representation of data.
-        # @return [String]
-        def to_s
+        def raise_on_bad_version_status
           raise FormatError, 'Missing #status_code.' if self.status_code.empty?
           raise FormatError, 'Missing #status_mesg.' if self.status_mesg.empty?
           raise FormatError, 'Missing #version.'     if self.version.empty?
-
-          str = +''
-          str << self.version << ' ' << self.status_code << ' ' << self.status_mesg << "\r\n"
-          str << self[:headers].to_s if self[:headers].given?
-          str << self.body
         end
       end
     end

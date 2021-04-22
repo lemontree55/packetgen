@@ -32,7 +32,7 @@ module PacketGen
       def from_human(str)
         return self if str.nil?
 
-        bytes = str.split(/:/)
+        bytes = str.split(':')
         raise ArgumentError, 'not a OUI' unless bytes.size == 3
 
         self[:b2].read(bytes[0].to_i(16))

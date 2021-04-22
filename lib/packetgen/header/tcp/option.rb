@@ -43,7 +43,7 @@ module PacketGen
         # @!attribute value
         #  @return [Integer,String] option value
         define_field :value, Types::String, optional: ->(h) { h.length? && h.length > 2 },
-                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
+                                            builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
         # @param [hash] options
         # @option options [Integer] :kind

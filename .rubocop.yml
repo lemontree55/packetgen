@@ -3,6 +3,10 @@ require:
 AllCops:
   TargetRubyVersion: '2.4'
   NewCops: enable
+  Exclude:
+    - .git/**/*
+    - spec/**/*
+    - vendor/**/*
 Layout/LineLength:
   Enabled: false
 Layout/SpaceAroundEqualsInParameterDefault:
@@ -17,6 +21,8 @@ Metrics/ClassLength:
     Max: 200
 Metrics/MethodLength:
     Max: 20
+Metrics/ParameterLists:
+  MaxOptionalParameters: 4
 Style/AccessModifierDeclarations:
   Enabled: false
 Style/AsciiComments:
@@ -31,7 +37,7 @@ Style/EvalWithLocation:
 Style/FormatString:
   EnforcedStyle: percent
 Style/FormatStringToken:
-  EnforcedStyle: unannotated
+  MaxUnannotatedPlaceholdersAllowed: 3
 Style/PerlBackrefs:
   Enabled: false
 Style/RedundantSelf:

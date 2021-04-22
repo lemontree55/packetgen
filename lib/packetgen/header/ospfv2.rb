@@ -167,7 +167,7 @@ module PacketGen
       #       directly called
       def added_to_packet(packet)
         ospf_idx = packet.headers.size
-        packet.instance_eval "def ospfize(**kwargs) @headers[#{ospf_idx}].ospfize(**kwargs); end"
+        packet.instance_eval "def ospfize(**kwargs) @headers[#{ospf_idx}].ospfize(**kwargs); end" # def ospfize(**kwargs) @headers[2].ospfize(**kwargs); end
       end
 
       # Compute checksum and set +checksum+ field

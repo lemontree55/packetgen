@@ -102,22 +102,18 @@ module PacketGen
         client_tid = packet.udp.sport
         server_tid = nil
         ary.each do |pkt|
+          next unless pkt.is?('UDP')
+
           if server_tid.nil?
-            next unless pkt.is?('UDP') && (pkt.udp.dport == client_tid)
+            next unless pkt.udp.dport == client_tid
 
             server_tid = pkt.udp.sport
           else
-            next unless pkt.is?('UDP')
-
             tids = [server_tid, client_tid]
             ports = [pkt.udp.sport, pkt.udp.dport]
             next unless (tids - ports).empty?
           end
-          tftp = Packet.parse(pkt.body, first_header: 'TFTP')
-          udp_dport = pkt.udp.dport
-          pkt.encapsulate tftp
-          # need to fix it as #encapsulate force it to 69
-          pkt.udp.dport = udp_dport
+          decode_tftp_packet(pkt)
         end
       end
 
@@ -135,7 +131,17 @@ module PacketGen
       def added_to_packet(packet)
         return if packet.respond_to? :tftp
 
-        packet.instance_eval("def tftp(arg=nil); header(#{self.class}, arg); end")
+        packet.instance_eval("def tftp(arg=nil); header(#{self.class}, arg); end") # def tftp(arg=nil); header(TFTP, arg); end
+      end
+
+      private
+
+      def decode_tftp_packet(pkt)
+        tftp = Packet.parse(pkt.body, first_header: 'TFTP')
+        udp_dport = pkt.udp.dport
+        pkt.encapsulate tftp
+        # need to fix it as #encapsulate force it to 69
+        pkt.udp.dport = udp_dport
       end
 
       # TFTP Read Request header

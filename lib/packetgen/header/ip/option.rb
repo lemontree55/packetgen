@@ -55,7 +55,7 @@ module PacketGen
         #  option data
         # @return [String]
         define_field :data, Types::String, optional: ->(h) { h.length > 2 },
-                     builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
+                                           builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
         # @!attribute copied
         #  1-bit copied flag from {#type} field
@@ -161,6 +161,7 @@ module PacketGen
 
       # Strict Source and Record Route IP option
       class SSRR < LSRR; end
+
       # Record Route IP option
       class RR < LSRR; end
 

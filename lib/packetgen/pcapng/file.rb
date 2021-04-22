@@ -9,7 +9,7 @@ module PacketGen
   module PcapNG
     # PcapNG::File is a complete Pcap-NG file handler.
     # @author Sylvain Daubert
-    class File
+    class File # rubocop:disable Metrics/ClassLength
       # Known link types
       KNOWN_LINK_TYPES = {
         LINKTYPE_ETHERNET => 'Eth',
@@ -21,13 +21,11 @@ module PacketGen
       }.freeze
 
       # @private
-      BLOCK_TYPES = Hash[
-        PcapNG.constants(false).select { |c| c.to_s.include?('_TYPE') }.map do |c|
-          type_value = PcapNG.const_get(c).to_i
-          klass = PcapNG.const_get(c.to_s[0..-6]) # @todo use delete_suffix('_TYPE') when support for Ruby 2.4 will stop
-          [type_value, klass]
-        end
-      ].freeze
+      BLOCK_TYPES = PcapNG.constants(false).select { |c| c.to_s.include?('_TYPE') }.map do |c|
+        type_value = PcapNG.const_get(c).to_i
+        klass = PcapNG.const_get(c.to_s[0..-6]) # @todo use delete_suffix('_TYPE') when support for Ruby 2.4 will stop
+        [type_value, klass]
+      end.to_h.freeze
 
       # Get file sections
       # @return [Array]
@@ -204,7 +202,7 @@ module PacketGen
       # @return [Array] array of 2 elements: filename and size written
       # @todo for 4.0, replace +options+ by +append+ kwarg
       def to_file(filename, options={})
-        mode = (options[:append] && ::File.exist?(filename)) ? 'ab' : 'wb'
+        mode = options[:append] && ::File.exist?(filename) ? 'ab' : 'wb'
         ::File.open(filename, mode) { |f| f.write(self.to_s) }
         [filename, self.to_s.size]
       end
@@ -317,12 +315,12 @@ module PacketGen
         shb = parse_shb(SHB.new, io)
         raise InvalidFileError, 'no Section header found' unless shb.is_a?(SHB)
 
-        to_parse = if shb.section_len.to_i != 0xffffffffffffffff
-                     # Section length is defined
-                     StringIO.new(io.read(shb.section_len.to_i))
-                   else
+        to_parse = if shb.section_len.to_i == 0xffffffffffffffff
                      # section length is undefined
                      io
+                   else
+                     # Section length is defined
+                     StringIO.new(io.read(shb.section_len.to_i))
                    end
 
         until to_parse.eof?
@@ -388,6 +386,7 @@ module PacketGen
         end
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       # Extract and check options for #array_to_file
       def array_to_file_options_from_hash(options)
         %i[filename arr ts].each do |deprecated_opt|
@@ -404,6 +403,7 @@ module PacketGen
 
         [filename, ary, ts, ts_inc, append]
       end
+      # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       def create_new_shb_section
         section = SHB.new

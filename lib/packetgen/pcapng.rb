@@ -41,6 +41,7 @@ module PacketGen
 
     # Base error class for PcapNG
     class Error < PacketGen::Error; end
+
     # Invalid PcapNG file error
     class InvalidFileError < Error; end
   end
