@@ -58,8 +58,8 @@ module PacketGen
           expect(snmp.pdu[:id].value).to eq(39)
           list = snmp.pdu[:varbindlist]
 
-          os1 = RASN1::Types::OctetString.new('B6300')
-          os2 = RASN1::Types::OctetString.new("Chandra's cube")
+          os1 = RASN1::Types::OctetString.new(value: 'B6300')
+          os2 = RASN1::Types::OctetString.new(value: "Chandra's cube")
           expected_list = [SNMP::VarBind.new(name: '1.3.6.1.2.1.1.5.0',
                                              value: os1.to_der),
                            SNMP::VarBind.new(name: '1.3.6.1.2.1.1.6.0',
