@@ -102,7 +102,7 @@ module PacketGen
         break pkt.arp.sha.to_s if pkt.arp.spa.to_s == ipaddr
       end
     end
-    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
 
     # Do ARP spoofing on given IP address. Call to this method blocks.
     # @note This method is provided for test purpose.
@@ -127,8 +127,6 @@ module PacketGen
       as.start(target_ip, spoofed_ip, mac: options[:mac])
       as.wait
     end
-
-    # rubocop:disable Metrics/AbcSize
 
     # Man in the middle attack. Capture all packets between two peers on
     # same local network.
@@ -160,33 +158,38 @@ module PacketGen
     def self.mitm(target1, target2, options={})
       options = { iface: PacketGen.default_iface }.merge(options)
 
-      mac1 = arp(target1)
-      mac2 = arp(target2)
-
       spoofer = Utils::ARPSpoofer.new(options)
       spoofer.add target1, target2, options
       spoofer.add target2, target1, options
 
       cfg = Config.instance
+      my_mac = cfg.hwaddr(options[:iface])
       capture = Capture.new(iface: options[:iface],
-                            filter: MITM_FILTER % { target1: target1, target2: target2, local_ip: cfg.ipaddr(options[:iface]), local_mac: cfg.hwaddr(options[:iface]) })
+                            filter: MITM_FILTER % { target1: target1, target2: target2, local_ip: cfg.ipaddr(options[:iface]), local_mac: my_mac })
 
       spoofer.start_all
+      mitm_core(capture, target1, target2, my_mac, &proc)
+      spoofer.stop_all
+    end
+
+    # @private
+    def self.mitm_core(capture, target1, target2, my_mac)
+      mac1 = arp(target1)
+      mac2 = arp(target2)
+
       capture.start do |pkt|
         modified_pkt = yield pkt
         iph = modified_pkt.ip
         l2 = modified_pkt.is?('Dot11') ? modified_pkt.dot11 : modified_pkt.eth
 
-        if (iph.src == target1) || (iph.dst == target2)
-          l2.dst = mac2
-        elsif (iph.src == target2) || (iph.dst == target1)
-          l2.dst = mac1
-        else
-          next
-        end
-        modified_pkt.to_w(options[:iface])
+        l2.src = my_mac
+        l2.dst = if (iph.src == target1) || (iph.dst == target2)
+                   mac2
+                 else # (iph.src == target2) || (iph.dst == target1)
+                   mac1
+                 end
+        modified_pkt.to_w(capture.iface)
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/AbcSize
   end
 end
