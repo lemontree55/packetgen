@@ -216,7 +216,7 @@ module PacketGen
           pkt = Packet.gen('IP').add('UDP', sport: 35_535, dport: 65_535, body: body)
           Thread.new { sleep 0.1; pkt.ip.to_w('lo') }
           packets = Packet.capture(iface: 'lo', max: 1,
-                                   filter: 'ip dst 127.0.0.1 and ip proto 17',
+                                   filter: 'ip dst 127.0.0.1 and ip proto 17 and port 35535',
                                    timeout: 2)
           packet = packets.first
           expect(packet.is? 'IP').to be(true)
