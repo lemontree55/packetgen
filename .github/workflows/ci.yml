@@ -24,9 +24,10 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
     - name: Install Gems
       run: |
-        bundle config set path 'vendor/bundle'
-        bundle config set --local without noci
-        bundle install
+        gem install bundler -v '= 2.2.15'
+        bundle _2.2.15_ config set path 'vendor/bundle'
+        bundle _2.2.15_ config set --local without noci
+        bundle _2.2.15_ install
     - name: Run parsing/generating tests
       run: bundle exec rake
 
