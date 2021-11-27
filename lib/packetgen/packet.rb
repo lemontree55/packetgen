@@ -51,6 +51,9 @@ module PacketGen
     # Get packet headers, ordered as they appear in the packet.
     # @return [Array<Header::Base>]
     attr_reader :headers
+    # Activaye or deactivate header cache (activated by default)
+    # @return [Boolean]
+    attr_accessor :cache_headers
 
     # Create a new Packet
     # @param [String] protocol base protocol for packet
@@ -121,6 +124,8 @@ module PacketGen
     # @private
     def initialize
       @headers = []
+      @header_cache = {}
+      @cache_headers = true
     end
 
     # Add a protocol header in packet.
@@ -271,6 +276,7 @@ module PacketGen
         headers.delete(hdr)
         add_header(next_hdr, previous_header: prev_hdr) if prev_hdr && next_hdr
       end
+      invalidate_header_cache
     rescue ArgumentError => e
       raise FormatError, e.message
     end
@@ -356,6 +362,7 @@ module PacketGen
       headers.each do |header|
         add_magic_header_method header
       end
+      invalidate_header_cache
     end
 
     # Give first header of packet
@@ -409,7 +416,7 @@ module PacketGen
     # @return [Header::Base]
     def header(klass, arg)
       layer = arg.is_a?(Integer) ? arg : 1
-      header = headers.select { |h| h.is_a? klass }[layer - 1]
+      header = find_header(klass, layer)
       return header unless arg.is_a? Hash
 
       arg.each do |key, value|
@@ -418,6 +425,19 @@ module PacketGen
         header.send "#{key}=", value
       end
 
+      header
+    end
+
+    # Get header from cache, or find it in packet
+    # @param [Class] klass
+    # @param [Integer] layer
+    # @return [Header::Base]
+    def find_header(klass, layer)
+      header = fetch_header_from_cache(klass, layer)
+      return header if header
+
+      header = headers.select { |h| h.is_a? klass }[layer - 1]
+      add_header_to_cache(header, klass, layer)
       header
     end
 
@@ -438,6 +458,7 @@ module PacketGen
     # @return [void]
     # @raise [BindingError]
     def add_header(header, previous_header: nil, parsing: false)
+      invalidate_header_cache
       prev_header = previous_header || last_header
       add_to_previous_header(prev_header, header, parsing) if prev_header
 
@@ -520,6 +541,31 @@ module PacketGen
       end
 
       nil
+    end
+
+    def invalidate_header_cache
+      return unless cache_headers
+
+      @header_cache = {}
+    end
+
+    # Fetch header from cache if authorized
+    # @param [Class] klass
+    # @param [Integer] layer
+    # @return [Header::Base,nil]
+    def fetch_header_from_cache(klass, layer)
+      @header_cache.fetch(klass, []).fetch(layer - 1, nil) if cache_headers
+    end
+
+    # Add header to cache if authorized
+    # @param [Class] klass
+    # @param [Integer] layer
+    # @return [Header::Base,nil]
+    def add_header_to_cache(header, klass, layer)
+      return unless cache_headers
+
+      @header_cache[klass] ||= []
+      @header_cache[klass][layer - 1] = header
     end
   end
 end
