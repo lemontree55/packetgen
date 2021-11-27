@@ -12,7 +12,7 @@ class TestARPSpoofer < PacketGen::Utils::ARPSpoofer
   end
 end
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    module PacketGen
+module PacketGen
   module Utils
     describe ARPSpoofer do
       let(:as) { TestARPSpoofer.new timeout: 0.4, interval: 0.1 }
@@ -22,11 +22,11 @@ end
           expect { ARPSpoofer.new timeout: 45 }.to_not raise_error
         end
 
-        it 'accepts nil value for timeout'do
+        it 'accepts nil value for timeout' do
           expect { ARPSpoofer.new timeout: nil }.to_not raise_error
         end
 
-        it 'accepts Float value for timeout'do
+        it 'accepts Float value for timeout' do
           expect { ARPSpoofer.new timeout: 125.5 }.to_not raise_error
         end
       end
@@ -41,8 +41,8 @@ end
         end
 
         it 'accepts options' do
-          expect { as.add '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00' }.
-            to_not raise_error
+          expect { as.add '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00' }
+            .to_not raise_error
         end
       end
 
@@ -58,7 +58,7 @@ end
       describe '#start' do
         it 'adds and activates spoof on target' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
-                   target_mac: '00:00:00:00:00:01'
+                                         target_mac: '00:00:00:00:00:01'
           as.wait
           expect(as.all_packets.last.length).to eq(1)
           packet = as.all_packets.last.first
@@ -72,9 +72,9 @@ end
       describe '#stop' do
         it 'stops spoofing on target and remove it from list' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
-                   target_mac: '00:00:00:00:00:01'
+                                         target_mac: '00:00:00:00:00:01'
           as.start '1.2.3.5', '5.6.7.9', mac: '00:00:00:00:00:02',
-                   target_mac: '00:00:00:00:00:03'
+                                         target_mac: '00:00:00:00:00:03'
           expect(as.active_targets).to eq(as.registered_targets)
           expect(as.active_targets).to eq(['1.2.3.4', '1.2.3.5'])
 
@@ -92,7 +92,7 @@ end
 
         it 'stops sending thread when last target is removed' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
-                   target_mac: '00:00:00:00:00:01'
+                                         target_mac: '00:00:00:00:00:01'
           sleep(0.1)
           as.stop '1.2.3.4'
           expect(as.instance_eval { @spoof_thread }).to be(nil)
@@ -102,18 +102,18 @@ end
       describe '#active?' do
         it 'returns true for active target' do
           as.start '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
-                   target_mac: '00:00:00:00:00:01'
-          expect(as.active? '1.2.3.4').to be(true)
+                                         target_mac: '00:00:00:00:00:01'
+          expect(as.active?('1.2.3.4')).to be(true)
         end
 
         it 'returns false for inactive target' do
           as.add '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00',
-                 target_mac: '00:00:00:00:00:01'
-          expect(as.active? '1.2.3.4').to be(false)
+                                       target_mac: '00:00:00:00:00:01'
+          expect(as.active?('1.2.3.4')).to be(false)
         end
 
         it 'returns nil for unknown target' do
-          expect(as.active? '10.0.0.1').to be(nil)
+          expect(as.active?('10.0.0.1')).to be(nil)
         end
       end
     end
