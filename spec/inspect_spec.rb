@@ -51,13 +51,13 @@ module PacketGen
         expect(inspect).to eq("              Bulk         my_model: SEQUENCE\n")
       end
 
-      it 'returns a formatted string for an other type' do
+      it 'returns a formatted string for others types' do
         os = RASN1::Types::OctetString.new
         os.value = "abcd"
         inspect = Inspect.inspect_asn1_attribute('my_str', os)
         expect(inspect).to eq("      OCTET STRING           my_str: \"abcd\"\n")
 
-        bool = RASN1::Types::Boolean.new(true)
+        bool = RASN1::Types::Boolean.new(value: true)
         inspect = Inspect.inspect_asn1_attribute('bool', bool)
         expect(inspect).to eq("           BOOLEAN             bool: \"true\"\n")
       end
