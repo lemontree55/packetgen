@@ -38,8 +38,6 @@ module PacketGen
       pcap.activate
     end
 
-    # rubocop:disable Metrics/ParameterLists
-
     # Capture packets from a network interface
     # @param [String] iface interface name
     # @param [Integer] snaplen
@@ -56,8 +54,6 @@ module PacketGen
       pcap.setfilter filter unless filter.nil?
       pcap.each(&block)
     end
-
-    # rubocop:enable Metrics/ParameterLists
 
     # Inject given data onto wire
     # @param [String] iface interface name

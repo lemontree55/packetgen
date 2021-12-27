@@ -11,6 +11,8 @@ Layout/LineLength:
   Enabled: false
 Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
 Lint/EmptyWhen:
   Enabled: false
 Lint/Void:

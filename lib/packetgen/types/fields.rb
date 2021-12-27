@@ -115,7 +115,7 @@ module PacketGen
       # @private bit field definitions
       @bit_fields = {}
 
-      class <<self
+      class << self
         # Get field definitions for this class.
         # @return [Hash]
         # @since 3.1.0

@@ -142,7 +142,7 @@ module PacketGen
         klass.class_eval { @known_headers = {} }
       end
 
-      class <<self
+      class << self
         # @api private
         # Get known headers
         # @return [Hash] keys: header classes, values: hashes

@@ -62,7 +62,7 @@ module PacketGen
       HUMAN_SEPARATOR = ','
 
       # rubocop:disable Naming/AccessorMethodName
-      class <<self
+      class << self
         # Get class set with {.set_of}.
         # @return [Class]
         # @since 3.0.0

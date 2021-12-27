@@ -39,9 +39,9 @@ module PacketGen
 
     def message
       "#{prev_hdr.class} knowns no layer association with #{hdr.protocol_name}. " \
-          "Try #{prev_hdr.class}.bind_layer(#{hdr.class}, " \
-          "#{prev_hdr.method_name}_proto_field: " \
-          "<value_for_#{hdr.method_name}>)"
+        "Try #{prev_hdr.class}.bind_layer(#{hdr.class}, " \
+        "#{prev_hdr.method_name}_proto_field: " \
+        "<value_for_#{hdr.method_name}>)"
     end
   end
 

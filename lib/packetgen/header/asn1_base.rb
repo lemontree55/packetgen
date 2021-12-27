@@ -19,7 +19,7 @@ module PacketGen
     class ASN1Base < RASN1::Model
       include Headerable
 
-      class <<self
+      class << self
         # Define some methods from given ASN.1 fields to mimic {Base} attributes
         # @param [Array<Symbol>] attributes
         # @return [void]
@@ -27,7 +27,7 @@ module PacketGen
           @attributes = attributes
           attributes.each do |attr|
             class_eval "def #{attr}; @elements[:#{attr}].value; end\n" \
-                      "def #{attr}=(v); @elements[:#{attr}].value = v; end"
+                       "def #{attr}=(v); @elements[:#{attr}].value = v; end"
           end
         end
 

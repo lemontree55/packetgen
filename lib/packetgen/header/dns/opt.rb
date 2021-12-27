@@ -125,8 +125,8 @@ module PacketGen
         # @return [String]
         def to_human
           "#{name} #{human_type} UDPsize:#{udp_size} " \
-          "extRCODE:#{ext_rcode} EDNSversion:#{version} flags:#{human_flags} " \
-          "options:#{options.empty? ? 'none' : options.to_human}"
+            "extRCODE:#{ext_rcode} EDNSversion:#{version} flags:#{human_flags} " \
+            "options:#{options.empty? ? 'none' : options.to_human}"
         end
       end
     end

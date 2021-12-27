@@ -35,7 +35,7 @@ module PacketGen
         # @return [String]
         def to_human
           "Link<type:#{type},metric:#{metric},id:#{interface_id}," \
-          "neighbor_id:#{neighbor_interface_id},neighbor_router:#{neighbor_router_id}>"
+            "neighbor_id:#{neighbor_interface_id},neighbor_router:#{neighbor_router_id}>"
         end
       end
 

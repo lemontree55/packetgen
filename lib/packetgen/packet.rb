@@ -171,7 +171,7 @@ module PacketGen
     # @raise [ArgumentError] unknown protocol
     def is?(protocol)
       klass = check_protocol protocol
-      headers.any? { |h| h.is_a? klass }
+      headers.any?(klass)
     end
 
     # Recalculate all packet checksums

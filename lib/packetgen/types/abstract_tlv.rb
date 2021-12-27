@@ -60,7 +60,7 @@ module PacketGen
     class AbstractTLV < Types::Fields
       include Fieldable
 
-      class <<self
+      class << self
         # @return [Hash]
         attr_accessor :aliases
         attr_accessor :header_in_length
