@@ -23,7 +23,7 @@ module PacketGen
       # @private
       BLOCK_TYPES = PcapNG.constants(false).select { |c| c.to_s.include?('_TYPE') }.map do |c|
         type_value = PcapNG.const_get(c).to_i
-        klass = PcapNG.const_get(c.to_s[0..-6]) # @todo use delete_suffix('_TYPE') when support for Ruby 2.4 will stop
+        klass = PcapNG.const_get(c.to_s.delete_suffix('_TYPE'))
         [type_value, klass]
       end.to_h.freeze
 

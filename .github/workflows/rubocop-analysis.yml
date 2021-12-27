@@ -23,8 +23,8 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        # Ruby 2.4
-        ruby-version: 2.4
+        # Ruby 2.5
+        ruby-version: 2.5
 
     - name: Set up Bundler
       run: |
@@ -33,11 +33,10 @@ jobs:
         bundle _2.2.15_ config set --local without noci
 
     # This step is not necessary if you add the gem to your Gemfile
-    # Ruby 2.4: limit rubocop-performance to 1.10.2 max
     - name: Install Code Scanning integration
       run: |
         bundle _2.2.15_ add code-scanning-rubocop --version '= 0.5.0' --source 'https://rubygems.org' --skip-install
-        bundle _2.2.15_ add rubocop-performance --version '=1.10.2' --source 'https://rubygems.org' --skip-install
+        bundle _2.2.15_ add rubocop-performance --source 'https://rubygems.org' --skip-install
 
     - name: Install dependencies
       run: |

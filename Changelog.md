@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Utils.arp_cache tries using 'ip neigh' command when arp is not installed.
 
+### Removed
+
+* Support for Ruby 2.4 is removed.
+
 ### Fixed
 
 * Fix Utils.arp by ensuring capture is always started before sending ARP request.
