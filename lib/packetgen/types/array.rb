@@ -154,26 +154,19 @@ module PacketGen
         self
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity
-
-      # Populate object from a string
-      # @param [String] str
+      # Populate object from a string or from an array of hashes
+      # @param [String, Array<Hash>] data
       # @return [self]
-      def read(str)
+      def read(data)
         clear
-        return self if str.nil?
-        return self if @counter&.to_i&.zero?
-
-        str = read_with_length_from(str)
-        until str.empty?
-          obj = create_object_from_str(str)
-          @array << obj
-          str.slice!(0, obj.sz)
-          break if @counter && self.size == @counter.to_i
+        case data
+        when ::Array
+          read_from_array(data)
+        else
+          read_from_string(data)
         end
         self
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
 
       # Get size in bytes
       # @return [Integer]
@@ -200,6 +193,28 @@ module PacketGen
       end
 
       private
+
+      # rubocop:disable Metrics/CyclomaticComplexity
+
+      def read_from_string(str)
+        return self if str.nil? || @counter&.to_i&.zero?
+
+        str = read_with_length_from(str)
+        until str.empty? || (@counter && self.size == @counter.to_i)
+          obj = create_object_from_str(str)
+          @array << obj
+          str.slice!(0, obj.sz)
+        end
+      end
+      # rubocop:enable Metrics/CyclomaticComplexity
+
+      def read_from_array(ary)
+        return self if ary.empty?
+
+        ary.each do |hsh|
+          self << hsh
+        end
+      end
 
       def record_from_hash(hsh)
         obj_klass = self.class.set_of_klass

@@ -376,6 +376,52 @@ module PacketGen
           end
         end
       end
+
+      describe OSPFv2::ArrayOfLSA do
+        let(:lsa_array) { OSPFv2::ArrayOfLSA.new }
+        let(:link_def) { { type: 1, id: '1.1.1.1', data: '2.2.2.2', metric: 1000, tos: [{ tos: 8, tos_metric: 1001 }] } }
+
+        it '#push adds a LSA from a hash (integer type)' do
+          lsa_array << { type: 1, age: 1, link_state_id: '1.1.1.1', advertising_router: '1.1.1.254', links: [link_def] }
+          lsa_router = lsa_array.first
+          expect(lsa_router).to be_a(OSPFv2::LSARouter)
+          expect(lsa_router.type).to eq(1)
+          expect(lsa_router.age).to eq(1)
+          expect(lsa_router.link_state_id).to eq('1.1.1.1')
+          expect(lsa_router.advertising_router).to eq('1.1.1.254')
+          expect(lsa_router.links.size).to eq(1)
+          expect(lsa_router.links.first.type).to eq(1)
+          expect(lsa_router.links.first.data).to eq('2.2.2.2')
+          expect(lsa_router.links.first.metric).to eq(1000)
+          expect(lsa_router.links.first.tos.size).to eq(1)
+          tos = lsa_router.links.first.tos.first
+          expect(tos.tos).to eq(8)
+          expect(tos.tos_metric).to eq(1001)
+        end
+
+        it '#push adds a LSA from a hash (string type)' do
+          lsa_array << { type: 'AS-External', netmask: '255.255.255.0', externals: [{ u8: 8, metric: 1002, forwarding_addr: '1.2.3.4', ext_route_tag: 0xff000001 }] }
+          asext = lsa_array.first
+          expect(asext).to be_a(OSPFv2::LSAASExternal)
+          expect(asext.type).to eq(5)
+          expect(asext.human_type).to eq('AS-External')
+          expect(asext.netmask).to eq('255.255.255.0')
+          expect(asext.externals.size).to eq(1)
+          ext = asext.externals.first
+          expect(ext.tos).to eq(8)
+          expect(ext.e_flag?).to be(false)
+          expect(ext.metric).to eq(1002)
+          expect(ext.forwarding_addr).to eq('1.2.3.4')
+          expect(ext.ext_route_tag).to eq(0xff000001)
+        end
+
+        it '#push adds a basic LSA' do
+          %w(Summary-IP Summary-ABSR).each do |t|
+            lsa_array << { type: t }
+            expect(lsa_array.last).to be_a(OSPFv2::LSA)
+          end
+        end
+      end
     end
   end
 end
