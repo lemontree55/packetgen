@@ -25,23 +25,32 @@ module PacketGen
                   ' (ip dst %<target2>s and not ip src %<local_ip>s))' \
                   ' and ether dst %<local_mac>s'
 
+    # @private
+    ARP_PATH = '/usr/sbin/arp'
+    # @private
+    IP_PATH = '/usr/bin/ip'
+    # @private
+    ARP_LINE_RE = /\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/.freeze
+    # @private
+    IP_LINE_RE = /^(\d+\.\d+\.\d+\.\d+) dev (\w+) lladdr (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})/.freeze
+
     # Get local ARP cache
     # @return [Hash] key: IP address, value: array containing MAC address and
     #    interface name
     def self.arp_cache
-      return self.cache_from_arp_command if File.exist?('/usr/sbin/arp')
-      return self.cache_from_ip_command if File.exist?('/usr/bin/ip')
+      return self.cache_from_arp_command if File.exist?(ARP_PATH)
+      return self.cache_from_ip_command if File.exist?(IP_PATH)
 
       {}
     end
 
     # @private
-    def self.cache_from_arp_command
-      raw_cache = `/usr/sbin/arp -an`
+    def self.cache_from_arp_command(raw_cache=nil)
+      raw_cache ||= `#{ARP_PATH} -an`
 
       cache = {}
       raw_cache.split("\n").each do |line|
-        match = line.match(/\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/)
+        match = line.match(ARP_LINE_RE)
         cache[match[1]] = [match[2], match[4]] if match
       end
 
@@ -49,12 +58,12 @@ module PacketGen
     end
 
     # @private
-    def self.cache_from_ip_command
-      raw_cache = `ip neigh`
+    def self.cache_from_ip_command(raw_cache=nil)
+      raw_cache ||= `#{IP_PATH} neigh`
 
       cache = {}
       raw_cache.split("\n").each do |line|
-        match = line.match(/^(\d+\.\d+\.\d+\.\d+) dev (\w+) lladdr (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})/)
+        match = line.match(IP_LINE_RE)
         cache[match[1]] = [match[3], match[2]] if match
       end
 
@@ -155,7 +164,7 @@ module PacketGen
     #   end
     # @since 2.2.0
     # @raise [RuntimeError] user don't have permission to capture packets on network device.
-    def self.mitm(target1, target2, options={})
+    def self.mitm(target1, target2, options={}, &block)
       options = { iface: PacketGen.default_iface }.merge(options)
 
       spoofer = Utils::ARPSpoofer.new(options)
@@ -168,7 +177,7 @@ module PacketGen
                             filter: MITM_FILTER % { target1: target1, target2: target2, local_ip: cfg.ipaddr(options[:iface]), local_mac: my_mac })
 
       spoofer.start_all
-      mitm_core(capture, target1, target2, my_mac, &proc)
+      mitm_core(capture, target1, target2, my_mac, &block)
       spoofer.stop_all
     end
 
