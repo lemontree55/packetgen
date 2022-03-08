@@ -358,6 +358,30 @@ module PacketGen
             expect(lsah.length).to eq(lsa.length)
           end
         end
+
+        describe '#calc_checksum' do
+          let(:lsupdate) { packets[4].ospfv2_lsupdate }
+          it 'computes checksum on all LSAs' do
+            checksums = lsupdate.lsas.map(&:checksum)
+            lsupdate.lsas.each { |lsa| lsa.checksum = 0 }
+
+            lsupdate.calc_checksum
+            new_checksums = lsupdate.lsas.map(&:checksum)
+            expect(new_checksums).to eq(checksums)
+          end
+        end
+
+        describe '#calc_length' do
+          let(:lsupdate) { packets[4].ospfv2_lsupdate }
+          it 'computes length on all LSAs' do
+            lengths = lsupdate.lsas.map(&:length)
+            lsupdate.lsas.each { |lsa| lsa.length = 0 }
+
+            lsupdate.calc_length
+            new_lengths = lsupdate.lsas.map(&:length)
+            expect(new_lengths).to eq(lengths)
+          end
+        end
       end
 
       describe OSPFv2::LSAck do

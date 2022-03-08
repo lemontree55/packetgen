@@ -233,11 +233,19 @@ module PacketGen
       end
 
       describe EAP::TTLS do
+        let(:eapttls) { EAP::TTLS.new }
         describe '#initialize' do
           it 'creates a EAP::TTLS header with default values' do
-            eap = EAP::TTLS.new
-            expect(eap.type?).to be(true)
-            expect(eap.type).to eq(EAP::TYPES['EAP-TTLS'])
+            expect(eapttls.type?).to be(true)
+            expect(eapttls.type).to eq(EAP::TYPES['EAP-TTLS'])
+          end
+        end
+
+        describe '#inspect' do
+          it 'formats flags field as flags' do
+            str = eapttls.inspect
+            expect(str).to include('flags: ...')
+            expect(str).to include('version: 0')
           end
         end
       end
