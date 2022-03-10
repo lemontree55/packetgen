@@ -34,12 +34,27 @@ module PacketGen
 
               k, v = h.split(':', 2)
               [k, v.strip]
-            end.reject(&:nil?).to_h
+            end.compact.to_h
           when Hash
             @data = s_or_h
           end
           self
         end
+
+        # Get header value from its name
+        # @param [String] header header name
+        # @return [String] header value
+        def [](header)
+          data[header]
+        end
+
+        # Say if +self+ include +header+ header
+        # @param [String] header header name
+        # @return [Boolean]
+        def header?(header)
+          data.key?(header)
+        end
+        alias has_header? header?
 
         # Get binary string.
         # @return [String]
