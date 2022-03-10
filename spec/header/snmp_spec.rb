@@ -36,6 +36,21 @@ module PacketGen
           snmp = SNMP.new(options)
           expect(snmp.version).to eq('v3')
           expect(snmp.community).to eq('community')
+          expect(snmp.pdu).to be(nil)
+        end
+
+        it 'accepts a PDU' do
+          snmp = SNMP.new(chosen_pdu: SNMP::PDU_GET,
+                          pdu: { id: 1, varbindlist: [{ name: '1.2.3.4' }] })
+          expect(snmp.pdu).to be_a(SNMP::GetRequest)
+
+          pdu = snmp.pdu
+          expect(pdu[:id].value).to eq(1)
+          expect(pdu[:varbindlist].size).to eq(1)
+          expect(pdu[:varbindlist][0]).to be_a(SNMP::VarBind)
+          expect(pdu[:varbindlist][0][:name].value).to eq('1.2.3.4')
+          expect(pdu[:varbindlist][0][:value]).to be_a(RASN1::Types::Any)
+          expect(pdu[:varbindlist][0][:value].value).to be(nil)
         end
       end
 
@@ -96,8 +111,19 @@ module PacketGen
         it 'returns a String with all attributes' do
           snmp = SNMP.new
           str = snmp.inspect
-          %i(version community data).each do |attr|
-            expect(str).to include(attr.to_s)
+          %w[version community data].each do |attr|
+            expect(str).to include(attr)
+          end
+          expect(str).to_not include('ASN.1 content')
+        end
+
+        it 'returns a String with PDU data' do
+          snmp = SNMP.new(chosen_pdu: SNMP::PDU_GET,
+                          pdu: { id: 1, varbindlist: [{ name: '1.2.3.4' }] })
+          str = snmp.inspect
+          expect(str).to include('ASN.1 content')
+          %w[id error error_index bindings varbind name value].each do |field|
+            expect(str).to include(field)
           end
         end
       end

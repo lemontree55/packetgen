@@ -74,6 +74,18 @@ module PacketGen
       # @author Sylvain Daubert
       class VariableBindings < RASN1::Model
         sequence_of :bindings, VarBind
+
+        # Get 'idx'th element from the list
+        # @return [VarBind,nil]
+        def [](idx)
+          value[idx]
+        end
+
+        # Get element counts in list
+        # @return [Integer]
+        def size
+          value.size
+        end
       end
 
       # Class to handle GetRequest PDU
@@ -119,6 +131,10 @@ module PacketGen
                            integer(:error, value: 0, enum: ERRORS),
                            integer(:error_index, value: 0),
                            model(:varbindlist, VariableBindings)]
+
+        def initialize(args={})
+          super
+        end
       end
 
       # Class to handle GetNextRequest PDU
@@ -264,11 +280,12 @@ module PacketGen
         data.chosen = options[:chosen_pdu] if options[:chosen_pdu]
         return unless options[:pdu]
 
-        data.root.value[data.chosen] = data.root.chosen_value.class.new(options[:pdu])
+        klass = data.root.chosen_value.class
+        data.root.value[data.chosen] = klass.new(options[:pdu])
       end
 
       # accessor to data payload
-      # @return [GetRequest]
+      # @return [ASN1::Types::Choice]
       def data
         @elements[:data]
       end
