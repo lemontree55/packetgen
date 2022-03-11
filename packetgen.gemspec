@@ -3,7 +3,7 @@
 
 require_relative 'lib/packetgen/version'
 
-Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
+Gem::Specification.new do |spec|
   spec.name          = 'packetgen'
   spec.version       = PacketGen::VERSION
   spec.license       = 'MIT'
