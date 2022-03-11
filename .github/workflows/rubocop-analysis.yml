@@ -31,6 +31,7 @@ jobs:
         gem install bundler
         bundle config path vendor/bundle
         bundle config set --local without noci
+        bundle config set --local with rubocop
 
     # This step is not necessary if you add the gem to your Gemfile
     - name: Install Code Scanning integration
