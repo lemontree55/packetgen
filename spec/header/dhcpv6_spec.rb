@@ -1,5 +1,10 @@
 require_relative '../spec_helper'
 
+DUID_LLT_DATA = binary("\x00\x01\x00\x01\x29\xc0\xde\x21\x00\x11\x22\x33\x44\x55").freeze
+DUID_EN_DATA = binary("\x00\x02\x00\x00\x00\t\f\xC0\x84\xDD\x03\x00\t\x12").freeze
+DUID_LL_DATA = binary("\x00\x03\x00\x01\x00\x11\x22\x33\x44\x55").freeze
+DUID_OTHER_DATA = binary("\x00\xF0\x00\x00\x00\x00").freeze
+
 module PacketGen
   module Header
     describe DHCPv6 do
@@ -147,6 +152,74 @@ module PacketGen
           expect(dhcpv6.options.first.type).to eq(14)
           expect(dhcpv6.options.first.length).to eq(0)
           expect(dhcpv6.options.first.to_human).to eq('RapidCommit')
+        end
+      end
+    end
+
+    describe DHCPv6::DUID do
+      let(:duid) { DHCPv6::DUID.new }
+
+      describe '#read' do
+        it 'infers a DUID::LLT object when reading a DUID-LLT header' do
+          d = duid.read(DUID_LLT_DATA)
+          expect(d).to be_a(DHCPv6::DUID_LLT)
+          expect(d.type).to eq(DHCPv6::DUID::TYPES['DUID-LLT'])
+          expect(d.human_type).to eq('DUID-LLT')
+          expect(d.htype).to eq(1)
+          expect(d.time).to eq(Time.utc(2022, 3, 13, 16, 53, 53))
+          expect(d.link_addr).to eq('00:11:22:33:44:55')
+        end
+
+        it 'infers a DUID::EN object when reading a DUID-EN header' do
+          d = duid.read(DUID_EN_DATA)
+          expect(d).to be_a(DHCPv6::DUID_EN)
+          expect(d.type).to eq(DHCPv6::DUID::TYPES['DUID-EN'])
+          expect(d.human_type).to eq('DUID-EN')
+          expect(d.en).to eq(9)
+          expect(d.identifier).to eq(binary("\f\xC0\x84\xDD\x03\x00\t\x12"))
+        end
+
+        it 'infers a DUID::LL object when reading a DUID-LL header' do
+          d = duid.read(DUID_LL_DATA)
+          expect(d).to be_a(DHCPv6::DUID_LL)
+          expect(d.type).to eq(DHCPv6::DUID::TYPES['DUID-LL'])
+          expect(d.human_type).to eq('DUID-LL')
+          expect(d.htype).to eq(1)
+          expect(d.link_addr).to eq('00:11:22:33:44:55')
+        end
+
+        it 'returns a DUID object if DUID type is not recognized' do
+          d = duid.read(DUID_OTHER_DATA)
+          expect(d).to be_a(DHCPv6::DUID)
+          expect(d.type).to eq(0xf0)
+          expect(d.body).to eq(binary("\x00\x00\x00\x00"))
+        end
+      end
+
+      describe '#to_human' do
+        it 'returns a huùman-readable string' do
+          d = duid.read(DUID_OTHER_DATA)
+          expect(d.to_human).to match(/^DUID<240,.*>$/)
+          d = duid.read(DUID_LLT_DATA)
+          expect(d.to_human).to eq('DUID_LLT<2022-03-13 16:53:53 UTC,00:11:22:33:44:55>')
+          d = duid.read(DUID_EN_DATA)
+          expect(d.to_human).to match(/^DUID_EN<0x9,.*>$/)
+          d = duid.read(DUID_LL_DATA)
+          expect(d.to_human).to eq('DUID_LL<00:11:22:33:44:55>')
+        end
+      end
+    end
+
+    describe DHCPv6::DUID_LLT do
+      describe "#time=" do
+        it 'sets time' do
+          new_time = Time.new(2011, 1, 1, 12, 13, 14)
+          duid = DHCPv6::DUID_LLT.new
+          old_time = duid.time
+          duid.time = new_time
+          expect(duid.time).to_not eq(old_time)
+          expect(duid.time).to eq(new_time)
+          expect(duid[:time].to_i).to eq(347195594)
         end
       end
     end

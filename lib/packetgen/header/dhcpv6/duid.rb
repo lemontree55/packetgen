@@ -58,6 +58,12 @@ module PacketGen
         def to_human
           "DUID<#{type},#{body.inspect}>"
         end
+
+        # Get human-readable type
+        # @return [String]
+        def human_type
+          self[:type].to_human
+        end
       end
 
       # rubocop:disable Naming/ClassAndModuleCamelCase
