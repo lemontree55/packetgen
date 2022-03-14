@@ -9,7 +9,7 @@ module PacketGen
       @pkt.body = @bin_str
     end
 
-    it '#headers is always emptu' do
+    it '#headers is always empty' do
       expect(@pkt.headers).to be_a(Array)
       expect(@pkt.headers).to be_empty
     end
@@ -32,6 +32,39 @@ module PacketGen
 
         pkt2 = PacketGen.read(@write_file.path).first
         expect(@pkt).to eq(pkt2)
+      end
+    end
+
+    describe '#==' do
+      it 'returns true if #to_s is the same' do
+        other_pkt = PacketGen.parse(@pkt.to_s, first_header: 'Eth')
+        expect(other_pkt).to be_a(Packet)
+        expect(@pkt == other_pkt.to_s).to be(true)
+        expect(@pkt == other_pkt).to be(true)
+      end
+
+      it 'returns false if #to_s is not equal' do
+        expect(@pkt == "12345").to be(false)
+      end
+    end
+
+    describe '#inspect' do
+      it 'returns a String' do
+        expect(@pkt.inspect).to be_a(String)
+      end
+    end
+
+    describe '#===' do
+      it 'returns true if other is an Unknown packet with the same content' do
+        other_pkt = @pkt.dup
+        expect(@pkt === other_pkt).to be(true)
+      end
+
+      it 'returns fals if other is not an unknown packet' do
+        other_pkt = PacketGen.parse(@pkt.to_s, first_header: 'Eth')
+        expect(other_pkt).to be_a(Packet)
+        expect(@pkt === other_pkt.to_s).to be(false)
+        expect(@pkt === other_pkt).to be(false)
       end
     end
   end

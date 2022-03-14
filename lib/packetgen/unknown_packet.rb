@@ -61,7 +61,8 @@ module PacketGen
 
     # @return [String]
     def inspect
-      # TODO
+      str = Inspect.dashed_line(self.class)
+      str << Inspect.inspect_body(body)
     end
 
     # equality if {#to_s} is equal
@@ -74,7 +75,7 @@ module PacketGen
     # @return [Boolean]
     def ===(other)
       case other
-      when UnknwonPacket
+      when UnknownPacket
         self == other
       else
         false
