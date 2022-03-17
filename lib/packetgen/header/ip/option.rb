@@ -86,25 +86,23 @@ module PacketGen
         # Factory to build an option from its type
         # @return [Option]
         def self.build(options={})
-          type = options.delete(:type)
+          type = options[:type]
           klass = case type
                   when String
                     types.key?(type) ? IP.const_get(type) : self
-                  when Integer
-                    types.value?(type) ? IP.const_get(types.key(type)) : self
                   else
-                    self
+                    types.value?(type) ? IP.const_get(types.key(type.to_i)) : self
                   end
+          options.delete(:type) if klass != self
           klass.new(options)
         end
 
         def initialize(options={})
-          unless options[:type]
-            opt_name = self.class.to_s.gsub(/.*::/, '')
-            options[:type] = Option.const_get("#{opt_name}_TYPE") if Option.const_defined? "#{opt_name}_TYPE"
-          end
+          options[:type] = class2type unless options[:type]
+
           super
-          self.length = sz if respond_to?(:length) && options[:length].nil?
+          initialize_length_if_needed(options)
+          initialize_data_if_needed(options)
         end
 
         # Get binary string. Set {#length} field.
@@ -120,6 +118,25 @@ module PacketGen
           str = self.instance_of?(Option) ? +"unk-#{type}" : self.class.to_s.sub(/.*::/, '')
           str << ":#{self[:data].to_s.inspect}" if respond_to?(:length) && (length > 2) && !self[:data].to_s.empty?
           str
+        end
+
+        private
+
+        def class2type
+          opt_name = self.class.to_s.gsub(/.*::/, '')
+          Option.const_get("#{opt_name}_TYPE") if Option.const_defined? "#{opt_name}_TYPE"
+        end
+
+        def initialize_length_if_needed(options)
+          self.length = sz if respond_to?(:length) && options[:length].nil?
+        end
+
+        def initialize_data_if_needed(options)
+          return unless fields.include?(:data) && self[:data].respond_to?(:from_human) && options.key?(:data)
+
+          # Force data if data is set in options but not length
+          self.length += options[:data].size
+          self[:data].from_human(options[:data])
         end
       end
 
@@ -173,6 +190,10 @@ module PacketGen
         #  16-bit stream ID
         #  @return [Integer]
         define_field :id, Types::Int16
+
+        def to_human
+          super << ":#{self.id}"
+        end
       end
 
       # Router Alert IP option
@@ -183,6 +204,10 @@ module PacketGen
         #  16-bit value. Should be 0.
         #  @return [Integer]
         define_field :value, Types::Int16, default: 0
+
+        def to_human
+          super << ":#{self.value}"
+        end
       end
     end
   end

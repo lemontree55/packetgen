@@ -311,5 +311,64 @@ module PacketGen
         end
       end
     end
+
+    describe IP::Option do
+      describe '.build' do
+        it 'creates a new object from type as string' do
+          opt = IP::Option.build(type: 'LSRR', data: ['1.1.1.1', '2.3.4.5'])
+          expect(opt).to be_a(IP::LSRR)
+          expect(opt.data[0]).to be_a(IP::Addr)
+          expect(opt.data[0].to_human).to eq('1.1.1.1')
+          expect(opt.data[1].to_human).to eq('2.3.4.5')
+        end
+
+        it 'creates a new object from type as integer' do
+          opt = IP::Option.build(type: 0)
+          expect(opt).to be_a(IP::EOL)
+          opt = IP::Option.build(type: 1)
+          expect(opt).to be_a(IP::NOP)
+          opt = IP::Option.build(type: 0x88, id: 0xfedc)
+          expect(opt).to be_a(IP::SI)
+          expect(opt.id).to eq(0xfedc)
+        end
+
+        it 'creates an Option object from unknown integer type' do
+          opt = IP::Option.build(type: 0x7f, data: '1')
+          expect(opt).to be_a(IP::Option)
+          expect(opt.type).to eq(0x7f)
+          expect(opt.data).to eq('1')
+          expect(opt.length).to eq(3)
+        end
+      end
+
+      describe '#to_human' do
+        it 'returns a human-readable string' do
+          expect(IP::Option.build(type: 0).to_human).to eq('EOL')
+          expect(IP::Option.build(type: 1).to_human).to eq('NOP')
+          expect(IP::Option.build(type: 0x83, data: ['1.2.3.4', '5.6.7.8']).to_human)
+            .to eq('LSRR:1.2.3.4,5.6.7.8')
+          expect(IP::Option.build(type: 'SSRR', data: ['1.2.3.4']).to_human)
+            .to eq('SSRR:1.2.3.4')
+          expect(IP::Option.build(type: 'RR', data: ['1.2.3.4', '5.6.7.8']).to_human)
+            .to eq('RR:1.2.3.4,5.6.7.8')
+          expect(IP::Option.build(type: 'SI', id: 0xfedc).to_human)
+            .to eq('SI:65244')
+          expect(IP::Option.build(type: 'RA', value: 12345).to_human)
+            .to eq('RA:12345')
+          expect(IP::Option.build(type: 0x7f, data: "abcd").to_human)
+            .to eq('unk-127:"abcd"')
+        end
+      end
+    end
+
+    describe IP::LSRR do
+      it '#pointed_addr gets address pointer by #pointer' do
+        opt = IP::Option.build(type: 'LSRR', data: ['1.2.3.4', '5.6.7.8'])
+        expect(opt.pointed_addr.to_human).to eq('1.2.3.4')
+
+        opt.pointer = 8
+        expect(opt.pointed_addr.to_human).to eq('5.6.7.8')
+      end
+    end
   end
 end
