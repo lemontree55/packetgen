@@ -213,13 +213,13 @@ module PacketGen
     describe DHCPv6::DUID_LLT do
       describe "#time=" do
         it 'sets time' do
-          new_time = Time.new(2011, 1, 1, 12, 13, 14)
+          new_time = Time.utc(2011, 1, 1, 12, 13, 14)
           duid = DHCPv6::DUID_LLT.new
           old_time = duid.time
           duid.time = new_time
           expect(duid.time).to_not eq(old_time)
           expect(duid.time).to eq(new_time)
-          expect(duid[:time].to_i).to eq(347195594)
+          expect(duid[:time].to_i).to eq(347199194)
         end
       end
     end
