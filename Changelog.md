@@ -3,6 +3,27 @@
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Packetgen 3.2.2 - 2022-12-23
+
+## Added
+
+* Add Header::HTTP::Header#[] to access given HTTP header
+* Add Header::HTTP::Header#header? to check given HTTP header exist in object.
+* Add Header::SNMP::VariableBindings#[] to access nth element from the binding list.
+* Add Header::SNMP::VariableBindings#size.
+* Add Header::DHCPv6::DUID#human_type.
+* Add Header::IP::SI#to_human and Header::IP::RA#to_human.
+
+### Changed
+
+* Types::Array#read: can now populate object from an Array of Hash, and not only from a String.
+
+### Fixed
+
+* Fix UnknownPacket#=== (was raising) and UnknownPacket#inspect (did nothing).
+* Fix Header::IP::Option.build when type is unknown. In such a case, type was not set in newly crealed option.
+* Fix Header::IP::Option#initiallize: length wazs not set and data parameter was not used.
+
 ## Packetgen 3.2.1 - 2021-12-27
 
 ### Added
