@@ -15,7 +15,7 @@ jobs:
         ruby: ['2.5', '2.6', '2.7', '3.0', '3.1']
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install dependencies
       run: sudo apt-get update -qq && sudo apt-get install libpcap-dev -qq
     - name: Set up Ruby
@@ -24,7 +24,6 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
     - name: Install Gems
       run: |
-        gem install bundler --no-document
         bundle config set path 'vendor/bundle'
         bundle config set --local without noci rubocop
         bundle install
