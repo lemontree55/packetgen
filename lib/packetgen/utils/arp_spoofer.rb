@@ -114,7 +114,9 @@ module PacketGen
       # @param [String] target_ip target IP address
       # @return [Boolean]
       def active?(target_ip)
-        return false unless @targets.key?(target_ip)
+        # rubocop:disable Style/ReturnNilInPredicateMethodDefinition
+        return unless @targets.key?(target_ip)
+        # rubocop:enable Style/ReturnNilInPredicateMethodDefinition
 
         @targets[target_ip][:active]
       end
