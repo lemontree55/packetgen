@@ -36,13 +36,9 @@ Gem::Specification.new do |spec|
     '--quiet'
   ]
 
-  spec.required_ruby_version = '>= 2.5.0'
+  spec.required_ruby_version = '>= 2.6.0'
 
   spec.add_dependency 'interfacez', '~>1.0'
-  spec.add_dependency 'pcaprub', '~>0.12.0'
-  spec.add_dependency 'rasn1', '~>0.8', '>= 0.8.0'
-
-  spec.add_development_dependency 'rake', '~> 13.0'
-  spec.add_development_dependency 'rspec', '~> 3.7'
-  spec.add_development_dependency 'yard', '~> 0.9'
+  spec.add_dependency 'pcaprub', '~>0.13.0'
+  spec.add_dependency 'rasn1', '~>0.12'
 end
