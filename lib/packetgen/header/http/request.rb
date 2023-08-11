@@ -107,7 +107,7 @@ module PacketGen
 
         def headers_and_payload_from_lines(lines)
           if (data_index = lines.find_index(''))
-            data    = lines[data_index + 1..-1].join("\n")
+            data    = lines[data_index + 1..].join("\n")
             headers = lines[0..data_index - 1].join("\n")
           else
             headers = lines.join("\n")

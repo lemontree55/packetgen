@@ -19,11 +19,11 @@ module PacketGen
     # @private
     ARP_FILTER = 'arp src %<ipaddr>s and ether dst %<hwaddr>s'
     # @private
-    MITM_FILTER = '((ip src %<target1>s and not ip dst %<local_ip>s) or' \
-                  ' (ip src %<target2>s and not ip dst %<local_ip>s) or' \
-                  ' (ip dst %<target1>s and not ip src %<local_ip>s) or' \
-                  ' (ip dst %<target2>s and not ip src %<local_ip>s))' \
-                  ' and ether dst %<local_mac>s'
+    MITM_FILTER = '((ip src %<target1>s and not ip dst %<local_ip>s) or ' \
+                  '(ip src %<target2>s and not ip dst %<local_ip>s) or ' \
+                  '(ip dst %<target1>s and not ip src %<local_ip>s) or ' \
+                  '(ip dst %<target2>s and not ip src %<local_ip>s)) ' \
+                  'and ether dst %<local_mac>s'
 
     # @private
     ARP_PATH = '/usr/sbin/arp'

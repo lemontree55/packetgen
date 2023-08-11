@@ -18,7 +18,7 @@ module PacketGen
         # @return [self]
         #   array << '192.168.1.12'
         def push(addr)
-          addr = addr.is_a?(Addr) ? addr : Addr.new.from_human(addr)
+          addr = Addr.new.from_human(addr) unless addr.is_a?(Addr)
           super(addr)
         end
       end
@@ -77,7 +77,7 @@ module PacketGen
           Option.constants.each do |cst|
             next unless cst.to_s.end_with? '_TYPE'
 
-            optname = cst.to_s.sub(/_TYPE/, '')
+            optname = cst.to_s.sub('_TYPE', '')
             @types[optname] = Option.const_get(cst)
           end
           @types

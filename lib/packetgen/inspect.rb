@@ -36,7 +36,8 @@ module PacketGen
     # @param [Integer] hexsize
     # @return [String]
     def self.int_dec_hex(value, hexsize)
-      "%-16s (0x%0#{hexsize}x)" % [value.to_i, value.to_i]
+      fmt = "%-16s (0x%0#{hexsize}x)"
+      fmt % [value.to_i, value.to_i]
     end
 
     # @param [String] str
@@ -44,7 +45,8 @@ module PacketGen
     # @param [Integer] hexsize
     # @return [String]
     def self.enum_human_hex(str, int, hexsize)
-      "%-16s (0x%0#{hexsize}x)" % [str, int]
+      fmt = "%-16s (0x%0#{hexsize}x)"
+      fmt % [str, int]
     end
 
     # Simple formatter to inspect an attribute
@@ -90,7 +92,8 @@ module PacketGen
       val = case attr
             when RASN1::Types::Enumerated
               hexsize = attr.value_size * 2
-              "%-16s (0x%0#{hexsize}x)" % [attr.value, attr.to_i]
+              fmt = "%-16s (0x%0#{hexsize}x)"
+              fmt % [attr.value, attr.to_i]
             when RASN1::Types::Integer
               int_dec_hex(attr.value, attr.value_size * 2)
             when RASN1::Model

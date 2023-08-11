@@ -46,7 +46,7 @@ module PacketGen
     def method_name
       return @method_name if defined? @method_name
 
-      @method_name = protocol_name.downcase.gsub(/::/, '_')
+      @method_name = protocol_name.downcase.gsub('::', '_')
     end
 
     # @abstract Should be redefined by subclasses. This method should check invariant

@@ -107,7 +107,7 @@ module PacketGen
         # @return [self]
         #   array << '2001:1234::125'
         def push(addr)
-          addr = addr.is_a?(Addr) ? addr : Addr.new.from_human(addr)
+          addr = Addr.new.from_human(addr) unless addr.is_a?(Addr)
           super(addr)
         end
       end

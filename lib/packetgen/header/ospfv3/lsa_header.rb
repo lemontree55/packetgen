@@ -79,7 +79,7 @@ module PacketGen
         # @return [Integer]
         def calc_checksum
           c0 = c1 = 0
-          to_s[2..-1].unpack('C*').each do |byte|
+          to_s[2..].unpack('C*').each do |byte|
             c0 += byte
             c1 += c0
           end

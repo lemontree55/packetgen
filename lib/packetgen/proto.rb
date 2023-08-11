@@ -19,7 +19,7 @@ module PacketGen
       proto_constants = Socket.constants.grep(/IPPROTO_/)
       @cache = {}
       proto_constants.each do |const_sym|
-        name = const_sym.to_s[8..-1].downcase
+        name = const_sym.to_s[8..].downcase
         number = Socket.const_get(const_sym)
         @cache[name] = number
       end

@@ -322,12 +322,14 @@ module PacketGen
             define << "def #{name}; self[:#{name}].to_i; end"
             define << "def #{name}=(val) self[:#{name}].value = val; end"
           else
+            # rubocop:disable Layout/LineContinuationLeadingSpace
             define << "def #{name}\n" \
                       "  to_and_from_human?(:#{name}) ? self[:#{name}].to_human : self[:#{name}]\n" \
                       'end'
             define << "def #{name}=(val)\n" \
                       "  to_and_from_human?(:#{name}) ? self[:#{name}].from_human(val) : self[:#{name}].read(val)\n" \
                       'end'
+            # rubocop:enable Layout/LineContinuationLeadingSpace
           end
 
           define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
@@ -479,7 +481,7 @@ module PacketGen
         fields.each do |field|
           next unless present?(field)
 
-          obj = self[field].read str[start..-1]
+          obj = self[field].read str[start..]
           start += self[field].sz
           self[field] = obj unless obj == self[field]
         end
@@ -523,7 +525,7 @@ module PacketGen
       # Return object as a hash
       # @return [Hash] keys: attributes, values: attribute values
       def to_h
-        fields.map { |f| [f, @fields[f].to_human] }.to_h
+        fields.to_h { |f| [f, @fields[f].to_human] }
       end
 
       # Get offset of given field in {Fields} structure.

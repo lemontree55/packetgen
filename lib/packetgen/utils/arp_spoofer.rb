@@ -112,9 +112,9 @@ module PacketGen
 
       # Say if spoofing on given target is active or not
       # @param [String] target_ip target IP address
-      # @return [Boolean,nil]
+      # @return [Boolean]
       def active?(target_ip)
-        return unless @targets.key?(target_ip)
+        return false unless @targets.key?(target_ip)
 
         @targets[target_ip][:active]
       end

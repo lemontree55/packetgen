@@ -21,11 +21,11 @@ module PacketGen
       }.freeze
 
       # @private
-      BLOCK_TYPES = PcapNG.constants(false).select { |c| c.to_s.include?('_TYPE') }.map do |c|
+      BLOCK_TYPES = PcapNG.constants(false).select { |c| c.to_s.include?('_TYPE') }.to_h do |c|
         type_value = PcapNG.const_get(c).to_i
         klass = PcapNG.const_get(c.to_s.delete_suffix('_TYPE'))
         [type_value, klass]
-      end.to_h.freeze
+      end.freeze
 
       # Get file sections
       # @return [Array]

@@ -108,7 +108,7 @@ module PacketGen
           name.dns = self[:name].dns
 
           pref = Types::Int16.new.read(self[:rdata][0, 2])
-          exchange = name.read(self[:rdata][2..-1]).to_human
+          exchange = name.read(self[:rdata][2..]).to_human
 
           '%u %s' % [pref.to_i, exchange]
         end
@@ -118,7 +118,7 @@ module PacketGen
           name = Name.new
           name.dns = self[:name].dns
           mname = name.read(self[:rdata]).dup
-          rname = name.read(self[:rdata][mname.sz..-1])
+          rname = name.read(self[:rdata][mname.sz..])
 
           serial = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
           refresh = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])

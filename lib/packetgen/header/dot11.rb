@@ -403,7 +403,7 @@ module PacketGen
         define_applicable_fields
         if fcs
           old_read str[0...-4]
-          self[:fcs].read str[-4..-1]
+          self[:fcs].read str[-4..]
         else
           old_read str
         end

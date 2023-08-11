@@ -126,7 +126,7 @@ module PacketGen
 
           self[:version].read first_line[0]
           self[:status_code].read first_line[1]
-          self[:status_mesg].read first_line[2..-1].join(' ')
+          self[:status_mesg].read first_line[2..].join(' ')
         end
 
         def raise_on_bad_version_status

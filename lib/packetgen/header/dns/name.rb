@@ -67,9 +67,9 @@ module PacketGen
               @pointer = str[start, 2]
               break
             else
-              label = add_label_from(str[start..-1])
+              label = add_label_from(str[start..])
               start += label.sz
-              break if label.length.zero? || str[start..-1].length.zero?
+              break if label.empty? || str[start..].empty?
             end
           end
           # force resolution of compressed names
@@ -110,7 +110,7 @@ module PacketGen
           ptr = index & mask
           name = Name.new
           name.dns = @dns
-          @pointer_name = name.read(self.dns.to_s[ptr..-1]).to_human
+          @pointer_name = name.read(self.dns.to_s[ptr..]).to_human
         end
 
         def record_from_hash(_hsh)
