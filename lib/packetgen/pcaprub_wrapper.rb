@@ -44,7 +44,7 @@ module PacketGen
     # @param [Boolean] promisc
     # @param [String] filter BPF filter
     # @param [Boolean] monitor
-    # @yieldparam [String] packet_data binary packet data
+    # @yieldparam [String] packet_data packet data
     # @return [void]
     # @author Sylvain Daubert
     # @author optix2000 - add support for setting monitor mode
@@ -52,7 +52,7 @@ module PacketGen
     def self.capture(iface:, snaplen: DEFAULT_SNAPLEN, promisc: DEFAULT_PROMISC, filter: nil, monitor: nil, &block)
       pcap = self.open_iface(iface: iface, snaplen: snaplen, promisc: promisc, monitor: monitor)
       pcap.setfilter filter unless filter.nil?
-      pcap.each(&block)
+      pcap.each_packet(&block)
     end
 
     # Inject given data onto wire

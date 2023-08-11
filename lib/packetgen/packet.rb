@@ -81,7 +81,9 @@ module PacketGen
     # @see Capture#initialize
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
+    # @yieldparam [Time] timestamp packet timestamp
     # @return [Array<Packet>] captured packet
+    # @since 3.3.0 add packet timestamp as second yield parameter
     def self.capture(**kwargs, &block)
       capture = Capture.new(**kwargs)
       if block
