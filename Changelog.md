@@ -1,14 +1,25 @@
 # Changelog
 
-The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## Packetgen 3.3.0 - 2023-08-11
+
+## Removed
+
+* Remove support for Ruby 2.5
+
+## Added
+
+* Add timestamps when capturing packets using Capture#start: second block parameter is the packet timestamp.
+* Add Capture#timestamps to get timestamps as an Array. To use with Capture#packets or Capture#raw_packets.
 
 ## Packetgen 3.2.2 - 2022-12-23
 
 ## Added
 
-* Add Header::HTTP::Header#[] to access given HTTP header
-* Add Header::HTTP::Header#header? to check given HTTP header exist in object.
+* Add Header::HTTP::Headers#[] to access given HTTP header
+* Add Header::HTTP::Headers#header? to check given HTTP header exist in object.
 * Add Header::SNMP::VariableBindings#[] to access nth element from the binding list.
 * Add Header::SNMP::VariableBindings#size.
 * Add Header::DHCPv6::DUID#human_type.
