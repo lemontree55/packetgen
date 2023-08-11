@@ -64,8 +64,10 @@ module PacketGen
   # Shortcut for {Packet.capture}
   # Same arguments as {Capture#initialize}
   # @see Capture#initialize
-  # @yieldparam [Packet] packet
+  # @yieldparam [Packet,String] packet
+  # @yieldparam [Time] timestamp
   # @return [Array<Packet>]
+  # @since 3.3.0 add packet timestamp as second yield parameter
   def self.capture(**kwargs)
     Packet.capture(**kwargs) { |packet| yield packet if block_given? }
   end

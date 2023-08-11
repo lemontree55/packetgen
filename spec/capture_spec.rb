@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'spec_helper'
 
 module PacketGen
@@ -106,6 +108,22 @@ module PacketGen
         expect(yielded_packets.size).to eq(cap.raw_packets.size)
         expect(yielded_packets).to eq(cap.raw_packets)
       end
+
+      it 'yields packet timestamp' do
+        timestamps = []
+        cap = Capture.new(iface: 'lo', parse: false, timeout: 3)
+        cap_thread = Thread.new { cap.start { |_pkt, ts| timestamps << ts } }
+        sleep 0.1
+        ping('127.0.0.1', count: 1)
+        cap_thread.join(0.5)
+        expect(cap.packets.size).to be >= 2
+        expect(timestamps.size).to eq(cap.packets.size)
+        timestamps.each do |ts|
+          expect(ts).to be_a(Time)
+        end
+      end
+
+      it 'yields raw packet timestamp'
     end
   end
 end

@@ -27,6 +27,11 @@ module PacketGen
     # @return [Array<String>]
     attr_reader :raw_packets
 
+    # Get timestamps associated with {#packets} and {#raw_packets}
+    # @return [Array<Time>]
+    # @since 3.3.0
+    attr_reader :timestamps
+
     # Get interface name
     # @return [String]
     attr_reader :iface
@@ -54,6 +59,7 @@ module PacketGen
 
       @packets     = []
       @raw_packets = []
+      @timestamps = []
       set_options iface, max, timeout, filter, promisc, parse, snaplen, monitor
     end
 
@@ -61,16 +67,18 @@ module PacketGen
     # @see {#initialize} for parameters
     # @yieldparam [Packet,String] packet if a block is given, yield each
     #    captured packet (Packet or raw data String, depending on +:parse+ option)
+    # @yieldparam [Time] timestamp packet timestamp
     # @since 3.0.0 arguments are kwargs and no more a hash
     # @since 3.1.5 add monitor argument
+    # @since 3.3.0 add packet timestamp as second yield parameter
     # @author Sylvain Daubert
     # @author optix2000 - add monitor argument
     def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, monitor: nil, &block)
       set_options iface, max, timeout, filter, promisc, parse, snaplen, monitor
 
       @cap_thread = Thread.new do
-        PCAPRUBWrapper.capture(**capture_args) do |packet_data|
-          add_packet(packet_data, &block)
+        PCAPRUBWrapper.capture(**capture_args) do |packet|
+          add_packet(packet, &block)
           break if defined?(@max) && (raw_packets.size >= @max)
         end
       end
@@ -119,18 +127,21 @@ module PacketGen
       PCAPRUBWrapper.filter_on(pcap: pcap, filter: filter)
     end
 
-    def add_packet(data, &block)
-      raw_packets << data
+    def add_packet(packet, &block)
+      raw_packets << packet.data
+      ts = Time.at(packet.time, packet.microsec.to_r, :usec)
+      timestamps << ts
+
       if @parse
         begin
-          packet = Packet.parse(data)
+          packet = Packet.parse(packet.data)
         rescue ParseError
-          packet = UnknownPacket.new.parse(data)
+          packet = UnknownPacket.new.parse(packet.data)
         end
         packets << packet
-        block&.call(packet)
+        block&.call(packet, ts)
       elsif block
-        yield data
+        yield data, ts
       end
     end
   end
