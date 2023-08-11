@@ -111,7 +111,7 @@ module PacketGen
 
       it 'yields packet timestamp' do
         timestamps = []
-        cap = Capture.new(iface: 'lo', parse: false, timeout: 3)
+        cap = Capture.new(iface: 'lo', timeout: 3)
         cap_thread = Thread.new { cap.start { |_pkt, ts| timestamps << ts } }
         sleep 0.1
         ping('127.0.0.1', count: 1)
@@ -123,7 +123,19 @@ module PacketGen
         end
       end
 
-      it 'yields raw packet timestamp'
+      it 'yields raw packet timestamp' do
+        timestamps = []
+        cap = Capture.new(iface: 'lo', parse: false, timeout: 3)
+        cap_thread = Thread.new { cap.start { |_pkt, ts| timestamps << ts } }
+        sleep 0.1
+        ping('127.0.0.1', count: 1)
+        cap_thread.join(0.5)
+        expect(cap.raw_packets.size).to be >= 2
+        expect(timestamps.size).to eq(cap.raw_packets.size)
+        timestamps.each do |ts|
+          expect(ts).to be_a(Time)
+        end
+      end
     end
   end
 end
