@@ -60,63 +60,101 @@ module PacketGen
     class AbstractTLV < Types::Fields
       include Fieldable
 
+      # @private
+      FIELD_TYPES = { 'T' => :type, 'L' => :length, 'V' => :value }.freeze
+
       class << self
         # @return [Hash]
         attr_accessor :aliases
+        # @deprecated
         attr_accessor :header_in_length
-      end
-      self.aliases = {}
+        # @private
+        attr_accessor :field_in_length
 
-      # Generate a TLV class
-      # @param [Class] type_class Class to use for +type+
-      # @param [Class] length_class Class to use for +length+
-      # @param [Class] value_class Class to use for +value+
-      # @param [Boolean] header_in_length if +true +, +type+ and +length+ fields are
-      #   included in length
-      # @return [Class]
-      # @since 3.1.4 Add +header_in_length+ parameter
-      def self.create(type_class: Int8Enum, length_class: Int8, value_class: String,
-                      aliases: {}, header_in_length: false)
-        raise Error, '.create cannot be called on a subclass of PacketGen::Types::AbstractTLV' unless self.equal? AbstractTLV
+        # Generate a TLV class
+        # @param [Class] type_class Class to use for +type+
+        # @param [Class] length_class Class to use for +length+
+        # @param [Class] value_class Class to use for +value+
+        # @param [Boolean] header_in_length if +true +, +type+ and +length+ fields are
+        #   included in length. Deprecated, use +field_in_length+ instead.
+        # @param [String] field_order give field order. Each character in [T,L,V] MUST be present once, in the desired order.
+        # @param [String] field_in_length give fields to compute length on.
+        # @return [Class]
+        # @since 3.1.4 Add +header_in_length+ parameter
+        # @since 3.4.0 Add +field_order+ and +field_in_length' parameters. Deprecate +header_in_length+ parameter.
+        def create(type_class: Int8Enum, length_class: Int8, value_class: String,
+                   aliases: {}, header_in_length: false, field_order: 'TLV', field_in_length: 'V')
+          Deprecation.deprecated_option(self, 'create', 'header_in_length', klass_method: true) if header_in_length
+          raise Error, '.create cannot be called on a subclass of PacketGen::Types::AbstractTLV' unless self.equal?(AbstractTLV)
 
-        klass = Class.new(self)
-        klass.aliases = aliases
-        klass.header_in_length = header_in_length
+          klass = Class.new(self)
+          klass.aliases = aliases
+          klass.header_in_length = header_in_length
+          klass.field_in_length = field_in_length
 
-        if type_class < Enum
-          klass.define_field :type, type_class, enum: {}
-        else
-          klass.define_field :type, type_class
+          check_field_in_length(field_in_length)
+          check_field_order(field_order)
+          generate_fields(klass, field_order, type_class, length_class, value_class)
+
+          aliases.each do |al, orig|
+            klass.instance_eval do
+              alias_method al, orig if klass.method_defined?(orig)
+              alias_method :"#{al}=", :"#{orig}=" if klass.method_defined?(:"#{orig}=")
+            end
+          end
+
+          klass
         end
-        klass.define_field :length, length_class
-        klass.define_field :value, value_class
 
-        aliases.each do |al, orig|
-          klass.instance_eval do
-            alias_method al, orig if klass.method_defined?(orig)
-            alias_method :"#{al}=", :"#{orig}=" if klass.method_defined?(:"#{orig}=")
+        # @!attribute type
+        #   @abstract Type attribute for real TLV class
+        #   @return [Integer]
+        # @!attribute length
+        #   @abstract Length attribute for real TLV class
+        #   @return [Integer]
+        # @!attribute value
+        #   @abstract Value attribute for real TLV class
+        #   @return [Object]
+
+        # @abstract Should only be called on real TLV classes, created by {.create}.
+        # Set enum hash for {#type} field.
+        # @param [Hash] hsh enum hash
+        # @return [void]
+        def define_type_enum(hsh)
+          field_defs[:type][:enum].clear
+          field_defs[:type][:enum].merge!(hsh)
+        end
+
+        private
+
+        def check_field_in_length(field_in_length)
+          return if /^[TLV]{1,3}$/.match?(field_in_length)
+
+          raise 'field_in_length must only contain T, L and/or V characters'
+        end
+
+        def check_field_order(field_order)
+          return if field_order.match(/^[TLV]{3,3}$/) && (field_order[0] != field_order[1]) && (field_order[0] != field_order[2]) && (field_order[1] != field_order[2])
+
+          raise 'field_order must contain all three letters TLV, each once'
+        end
+
+        def generate_fields(klass, field_order, type_class, length_class, value_class)
+          field_order.each_char do |field_type|
+            case field_type
+            when 'T'
+              if type_class < Enum
+                klass.define_field(:type, type_class, enum: {})
+              else
+                klass.define_field(:type, type_class)
+              end
+            when 'L'
+              klass.define_field(:length, length_class)
+            when 'V'
+              klass.define_field(:value, value_class)
+            end
           end
         end
-
-        klass
-      end
-      # @!attribute type
-      #   @abstract Type attribute for real TLV class
-      #   @return [Integer]
-      # @!attribute length
-      #   @abstract Length attribute for real TLV class
-      #   @return [Integer]
-      # @!attribute value
-      #   @abstract Value attribute for real TLV class
-      #   @return [Object]
-
-      # @abstract Should only be called on real TLV classes, created by {.create}.
-      # Set enum hash for {#type} field.
-      # @param [Hash] hsh enum hash
-      # @return [void]
-      def self.define_type_enum(hsh)
-        field_defs[:type][:enum].clear
-        field_defs[:type][:enum].merge!(hsh)
       end
 
       # @abstract Should only be called on real TLV classes, created by {.create}.
@@ -126,6 +164,7 @@ module PacketGen
       # @option options [Object] :value
       def initialize(options={})
         @header_in_length = self.class.header_in_length
+        @field_in_length = self.class.field_in_length
         self.class.aliases.each do |al, orig|
           options[orig] = options[al] if options.key?(al)
         end
@@ -141,11 +180,13 @@ module PacketGen
       # @return [Fields] self
       def read(str)
         idx = 0
-        self[:type].read str[idx, self[:type].sz]
-        idx += self[:type].sz
-        self[:length].read str[idx, self[:length].sz]
-        idx += self[:length].sz
-        self[:value].read str[idx, real_length]
+        fields.each do |field_name|
+          field = self[field_name]
+          length = field_name == :value ? real_length : field.sz
+          field.read(str[idx, length])
+          idx += field.sz
+        end
+
         self
       end
 
@@ -154,9 +195,17 @@ module PacketGen
       # @param [::String,Integer] val
       # @return [::String,Integer]
       def value=(val)
-        self[:value].from_human val
-        self.length = self[:value].sz
-        self.length += self[:type].sz + self[:length].sz if @header_in_length
+        self[:value].from_human(val)
+
+        fil = @field_in_length
+        fil = 'TLV' if @header_in_length
+
+        length = 0
+        fil.each_char do |field_type|
+          length += self[FIELD_TYPES[field_type]].sz
+        end
+        self.length = length
+
         val
       end
 
@@ -180,7 +229,10 @@ module PacketGen
         if @header_in_length
           self.length - self[:type].sz - self[:length].sz
         else
-          self.length
+          length = self.length
+          length -= self[:type].sz if @field_in_length.include?('T')
+          length -= self[:length].sz if @field_in_length.include?('L')
+          length
         end
       end
     end

@@ -125,6 +125,12 @@ module PacketGen
             tlv.value = 'abcdef'
             expect(tlv.length).to eq(10)
           end
+
+          it 'sets #length when field_in_length contains "L"' do
+            tlv = AbstractTLV.create(type_class: Int16, length_class: Int16, field_in_length: 'TLV').new
+            tlv.value = 'abcdef'
+            expect(tlv.length).to eq(10)
+          end
         end
 
         describe 'use of aliases' do
@@ -150,6 +156,27 @@ module PacketGen
           end
         end
       end
+
+      context 'use of instance with inverted type and length' do
+        let(:ltv) { AbstractTLV.create(type_class: Int16, length_class: Int16, field_order: 'LTV', field_in_length: 'LTV').new }
+
+        describe '#read' do
+          it 'reads a TLV from a binary string' do
+            bin_str = [7, 1, 0x12345678].pack('nnN')
+            ltv.read(bin_str)
+            expect(ltv.length).to eq(7)
+            expect(ltv.type).to eq(1)
+            expect(ltv.value).to eq(binary("\x12\x34\x56"))
+          end
+        end
+
+        describe '#value=' do
+          it 'sets #length when field_in_length contains "L"' do
+            ltv.value = 'abcdef'
+            expect(ltv.length).to eq(10)
+          end
+        end
+     end
     end
   end
 end
