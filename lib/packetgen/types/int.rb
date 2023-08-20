@@ -11,6 +11,7 @@ module PacketGen
     # Base integer class to handle binary integers
     # @abstract
     # @author Sylvain Daubert
+    # @since 3.4.0 support native endianess
     class Int
       include Fieldable
 
@@ -18,7 +19,8 @@ module PacketGen
       # @return [Integer]
       attr_accessor :value
       # Integer endianness
-      # @return [:little,:big]
+      # @return [:little,:big,:native]
+      # @since 3.4.0 add :native
       attr_accessor :endian
       # Integer size, in bytes
       # @return [Integer]
@@ -128,10 +130,10 @@ module PacketGen
     # @author Sylvain Daubert
     class Int16 < Int
       # @param [Integer,nil] value
-      # @param [:big, :little] endian
+      # @param [:big, :little, :native] endian
       def initialize(value=nil, endian=:big)
         super(value, endian, 2)
-        @packstr = { big: 'n', little: 'v' }
+        @packstr = { big: 'n', little: 'v', native: 'S' }
       end
     end
 
@@ -153,6 +155,19 @@ module PacketGen
       end
     end
 
+    # native endian 2-byte unsigned integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class Int16n < Int16
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
+      end
+    end
+
     # 2-byte signed integer
     # @author Sylvain Daubert
     # @since 2.8.2
@@ -161,7 +176,7 @@ module PacketGen
       # @param [:big, :little] endian
       def initialize(value=nil, endian=:big)
         super
-        @packstr = { big: 's>', little: 's<' }
+        @packstr = { big: 's>', little: 's<', native: 's' }
       end
     end
 
@@ -185,13 +200,33 @@ module PacketGen
       end
     end
 
+    # native endian 2-byte signed integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class SInt16n < SInt16
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
+      end
+    end
+
     # 3-byte unsigned integer
     # @author Sylvain Daubert
     # @since 2.1.4
     class Int24 < Int
       # @param [Integer,nil] value
-      # @param [:big, :little] endian
+      # @param [:big, :little, :native] endian
       def initialize(value=nil, endian=:big)
+        if endian == :native
+          endian = if [1].pack('S').unpack1('n') == 1
+                     :big
+                   else
+                     :little
+                   end
+        end
         super(value, endian, 3)
       end
 
@@ -247,14 +282,27 @@ module PacketGen
       end
     end
 
+    # native endian 3-byte unsigned integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class Int24n < Int24
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
+      end
+    end
+
     # 4-byte unsigned integer
     # @author Sylvain Daubert
     class Int32 < Int
       # @param [Integer,nil] value
-      # @param [:big, :little] endian
+      # @param [:big, :little, :native] endian
       def initialize(value=nil, endian=:big)
         super(value, endian, 4)
-        @packstr = { big: 'N', little: 'V' }
+        @packstr = { big: 'N', little: 'V', native: 'L' }
       end
     end
 
@@ -276,6 +324,19 @@ module PacketGen
       end
     end
 
+    # native endian 4-byte unsigned integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class Int32n < Int32
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
+      end
+    end
+
     # 4-byte unsigned integer
     # @author Sylvain Daubert
     # @since 2.8.2
@@ -284,7 +345,7 @@ module PacketGen
       # @param [:big, :little] endian
       def initialize(value=nil, endian=:big)
         super
-        @packstr = { big: 'l>', little: 'l<' }
+        @packstr = { big: 'l>', little: 'l<', native: 'l' }
       end
     end
 
@@ -308,14 +369,27 @@ module PacketGen
       end
     end
 
+    # native endian 4-byte unsigned integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class SInt32n < SInt32
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
+      end
+    end
+
     # 8-byte unsigned integer
     # @author Sylvain Daubert
     class Int64 < Int
       # @param [Integer,nil] value
-      # @param [:big, :little] endian
+      # @param [:big, :little, :native] endian
       def initialize(value=nil, endian=:big)
         super(value, endian, 8)
-        @packstr = { big: 'Q>', little: 'Q<' }
+        @packstr = { big: 'Q>', little: 'Q<', native: 'Q' }
       end
     end
 
@@ -337,15 +411,28 @@ module PacketGen
       end
     end
 
+    # native endian 8-byte unsigned integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class Int64n < Int64
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
+      end
+    end
+
     # 8-byte unsigned integer
     # @author Sylvain Daubert
     # @since 2.8.2
     class SInt64 < Int64
       # @param [Integer,nil] value
-      # @param [:big, :little] endian
+      # @param [:big, :little, :native] endian
       def initialize(value=nil, endian=:big)
         super
-        @packstr = { big: 'q>', little: 'q<' }
+        @packstr = { big: 'q>', little: 'q<', native: 'q' }
       end
     end
 
@@ -366,6 +453,19 @@ module PacketGen
       # @param [Integer, nil] value
       def initialize(value=nil)
         super(value, :little)
+      end
+    end
+
+    # native endian 8-byte unsigned integer
+    # @author Sylvain Daubert
+    # @since 3.4.0
+    class SInt64n < SInt64
+      # @param [Integer,nil] value
+      undef endian=
+
+      # @param [Integer, nil] value
+      def initialize(value=nil)
+        super(value, :native)
       end
     end
   end

@@ -119,6 +119,18 @@ module PacketGen
       end
     end
 
+    describe Int16n do
+      let(:int) { Int16n.new }
+      it '#read an unsigned 16-bit native-endian integer' do
+        expect(int.read([0x7fff].pack('S')).to_i).to eq(32_767)
+        expect(int.read([0x8000].pack('S')).to_i).to eq(32_768)
+      end
+      it 'transforms #to_s an unsigned 16-bit little-endian integer' do
+        expect(int.read(32_767).to_s).to eq([0x7fff].pack('S'))
+        expect(int.read(32_768).to_s).to eq([0x8000].pack('S'))
+      end
+    end
+
     describe SInt16 do
       let(:int) { SInt16.new }
       it '#read a signed 16-bit big-endian integer' do
@@ -143,6 +155,18 @@ module PacketGen
       end
     end
 
+    describe SInt16n do
+      let(:int) { SInt16n.new }
+      it '#read a signed 16-bit native-endian integer' do
+        expect(int.read([0x7fff].pack('s')).to_i).to eq(32_767)
+        expect(int.read([0x8000].pack('s')).to_i).to eq(-32_768)
+      end
+      it 'transforms #to_s a signed 16-bit native-endian integer' do
+        expect(int.read(32_767).to_s).to eq([0x7fff].pack('s'))
+        expect(int.read(-32_768).to_s).to eq([0x8000].pack('s'))
+      end
+    end
+
     describe Int24 do
       let(:int) { Int24.new }
       let(:strint1) { binary("\x7f\xff\xff") }
@@ -164,6 +188,21 @@ module PacketGen
       let(:int) { Int24le.new }
       let(:strint1) { binary("\xff\xff\x7f") }
       let(:strint2) { binary("\x00\x00\x80") }
+      it '#read an unsigned 24-bit little-endian integer' do
+        expect(int.read(strint1).to_i).to eq(0x7f_ffff)
+        expect(int.read(strint2).to_i).to eq(0x80_0000)
+      end
+      it 'transforms #to_s an unsigned 24-bit little-endian integer' do
+        expect(int.read(0x7f_ffff).to_s).to eq(strint1)
+        expect(int.read(0x80_0000).to_s).to eq(strint2)
+      end
+    end
+
+    describe Int24n do
+      let(:int) { Int24n.new }
+      let(:endianess) { [1].pack('S').unpack('n') == 1 ? :big : :little }
+      let(:strint1) { binary(endianess == :big ? "\x7f\xff\xff" : "\xff\xff\x7f") }
+      let(:strint2) { binary(endianess == :big ? "\x80\x00\x00" : "\x00\x00\x80") }
       it '#read an unsigned 24-bit little-endian integer' do
         expect(int.read(strint1).to_i).to eq(0x7f_ffff)
         expect(int.read(strint2).to_i).to eq(0x80_0000)
@@ -201,6 +240,18 @@ module PacketGen
       end
     end
 
+    describe Int32n do
+      let(:int) { Int32n.new }
+      it '#read an unsigned 32-bit little-endian integer' do
+        expect(int.read([0x7fff_ffff].pack('L')).to_i).to eq(0x7fff_ffff)
+        expect(int.read([0x8000_0000].pack('L')).to_i).to eq(0x8000_0000)
+      end
+      it 'transforms #to_s an unsigned 32-bit little-endian integer' do
+        expect(int.read(0x7fff_ffff).to_s).to eq([0x7fff_ffff].pack('L'))
+        expect(int.read(0x8000_0000).to_s).to eq([0x8000_0000].pack('L'))
+      end
+    end
+
     describe SInt32 do
       let(:int) { SInt32.new }
       it '#read a signed 32-bit big-endian integer' do
@@ -222,6 +273,18 @@ module PacketGen
       it 'transforms #to_s a signed 32-bit little-endian integer' do
         expect(int.read(0x7fff_ffff).to_s).to eq(binary("\xff\xff\xff\x7f"))
         expect(int.read(-0x8000_0000).to_s).to eq(binary("\x00\x00\x00\x80"))
+      end
+    end
+
+    describe SInt32n do
+      let(:int) { SInt32n.new }
+      it '#read a signed 32-bit little-endian integer' do
+        expect(int.read([0x7fff_ffff].pack('L')).to_i).to eq(0x7fff_ffff)
+        expect(int.read([0x8000_0000].pack('L')).to_i).to eq(-0x8000_0000)
+      end
+      it 'transforms #to_s a signed 32-bit little-endian integer' do
+        expect(int.read(0x7fff_ffff).to_s).to eq([0x7fff_ffff].pack('L'))
+        expect(int.read(-0x8000_0000).to_s).to eq([0x8000_0000].pack('L'))
       end
     end
 
@@ -269,12 +332,38 @@ module PacketGen
             str: "\x00\x00\x00\x00\x00\x00\x00\x80"
           }
         ]
-      }
-    }
+      },
+      native: {
+        unsigned: [
+          {
+            int: 0x7fff_ffff_ffff_ffff,
+            str: [0x7fff_ffff_ffff_ffff].pack('Q')
+          },
+          {
+            int: 0x8000_0000_0000_0000,
+            str: [0x8000_0000_0000_0000].pack('Q')
+          }
+        ],
+        signed: [
+          {
+            int: 0x7fff_ffff_ffff_ffff,
+            str: [0x7fff_ffff_ffff_ffff].pack('q')
+          },
+          {
+            int: -0x8000_0000_0000_0000,
+            str: [0x8000_0000_0000_0000].pack('q')
+          }
+        ]
+      },
+    }.freeze
 
     %i[unsigned signed].each do |us|
-      %i[big little].each do |endian|
-        suffix = endian == :little ? 'le': ''
+      %i[big little native].each do |endian|
+        suffix = case endian
+                 when :little then 'le'
+                 when :native then 'n'
+                 else ''
+                 end
         prefix = us == :signed ? 'S' : ''
         klass = Types.const_get("#{prefix}Int64#{suffix}")
         describe klass do
