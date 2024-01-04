@@ -3,20 +3,36 @@
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Packetgen 3.3.1 - 2024-01-04
+
+### Changed
+
+* Update Types::AbstractTLV: may now change field order using `field_order` parameter to `.create` method.
+* Update Types::AbstractTLV: may now choose fields to use to compute length using `field_in_length` parameter to `.create` method.
+* Update Types::Int to add support for native-endian encoding.
+
+### Added
+
+* Add specialized native-endian integer types Types::Int16n, Types::SInt16n, Types::Int24n, Types::Int132, Types::SInt32n, Types::Int64n and Types::SInt64n.
+
+### Removed
+
+* Remove support for Ruby 2.6
+
 ## Packetgen 3.3.0 - 2023-08-11
 
-## Removed
+### Removed
 
 * Remove support for Ruby 2.5
 
-## Added
+### Added
 
 * Add timestamps when capturing packets using Capture#start: second block parameter is the packet timestamp.
 * Add Capture#timestamps to get timestamps as an Array. To use with Capture#packets or Capture#raw_packets.
 
 ## Packetgen 3.2.2 - 2022-12-23
 
-## Added
+### Added
 
 * Add Header::HTTP::Headers#[] to access given HTTP header
 * Add Header::HTTP::Headers#header? to check given HTTP header exist in object.

@@ -11,7 +11,7 @@ module PacketGen
     # Base integer class to handle binary integers
     # @abstract
     # @author Sylvain Daubert
-    # @since 3.4.0 support native endianess
+    # @since 3.3.1 support native endianess
     class Int
       include Fieldable
 
@@ -20,7 +20,7 @@ module PacketGen
       attr_accessor :value
       # Integer endianness
       # @return [:little,:big,:native]
-      # @since 3.4.0 add :native
+      # @since 3.3.1 add :native
       attr_accessor :endian
       # Integer size, in bytes
       # @return [Integer]
@@ -157,7 +157,7 @@ module PacketGen
 
     # native endian 2-byte unsigned integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class Int16n < Int16
       # @param [Integer,nil] value
       undef endian=
@@ -202,7 +202,7 @@ module PacketGen
 
     # native endian 2-byte signed integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class SInt16n < SInt16
       # @param [Integer,nil] value
       undef endian=
@@ -284,7 +284,7 @@ module PacketGen
 
     # native endian 3-byte unsigned integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class Int24n < Int24
       # @param [Integer,nil] value
       undef endian=
@@ -326,7 +326,7 @@ module PacketGen
 
     # native endian 4-byte unsigned integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class Int32n < Int32
       # @param [Integer,nil] value
       undef endian=
@@ -371,7 +371,7 @@ module PacketGen
 
     # native endian 4-byte unsigned integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class SInt32n < SInt32
       # @param [Integer,nil] value
       undef endian=
@@ -413,7 +413,7 @@ module PacketGen
 
     # native endian 8-byte unsigned integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class Int64n < Int64
       # @param [Integer,nil] value
       undef endian=
@@ -458,7 +458,7 @@ module PacketGen
 
     # native endian 8-byte unsigned integer
     # @author Sylvain Daubert
-    # @since 3.4.0
+    # @since 3.3.1
     class SInt64n < SInt64
       # @param [Integer,nil] value
       undef endian=

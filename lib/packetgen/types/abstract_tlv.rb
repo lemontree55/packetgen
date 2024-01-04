@@ -81,7 +81,7 @@ module PacketGen
         # @param [String] field_in_length give fields to compute length on.
         # @return [Class]
         # @since 3.1.4 Add +header_in_length+ parameter
-        # @since 3.4.0 Add +field_order+ and +field_in_length' parameters. Deprecate +header_in_length+ parameter.
+        # @since 3.3.1 Add +field_order+ and +field_in_length' parameters. Deprecate +header_in_length+ parameter.
         def create(type_class: Int8Enum, length_class: Int8, value_class: String,
                    aliases: {}, header_in_length: false, field_order: 'TLV', field_in_length: 'V')
           Deprecation.deprecated_option(self, 'create', 'header_in_length', klass_method: true) if header_in_length
