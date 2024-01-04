@@ -23,8 +23,8 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        # Ruby 2.6
-        ruby-version: 2.6
+        # Ruby 2.7
+        ruby-version: 2.7
 
     - name: Set up Bundler
       run: |
