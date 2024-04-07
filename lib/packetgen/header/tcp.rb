@@ -233,7 +233,7 @@ module PacketGen
       def flags2string
         flags = +''
         %w[ns cwr ece urg ack psh rst syn fin].each do |fl|
-          flags << (send("flag_#{fl}?") ? fl[0].upcase : '.')
+          flags << (send(:"flag_#{fl}?") ? fl[0].upcase : '.')
         end
 
         flags

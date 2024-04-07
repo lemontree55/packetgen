@@ -51,7 +51,7 @@ module PacketGen
             next unless attr == :flags
 
             str = Inspect.shift_level
-            value = %i[l m s].map { |f| send("#{f}?") ? f.to_s : '.' }.join
+            value = %i[l m s].map { |f| send(:"#{f}?") ? f.to_s : '.' }.join
             value = '%-16s (0x%02x)' % [value, self.flags]
             str << Inspect::FMT_ATTR % [self[attr].class.to_s.sub(/.*::/, ''),
                                         attr, value]

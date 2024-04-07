@@ -422,9 +422,9 @@ module PacketGen
       return header unless arg.is_a? Hash
 
       arg.each do |key, value|
-        raise ArgumentError, "unknown #{key} attribute for #{klass}" unless header.respond_to? "#{key}="
+        raise ArgumentError, "unknown #{key} attribute for #{klass}" unless header.respond_to?(:"#{key}=")
 
-        header.send "#{key}=", value
+        header.send(:"#{key}=", value)
       end
 
       header

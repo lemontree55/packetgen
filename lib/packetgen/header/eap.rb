@@ -131,7 +131,7 @@ module PacketGen
       # @return [Dot11] may return a subclass object if a more specific class
       #   may be determined
       def read(str)
-        super str
+        super(str)
         return self unless self.instance_of?(EAP)
         return self unless type?
 

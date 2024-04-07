@@ -64,7 +64,7 @@ module PacketGen
           raise ArgumentError, 'not a MAC address' unless bytes.size == 6
 
           6.times do |i|
-            self["a#{i}".to_sym].read(bytes[i].to_i(16))
+            self[:"a#{i}"].read(bytes[i].to_i(16))
           end
           self
         end

@@ -236,7 +236,7 @@ module PacketGen
           fields.delete name
           @field_defs.delete name
           undef_method name if method_defined?(name)
-          undef_method "#{name}=" if method_defined?("#{name}=")
+          undef_method :"#{name}=" if method_defined?(:"#{name}=")
         end
 
         # Update a previously defined field
@@ -309,7 +309,7 @@ module PacketGen
           return if fields.nil?
 
           fields.each do |field, size|
-            undef_method "#{field}="
+            undef_method :"#{field}="
             undef_method(size == 1 ? "#{field}?" : field)
           end
         end
@@ -332,7 +332,7 @@ module PacketGen
             # rubocop:enable Layout/LineContinuationLeadingSpace
           end
 
-          define.delete_at(1) if instance_methods.include? "#{name}=".to_sym
+          define.delete_at(1) if instance_methods.include?(:"#{name}=")
           define.delete_at(0) if instance_methods.include? name
           class_eval define.join("\n")
         end
@@ -393,7 +393,7 @@ module PacketGen
         end
 
         def field_defs_property_from(field, property, options)
-          field_defs[field].send("#{property}=", options.delete(property)) if options.key?(property)
+          field_defs[field].send(:"#{property}=", options.delete(property)) if options.key?(property)
         end
 
         def size_from(args)
@@ -422,9 +422,9 @@ module PacketGen
           initialize_optional field
         end
 
-        self.class.bit_fields.each do |_, hsh|
+        self.class.bit_fields.each_value do |hsh|
           hsh.each_key do |bit_field|
-            self.send "#{bit_field}=", options[bit_field] if options[bit_field]
+            self.send(:"#{bit_field}=", options[bit_field]) if options[bit_field]
           end
         end
       end

@@ -37,7 +37,7 @@ module PacketGen
         # @option options [String] :rdata
         def initialize(dns, options={})
           opts = { name: '.', rrclass: 512, type: 41 }.merge!(options)
-          super dns, opts
+          super(dns, opts)
 
           self.udp_size = options[:udp_size] if options[:udp_size]
           self.ext_rcode = options[:ext_rcode] if options[:ext_rcode]

@@ -124,7 +124,7 @@ module PacketGen
 
         def class2type
           opt_name = self.class.to_s.gsub(/.*::/, '')
-          Option.const_get("#{opt_name}_TYPE") if Option.const_defined? "#{opt_name}_TYPE"
+          Option.const_get(:"#{opt_name}_TYPE") if Option.const_defined? :"#{opt_name}_TYPE"
         end
 
         def initialize_length_if_needed(options)

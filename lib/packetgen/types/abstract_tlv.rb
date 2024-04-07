@@ -71,6 +71,8 @@ module PacketGen
         # @private
         attr_accessor :field_in_length
 
+        # rubocop:disable Metrics/ParameterLists
+
         # Generate a TLV class
         # @param [Class] type_class Class to use for +type+
         # @param [Class] length_class Class to use for +length+
@@ -105,6 +107,7 @@ module PacketGen
 
           klass
         end
+        # rubocop:enable Metrics/ParameterLists
 
         # @!attribute type
         #   @abstract Type attribute for real TLV class

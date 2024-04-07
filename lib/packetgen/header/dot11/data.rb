@@ -76,7 +76,7 @@ module PacketGen
         # @return [String]
         def dst=(mac)
           _src_mac, dst_mac = src_dst_from_mac
-          self.send("#{dst_mac}=", mac)
+          self.send(:"#{dst_mac}=", mac)
         end
 
         # Get source MAC address
@@ -91,7 +91,7 @@ module PacketGen
         # @return [String]
         def src=(mac)
           src_mac, = src_dst_from_mac
-          self.send("#{src_mac}=", mac)
+          self.send(:"#{src_mac}=", mac)
         end
 
         private

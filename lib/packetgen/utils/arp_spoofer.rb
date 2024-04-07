@@ -97,7 +97,7 @@ module PacketGen
       # Start spoofing on all targets added with {#add}.
       # @return [void]
       def start_all
-        @targets.each do |target_ip, _|
+        @targets.each_key do |target_ip|
           activate target_ip
         end
       end
@@ -105,7 +105,7 @@ module PacketGen
       # Stop spoofing on all targets.
       # @return [void]
       def stop_all
-        @targets.each do |target_ip, _|
+        @targets.each_key do |target_ip|
           deactivate target_ip
         end
       end

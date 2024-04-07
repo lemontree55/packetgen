@@ -271,7 +271,7 @@ module PacketGen
       def inspect_frag
         shift = Inspect.shift_level
         str = Inspect.inspect_attribute(:frag, self[:frag])
-        flags = %i[rsv df mf].select { |flag| send("flag_#{flag}?") }.map(&:upcase)
+        flags = %i[rsv df mf].select { |flag| send(:"flag_#{flag}?") }.map(&:upcase)
         flags_str = flags.empty? ? 'none' : flags.join(',')
         str << shift << Inspect::FMT_ATTR % ['', 'flags', flags_str]
         foff = Inspect.int_dec_hex(fragment_offset, 4)

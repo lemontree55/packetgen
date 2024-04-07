@@ -38,14 +38,14 @@ module PacketGen
         def set(fields)
           case self[:value]
           when Proc
-            fields.send "#{self[:key]}=", self[:value].call(nil)
+            fields.send(:"#{self[:key]}=", self[:value].call(nil))
           else
             attr = if self[:key].to_s.end_with?('?')
                      self[:key].to_s[0..-2]
                    else
                      self[:key]
                    end
-            fields.send "#{attr}=", self[:value]
+            fields.send(:"#{attr}=", self[:value])
           end
         end
       end

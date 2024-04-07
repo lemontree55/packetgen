@@ -256,7 +256,7 @@ module PacketGen
       private
 
       def inspect_flags
-        flags = %i[qr aa tc rd ra].select! { |flag| send "#{flag}?" }.map(&:to_s).join(',')
+        flags = %i[qr aa tc rd ra].select! { |flag| send(:"#{flag}?") }.map(&:to_s).join(',')
         str = Inspect.shift_level
         str << Inspect::FMT_ATTR % ['Flags', 'flags', flags]
       end
