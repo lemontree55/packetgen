@@ -5,6 +5,8 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
+require_relative 'parameter'
+
 module PacketGen
   module Header
     class SCTP
@@ -21,18 +23,18 @@ module PacketGen
           'DATA' => 0,
           'INIT' => 1,
           'INIT_ACK' => 2,
-          'SACK' => 3,
-          'HEARTBEAT' => 4,
-          'HEARTBEAT_ACK' => 5,
-          'ABORT' => 6,
-          'SHUTDOWN' => 7,
-          'SHUTDOWN_ACK' => 8,
-          'ERROR' => 9,
-          'COOKIE_ECHO' => 10,
-          'COOKIE_ACK' => 11,
-          'ECNE' => 12,
-          'CWR' => 13,
-          'SHUTDOWN_COMPLETE' => 14,
+          # 'SACK' => 3,
+          # 'HEARTBEAT' => 4,
+          # 'HEARTBEAT_ACK' => 5,
+          # 'ABORT' => 6,
+          # 'SHUTDOWN' => 7,
+          # 'SHUTDOWN_ACK' => 8,
+          # 'ERROR' => 9,
+          # 'COOKIE_ECHO' => 10,
+          # 'COOKIE_ACK' => 11,
+          # 'ECNE' => 12,
+          # 'CWR' => 13,
+          # 'SHUTDOWN_COMPLETE' => 14,
         }.freeze
 
         # @!attribute type
@@ -171,6 +173,92 @@ module PacketGen
         #  ENDING fragment flag
         #  @return [Boolean]
         define_bit_fields_on :flags, :flag_res, 4, :flag_i, :flag_u, :flag_b, :flag_e
+      end
+
+      # Init Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 1    |  Chunk Flags  |      Chunk Length             |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                         Initiate Tag                          |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |          Advertised Receiver Window Credit (a_rwnd)           |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |  Number of Outbound Streams   |   Number of Inbound Streams   |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                          Initial TSN                          |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  \                                                               \
+      #  /              Optional/Variable-Length Parameters              /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      class InitChunk < BaseChunk
+        # @!attribute initiate_tag
+        #   32-bit Initiate Tag
+        #   @return [Integer]
+        define_field :initiate_tag, Types::Int32
+        # @!attribute a_wrnd
+        #   32-bit Advertised Receiver Window Credit (a_rwnd)
+        #   @return [Integer]
+        define_field :a_rwnd, Types::Int32
+        # @!attribute nos
+        #   16-bit Number of Outbound Streams
+        #   @return [Integer]
+        define_field :nos, Types::Int16
+        # @!attribute nis
+        #   16-bit Number of Inbound Streams
+        #   @return [Integer]
+        define_field :nis, Types::Int16
+        # @!attribute initial_tsn
+        #   32-bit Initial TSN
+        #   @return [Integer]
+        define_field :initial_tsn, Types::Int32
+        # @!attribute parameters
+        #  List of parameters
+        #  @retirn [ArrayOfParameters]
+        define_field :parameters, ArrayOfParameters
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['INIT'] unless options.key?(:type)
+          super
+        end
+
+        # Calculate lengths, including parameters ones.
+        # @return [void]
+        def calc_length
+          parameters.each(&:calc_length)
+          super
+        end
+
+        def to_human
+          str = +"<chunk:#{human_type}"
+          flags_str = flags_to_human
+          str << ",flags:#{flags_str}" unless flags_str.empty?
+          str << ",param:#{parameters.map(&:to_human).join(',')}" unless parameters.empty?
+          str << '>'
+        end
+      end
+
+      # InitAck Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 1    |  Chunk Flags  |      Chunk Length             |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                         Initiate Tag                          |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |          Advertised Receiver Window Credit (a_rwnd)           |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |  Number of Outbound Streams   |   Number of Inbound Streams   |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                          Initial TSN                          |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  \                                                               \
+      #  /              Optional/Variable-Length Parameters              /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      class InitAckChunk < InitChunk
       end
     end
   end
