@@ -195,20 +195,18 @@ module PacketGen
 
       # @abstract Should only be called on real TLV class instances.
       # Set +value+. May set +length+ if value is a {Types::String}.
-      # @param [::String,Integer] val
-      # @return [::String,Integer]
+      # @param [Object] val
+      # @return [Object]
+      # @since 3.4.0 Base on field's +#from_human+ method
       def value=(val)
-        self[:value].from_human(val)
-
-        fil = @field_in_length
-        fil = 'TLV' if @header_in_length
-
-        length = 0
-        fil.each_char do |field_type|
-          length += self[FIELD_TYPES[field_type]].sz
+        if val.is_a?(self[:value].class)
+          self[:value] = val
+        elsif self[:value].respond_to?(:from_human)
+          self[:value].from_human(val)
+        else
+          self[:value].read(val)
         end
-        self.length = length
-
+        calc_length
         val
       end
 
@@ -224,6 +222,20 @@ module PacketGen
       def to_human
         my_value = self[:value].is_a?(String) ? self[:value].inspect : self[:value].to_human
         'type:%s,length:%u,value:%s' % [human_type, length, my_value]
+      end
+
+      # Calculate length
+      # @return [void]
+      # @since 3.4.0
+      def calc_length
+        fil = @field_in_length
+        fil = 'TLV' if @header_in_length
+
+        length = 0
+        fil.each_char do |field_type|
+          length += self[FIELD_TYPES[field_type]].sz
+        end
+        self.length = length
       end
 
       private
