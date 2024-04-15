@@ -50,11 +50,14 @@ module PacketGen
         #  @return [Integer]
         define_field :length, Types::Int16
 
+        alias old_to_s to_s
+        private :old_to_s
+
         # Convert Chunk to its binary representation. Automatically
         # add padding
         # @return [Strung]
         def to_s
-          data = super
+          data = old_to_s
           padlen = -(data.size % -4)
           data << ([0] * padlen).pack('C*')
         end
@@ -64,11 +67,8 @@ module PacketGen
         def to_human
           str = +"<chunk:#{human_type}"
           flags_str = flags_to_human
-          str << if flags_str.empty?
-                   '>'
-                 else
-                   ",#{flags_to_human}>"
-                 end
+          str << ",flags:#{flags_str}" unless flags_str.empty?
+          str << '>'
         end
 
         # @return [String,Integer]
@@ -79,7 +79,7 @@ module PacketGen
         # Compute length from value content
         # @note: chunk length includes type, flags and length fields
         def calc_length
-          Base.calculate_and_set_length(self)
+          self.length = old_to_s.size
         end
 
         private
@@ -173,6 +173,17 @@ module PacketGen
         #  ENDING fragment flag
         #  @return [Boolean]
         define_bit_fields_on :flags, :flag_res, 4, :flag_i, :flag_u, :flag_b, :flag_e
+
+        private
+
+        def flags_to_human
+          flags = +'....'
+          flags[0] = 'i' if flag_i?
+          flags[1] = 'u' if flag_u?
+          flags[2] = 'b' if flag_b?
+          flags[3] = 'e' if flag_e?
+          flags
+        end
       end
 
       # Init Chunk
