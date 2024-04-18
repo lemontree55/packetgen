@@ -23,7 +23,7 @@ module PacketGen
           'DATA' => 0,
           'INIT' => 1,
           'INIT_ACK' => 2,
-          # 'SACK' => 3,
+          'SACK' => 3,
           # 'HEARTBEAT' => 4,
           # 'HEARTBEAT_ACK' => 5,
           # 'ABORT' => 6,
@@ -270,6 +270,71 @@ module PacketGen
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       class InitAckChunk < InitChunk
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['INIT_ACK'] unless options.key?(:type)
+          super
+        end
+      end
+
+      # Selective Acknowledge Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 3    |  Chunk Flags  |         Chunk Length          |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                      Cumulative TSN Ack                       |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |          Advertised Receiver Window Credit (a_rwnd)           |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  | Number of Gap Ack Blocks = N  |  Number of Duplicate TSNs = M |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |    Gap Ack Block #1 Start     |     Gap Ack Block #1 End      |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  /                                                               /
+      #  \                              ...                              \
+      #  /                                                               /
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |    Gap Ack Block #N Start     |     Gap Ack Block #N End      |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                        Duplicate TSN 1                        |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  /                                                               /
+      #  \                              ...                              \
+      #  /                                                               /
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                        Duplicate TSN M                        |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      class SackChunk < BaseChunk
+        # @!attribute ctsn_ack
+        #   32-bit Cumulative TSN Ack
+        #   @return [Integer]
+        define_field :ctsn_ack, Types::Int32
+        # @!attribute a_rwnd
+        #   32-bit Advertised Receiver Window Credit
+        #   @return [Integer]
+        define_field :a_rwnd, Types::Int32
+        # @!attribute num_gap
+        #   16-bit Number of Gap Ack Blocks
+        #   @return [Integer]
+        define_field :num_gap, Types::Int32
+        # @!attribute num_dup_tsn
+        #   16-bit Number of Duplicate TSNs
+        #   @return [Integer]
+        define_field :num_dup_tsn, Types::Int32
+        # @!attribute gaps
+        #   Array of 32-bit Integers, encoding boudaries of a Gap Ack Block.
+        #   16 most significant bits encode block start. 16 least significant bits encode block end.
+        #   @return [Types::ArrayOfInt32]
+        define_field :gaps, Types::ArrayOfInt32
+        # @!attribute dup_tsns
+        #   Array of 32-bit Duplicate TSNs.
+        #   @return [Types::ArrayOfInt32]
+        define_field :dup_tsns, Types::ArrayOfInt32
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['SACK'] unless options.key?(:type)
+          super
+        end
       end
     end
   end
