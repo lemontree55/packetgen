@@ -24,8 +24,8 @@ module PacketGen
           'INIT' => 1,
           'INIT_ACK' => 2,
           'SACK' => 3,
-          # 'HEARTBEAT' => 4,
-          # 'HEARTBEAT_ACK' => 5,
+          'HEARTBEAT' => 4,
+          'HEARTBEAT_ACK' => 5,
           # 'ABORT' => 6,
           # 'SHUTDOWN' => 7,
           # 'SHUTDOWN_ACK' => 8,
@@ -333,6 +333,45 @@ module PacketGen
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['SACK'] unless options.key?(:type)
+          super
+        end
+      end
+
+      # Heartbeat Request Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 4    |  Chunk Flags  |       Heartbeat Length        |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  \                                                               \
+      #  /          Heartbeat Information TLV (Variable-Length)          /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      class HeartbeatChunk < BaseChunk
+        # @!attribute info
+        #   Array of Heartbeat information TLV.
+        #   @return [Types::ArrayOfInt32]
+        define_field :info, HearbeatInfoParameter
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['HEARTBEAT'] unless options.key?(:type)
+          super
+        end
+      end
+
+      # Heartbeat Acknoledgement Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 4    |  Chunk Flags  |       Heartbeat Length        |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  \                                                               \
+      #  /          Heartbeat Information TLV (Variable-Length)          /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      class HeartbeatAckChunk < HeartbeatChunk
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['HEARTBEAT_ACK'] unless options.key?(:type)
           super
         end
       end

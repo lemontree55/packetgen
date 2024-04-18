@@ -183,6 +183,16 @@ module PacketGen
       end
       ECNParameter.define_type_enum(Parameter::TYPES)
 
+      # Heartbeat Information parameter
+      HearbeatInfoParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
+                                                        length_class: Types::Int16,
+                                                        field_in_length: 'TLV')
+
+      class HearbeatInfoParameter
+        include ParameterMixin
+      end
+      HearbeatInfoParameter.define_type_enum({ 'HearbeatInfo' => 1 }.freeze)
+
       class ArrayOfParameters < Types::Array
         set_of Parameter
 
