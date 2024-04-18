@@ -175,13 +175,16 @@ module PacketGen
         super
         # used #value= defined below, which set length if needed
         self.value = options[:value] if options[:value]
+        calc_length unless options.key?(:length)
       end
 
       # @abstract Should only be called on real TLV class instances.
       # Populate object from a binary string
-      # @param [String] str
+      # @param [String,nil] str
       # @return [Fields] self
       def read(str)
+        return self if str.nil?
+
         idx = 0
         fields.each do |field_name|
           field = self[field_name]
