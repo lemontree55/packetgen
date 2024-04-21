@@ -32,13 +32,83 @@ module PacketGen
       end
 
       describe '#read' do
+        let(:raw_packets) { read_raw_packets('sctp.pcapng') }
         it 'sets header from a string' do
-          data = read_raw_packets('sctp.pcapng')[0]
-          pkt = PacketGen.parse(data)
+          pkt = PacketGen.parse(raw_packets[0])
           expect(pkt.sctp.dport).to eq(80)
           expect(pkt.sctp.chunks.size).to eq(1)
           expect(pkt.sctp.chunks.first.type).to eq(1)
           expect(pkt.sctp.chunks.first.human_type).to eq('INIT')
+        end
+
+        it 'sets INIT chunk' do
+          pkt = PacketGen.parse(raw_packets[0])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::InitChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['INIT'])
+          expect(chunk.length).to eq(60)
+          expect(chunk.initiate_tag).to eq(0x3bb99c46)
+          expect(chunk.a_rwnd).to eq(106_496)
+          expect(chunk.nos).to eq(10)
+          expect(chunk.nis).to eq(65_535)
+          expect(chunk.initial_tsn).to eq(724_401_842)
+
+          expect(chunk.parameters[0]).to be_a(SCTP::IPv4Parameter)
+          expect(chunk.parameters[0].value).to eq('155.230.24.155')
+          expect(chunk.parameters[1]).to be_a(SCTP::IPv4Parameter)
+          expect(chunk.parameters[1].value).to eq('155.230.24.156')
+          expect(chunk.parameters[2]).to be_a(SCTP::SupportedAddrTypesParameter)
+          expect(chunk.parameters[2].value.map(&:to_i)).to eq([5])
+          expect(chunk.parameters[3]).to be_a(SCTP::ECNParameter)
+          expect(chunk.parameters[4]).to be_a(SCTP::Parameter)
+          expect(chunk.parameters[4].type).to eq(0xc000)
+          expect(chunk.parameters[5]).to be_a(SCTP::Parameter)
+          expect(chunk.parameters[5].type).to eq(0xc006)
+          expect(chunk.parameters[5].value).to eq([0].pack('N'))
+        end
+
+        it 'sets INIT ACK chunk' do
+          pkt = PacketGen.parse(raw_packets[1])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::InitAckChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['INIT_ACK'])
+          expect(chunk.initiate_tag).to eq(0xd26ac1e5)
+          expect(chunk.a_rwnd).to eq(106_496)
+          expect(chunk.nos).to eq(10)
+          expect(chunk.nis).to eq(10)
+          expect(chunk.initial_tsn).to eq(1_677_732_374)
+
+          expect(chunk.parameters[0]).to be_a(SCTP::StateCookieParameter)
+          expect(chunk.parameters[0].length).to eq(196)
+          expect(chunk.parameters[0].value[0, 2]).to eq(binary("\xb3\x49"))
+          expect(chunk.parameters[0].value[-2, 2]).to eq(binary("\x00\x00"))
+        end
+
+        it 'sets DATA chunk' do
+          pkt = PacketGen.parse(raw_packets[4])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::DataChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['DATA'])
+          expect(chunk.flags).to eq(3)
+          expect(chunk.length).to eq(419)
+          expect(chunk.tsn).to eq(0x2b2d7eb2)
+          expect(chunk.stream_id).to eq(0)
+          expect(chunk.stream_sn).to eq(0)
+          expect(chunk.ppid).to eq(0)
+          expect(chunk.body).to start_with('GET /')
+        end
+
+        it 'sets SACK chunk' do
+          pkt = PacketGen.parse(raw_packets[5])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::SackChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['SACK'])
+          expect(chunk.flags).to eq(0)
+          expect(chunk.length).to eq(16)
+          expect(chunk.ctsn_ack).to eq(0x2b2d7eb2)
+          expect(chunk.a_rwnd).to eq(0x19e6d)
+          expect(chunk.num_gap).to eq(0)
+          expect(chunk.num_dup_tsn).to eq(0)
         end
       end
 
