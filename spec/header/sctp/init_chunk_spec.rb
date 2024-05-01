@@ -1,6 +1,6 @@
 require_relative '../../spec_helper'
 
-INIT_CHUNK_WITH_PARAMS = '<chunk:INIT,param:<IPv4: 92.168.52.17>,<IPv6: 2c00:5d3::42>,<StateCookie: "cookie">,<Unrecognized: <type:<unknown:42>,length:7,value:"abc">,<Hostname: www.example.com>,<SupportedAddrTypes: IPv4,IPv6>,<CookiePreservative: 1545>,<ECN>>'
+INIT_CHUNK_WITH_PARAMS = '<chunk:INIT,param:<IPv4: 92.168.52.17>,<IPv6: 2c00:5d3::42>,<StateCookie: "cookie">,<Unrecognized: <<unknown:42>: "abc">,<Hostname: www.example.com>,<SupportedAddrTypes: IPv4,IPv6>,<CookiePreservative: 1545>,<ECN>>'
 
 module PacketGen
   module Header

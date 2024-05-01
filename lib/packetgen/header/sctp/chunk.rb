@@ -90,7 +90,7 @@ module PacketGen
       end
 
       # Embed chunks for a given {SCTP} packet.
-      class ArrayOfChunks < Types::Array
+      class ArrayOfChunk < Types::Array
         set_of BaseChunk
 
         private
@@ -227,8 +227,8 @@ module PacketGen
         define_field :initial_tsn, Types::Int32
         # @!attribute parameters
         #  List of parameters
-        #  @retirn [ArrayOfParameters]
-        define_field :parameters, ArrayOfParameters
+        #  @retirn [ArrayOfParameter]
+        define_field :parameters, ArrayOfParameter
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['INIT'] unless options.key?(:type)

@@ -60,8 +60,8 @@ module PacketGen
       define_field :checksum, Types::Int32le
       # @!attribute chunks
       #  List of chunks this packet transports
-      #  @return [ArrayOfChunks]
-      define_field :chunks, ArrayOfChunks
+      #  @return [ArrayOfChunk]
+      define_field :chunks, ArrayOfChunk
 
       # Compute SCTP checksum
       # @todo
