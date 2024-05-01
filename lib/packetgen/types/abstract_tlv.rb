@@ -121,11 +121,20 @@ module PacketGen
 
         # @abstract Should only be called on real TLV classes, created by {.create}.
         # Set enum hash for {#type} field.
-        # @param [Hash] hsh enum hash
+        # @param [Hash{String, Symbol => Integer}] hsh enum hash
         # @return [void]
         def define_type_enum(hsh)
           field_defs[:type][:enum].clear
           field_defs[:type][:enum].merge!(hsh)
+        end
+
+        # @abstract Should only be called on real TLV classes, created by {.create}.
+        # Set default value for {#type} field.
+        # @param [Integer,String,Symbol,nil] default_type default value from +hsh+ for type
+        # @return [void]
+        # @since 3.4.0
+        def define_type_default(default)
+          field_defs[:type][:default] = default
         end
 
         private
