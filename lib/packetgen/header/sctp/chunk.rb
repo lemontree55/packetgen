@@ -5,7 +5,7 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
-require_relative 'parameter'
+require_relative 'padded32'
 
 module PacketGen
   module Header
@@ -17,7 +17,10 @@ module PacketGen
       #  |  Chunk Type   |  Chunk Flags  |         Chunk Length          |
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @abstract Subclass and add more fields
+      # @author Sylvain Daubert
       class BaseChunk < Base
+        include Padded32
+
         # SCTP chunk types, as per RFC9260
         TYPES = {
           'DATA' => 0,
@@ -26,10 +29,10 @@ module PacketGen
           'SACK' => 3,
           'HEARTBEAT' => 4,
           'HEARTBEAT_ACK' => 5,
-          # 'ABORT' => 6,
+          'ABORT' => 6,
           # 'SHUTDOWN' => 7,
           # 'SHUTDOWN_ACK' => 8,
-          # 'ERROR' => 9,
+          'ERROR' => 9,
           # 'COOKIE_ECHO' => 10,
           # 'COOKIE_ACK' => 11,
           # 'ECNE' => 12,
@@ -50,18 +53,6 @@ module PacketGen
         #  @return [Integer]
         define_field :length, Types::Int16
 
-        alias old_to_s to_s
-        private :old_to_s
-
-        # Convert Chunk to its binary representation. Automatically
-        # add padding
-        # @return [Strung]
-        def to_s
-          data = old_to_s
-          padlen = -(data.size % -4)
-          data << ([0] * padlen).pack('C*')
-        end
-
         # Get human-redable chunk
         # @return [String]
         def to_human
@@ -76,10 +67,11 @@ module PacketGen
           self[:type].to_human
         end
 
-        # Compute length from value content
-        # @note: chunk length includes type, flags and length fields
+        # Calculate and set chunk length
+        # @todo do not count last parameter padding
+        # @return [Integer]
         def calc_length
-          self.length = old_to_s.size
+          self.length = to_s(no_padding: true).size
         end
 
         private
@@ -88,8 +80,19 @@ module PacketGen
           ''
         end
       end
+    end
+  end
+end
+
+require_relative 'parameter'
+require_relative 'error'
+
+module PacketGen
+  module Header
+    class SCTP
 
       # Embed chunks for a given {SCTP} packet.
+      # @author Sylvain Daubert
       class ArrayOfChunk < Types::Array
         set_of BaseChunk
 
@@ -115,6 +118,7 @@ module PacketGen
       #  /                          Chunk Value                          /
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class UnknownChunk < BaseChunk
         # @!attribute body
         #  SCTP chunk value
@@ -138,6 +142,7 @@ module PacketGen
       #  /                 User Data (seq n of Stream S)                 /
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class DataChunk < BaseChunk
         # @!attribute tsn
         #   32-bit TSN for this DATA chunk
@@ -204,6 +209,7 @@ module PacketGen
       #  /              Optional/Variable-Length Parameters              /
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class InitChunk < BaseChunk
         # @!attribute initiate_tag
         #   32-bit Initiate Tag
@@ -269,6 +275,7 @@ module PacketGen
       #  /              Optional/Variable-Length Parameters              /
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class InitAckChunk < InitChunk
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['INIT_ACK'] unless options.key?(:type)
@@ -304,6 +311,7 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #  |                        Duplicate TSN M                        |
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class SackChunk < BaseChunk
         # @!attribute ctsn_ack
         #   32-bit Cumulative TSN Ack
@@ -347,6 +355,7 @@ module PacketGen
       #  /          Heartbeat Information TLV (Variable-Length)          /
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class HeartbeatChunk < BaseChunk
         # @!attribute info
         #   Array of Heartbeat information TLV.
@@ -369,10 +378,77 @@ module PacketGen
       #  /          Heartbeat Information TLV (Variable-Length)          /
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
       class HeartbeatAckChunk < HeartbeatChunk
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['HEARTBEAT_ACK'] unless options.key?(:type)
           super
+        end
+      end
+
+      # Operation Error Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 9    |  Chunk Flags  |            Length             |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  \                                                               \
+      #  /                   zero or more Error Causes                   /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class ErrorChunk < BaseChunk
+        # @!attribute error_causes
+        #  @return [Types::String]
+        define_field :error_causes, ArrayOfError
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['ERROR'] unless options.key?(:type)
+          super
+        end
+
+        # Calculate lengths, including parameters ones.
+        # @return [void]
+        def calc_length
+          error_causes.each(&:calc_length)
+          super
+        end
+
+        # @return [String]
+        def to_human
+          str = +"<chunk:#{human_type}"
+          flags_str = flags_to_human
+          str << ",flags:#{flags_str}" unless flags_str.empty?
+          str << ",causes:#{error_causes.map(&:to_human).join(',')}" unless error_causes.empty?
+          str << '>'
+        end
+      end
+
+      # Abort Association Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 6    |  Reserved   |T|            Length             |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  \                                                               \
+      #  /                   zero or more Error Causes                   /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class AbortChunk < ErrorChunk
+        # @!attribute flag_t
+        #  @return [Boolean]
+        define_bit_fields_on :flags, :flag_res, 7, :flag_t
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['ABORT'] unless options.key?(:type)
+          super
+        end
+
+        private
+
+        def flags_to_human
+          flag_t? ? 't' : '.'
         end
       end
     end

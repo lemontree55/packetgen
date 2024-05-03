@@ -9,20 +9,7 @@ module PacketGen
   module Header
     class SCTP
       module ParameterMixin
-        # Handle padding
-        # @return [::String]
-        def to_s
-          s = super
-          padlen = -(s.size % -4)
-          s << force_binary("\x00" * padlen)
-        end
-
-        # Handle padding length
-        # @return [Integer]
-        def sz
-          size = super
-          size + (size % -4)
-        end
+        include Padded32
 
         # Get parameter name
         # @return [String]
@@ -93,6 +80,7 @@ module PacketGen
         include ParameterMixin
       end
       IPv6Parameter.define_type_enum(Parameter::TYPES)
+      IPv6Parameter.define_type_default('IPv6')
 
       StateCookieParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                        length_class: Types::Int16,
@@ -108,6 +96,7 @@ module PacketGen
         end
       end
       StateCookieParameter.define_type_enum(Parameter::TYPES)
+      StateCookieParameter.define_type_default('StateCookie')
 
       UnrecognizedParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                         length_class: Types::Int16,
@@ -123,6 +112,7 @@ module PacketGen
         end
       end
       UnrecognizedParameter.define_type_enum(Parameter::TYPES)
+      UnrecognizedParameter.define_type_default('Unrecognized')
 
       HostnameParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                     length_class: Types::Int16,
@@ -134,6 +124,7 @@ module PacketGen
         include ParameterMixin
       end
       HostnameParameter.define_type_enum(Parameter::TYPES)
+      HostnameParameter.define_type_default('Hostname')
 
       SupportedAddrTypesParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                               length_class: Types::Int16,
@@ -152,6 +143,7 @@ module PacketGen
         end
       end
       SupportedAddrTypesParameter.define_type_enum(Parameter::TYPES)
+      SupportedAddrTypesParameter.define_type_default('SupportedAddrTypes')
 
       CookiePreservativeParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                               length_class: Types::Int16,
@@ -167,6 +159,7 @@ module PacketGen
         end
       end
       CookiePreservativeParameter.define_type_enum(Parameter::TYPES)
+      CookiePreservativeParameter.define_type_default('CookiePreservative')
 
       ECNParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                length_class: Types::Int16,
@@ -181,6 +174,7 @@ module PacketGen
         end
       end
       ECNParameter.define_type_enum(Parameter::TYPES)
+      ECNParameter.define_type_default('ECN')
 
       HearbeatInfoParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
                                                         length_class: Types::Int16,
@@ -191,6 +185,7 @@ module PacketGen
         include ParameterMixin
       end
       HearbeatInfoParameter.define_type_enum({ 'HearbeatInfo' => 1 }.freeze)
+      HearbeatInfoParameter.define_type_default('HearbeatInfo')
 
       # Array of {Parameter}s and {ParameterMixin}.
       class ArrayOfParameter < Types::Array

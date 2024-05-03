@@ -64,7 +64,6 @@ module PacketGen
       define_field :chunks, ArrayOfChunk
 
       # Compute SCTP checksum
-      # @todo
       def calc_checksum
         self.checksum = 0
         crc32c = Digest::CRC32c.new
