@@ -8,6 +8,8 @@
 module PacketGen
   module Header
     class SCTP
+      # Common methods to all error causes
+      # @author Sylvain Daubert
       module ErrorMixin
         include Padded32
 
@@ -28,6 +30,7 @@ module PacketGen
                                         field_in_length: 'TLV')
 
       # Base class/factory for {AbortChunk} and {ErrorChunk} error causes
+      # @author Sylvain Daubert
       class Error
         include ErrorMixin
 
@@ -60,16 +63,18 @@ module PacketGen
       Error.define_type_enum(Error::TYPES)
 
       # Handle array of {Error} and {ErrorMixin} classes.
+      # @author Sylvain Daubert
       class ArrayOfError < Types::Array
         set_of Error
 
         private
 
+        # @param [Error,ErrorMixin] error
         def real_type(error)
           type_name = Error::TYPES.key(error.type)
           return error.class if type_name.nil?
 
-          SCTP.const_get(real_klass_name(type_name)) || param.class
+          SCTP.const_get(real_klass_name(type_name)) || error.class
         end
 
         def real_klass_name(type_name)
@@ -83,6 +88,7 @@ module PacketGen
                                                        field_in_length: 'TLV')
 
       # InvalidStreamIdentifier error
+      # @author Sylvain Daubert
       class InvalidStreamIdError
         include ErrorMixin
 
@@ -100,7 +106,7 @@ module PacketGen
           stream_id
         end
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}: #{stream_identifier}>"
         end
@@ -122,10 +128,11 @@ module PacketGen
       # MissingMandatoryParameter error. Indicate that one or more
       # mandatory TLV parameters are missing in a received {InitChunk}
       # or {InitAckChunk}.
+      # @author Sylvain Daubert
       class MissingMandatoryParameterError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
@@ -140,6 +147,7 @@ module PacketGen
 
       # StaleCookie error. Indicates the receipt of a valid State Cookie that
       # has expired.
+      # @author Sylvain Daubert
       class StaleCookieError
         include ErrorMixin
       end
@@ -151,9 +159,11 @@ module PacketGen
                                                      field_in_length: 'TLV')
 
       # Out of ressource error. Indicates that the sender is out of resource.
+      # @author Sylvain Daubert
       class OutOfResourceError
         include ErrorMixin
 
+        # @return [::String]
         def to_human
           "<#{error_name}>"
         end
@@ -167,6 +177,7 @@ module PacketGen
                                                            field_in_length: 'TLV')
 
       # Out of ressource error. Indicates that the sender is out of resource.
+      # @author Sylvain Daubert
       class UnresolvableAddressError
         include ErrorMixin
 
@@ -183,7 +194,7 @@ module PacketGen
           end
         end
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
@@ -198,10 +209,11 @@ module PacketGen
 
       # Unrecognized chunk type error. The receiver does not understand the chunk and the upper bits of the 'Chunk Type'
       # are set to 01 or 11.
+      # @author Sylvain Daubert
       class UnrecognizedChunkTypeError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
@@ -215,10 +227,11 @@ module PacketGen
 
       # Invalid mandatory parameter error. Returned to the originator of an INIT or INIT ACK chunk when one of the
       # mandatory parameters is set to an invalid value.
+      # @author Sylvain Daubert
       class InvalidMandatoryParameterError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}>"
         end
@@ -233,10 +246,11 @@ module PacketGen
 
       # Unrecognized parameters error. Returned to the originator of the INIT ACK chunk if the receiver does not
       # recognize one or more Optional TLV parameters in the INIT ACK chunk.
+      # @author Sylvain Daubert
       class UnrecognizedParametersError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
@@ -250,6 +264,7 @@ module PacketGen
                                                   field_in_length: 'TLV')
 
       # No user data error. Returned when a received {DataChunk} was received with no data.
+      # @author Sylvain Daubert
       class NoUserDataError
         include ErrorMixin
       end
@@ -262,10 +277,11 @@ module PacketGen
 
       # Cookie received while shutting down error.
       # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
+      # @author Sylvain Daubert
       class CookieReceivedWhileShuttingDownError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}>"
         end
@@ -280,10 +296,11 @@ module PacketGen
 
       # Cookie received while shutting down error.
       # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
+      # @author Sylvain Daubert
       class RestartAssociationWithNewAddressError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
@@ -296,10 +313,11 @@ module PacketGen
                                                           field_in_length: 'TLV')
 
       # User-Initiated abort error.
+      # @author Sylvain Daubert
       class UserInitiatedAbortError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}>"
         end
@@ -312,10 +330,11 @@ module PacketGen
                                                          field_in_length: 'TLV')
 
       # Protocol violation error.
+      # @author Sylvain Daubert
       class ProtocolViolationError
         include ErrorMixin
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{error_name}>"
         end

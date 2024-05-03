@@ -54,7 +54,7 @@ module PacketGen
         define_field :length, Types::Int16
 
         # Get human-redable chunk
-        # @return [String]
+        # @return [::String]
         def to_human
           str = +"<chunk:#{human_type}"
           flags_str = flags_to_human
@@ -62,7 +62,7 @@ module PacketGen
           str << '>'
         end
 
-        # @return [String,Integer]
+        # @return [::String,Integer]
         def human_type
           self[:type].to_human
         end
@@ -90,7 +90,6 @@ require_relative 'error'
 module PacketGen
   module Header
     class SCTP
-
       # Embed chunks for a given {SCTP} packet.
       # @author Sylvain Daubert
       class ArrayOfChunk < Types::Array
@@ -233,7 +232,7 @@ module PacketGen
         define_field :initial_tsn, Types::Int32
         # @!attribute parameters
         #  List of parameters
-        #  @retirn [ArrayOfParameter]
+        #  @return [ArrayOfParameter]
         define_field :parameters, ArrayOfParameter
 
         def initialize(options={})
@@ -248,6 +247,7 @@ module PacketGen
           super
         end
 
+        # @return [::String]
         def to_human
           str = +"<chunk:#{human_type}"
           flags_str = flags_to_human
@@ -414,7 +414,7 @@ module PacketGen
           super
         end
 
-        # @return [String]
+        # @return [::String]
         def to_human
           str = +"<chunk:#{human_type}"
           flags_str = flags_to_human

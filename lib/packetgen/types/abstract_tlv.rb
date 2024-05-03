@@ -130,7 +130,7 @@ module PacketGen
 
         # @abstract Should only be called on real TLV classes, created by {.create}.
         # Set default value for {#type} field.
-        # @param [Integer,String,Symbol,nil] default_type default value from +hsh+ for type
+        # @param [Integer,String,Symbol,nil] default default value from +hsh+ for type
         # @return [void]
         # @since 3.4.0
         def define_type_default(default)
@@ -168,6 +168,16 @@ module PacketGen
           end
         end
       end
+
+      # @!attribute type
+      #   @abstract Type attribute
+      #   @return [Integer]
+      # @!attribute length
+      #   @abstract Length
+      #   @return [Integer]
+      # @!attribute value
+      #   @abstract Value attribute
+      #   @return [Object]
 
       # @abstract Should only be called on real TLV classes, created by {.create}.
       # @param [Hash] options

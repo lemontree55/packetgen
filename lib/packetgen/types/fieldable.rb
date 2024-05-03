@@ -55,7 +55,7 @@ module PacketGen
 
       # rubocop:enable Lint/UselessMethodDefinition
 
-      # Format object when inspecting a {Field} object
+      # Format object when inspecting a {Fields} object
       # @return [String]
       def format_inspect
         to_human

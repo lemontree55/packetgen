@@ -11,7 +11,7 @@ module PacketGen
       # @!parse
       #  # DNS option is a TLV object:
       #  # * {#code} is a {Types::Int16},
-      #  # * {#length #length} is a {Types::Int16},
+      #  # * {#length} is a {Types::Int16},
       #  # * {#data} is a {Types::String}.
       #  #
       #  # @since 1.3.0

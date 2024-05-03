@@ -8,6 +8,8 @@
 module PacketGen
   module Header
     class SCTP
+      # Common methods to Init and InitAck parameters
+      # @author Sylvain Daubert
       module ParameterMixin
         include Padded32
 
@@ -27,6 +29,7 @@ module PacketGen
                                             length_class: Types::Int16,
                                             field_in_length: 'TLV')
       # Base class/factory for {InitChunk} and {InitAckChunk} parameters
+      # @author Sylvain Daubert
       class Parameter
         include ParameterMixin
 
@@ -42,7 +45,7 @@ module PacketGen
           'ECN' => 32_768
         }.freeze
 
-        # @return [String]
+        # @return [::String]
         def to_human
           "<#{human_type}: #{self[:value].inspect}>"
         end
@@ -64,6 +67,7 @@ module PacketGen
                                                 field_in_length: 'TLV')
 
       # IPv4 address parameter
+      # @author Sylvain Daubert
       class IPv4Parameter
         include ParameterMixin
       end
@@ -76,6 +80,7 @@ module PacketGen
                                                 field_in_length: 'TLV')
 
       # IPv6 address parameter
+      # @author Sylvain Daubert
       class IPv6Parameter
         include ParameterMixin
       end
@@ -88,9 +93,11 @@ module PacketGen
                                                        field_in_length: 'TLV')
 
       # State Cookie parameter
+      # @author Sylvain Daubert
       class StateCookieParameter
         include ParameterMixin
 
+        # @return [::String]
         def to_human
           "<#{parameter_name}: #{self[:value].inspect}>"
         end
@@ -104,9 +111,11 @@ module PacketGen
                                                         field_in_length: 'TLV')
 
       # Unrecognized parameter
+      # @author Sylvain Daubert
       class UnrecognizedParameter
         include ParameterMixin
 
+        # @return [::String]
         def to_human
           "<#{parameter_name}: #{self[:value].to_human}"
         end
@@ -120,6 +129,7 @@ module PacketGen
                                                     field_in_length: 'TLV')
 
       # Hostname address parameter
+      # @author Sylvain Daubert
       class HostnameParameter
         include ParameterMixin
       end
@@ -132,9 +142,11 @@ module PacketGen
                                                               field_in_length: 'TLV')
 
       # Supported address types parameter
+      # @author Sylvain Daubert
       class SupportedAddrTypesParameter
         include ParameterMixin
 
+        # @return [::String]
         def to_human
           types = self[:value].map(&:to_i).map do |int16|
             Parameter::TYPES.key(int16) || int16.to_s
@@ -151,9 +163,11 @@ module PacketGen
                                                               field_in_length: 'TLV')
 
       # Cookie Preservative parameter
+      # @author Sylvain Daubert
       class CookiePreservativeParameter
         include ParameterMixin
 
+        # @return [::String]
         def to_human
           "<#{parameter_name}: #{value}>"
         end
@@ -166,9 +180,11 @@ module PacketGen
                                                field_in_length: 'TLV')
 
       # ECN parameter
+      # @author Sylvain Daubert
       class ECNParameter
         include ParameterMixin
 
+        # @return [::String]
         def to_human
           "<#{parameter_name}>"
         end
@@ -181,6 +197,7 @@ module PacketGen
                                                         field_in_length: 'TLV')
 
       # Heartbeat Information parameter
+      # @author Sylvain Daubert
       class HearbeatInfoParameter
         include ParameterMixin
       end
@@ -188,6 +205,7 @@ module PacketGen
       HearbeatInfoParameter.define_type_default('HearbeatInfo')
 
       # Array of {Parameter}s and {ParameterMixin}.
+      # @author Sylvain Daubert
       class ArrayOfParameter < Types::Array
         set_of Parameter
 
