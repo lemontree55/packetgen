@@ -30,8 +30,8 @@ module PacketGen
           'HEARTBEAT' => 4,
           'HEARTBEAT_ACK' => 5,
           'ABORT' => 6,
-          # 'SHUTDOWN' => 7,
-          # 'SHUTDOWN_ACK' => 8,
+          'SHUTDOWN' => 7,
+          'SHUTDOWN_ACK' => 8,
           'ERROR' => 9,
           # 'COOKIE_ECHO' => 10,
           # 'COOKIE_ACK' => 11,
@@ -449,6 +449,40 @@ module PacketGen
 
         def flags_to_human
           flag_t? ? 't' : '.'
+        end
+      end
+
+      # Shutdown association Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 7    |  Chunk Flags  |          Length = 8           |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |                      Cumulative TSN Ack                       |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class ShutdownChunk < BaseChunk
+        define_field :ctsn_ack, Types::Int32
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['SHUTDOWN'] unless options.key?(:type)
+          options[:length] = 8 unless options.key?(:length)
+          super
+        end
+      end
+
+      # Shutdown acknowledgement Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 8    |  Chunk Flags  |          Length = 4           |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class ShutdownAckChunk < BaseChunk
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['SHUTDOWN_ACK'] unless options.key?(:type)
+          options[:length] = 4 unless options.key?(:length)
+          super
         end
       end
     end
