@@ -33,8 +33,8 @@ module PacketGen
           'SHUTDOWN' => 7,
           'SHUTDOWN_ACK' => 8,
           'ERROR' => 9,
-          # 'COOKIE_ECHO' => 10,
-          # 'COOKIE_ACK' => 11,
+          'COOKIE_ECHO' => 10,
+          'COOKIE_ACK' => 11,
           # 'ECNE' => 12,
           # 'CWR' => 13,
           # 'SHUTDOWN_COMPLETE' => 14,
@@ -399,7 +399,7 @@ module PacketGen
       # @author Sylvain Daubert
       class ErrorChunk < BaseChunk
         # @!attribute error_causes
-        #  @return [Types::String]
+        #  @return [ArrayofError]
         define_field :error_causes, ArrayOfError
 
         def initialize(options={})
@@ -462,6 +462,9 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class ShutdownChunk < BaseChunk
+        # @!attribute cstn_ack
+        #  32-bit cumulative TSN ack
+        #  @return [Integer]
         define_field :ctsn_ack, Types::Int32
 
         def initialize(options={})
@@ -481,6 +484,42 @@ module PacketGen
       class ShutdownAckChunk < BaseChunk
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['SHUTDOWN_ACK'] unless options.key?(:type)
+          options[:length] = 4 unless options.key?(:length)
+          super
+        end
+      end
+
+      # Cookie Echo Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 10   |  Chunk Flags  |            Length             |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  /                            Cookie                             /
+      #  \                                                               \
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class CookieEchoChunk < BaseChunk
+        # @!attribute cookie
+        #  @return [String]
+        define_field :cookie, Types::String
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['COOKIE_ECHO'] unless options.key?(:type)
+          super
+        end
+      end
+
+      # Cookie Acknownledgement Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 11   |  Chunk Flags  |            Length             |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class CookieAckChunk < BaseChunk
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['COOKIE_ACK'] unless options.key?(:type)
           options[:length] = 4 unless options.key?(:length)
           super
         end
