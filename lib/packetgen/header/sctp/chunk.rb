@@ -35,9 +35,7 @@ module PacketGen
           'ERROR' => 9,
           'COOKIE_ECHO' => 10,
           'COOKIE_ACK' => 11,
-          # 'ECNE' => 12,
-          # 'CWR' => 13,
-          # 'SHUTDOWN_COMPLETE' => 14,
+          'SHUTDOWN_COMPLETE' => 14,
         }.freeze
 
         # @!attribute type
@@ -520,6 +518,25 @@ module PacketGen
       class CookieAckChunk < BaseChunk
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['COOKIE_ACK'] unless options.key?(:type)
+          options[:length] = 4 unless options.key?(:length)
+          super
+        end
+      end
+
+      # Shutdown Complete Chunk
+      #         0                   1                   2                   3
+      #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      #  |   Type = 14   |  Reserved   |T|          Length = 4           |
+      #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+      # @author Sylvain Daubert
+      class ShutdownCompleteChunk < BaseChunk
+        # @!attribute flag_t
+        #  @return [Boolean]
+        define_bit_fields_on :flags, :flag_res, 7, :flag_t
+
+        def initialize(options={})
+          options[:type] = BaseChunk::TYPES['SHUTDOWN_COMPLETE'] unless options.key?(:type)
           options[:length] = 4 unless options.key?(:length)
           super
         end
