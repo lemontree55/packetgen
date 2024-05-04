@@ -29,12 +29,12 @@ module PacketGen
         def read(s_or_h)
           case s_or_h
           when String
-            @data = s_or_h.split("\n").map do |h|
+            @data = s_or_h.split("\n").filter_map do |h|
               next unless h.include?(':')
 
               k, v = h.split(':', 2)
               [k, v.strip]
-            end.compact.to_h
+            end.to_h
           when Hash
             @data = s_or_h
           end
