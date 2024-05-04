@@ -33,6 +33,7 @@ module PacketGen
 
       describe '#read' do
         let(:raw_packets) { read_raw_packets('sctp.pcapng') }
+
         it 'sets header from a string' do
           pkt = PacketGen.parse(raw_packets[0])
           expect(pkt.sctp.dport).to eq(80)
@@ -84,6 +85,28 @@ module PacketGen
           expect(chunk.parameters[0].value[-2, 2]).to eq(binary("\x00\x00"))
         end
 
+        it 'sets COOKIE_ECHO chunk' do
+          pkt = PacketGen.parse(raw_packets[2])
+          expect(pkt.sctp.verification_tag).to eq(0xd26ac1e5)
+
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::CookieEchoChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['COOKIE_ECHO'])
+          expect(chunk.length).to eq(196)
+          expect(chunk.cookie.size).to eq(192)
+          expect(chunk.cookie[0, 4]).to eq(binary("\xb3\x49\x30\x15"))
+        end
+
+        it 'sets COOKIE_ACK chunk' do
+          pkt = PacketGen.parse(raw_packets[3])
+          expect(pkt.sctp.verification_tag).to eq(0x3bb99c46)
+
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::CookieAckChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['COOKIE_ACK'])
+          expect(chunk.length).to eq(4)
+        end
+
         it 'sets DATA chunk' do
           pkt = PacketGen.parse(raw_packets[4])
           chunk = pkt.sctp.chunks.first
@@ -109,6 +132,34 @@ module PacketGen
           expect(chunk.a_rwnd).to eq(0x19e6d)
           expect(chunk.num_gap).to eq(0)
           expect(chunk.num_dup_tsn).to eq(0)
+        end
+
+        it 'sets SHUTDOWN chunk' do
+          pkt = PacketGen.parse(raw_packets[-3])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::ShutdownChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['SHUTDOWN'])
+          expect(chunk.flags).to eq(0)
+          expect(chunk.length).to eq(8)
+          expect(chunk.ctsn_ack).to eq(0x64002a26)
+        end
+
+        it 'sets SHUTDOWN_ACK chunk' do
+          pkt = PacketGen.parse(raw_packets[-2])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::ShutdownAckChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['SHUTDOWN_ACK'])
+          expect(chunk.flags).to eq(0)
+          expect(chunk.length).to eq(4)
+        end
+
+        it 'sets SHUTDOWN_COMPLETE chunk' do
+          pkt = PacketGen.parse(raw_packets[-1])
+          chunk = pkt.sctp.chunks.first
+          expect(chunk).to be_a(SCTP::ShutdownCompleteChunk)
+          expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['SHUTDOWN_COMPLETE'])
+          expect(chunk.flags).to eq(0)
+          expect(chunk.length).to eq(4)
         end
       end
 
