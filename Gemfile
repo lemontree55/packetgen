@@ -7,6 +7,8 @@ gemspec
 
 gem 'bundler', '>=2.2', '<3'
 
+gem 'digest-crc'
+
 group :develoment do
   gem 'rake', '~> 13.0'
   gem 'rspec', '~> 3.12'

@@ -52,7 +52,7 @@ module PacketGen
     alias write to_f
 
     # Read binary string
-    # @param [String] binary_string
+    # @param [String] binary_str
     # @return [self]
     def parse(binary_str, _first_header: nil)
       @binary_str = PacketGen.force_binary(binary_str)

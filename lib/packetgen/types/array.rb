@@ -225,8 +225,8 @@ module PacketGen
         klass == obj_klass ? obj : klass.new(hsh)
       end
 
-      def real_type(obj)
-        obj.class
+      def real_type(_obj)
+        self.class.set_of_klass
       end
 
       def create_object_from_str(str)
@@ -242,28 +242,44 @@ module PacketGen
       end
     end
 
+    # @private
+    module ArrayOfIntMixin
+      def read_from_array(ary)
+        return self if ary.empty?
+
+        ary.each do |i|
+          self << self.class.set_of_klass.new(i)
+        end
+      end
+    end
+
     # Specialized array to handle serie of {Int8}.
     class ArrayOfInt8 < Array
+      include ArrayOfIntMixin
       set_of Int8
     end
 
     # Specialized array to handle serie of {Int16}.
     class ArrayOfInt16 < Array
+      include ArrayOfIntMixin
       set_of Int16
     end
 
     # Specialized array to handle serie of {Int16le}.
     class ArrayOfInt16le < Array
+      include ArrayOfIntMixin
       set_of Int16le
     end
 
     # Specialized array to handle serie of {Int32}.
     class ArrayOfInt32 < Types::Array
+      include ArrayOfIntMixin
       set_of Types::Int32
     end
 
     # Specialized array to handle serie of {Int32le}.
     class ArrayOfInt32le < Types::Array
+      include ArrayOfIntMixin
       set_of Types::Int32le
     end
   end

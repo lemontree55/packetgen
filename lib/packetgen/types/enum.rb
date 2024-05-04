@@ -14,7 +14,7 @@ module PacketGen
     # and named values.
     #
     # == Simple example
-    #  enum = Int8Enum.new(0, 'low' => 0, 'medium' => 1, 'high' => 2})
+    #  enum = Int8Enum.new('low' => 0, 'medium' => 1, 'high' => 2})
     # In this example, +enum+ is a 8-bit field which may take one
     # among three values: +low+, +medium+ or +high+:
     #  enum.value = 'high'
