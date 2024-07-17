@@ -120,8 +120,8 @@ module PacketGen
     # @return [void]
     def self.write(filename, packets)
       pf = PcapNG::File.new
-      pf.array_to_file packets
-      pf.to_f filename
+      pf.read_array(packets)
+      pf.to_f(filename)
     end
 
     # @private

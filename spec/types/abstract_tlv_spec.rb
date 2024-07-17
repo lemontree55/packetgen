@@ -67,22 +67,6 @@ module PacketGen
             expect(tlv.length).to eq(3)
             expect(tlv.value).to eq(binary("\x12\x34\x56"))
           end
-
-          it 'reads a TLV from a binary string when header_in_length is set' do
-            tlv = AbstractTLV.create(header_in_length: true).new
-
-            bin_str = [1, 2].pack('C*')
-            tlv.read(bin_str)
-            expect(tlv.type).to eq(1)
-            expect(tlv.length).to eq(2)
-            expect(tlv.value).to eq('')
-
-            bin_str = [1, 5, 'abc'].pack('C2A3')
-            tlv.read(bin_str)
-            expect(tlv.type).to eq(1)
-            expect(tlv.length).to eq(5)
-            expect(tlv.value).to eq('abc')
-          end
         end
 
         describe '#human_type' do
@@ -118,12 +102,6 @@ module PacketGen
           it 'sets #length' do
             tlv.value = 'abcdef'
             expect(tlv.length).to eq(6)
-          end
-
-          it 'sets #length when header_in_length is set' do
-            tlv = AbstractTLV.create(type_class: Int16, length_class: Int16, header_in_length: true).new
-            tlv.value = 'abcdef'
-            expect(tlv.length).to eq(10)
           end
 
           it 'sets #length when field_in_length contains "L"' do

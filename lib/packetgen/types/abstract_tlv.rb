@@ -67,8 +67,6 @@ module PacketGen
       class << self
         # @return [Hash]
         attr_accessor :aliases
-        # @deprecated
-        attr_accessor :header_in_length
         # @private
         attr_accessor :field_in_length
 
@@ -78,21 +76,16 @@ module PacketGen
         # @param [Class] type_class Class to use for +type+
         # @param [Class] length_class Class to use for +length+
         # @param [Class] value_class Class to use for +value+
-        # @param [Boolean] header_in_length if +true +, +type+ and +length+ fields are
-        #   included in length. Deprecated, use +field_in_length+ instead.
         # @param [String] field_order give field order. Each character in [T,L,V] MUST be present once, in the desired order.
         # @param [String] field_in_length give fields to compute length on.
         # @return [Class]
-        # @since 3.1.4 Add +header_in_length+ parameter
-        # @since 3.3.1 Add +field_order+ and +field_in_length' parameters. Deprecate +header_in_length+ parameter.
+        # @since 3.3.1 Add +field_order+ and +field_in_length' parameters
         def create(type_class: Int8Enum, length_class: Int8, value_class: String,
-                   aliases: {}, header_in_length: false, field_order: 'TLV', field_in_length: 'V')
-          Deprecation.deprecated_option(self, 'create', 'header_in_length', klass_method: true) if header_in_length
+                   aliases: {}, field_order: 'TLV', field_in_length: 'V')
           raise Error, '.create cannot be called on a subclass of PacketGen::Types::AbstractTLV' unless self.equal?(AbstractTLV)
 
           klass = Class.new(self)
           klass.aliases = aliases
-          klass.header_in_length = header_in_length
           klass.field_in_length = field_in_length
 
           check_field_in_length(field_in_length)
@@ -186,7 +179,6 @@ module PacketGen
       # @option options [Integer] :length
       # @option options [Object] :value
       def initialize(options={})
-        @header_in_length = self.class.header_in_length
         @field_in_length = self.class.field_in_length
         self.class.aliases.each do |al, orig|
           options[orig] = options[al] if options.key?(al)
@@ -252,7 +244,6 @@ module PacketGen
       # @since 3.4.0
       def calc_length
         fil = @field_in_length
-        fil = 'TLV' if @header_in_length
 
         length = 0
         fil.each_char do |field_type|
@@ -264,14 +255,10 @@ module PacketGen
       private
 
       def real_length
-        if @header_in_length
-          self.length - self[:type].sz - self[:length].sz
-        else
-          length = self.length
-          length -= self[:type].sz if @field_in_length.include?('T')
-          length -= self[:length].sz if @field_in_length.include?('L')
-          length
-        end
+        length = self.length
+        length -= self[:type].sz if @field_in_length.include?('T')
+        length -= self[:length].sz if @field_in_length.include?('L')
+        length
       end
     end
   end

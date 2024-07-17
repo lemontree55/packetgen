@@ -21,20 +21,6 @@ module PacketGen
       class SubMngt < Base
         # @return [Array<Element>]
         define_field :elements, ArrayOfElements
-
-        # Add an {Element} to header
-        # @param [Integer,String] type element type
-        # @param [Object] value element value
-        # @return [self]
-        # @since 2.1.3
-        # @since 3.1.1 #elements in no more an Array but an {ArrayOfElements}
-        # @deprecated Prefer use of +submngt.element << {type: type, value: value}+
-        def add_element(type:, value:)
-          Deprecation.deprecated(self.class, __method__, 'elements')
-          element = Element.new(type: type, value: value)
-          self.elements << element
-          self
-        end
       end
 
       # IEEE 802.11 Association Request frame

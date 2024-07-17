@@ -200,6 +200,24 @@ module PacketGen
       it 'raises on unknown association' do
         expect { @pkt.add 'Eth' }.to raise_error(BindingError, /IP\.bind_layer\(.*Eth/)
       end
+
+      context '(bug #91)' do
+        it 'may set a CString' do
+          pkt = Packet.gen('BOOTP', file: 'test.txt')
+          expect(pkt.bootp.file).to eq('test.txt')
+          expect(pkt.bootp[:file].to_s).to eq("test.txt#{([0] * 120).pack('C*')}")
+        end
+
+        it 'may set a IntString' do
+          class AddIntStringTest < Header::Base
+            define_field :field, Types::IntString
+          end
+          Header.add_class AddIntStringTest
+          pkt = Packet.gen('AddIntStringTest', field: 'This is a string')
+          expect(pkt.addintstringtest[:field].to_human).to eq('This is a string')
+          expect(pkt.addintstringtest[:field].to_s).to eq("\x10This is a string")
+        end
+      end
     end
 
     describe '#is?' do
