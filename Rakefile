@@ -21,3 +21,12 @@ YARD::Rake::YardocTask.new do |t|
   t.options = ['--no-private']
   t.files = ['lib/**/*.rb', '-', 'LICENSE']
 end
+
+begin
+  require 'rubocop/rake_task'
+
+  RuboCop::RakeTask.new do |task|
+    task.patterns = ['lib/**/*.rb']
+  end
+rescue LoadError # rubocop:disable Lint/SuppressedException
+end
