@@ -10,9 +10,9 @@ module PacketGen
   module Header
     module HTTP
       # An HTTP/1.1 Request packet consists of:
-      # * the http verb ({Types::String}).
-      # * the path ({Types::String}).
-      # * the version ({Types::String}).
+      # * the http verb ({BinStruct::String}).
+      # * the path ({BinStruct::String}).
+      # * the version ({BinStruct::String}).
       # * associated http headers ({HTTP::Headers}).
       #
       # == Create a HTTP Request header
@@ -38,22 +38,22 @@ module PacketGen
       # @since 3.1.0 Rename +#method+ into {#verb} to not mask +Object#method+.
       class Request < Base
         # @!attribute verb
-        #   @return [Types::String]
+        #   @return [BinStruct::String]
         #   @since 3.1.0
-        define_field :verb, Types::String
+        define_attr :verb, BinStruct::String
         # @!attribute path
-        #   @return [Types::String]
-        define_field :path,    Types::String
+        #   @return [BinStruct::String]
+        define_attr :path,    BinStruct::String
         # @!attribute version
-        #   @return [Types::String]
-        define_field :version, Types::String, default: 'HTTP/1.1'
+        #   @return [BinStruct::String]
+        define_attr :version, BinStruct::String, default: 'HTTP/1.1'
         # @!attribute headers
         #   associated http/1.1 headers
         #   @return [HTTP::Headers]
-        define_field :headers, HTTP::Headers
+        define_attr :headers, HTTP::Headers
         # @!attribute body
-        #   @return [Types::String]
-        define_field :body, Types::String
+        #   @return [BinStruct::String]
+        define_attr :body, BinStruct::String
 
         # @param [Hash] options
         # @option options [String] :verb
@@ -61,7 +61,7 @@ module PacketGen
         # @option options [String] :version
         # @option options [Hash]   :headers
         def initialize(options={})
-          super(options)
+          super
           self.headers ||= options[:headers]
         end
 

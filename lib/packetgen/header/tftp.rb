@@ -10,7 +10,7 @@ module PacketGen
   module Header
     # A TFTP (Trivial File Transfer Protocol,
     # {https://tools.ietf.org/html/rfc1350 RFC 1350}) header consists of:
-    # * a {#opcode} ({Types::Int16Enum}),
+    # * a {#opcode} ({BinStruct::Int16Enum}),
     # * and a body. Its content depends on opcode.
     #
     # Specialized subclasses exists to handle {TFTP::RRQ Read Request},
@@ -60,11 +60,11 @@ module PacketGen
       # @!attribute opcode
       #   16-bit operation code
       #   @return [Integer]
-      define_field :opcode, Types::Int16Enum, enum: OPCODES
+      define_attr :opcode, BinStruct::Int16Enum, enum: OPCODES
 
       # @!attribute body
       #   @return [String]
-      define_field :body, Types::String
+      define_attr :body, BinStruct::String
 
       def initialize(options={})
         type = protocol_name.sub(/^.*::/, '')
@@ -147,17 +147,17 @@ module PacketGen
 
       # TFTP Read Request header
       class RRQ < TFTP
-        remove_field :body
+        remove_attr :body
 
         # @!attribute filename
         #   Filename to access
         #   @return [String]
-        define_field :filename, Types::CString
+        define_attr :filename, BinStruct::CString
 
         # @!attribute mode
         #   Mode used. Should be +netascii+, +octet+ or +mail+
         #   @return [String]
-        define_field :mode, Types::CString
+        define_attr :mode, BinStruct::CString
       end
 
       # TFTP Write Request header
@@ -168,32 +168,32 @@ module PacketGen
         # @!attribute block_num
         #   16-bit block number
         #   @return [Integer]
-        define_field_before :body, :block_num, Types::Int16
+        define_attr_before :body, :block_num, BinStruct::Int16
       end
 
       # TFTP ACK header
       class ACK < TFTP
-        remove_field :body
+        remove_attr :body
 
         # @!attribute block_num
         #   16-bit block number
         #   @return [Integer]
-        define_field :block_num, Types::Int16
+        define_attr :block_num, BinStruct::Int16
       end
 
       # TFTP ERROR header
       class ERROR < TFTP
-        remove_field :body
+        remove_attr :body
 
         # @!attribute error_code
         #   16-bit error code
         #   @return [Integer]
-        define_field :error_code, Types::Int16
+        define_attr :error_code, BinStruct::Int16
 
         # @!attribute error_msg
         #   Error message
         #   @return [String]
-        define_field :error_msg, Types::CString
+        define_attr :error_msg, BinStruct::CString
         alias error_message error_msg
       end
     end

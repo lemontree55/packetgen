@@ -159,7 +159,7 @@ module PacketGen
             gre.u16 = 0xb000
             str = gre.inspect
             expect(str).to be_a(String)
-            (gre.fields - %i(body)).each do |attr|
+            (gre.attributes - %i(body)).each do |attr|
               expect(str).to include(attr.to_s)
             end
           end
@@ -168,12 +168,12 @@ module PacketGen
             gre.u16 = 0x8000
             str = gre.inspect
             expect(str).to be_a(String)
-            fields = gre.fields - %i[body]
-            fields -= gre.optional_fields.reject { |f| gre.present?(f) }
-            fields.each do |attr|
+            attributes = gre.attributes - %i[body]
+            attributes -= gre.optional_attributes.reject { |f| gre.present?(f) }
+            attributes.each do |attr|
               expect(str).to include(attr.to_s)
             end
-            gre.optional_fields.reject { |f| gre.present?(f) }.each do |attr|
+            gre.optional_attributes.reject { |f| gre.present?(f) }.each do |attr|
               expect(str).to_not include(attr.to_s)
             end
           end

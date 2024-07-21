@@ -187,7 +187,7 @@ module PacketGen
         expect(@pkt.ip(2).protocol).to eq(0)
       end
 
-      it 'sets provided fields in arguments' do
+      it 'sets provided attributes.in arguments' do
         @pkt.add('TCP', sport: 12_345, dport: 5_678)
         expect(@pkt.tcp.sport).to eq(12_345)
         expect(@pkt.tcp.dport).to eq(5_678)
@@ -210,7 +210,7 @@ module PacketGen
 
         it 'may set a IntString' do
           class AddIntStringTest < Header::Base
-            define_field :field, Types::IntString
+            define_attr :field, BinStruct::IntString
           end
           Header.add_class AddIntStringTest
           pkt = Packet.gen('AddIntStringTest', field: 'This is a string')
@@ -286,7 +286,7 @@ module PacketGen
         expect(packet.ip.checksum).to eq(0x75df)
       end
 
-      it 'does not calculate calculatable fields if calc is false', :sudo do
+      it 'does not calculate calculatable attributes.if calc is false', :sudo do
         Thread.new { sleep 0.1; pkt.to_w('lo', calc: false) }
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',

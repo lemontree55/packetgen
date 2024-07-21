@@ -20,9 +20,9 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A IGMP header consists of:
-    # * a {#type} field ({Types::Int8Enum} type),
-    # * a {#max_resp_time} field ({Types::Int8} type),
-    # * a {#checksum} field ({Types::Int16} type),
+    # * a {#type} field ({BinStruct::Int8Enum} type),
+    # * a {#max_resp_time} field ({BinStruct::Int8} type),
+    # * a {#checksum} field ({BinStruct::Int16} type),
     # * a {#group_addr} field ({Header::IP::Addr} type),
     # * and a {#body} (unused for IGMPv2).
     #
@@ -56,22 +56,22 @@ module PacketGen
       # @!attribute type
       #  8-bit IGMP Type
       #  @return [Integer]
-      define_field :type, Types::Int8Enum, enum: TYPES
+      define_attr :type, BinStruct::Int8Enum, enum: TYPES
       # @!attribute max_resp_time
       #  8-bit IGMP Max Response Time
       #  @return [Integer]
-      define_field :max_resp_time, Types::Int8
+      define_attr :max_resp_time, BinStruct::Int8
       # @!attribute checksum
       #  16-bit IGMP Checksum
       #  @return [Integer]
-      define_field :checksum, Types::Int16
+      define_attr :checksum, BinStruct::Int16
       # @!attribute group_addr
       #  IP Group address
       #  @return [IP::Addr]
-      define_field :group_addr, IP::Addr, default: '0.0.0.0'
+      define_attr :group_addr, IP::Addr, default: '0.0.0.0'
       # @!attribute body
       #  @return [String,Base]
-      define_field :body, Types::String
+      define_attr :body, BinStruct::String
 
       # @api private
       # @note This method is used internally by PacketGen and should not be

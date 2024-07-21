@@ -220,7 +220,7 @@ module PacketGen
           ip = IPv6.new
           str = ip.inspect
           expect(str).to be_a(String)
-          (ip.fields - %i(body) + %i(version tclass flow_label)).each do |attr|
+          (ip.attributes - %i(body) + %i(version tclass flow_label)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

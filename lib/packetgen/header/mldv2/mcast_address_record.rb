@@ -52,8 +52,8 @@ module PacketGen
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
-      class McastAddressRecord < Types::Fields
-        include Types::Fieldable
+      class McastAddressRecord < BinStruct::Struct
+        include BinStruct::Structable
 
         # Known record types
         RECORD_TYPES = IGMPv3::GroupRecord::RECORD_TYPES
@@ -61,29 +61,29 @@ module PacketGen
         # @!attribute type
         #  8-bit record type
         #  @return [Integer]
-        define_field :type, Types::Int8Enum, enum: RECORD_TYPES
+        define_attr :type, BinStruct::Int8Enum, enum: RECORD_TYPES
         # @!attribute aux_data_len
         #  8-bit length of of the Auxiliary Data field ({#aux_data}), in unit of
         #  32-bit words
         #  @return [Integer]
-        define_field :aux_data_len, Types::Int8, default: 0
+        define_attr :aux_data_len, BinStruct::Int8, default: 0
         # @!attribute number_of_sources
         #  16-bit Number of source addresses in {#source_addr}
         #  @return [Integer]
-        define_field :number_of_sources, Types::Int16, default: 0
+        define_attr :number_of_sources, BinStruct::Int16, default: 0
         # @!attribute multicast_addr
         #  IP multicast address to which this Multicast Address Record pertains
         #  @return [IPv6::Addr]
-        define_field :multicast_addr, IPv6::Addr, default: '::'
+        define_attr :multicast_addr, IPv6::Addr, default: '::'
         # @!attribute source_addr
         #  Array of source addresses
         #  @return [IPv6::ArrayOfAddr]
-        define_field :source_addr, IPv6::ArrayOfAddr,
-                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
+        define_attr :source_addr, IPv6::ArrayOfAddr,
+                    builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
         # @!attribute aux_data
         #  @return [String]
-        define_field :aux_data, Types::String,
-                     builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
+        define_attr :aux_data, BinStruct::String,
+                    builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
 
         def human_type
           self[:type].to_human
@@ -96,7 +96,7 @@ module PacketGen
 
       # Class to handle series of {McastAddressRecord}.
       # @author Sylvain Daubert
-      class McastAddressRecords < Types::Array
+      class McastAddressRecords < BinStruct::Array
         set_of McastAddressRecord
 
         # Separator used in {#to_human}.

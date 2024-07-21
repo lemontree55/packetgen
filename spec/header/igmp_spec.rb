@@ -85,7 +85,7 @@ module PacketGen
           igmp = IGMP.new
           str = igmp.inspect
           expect(str).to be_a(String)
-          (igmp.fields - %i(body)).each do |attr|
+          (igmp.attributes - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

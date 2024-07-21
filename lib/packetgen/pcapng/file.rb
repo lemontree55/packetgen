@@ -271,13 +271,13 @@ module PacketGen
       # @param [IO] io stream from which parse SHB
       # @return [SHB]
       def parse_shb(shb, io)
-        type = Types::Int32.new(0, shb.endian).read(io.read(4))
+        type = BinStruct::Int32.new(value: 0, endian: shb.endian).read(io.read(4))
         io.seek(-4, IO::SEEK_CUR)
         parse(type, io, shb)
       end
 
       # Parse a block from its type
-      # @param [Types::Int32] type
+      # @param [BinStruct::Int32] type
       # @param [IO] io stream from which parse block
       # @param [SHB] shb header of current section
       # @return [Block]
@@ -288,7 +288,7 @@ module PacketGen
       end
 
       # Guess class to use from type
-      # @param [Types::Int] type
+      # @param [BinStruct::Int] type
       # @return [Block]
       def guess_block_type(type)
         BLOCK_TYPES.key?(type.to_i) ? BLOCK_TYPES[type.to_i] : UnknownBlock

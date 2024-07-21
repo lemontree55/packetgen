@@ -20,7 +20,7 @@ module PacketGen
       class OPT < RR
         # @!attribute options
         #   @return [ArrayOfOptions]
-        define_field_after :rdata, :options, ArrayOfOptions
+        define_attr_after :rdata, :options, ArrayOfOptions
 
         # @param [DNS] dns
         # @param [Hash] options

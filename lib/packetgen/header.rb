@@ -17,8 +17,8 @@ module PacketGen
   # First, define the new header class. By example:
   #  module MyModule
   #    class MyHeader < PacketGen::Header::Base
-  #      define_field :field1, PacketGen::Types::Int32
-  #      define_field :field2, PacketGen::Types::Int32
+  #      define_attr :field1, BinStruct::Int32
+  #      define_attr :field2, BinStruct::Int32
   #    end
   #   end
   # Then, class must be declared to PacketGen:

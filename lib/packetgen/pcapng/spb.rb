@@ -29,10 +29,10 @@ module PacketGen
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field_before :block_len2, :orig_len, Types::Int32, default: 0
+      define_attr_before :block_len2, :orig_len, BinStruct::Int32, default: 0
       # @!attribute data
-      #  @return [Types::String]
-      define_field_before :block_len2, :data, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :data, BinStruct::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness

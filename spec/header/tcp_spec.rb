@@ -167,7 +167,7 @@ module PacketGen
           tcp = TCP.new
           str = tcp.inspect
           expect(str).to be_a(String)
-          (tcp.fields - %i(body) + %i(data_offset reserved flags)).each do |attr|
+          (tcp.attributes - %i(body) + %i(data_offset reserved flags)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

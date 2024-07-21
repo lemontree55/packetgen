@@ -22,7 +22,7 @@ module PacketGen
       #   +-                                                            +-+
       #   |                              ...                              |
       # This paylod is implemented with two fields:
-      # * {#lsas_count}, a {Types::Int32} field,
+      # * {#lsas_count}, a {BinStruct::Int32} field,
       # * and {#lsas}, an {ArrayOfLSA} object.
       #
       # == Create a LSUpdate payload
@@ -47,11 +47,11 @@ module PacketGen
         # @!attribute lsas_count
         #  Count of LSAs included in this update
         #  @return [Integer]
-        define_field :lsas_count, Types::Int32
+        define_attr :lsas_count, BinStruct::Int32
         # @!attribute lsas
         #  Array of {LSA LSAs}
         #  @return [ArrayOfLSA]
-        define_field :lsas, ArrayOfLSA, builder: ->(h, t) { t.new(counter: h[:lsas_count]) }
+        define_attr :lsas, ArrayOfLSA, builder: ->(h, t) { t.new(counter: h[:lsas_count]) }
 
         # Calculate checksums of all LSAs
         # @return [void]

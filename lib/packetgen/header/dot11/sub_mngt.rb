@@ -20,7 +20,7 @@ module PacketGen
       # @author Sylvain Daubert
       class SubMngt < Base
         # @return [Array<Element>]
-        define_field :elements, ArrayOfElements
+        define_attr :elements, ArrayOfElements
       end
 
       # IEEE 802.11 Association Request frame
@@ -28,16 +28,16 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 0.
       #
       # Add fields:
-      # * {#cap} ({Types::Int16le}),
-      # * {#listen_interval} ({Types::Int16le}).
+      # * {#cap} ({BinStruct::Int16le}),
+      # * {#listen_interval} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class AssoReq < SubMngt
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field_before :elements, :cap, Types::Int16le
+        define_attr_before :elements, :cap, BinStruct::Int16le
         # @!attribute listen_interval
         #  @return [Integer] 16-bit listen interval value
-        define_field_before :elements, :listen_interval, Types::Int16le, default: 0x00c8
+        define_attr_before :elements, :listen_interval, BinStruct::Int16le, default: 0x00c8
       end
       Header.add_class AssoReq
       Management.bind AssoReq, type: 0, subtype: 0
@@ -47,20 +47,20 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 1.
       #
       # Add fields:
-      # * {#cap} ({Types::Int16le}),
-      # * {#status} ({Types::Int16le}),
-      # * {#aid} ({Types::Int16le}).
+      # * {#cap} ({BinStruct::Int16le}),
+      # * {#status} ({BinStruct::Int16le}),
+      # * {#aid} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class AssoResp < SubMngt
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field_before :elements, :cap, Types::Int16le
+        define_attr_before :elements, :cap, BinStruct::Int16le
         # @!attribute status
         #  @return [Integer] 16-bit status word
-        define_field_before :elements, :status, Types::Int16le
+        define_attr_before :elements, :status, BinStruct::Int16le
         # @!attribute aid
         #  @return [Integer] 16-bit AID word
-        define_field_before :elements, :aid, Types::Int16le
+        define_attr_before :elements, :aid, BinStruct::Int16le
       end
       Header.add_class AssoResp
       Management.bind AssoResp, type: 0, subtype: 1
@@ -70,14 +70,14 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 2.
       #
       # Add fields:
-      # * {#cap} ({Types::Int16le}),
-      # * {#listen_interval} ({Types::Int16le}),
+      # * {#cap} ({BinStruct::Int16le}),
+      # * {#listen_interval} ({BinStruct::Int16le}),
       # * {#current_ap} ({Eth::MacAddr}).
       # @author Sylvain Daubert
       class ReAssoReq < AssoReq
         # @!attribute current_ap
         #  @return [Eth::MAcAddr]
-        define_field_before :elements, :current_ap, Eth::MacAddr
+        define_attr_before :elements, :current_ap, Eth::MacAddr
       end
       Header.add_class ReAssoReq
       Management.bind ReAssoReq, type: 0, subtype: 2
@@ -87,9 +87,9 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 3.
       #
       # Add fields:
-      # * {#cap} ({Types::Int16le}),
-      # * {#status} ({Types::Int16le}),
-      # * {#aid} ({Types::Int16le}).
+      # * {#cap} ({BinStruct::Int16le}),
+      # * {#status} ({BinStruct::Int16le}),
+      # * {#aid} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class ReAssoResp < AssoResp
       end
@@ -112,20 +112,20 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 5.
       #
       # Add fields:
-      # * {#timestamp} ({Types::Int64le}),
-      # * {#beacon_interval} ({Types::Int16le}),
-      # * {#cap} ({Types::Int16le}).
+      # * {#timestamp} ({BinStruct::Int64le}),
+      # * {#beacon_interval} ({BinStruct::Int16le}),
+      # * {#cap} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class ProbeResp < SubMngt
         # @!attribute timestamp
         #  @return [Integer] 64-bit timestamp
-        define_field_before :elements, :timestamp, Types::Int64le
+        define_attr_before :elements, :timestamp, BinStruct::Int64le
         # @!attribute beacon_interval
         #  @return [Integer] 16-bit beacon interval value
-        define_field_before :elements, :beacon_interval, Types::Int16le, default: 0x0064
+        define_attr_before :elements, :beacon_interval, BinStruct::Int16le, default: 0x0064
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field_before :elements, :cap, Types::Int16le
+        define_attr_before :elements, :cap, BinStruct::Int16le
       end
       Header.add_class ProbeResp
       Management.bind ProbeResp, type: 0, subtype: 5
@@ -135,20 +135,20 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 8.
       #
       # Add fields:
-      # * {#timestamp} ({Types::Int64le}),
-      # * {#interval} ({Types::Int16le}),
-      # * {#cap} ({Types::Int16le}).
+      # * {#timestamp} ({BinStruct::Int64le}),
+      # * {#interval} ({BinStruct::Int16le}),
+      # * {#cap} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class Beacon < SubMngt
         # @!attribute timestamp
         #  @return [Integer] 64-bit timestamp
-        define_field_before :elements, :timestamp, Types::Int64le
+        define_attr_before :elements, :timestamp, BinStruct::Int64le
         # @!attribute interval
         #  @return [Integer] 16-bit interval value
-        define_field_before :elements, :interval, Types::Int16le, default: 0x64
+        define_attr_before :elements, :interval, BinStruct::Int16le, default: 0x64
         # @!attribute cap
         #  @return [Integer] 16-bit capabillities word
-        define_field_before :elements, :cap, Types::Int16le
+        define_attr_before :elements, :cap, BinStruct::Int16le
       end
       Header.add_class Beacon
       Management.bind Beacon, type: 0, subtype: 8
@@ -168,12 +168,12 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 10.
       #
       # Add fields:
-      # * {#reason} ({Types::Int16le}).
+      # * {#reason} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class Disas < SubMngt
         # @!attribute reason
         #  @return [Integer] 16-bit reason value
-        define_field_before :elements, :reason, Types::Int16le
+        define_attr_before :elements, :reason, BinStruct::Int16le
       end
       Header.add_class Disas
       Management.bind Disas, type: 0, subtype: 10
@@ -183,20 +183,20 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 11.
       #
       # Add fields:
-      # * {#algo} ({Types::Int16le}),
-      # * {#seqnum} ({Types::Int16le}),
-      # * {#status} ({Types::Int16le}).
+      # * {#algo} ({BinStruct::Int16le}),
+      # * {#seqnum} ({BinStruct::Int16le}),
+      # * {#status} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class Auth < SubMngt
         # @!attribute algo
         #  @return [Integer] 16-bit algo value
-        define_field_before :elements, :algo, Types::Int16le
+        define_attr_before :elements, :algo, BinStruct::Int16le
         # @!attribute seqnum
         #  @return [Integer] 16-bit seqnum value
-        define_field_before :elements, :seqnum, Types::Int16le
+        define_attr_before :elements, :seqnum, BinStruct::Int16le
         # @!attribute status
         #  @return [Integer] 16-bit status word
-        define_field_before :elements, :status, Types::Int16le
+        define_attr_before :elements, :status, BinStruct::Int16le
       end
       Header.add_class Auth
       Management.bind Auth, type: 0, subtype: 11
@@ -206,12 +206,12 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 12.
       #
       # Add fields:
-      # * {#reason} ({Types::Int16le}).
+      # * {#reason} ({BinStruct::Int16le}).
       # @author Sylvain Daubert
       class DeAuth < SubMngt
         # @!attribute reason
         #  @return [Integer] 16-bit reason value
-        define_field_before :elements, :reason, Types::Int16le
+        define_attr_before :elements, :reason, BinStruct::Int16le
       end
       Header.add_class DeAuth
       Management.bind DeAuth, type: 0, subtype: 12

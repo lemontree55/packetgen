@@ -20,8 +20,8 @@ module PacketGen
       attr_accessor :section
 
       # @!attribute body
-      #  @return [Types::String]
-      define_field_before :block_len2, :body, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :body, BinStruct::String
 
       # @option options [:little, :big] :endian set block endianness
       # @option options [Integer] :type

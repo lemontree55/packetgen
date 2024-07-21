@@ -36,18 +36,18 @@ module PacketGen
       # @!attribute link_type
       #  16-bit link type
       #  @return [Integer]
-      define_field_before :block_len2, :link_type, Types::Int16, default: 1
+      define_attr_before :block_len2, :link_type, BinStruct::Int16, default: 1
       # @!attribute reserved
       #  16-bit reserved field
       #  @return [Integer]
-      define_field_before :block_len2, :reserved, Types::Int16, default: 0
+      define_attr_before :block_len2, :reserved, BinStruct::Int16, default: 0
       # @!attribute snaplen
       #  32-bit snap length
       #  @return [Integer]
-      define_field_before :block_len2, :snaplen, Types::Int32, default: 0
+      define_attr_before :block_len2, :snaplen, BinStruct::Int32, default: 0
       # @!attribute options
-      #  @return [Types::String]
-      define_field_before :block_len2, :options, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :options, BinStruct::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness

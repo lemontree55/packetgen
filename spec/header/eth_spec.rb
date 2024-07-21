@@ -121,7 +121,7 @@ module PacketGen
           eth = Eth.new
           str = eth.inspect
           expect(str).to be_a(String)
-          (eth.fields - %i(body)).each do |attr|
+          (eth.attributes - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

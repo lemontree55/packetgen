@@ -8,7 +8,7 @@ module PacketGen
 
         before(:each) do
           @dns = DNS.new
-          @counter = Types::Int32.new(0)
+          @counter = BinStruct::Int32.new(value: 0)
           @section = QDSection.new(@dns, @counter)
         end
 
@@ -17,11 +17,11 @@ module PacketGen
             q1 = Question.new(@dns, name: 'example.org')
             q2 = Question.new(@dns, name: 'example.com.')
             str = q1.to_s << q2.to_s
-            @section.read str
+            @section.read(str)
             expect(@section.size).to eq(0)
 
-            @counter.read 2
-            @section.read str
+            @counter.from_human(2)
+            @section.read(str)
             expect(@section.size).to eq(2)
             expect(@section.all? { |q| q.is_a? Question }).to be(true)
             expect(@section[0].to_s).to eq(q1.to_s)

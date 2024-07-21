@@ -13,13 +13,13 @@ module PacketGen
       # Secure Tunneling, {https://tools.ietf.org/html/rfc4851 RFC 4851}
       #
       # {EAP::FAST} has following fields:
-      # * {#flags} ({Types::Int8}),
-      # * optionally {#message_length} ({Types::Int32}), if +#l?+ is +true+,
-      # * {#body} ({Types::String}).
+      # * {#flags} ({BinStruct::Int8}),
+      # * optionally {#message_length} ({BinStruct::Int32}), if +#l?+ is +true+,
+      # * {#body} ({BinStruct::String}).
       # @author Sylvain Daubert
       # @since 2.1.4
       class FAST < TTLS
-        update_field :type, default: 43
+        update_attr :type, default: 43
       end
     end
   end

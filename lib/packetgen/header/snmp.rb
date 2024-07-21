@@ -286,7 +286,7 @@ module PacketGen
       end
 
       # accessor to data payload
-      # @return [ASN1::Types::Choice]
+      # @return [ASN1::BinStruct::Choice]
       def data
         @elements[:data]
       end

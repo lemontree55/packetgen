@@ -15,15 +15,15 @@ module PacketGen
         # @!attribute ttl
         #  32-bit time to live
         #  @return [Integer]
-        define_field :ttl, Types::Int32
+        define_attr :ttl, BinStruct::Int32
         # @!attribute rdlength
         #  16-bit {#rdata} length
         #  @return [Integer]
-        define_field :rdlength, Types::Int16
+        define_attr :rdlength, BinStruct::Int16
         # @!attribute rdata
-        #  @return [Types::String]
-        define_field :rdata, Types::String,
-                     builder: ->(rr, t) { t.new(length_from: rr[:rdlength]) }
+        #  @return [BinStruct::String]
+        define_attr :rdata, BinStruct::String,
+                    builder: ->(rr, t) { t.new(length_from: rr[:rdlength]) }
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -47,8 +47,8 @@ module PacketGen
         # @param [String] data
         # @return [void]
         def rdata=(data)
-          self[:rdlength].read data.size
-          self[:rdata].read data
+          self[:rdlength].from_human(data.size)
+          self[:rdata].read(data)
         end
 
         # rubocop:disable Metrics/AbcSize
@@ -108,7 +108,7 @@ module PacketGen
           name = Name.new
           name.dns = self[:name].dns
 
-          pref = Types::Int16.new.read(self[:rdata][0, 2])
+          pref = BinStruct::Int16.new.read(self[:rdata][0, 2])
           exchange = name.read(self[:rdata][2..]).to_human
 
           '%u %s' % [pref.to_i, exchange]
@@ -121,11 +121,11 @@ module PacketGen
           mname = name.read(self[:rdata]).dup
           rname = name.read(self[:rdata][mname.sz..])
 
-          serial = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
-          refresh = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])
-          retryi = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 8, 4])
-          expire = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 12, 4])
-          minimum = Types::Int32.new.read(self[:rdata][mname.sz + rname.sz + 16, 4])
+          serial = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
+          refresh = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])
+          retryi = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 8, 4])
+          expire = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 12, 4])
+          minimum = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 16, 4])
 
           "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
             "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
@@ -135,9 +135,9 @@ module PacketGen
           name = Name.new
           name.dns = self[:name].dns
 
-          priority = Types::Int16.new.read(self[:rdata][0, 2])
-          weight = Types::Int16.new.read(self[:rdata][2, 2])
-          port = Types::Int16.new.read(self[:rdata][4, 2])
+          priority = BinStruct::Int16.new.read(self[:rdata][0, 2])
+          weight = BinStruct::Int16.new.read(self[:rdata][2, 2])
+          port = BinStruct::Int16.new.read(self[:rdata][4, 2])
           target = name.read(self[:rdata][6, self[:rdata].size]).to_human
 
           "#{priority.to_i} #{weight.to_i} #{port.to_i} #{target}"

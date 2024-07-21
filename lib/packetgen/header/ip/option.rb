@@ -11,7 +11,7 @@ module PacketGen
     class IP
       # Class to handle series of IP addresses
       # @author Sylvain Daubert
-      class ArrayOfAddr < Types::Array
+      class ArrayOfAddr < BinStruct::Array
         set_of IP::Addr
 
         # Push a IP address to the array
@@ -20,14 +20,14 @@ module PacketGen
         #   array << '192.168.1.12'
         def push(addr)
           addr = Addr.new.from_human(addr) unless addr.is_a?(Addr)
-          super(addr)
+          super
         end
       end
 
       # Base class for IP options
       # @author Sylvain Daubert
-      class Option < Types::Fields
-        include Types::Fieldable
+      class Option < BinStruct::Struct
+        include BinStruct::Structable
 
         # EOL option type
         EOL_TYPE = 0x00
@@ -47,16 +47,16 @@ module PacketGen
         # @!attribute type
         #  8-bit option type
         # @return [Integer]
-        define_field :type, Types::Int8
+        define_attr :type, BinStruct::Int8
         # @!attribute length
         #  8-bit option length. If 0, there is no +length+ field in option
         # @return [Integer]
-        define_field :length, Types::Int8, default: 0, optional: ->(h) { h.type > 1 }
+        define_attr :length, BinStruct::Int8, default: 0, optional: ->(h) { h.type > 1 }
         # @!attribute data
         #  option data
         # @return [String]
-        define_field :data, Types::String, optional: ->(h) { h.length > 2 },
-                                           builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
+        define_attr :data, BinStruct::String, optional: ->(h) { h.length > 2 },
+                                              builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
         # @!attribute copied
         #  1-bit copied flag from {#type} field
@@ -68,7 +68,7 @@ module PacketGen
         # !@attribute number
         #  5-bit option number from {#type} field
         #  @return [Integer]
-        define_bit_fields_on :type, :copied, :option_class, 2, :number, 5
+        define_bit_attrs_on :type, :copied, :option_class, 2, :number, 5
 
         # @return [Hash]
         def self.types
@@ -133,7 +133,7 @@ module PacketGen
         end
 
         def initialize_data_if_needed(options)
-          return unless fields.include?(:data) && self[:data].respond_to?(:from_human) && options.key?(:data)
+          return unless attributes.include?(:data) && self[:data].respond_to?(:from_human) && options.key?(:data)
 
           # Force data if data is set in options but not length
           self.length += options[:data].size
@@ -143,8 +143,8 @@ module PacketGen
 
       # End-of-option-List IP option
       class EOL < Option
-        remove_field :length
-        remove_field :data
+        remove_attr :length
+        remove_attr :data
       end
 
       # No OPeration IP option
@@ -152,16 +152,16 @@ module PacketGen
 
       # Loose Source and Record Route IP option
       class LSRR < Option
-        remove_field :data
+        remove_attr :data
 
         # @!attribute pointer
         #  8-bit pointer on next address
         #  @return [Integer]
-        define_field :pointer, Types::Int8, default: 4
+        define_attr :pointer, BinStruct::Int8, default: 4
         # @!attribute data
         #  Array of IP addresses
-        #  @return [Types::Array<IP::Addr>]
-        define_field :data, ArrayOfAddr, builder: ->(h, t) { t.new(length_from: -> { h.length - 3 }) }
+        #  @return [BinStruct::Array<IP::Addr>]
+        define_attr :data, ArrayOfAddr, builder: ->(h, t) { t.new(length_from: -> { h.length - 3 }) }
 
         # Get IP address pointer by {#pointer}
         # @return [Addr]
@@ -185,12 +185,12 @@ module PacketGen
 
       # Stream Identifier IP option
       class SI < Option
-        remove_field :data
+        remove_attr :data
 
         # @!attribute id
         #  16-bit stream ID
         #  @return [Integer]
-        define_field :id, Types::Int16
+        define_attr :id, BinStruct::Int16
 
         def to_human
           super << ":#{self.id}"
@@ -199,12 +199,12 @@ module PacketGen
 
       # Router Alert IP option
       class RA < Option
-        remove_field :data
+        remove_attr :data
 
         # @!attribute value
         #  16-bit value. Should be 0.
         #  @return [Integer]
-        define_field :value, Types::Int16, default: 0
+        define_attr :value, BinStruct::Int16, default: 0
 
         def to_human
           super << ":#{self.value}"

@@ -31,7 +31,7 @@ module PacketGen
       #   |                       Source Address [N]                      |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
-      # Fields are:
+      # Struct are:
       # * 32-bit {#group_addr} field ({Header::IP::Addr} type),
       # * 4-bit {#resv}, a reserved field,
       # * 1-bit {#flag_s} (Suppress Router-Side Processing),
@@ -44,25 +44,25 @@ module PacketGen
         # @!attribute group_addr
         #  IP Group address
         #  @return [IP::Addr]
-        define_field :group_addr, IP::Addr, default: '0.0.0.0'
+        define_attr :group_addr, IP::Addr, default: '0.0.0.0'
         # @!attribute u8
         #  First 8-bit field, composed of {#resv}, {#flag_s} and {#qrv}
         #  @return [Integer]
-        define_field :u8, Types::Int8
+        define_attr :u8, BinStruct::Int8
         # @!attribute qqic
         #  8-bit QQIC
         #  @return [Integer,Float]
-        define_field :qqic, Types::Int8
+        define_attr :qqic, BinStruct::Int8
         # @!attribute number_of_sources
         #  16-bit Number of Sources in {#source_addr}
         #  @return [Integer]
-        define_field :number_of_sources, Types::Int16
+        define_attr :number_of_sources, BinStruct::Int16
 
         # @!attribute source_addr
         #  Array of IP source addresses
         #  @return [IP::ArrayOfAddr]
-        define_field :source_addr, IP::ArrayOfAddr,
-                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
+        define_attr :source_addr, IP::ArrayOfAddr,
+                    builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
 
         # @!attribute resv
         #  4-bit reserved field in
@@ -73,7 +73,7 @@ module PacketGen
         # @!attribute qrv
         #  3-bit Querier's Robustness Variable
         #  @return [Integer]
-        define_bit_fields_on :u8, :resv, 4, :flag_s, :qrv, 3
+        define_bit_attrs_on :u8, :resv, 4, :flag_s, :qrv, 3
 
         undef qqic, qqic=
 

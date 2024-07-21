@@ -13,7 +13,7 @@ module PacketGen
       # @abstract Base class for HTTP headers.
       # @author Kent 'picat' Gruber
       class Headers
-        include Types::Fieldable
+        include BinStruct::Structable
 
         # Underlying Headers data (or nil).
         # @return [Hash, nil]

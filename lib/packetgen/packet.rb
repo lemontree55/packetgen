@@ -337,7 +337,7 @@ module PacketGen
       end
     end
 
-    # Invert all possible fields in packet to create a reply.
+    # Invert all possible attributes.in packet to create a reply.
     # @return [self]
     # @since 2.7.0
     def reply!

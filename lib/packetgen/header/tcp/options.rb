@@ -13,7 +13,7 @@ module PacketGen
     class TCP
       # Container for TCP options in {TCP TCP header}.
       # @author Sylvain Daubert
-      class Options < Types::Array
+      class Options < BinStruct::Array
         set_of Option
 
         # Get {Option} subclasses

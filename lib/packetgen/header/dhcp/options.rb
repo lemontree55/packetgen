@@ -22,7 +22,7 @@ module PacketGen
       #   # And finish with padding
       #   options << { type: 'pad' }
       # @author Sylvain Daubert
-      class Options < Types::Array
+      class Options < BinStruct::Array
         set_of Option
 
         private

@@ -29,10 +29,10 @@ module PacketGen
       #   |                              ...                              |
       # A HELLO payload consists of:
       # * a {#network_mask} field ({IP::Addr}),
-      # * a {#hello_interval} field ({Types::Int16}),
-      # * an {#options} field ({Types::Int8}),
-      # * a {#priority} field ({Types::Int8}),
-      # * a {#dead_interval} field ({Types::Int32}),
+      # * a {#hello_interval} field ({BinStruct::Int16}),
+      # * an {#options} field ({BinStruct::Int8}),
+      # * a {#priority} field ({BinStruct::Int8}),
+      # * a {#dead_interval} field ({BinStruct::Int32}),
       # * a {#designated_router} field ({IP::Addr}),
       # * a {#backup_designated_router} field ({IP::Addr}),
       # * a {#neighbors} array containing neighbors as {IP::Addr}.
@@ -63,11 +63,11 @@ module PacketGen
         # @!attribute network_mask
         #  The network mask associated with this interface.
         #  @return [String]
-        define_field :network_mask, IP::Addr
+        define_attr :network_mask, IP::Addr
         # @!attribute hello_interval
         #  The number of seconds between this router's Hello packets.
         #  @return [Integer]
-        define_field :hello_interval, Types::Int16
+        define_attr :hello_interval, BinStruct::Int16
 
         # @!macro define_options
         OSPFv2.define_options(self)
@@ -76,25 +76,25 @@ module PacketGen
         #  This router's Router Priority.  Used in (Backup) Designated
         #  Router election.
         #  @return [Integer]
-        define_field :priority, Types::Int8
+        define_attr :priority, BinStruct::Int8
         # @!attribute dead_interval
         #  The number of seconds before declaring a silent router down.
         #  @return [Integer]
-        define_field :dead_interval, Types::Int32
+        define_attr :dead_interval, BinStruct::Int32
         # @!attribute designated_router
         #  The identity of the Designated Router for this network, in the
         #  view of the sending router.
         #  @return [String]
-        define_field :designated_router, IP::Addr
+        define_attr :designated_router, IP::Addr
         # @!attribute backup_designated_router
         #  The identity of the Backup Designated Router for this network,
         #  in the view of the sending router.
         #  @return [String]
-        define_field :backup_designated_router, IP::Addr
+        define_attr :backup_designated_router, IP::Addr
         # @!attribute neighbors
         #  Array of neighbors
         #  @return [IP::ArrayOfAddr]
-        define_field :neighbors, IP::ArrayOfAddr
+        define_attr :neighbors, IP::ArrayOfAddr
       end
     end
 

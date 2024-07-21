@@ -34,29 +34,29 @@ module PacketGen
       # @!attribute interface_id
       #  32-bit interface ID
       #  @return [Integer]
-      define_field_before :block_len2, :interface_id, Types::Int32, default: 0
+      define_attr_before :block_len2, :interface_id, BinStruct::Int32, default: 0
       # @!attribute tsh
       #  high 32-bit timestamp value
       #  @return [Integer]
-      define_field_before :block_len2, :tsh, Types::Int32, default: 0
+      define_attr_before :block_len2, :tsh, BinStruct::Int32, default: 0
       # @!attribute tsl
       #  low 32-bit imestamp value
       #  @return [Integer]
-      define_field_before :block_len2, :tsl, Types::Int32, default: 0
+      define_attr_before :block_len2, :tsl, BinStruct::Int32, default: 0
       # @!attribute cap_len
       #  32-bit capture length
       #  @return [Integer]
-      define_field_before :block_len2, :cap_len, Types::Int32, default: 0
+      define_attr_before :block_len2, :cap_len, BinStruct::Int32, default: 0
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field_before :block_len2, :orig_len, Types::Int32, default: 0
+      define_attr_before :block_len2, :orig_len, BinStruct::Int32, default: 0
       # @!attribute data
-      #  @return [Types::String]
-      define_field_before :block_len2, :data, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :data, BinStruct::String
       # @!attribute options
-      #  @return [Types::String]
-      define_field_before :block_len2, :options, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :options, BinStruct::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness

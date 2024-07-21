@@ -45,23 +45,23 @@ module PacketGen
       # @!attribute magic
       #  32-bit magic number
       #  @return [Integer]
-      define_field_before :block_len2, :magic, Types::Int32, default: MAGIC_INT32
+      define_attr_before :block_len2, :magic, BinStruct::Int32, default: MAGIC_INT32
       # @!attribute ver_major
       #  16-bit major version number
       #  @return [Integer]
-      define_field_before :block_len2, :ver_major, Types::Int16, default: 1
+      define_attr_before :block_len2, :ver_major, BinStruct::Int16, default: 1
       # @!attribute ver_major
       #  16-bit minor version number
       #  @return [Integer]
-      define_field_before :block_len2, :ver_minor, Types::Int16, default: 0
+      define_attr_before :block_len2, :ver_minor, BinStruct::Int16, default: 0
       # @!attribute section_len
       #  64-bit section length
       #  @return [Integer]
-      define_field_before :block_len2, :section_len, Types::Int64,
-                          default: SECTION_LEN_UNDEFINED
+      define_attr_before :block_len2, :section_len, BinStruct::Int64,
+                         default: SECTION_LEN_UNDEFINED
       # @!attribute options
-      #  @return [Types::String]
-      define_field_before :block_len2, :options, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :options, BinStruct::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -135,12 +135,12 @@ module PacketGen
       def force_endianness(endian)
         @endian = endian
         %i[type block_len magic block_len2].each do |attr|
-          self[attr] = Types::Int32.new(0, endian).read(self[attr].to_s)
+          self[attr] = BinStruct::Int32.new(value: 0, endian: endian).read(self[attr].to_s)
         end
         %i[ver_major ver_minor].each do |attr|
-          self[attr] = Types::Int16.new(0, endian).read(self[attr].to_s)
+          self[attr] = BinStruct::Int16.new(value: 0, endian: endian).read(self[attr].to_s)
         end
-        self[:section_len] = Types::Int64.new(0, endian).read(self[:section_len].to_s)
+        self[:section_len] = BinStruct::Int64.new(value: 0, endian: endian).read(self[:section_len].to_s)
       end
 
       # Check io contains a SHB

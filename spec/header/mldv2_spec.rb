@@ -56,7 +56,7 @@ module PacketGen
             pkt = PacketGen.gen('IPv6', src: 'fe80::1', dst: 'ff02::1', hop: 1).
                             add('IPv6::HopByHop').
                             add('ICMPv6', type: 130, code: 0)
-            pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: Types::Int16.new(0).to_s }
+            pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: BinStruct::Int16.new(value: 0).to_s }
             pkt.body = "\x00\x7f\x00\x00" + ([0] * 16).pack('C*') +
                        [1, 0x2000, 0, 0, 0, 0, 0, 0, 1].pack('Nn*')
             pkt.calc
@@ -141,7 +141,7 @@ module PacketGen
             mlq = MLDv2::MLQ.new
             str = mlq.inspect
             expect(str).to be_a(String)
-            (mlq.fields - %i(body)).each do |attr|
+            (mlq.attributes - %i(body)).each do |attr|
               expect(str).to include(attr.to_s)
             end
           end

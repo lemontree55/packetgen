@@ -17,7 +17,7 @@ module PacketGen
     #   |             Length            |           Checksum            |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A UDP header consists of:
-    # * a source port field ({#sport}, {Types::Int16} type),
+    # * a source port field ({#sport}, {BinStruct::Int16} type),
     # * a destination port field ({#dport}, +Int16+ type),
     # * a UDP length field ({#length}, +Int16+ type),
     # * a {#checksum} field (+Int16+ type),
@@ -46,22 +46,22 @@ module PacketGen
       # @!attribute sport
       #  16-bit UDP source port
       #  @return [Integer]
-      define_field :sport, Types::Int16
+      define_attr :sport, BinStruct::Int16
       # @!attribute dport
       #  16-bit UDP destination port
       #  @return [Integer]
-      define_field :dport, Types::Int16
+      define_attr :dport, BinStruct::Int16
       # @!attribute length
       #  16-bit UDP length
       #  @return [Integer]
-      define_field :length, Types::Int16, default: 8
+      define_attr :length, BinStruct::Int16, default: 8
       # @!attribute checksum
       #  16-bit UDP checksum
       #  @return [Integer]
-      define_field :checksum, Types::Int16
+      define_attr :checksum, BinStruct::Int16
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
 
       alias source_port sport
       alias source_port= sport=

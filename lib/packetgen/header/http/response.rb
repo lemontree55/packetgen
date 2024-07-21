@@ -10,11 +10,11 @@ module PacketGen
   module Header
     module HTTP
       # An HTTP/1.1 Response packet consists of:
-      # * the version ({Types::String}).
-      # * the status code ({Types::String}).
-      # * the status message ({Types::String}).
+      # * the version ({BinStruct::String}).
+      # * the status code ({BinStruct::String}).
+      # * the status message ({BinStruct::String}).
       # * associated http headers ({HTTP::Headers}).
-      # * the actual http payload body ({Types::String}).
+      # * the actual http payload body ({BinStruct::String}).
       #
       # == Create a HTTP Response header
       #   # standalone
@@ -38,21 +38,21 @@ module PacketGen
       # @author Kent 'picat' Gruber
       class Response < Base
         # @!attribute version
-        #   @return [Types::String]
-        define_field :version,     Types::String, default: 'HTTP/1.1'
+        #   @return [BinStruct::String]
+        define_attr :version,     BinStruct::String, default: 'HTTP/1.1'
         # @!attribute status_code
-        #   @return [Types::String]
-        define_field :status_code, Types::String
+        #   @return [BinStruct::String]
+        define_attr :status_code, BinStruct::String
         # @!attribute status_mesg
-        #   @return [Types::String]
-        define_field :status_mesg, Types::String
+        #   @return [BinStruct::String]
+        define_attr :status_mesg, BinStruct::String
         # @!attribute headers
         #   associated http/1.1 headers
-        #   @return [Types::String]
-        define_field :headers, HTTP::Headers
+        #   @return [BinStruct::String]
+        define_attr :headers, HTTP::Headers
         # @!attribute body
         #   @return [HTTP::PHeaders]
-        define_field :body, Types::String
+        define_attr :body, BinStruct::String
 
         # @param [Hash] options
         # @option options [String] :version
@@ -61,7 +61,7 @@ module PacketGen
         # @option options [String] :body
         # @option options [Hash]   :headers
         def initialize(options={})
-          super(options)
+          super
           self.headers ||= options[:headers]
         end
 

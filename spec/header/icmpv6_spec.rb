@@ -96,7 +96,7 @@ module PacketGen
           icmpv6 = ICMPv6.new
           str = icmpv6.inspect
           expect(str).to be_a(String)
-          (icmpv6.fields - %i(body)).each do |attr|
+          (icmpv6.attributes - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

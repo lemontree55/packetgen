@@ -16,14 +16,14 @@ module PacketGen
       # (management frame).
       #
       # A IEEE 802.11 management header consists of:
-      # * a {#frame_ctrl} ({Types::Int16}),
-      # * a {#id}/duration ({Types::Int16le}),
+      # * a {#frame_ctrl} ({BinStruct::Int16}),
+      # * a {#id}/duration ({BinStruct::Int16le}),
       # * a {#mac1} ({Eth::MacAddr}).
       # * a {#mac2} ({Eth::MacAddr}),
       # * a {#mac3} ({Eth::MacAddr}),
-      # * a {#sequence_ctrl} ({Types::Int16}),
-      # * a {#body} (a {Types::String} or another {Base} class),
-      # * and a Frame check sequence ({#fcs}, of type {Types::Int32le}).
+      # * a {#sequence_ctrl} ({BinStruct::Int16}),
+      # * a {#body} (a {BinStruct::String} or another {Base} class),
+      # * and a Frame check sequence ({#fcs}, of type {BinStruct::Int32le}).
       #
       # Management frames should be constructed with more headers from
       # {SubMngt} subclasses.
@@ -44,8 +44,8 @@ module PacketGen
         # @see Base#initialize
         def initialize(options={})
           super({ type: 0 }.merge!(options))
-          @applicable_fields -= %i[mac4 qos_ctrl ht_ctrl]
-          define_applicable_fields
+          @applicable_attributes -= %i[mac4 qos_ctrl ht_ctrl]
+          define_applicable_attributes
         end
 
         # Add an {Element}

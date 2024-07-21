@@ -11,10 +11,10 @@ module PacketGen
     class DNS
       # Define a DNS Ressource Record Section
       # @author Sylvain Daubert
-      class RRSection < Types::Array
+      class RRSection < BinStruct::Array
         # @api private
         # @param [DNS] dns
-        # @param [Types::Int] counter
+        # @param [BinStruct::Int] counter
         def initialize(dns, counter)
           super(counter: counter)
           @dns = dns

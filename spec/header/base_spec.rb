@@ -5,15 +5,15 @@ $global_var = false
 
 module PGTest
   class Base < PacketGen::Header::Base
-    define_field :field1, PacketGen::Types::Int8
-    define_field :field2, PacketGen::Types::Int8
-    define_field :body, PacketGen::Types::String
+    define_attr :field1, BinStruct::Int8
+    define_attr :field2, BinStruct::Int8
+    define_attr :body, BinStruct::String
   end
   PacketGen::Header.add_class Base
 
   class ToBind < PacketGen::Header::Base
-    define_field :field, PacketGen::Types::Int32, default: 1
-    define_field :str, PacketGen::Types::String
+    define_attr :field, BinStruct::Int32, default: 1
+    define_attr :str, BinStruct::String
     def added_to_packet(_packet)
       $global_var = true
     end
@@ -68,7 +68,7 @@ module PacketGen
 
         it 'binds a header using procs' do
           PGTest::Base.bind PGTest::ToBind, procs: [->(h) { h.field1 = 42 },
-                                        ->(h) { h.field1 == 42 && Types::Int32.new.read(h.body[0..3]).to_i > 0 }]
+                                        ->(h) { h.field1 == 42 && BinStruct::Int32.new.read(h.body[0..3]).to_i > 0 }]
           expect(PGTest::Base).to know_header(PGTest::ToBind).with(field1: 42, body: [1].pack('N'))
 
           pkt = Packet.new.add('PGTest::Base').add('PGTest::ToBind')
@@ -86,7 +86,7 @@ module PacketGen
           pkt3 = Packet.parse(pkt.to_s, first_header: 'PGTest::Base')
           expect(pkt3.is?('Base')).to be(true)
           expect(pkt3.is?('PGTest::ToBind')).to be(false)
-          expect(pkt3.base[:body]).to be_a(Types::String)
+          expect(pkt3.base[:body]).to be_a(BinStruct::String)
         end
 
         it 'binds a header with multiple possibility (multiple calls to .bind)' do
@@ -115,7 +115,7 @@ module PacketGen
       context 'adding header to a packet' do
         before(:all) do
           class PacketTest < Base
-            define_field :field, Types::Int8, default: ->(h) { h.packet ? h.packet.ip.tos : 255 }
+            define_attr :field, BinStruct::Int8, default: ->(h) { h.packet ? h.packet.ip.tos : 255 }
           end
           Header.add_class PacketTest
           IP.bind PacketTest, protocol: 255
@@ -137,7 +137,7 @@ module PacketGen
       context 'when parsing a packet' do
         before(:all) do
           class PacketTest < Base
-            define_field :field, Types::Int8, builder: ->(h, _) { lt = h.packet && (h.packet.ip.tos > 0) ? Types::Int16 : Types::Int8; lt.new }
+            define_attr :field, BinStruct::Int8, builder: ->(h, _) { lt = h.packet && (h.packet.ip.tos > 0) ? BinStruct::Int16 : BinStruct::Int8; lt.new }
           end
           Header.add_class PacketTest
           IP.bind PacketTest, protocol: 255
@@ -149,7 +149,7 @@ module PacketGen
           pkt = Packet.parse(str)
           expect(pkt.is?('IP')).to be(true)
           expect(pkt.is?('PacketTest')).to be(true)
-          expect(pkt.packettest[:field]).to be_a(Types::Int16)
+          expect(pkt.packettest[:field]).to be_a(BinStruct::Int16)
         end
       end
 

@@ -9,9 +9,9 @@
 module PacketGen
   module Header
     class DNS
-      # DNS Name, defined as a suite of labels. A label is of type {Types::IntString}.
+      # DNS Name, defined as a suite of labels. A label is of type {BinStruct::IntString}.
       # @author Sylvain Daubert
-      class Name < Types::Array
+      class Name < BinStruct::Array
         # Mask to decode a pointer on another label
         POINTER_MASK = 0xc000
 
@@ -25,10 +25,10 @@ module PacketGen
         end
 
         # @!method push(label)
-        #  @param [Types::IntString] label
+        #  @param [BinStruct::IntString] label
         #  @return [Name] self
         # @!method <<(label)
-        #  @param [Types::IntString] label
+        #  @param [BinStruct::IntString] label
         #  @return [Name] self
 
         # Read a set of labels form a dotted string
@@ -39,9 +39,9 @@ module PacketGen
           return self if str.nil?
 
           str.split('.').each do |label|
-            self << Types::IntString.new(string: label)
+            self << BinStruct::IntString.new(string: label)
           end
-          self << Types::IntString.new
+          self << BinStruct::IntString.new
         end
 
         # Clear name
@@ -119,7 +119,7 @@ module PacketGen
         end
 
         def add_label_from(str)
-          label = Types::IntString.new
+          label = BinStruct::IntString.new
           label.read(str)
           self << label
           label

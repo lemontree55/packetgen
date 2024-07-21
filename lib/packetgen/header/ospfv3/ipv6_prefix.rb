@@ -17,26 +17,26 @@ module PacketGen
       # * and an array of 32-bit words to encode prefix itself ({#prefix}). This
       #   array consumes ((PrefixLength + 31) / 32) 32-bit words.
       # @author Sylvain Daubert
-      class IPv6Prefix < Types::Fields
-        include Types::Fieldable
+      class IPv6Prefix < BinStruct::Struct
+        include BinStruct::Structable
 
         # @!attribute length
         #  Prefix length, in bits
         #  @return [Integer]
-        define_field :length, Types::Int8
+        define_attr :length, BinStruct::Int8
         # @!attribute options
         #  Prefix capabilities. See also capability bits: {#dn_opt}, {#p_opt},
         #  {#la_opt} and {#nu_opt}.
         #  @return [Options]
-        define_field :options, Types::Int8
+        define_attr :options, BinStruct::Int8
         # @!attribute reserved
         #  Reserved field in most of LSA types.
         #  @return [Integer]
-        define_field :reserved, Types::Int16
+        define_attr :reserved, BinStruct::Int16
         # @!attribute prefix
         #  IPv6 Prefix as an array of 32-bit words
         #  @return [Prefix]
-        define_field :prefix, Types::ArrayOfInt32, builder: ->(h, t) { t.new(length_from: -> { h.length / 8 }) }
+        define_attr :prefix, BinStruct::ArrayOfInt32, builder: ->(h, t) { t.new(length_from: -> { h.length / 8 }) }
 
         # @!attribute dn_opt
         #  This bit controls an inter-area-prefix-LSAs or AS-external-LSAs
@@ -54,7 +54,7 @@ module PacketGen
         #  The "no unicast" capability bit.  If set, the prefix should be
         #  excluded from IPv6 unicast calculations.
         #  @return [Boolean]
-        define_bit_fields_on :options, :zz, 3, :dn_opt, :p_opt, :z, :la_opt, :nu_opt
+        define_bit_attrs_on :options, :zz, 3, :dn_opt, :p_opt, :z, :la_opt, :nu_opt
 
         # Get human-readable prefix
         # @return [String]
@@ -100,7 +100,7 @@ module PacketGen
 
       # Array of {IPv6Prefix}
       # @author Sylvain Daubert
-      class ArrayOfIPv6Prefix < Types::Array
+      class ArrayOfIPv6Prefix < BinStruct::Array
         set_of IPv6Prefix
       end
     end

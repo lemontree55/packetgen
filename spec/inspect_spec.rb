@@ -3,28 +3,28 @@ require 'spec_helper'
 module PacketGen
   describe Inspect do
     describe '.inspect_attribute' do
-      it 'return a formatted string for a Types::Int attribute' do
-        int8 = Types::Int8.new(52)
+      it 'return a formatted string for a BinStruct::Int attribute' do
+        int8 = BinStruct::Int8.new(value: 52)
         inspect = Inspect.inspect_attribute('my_int8', int8)
         expect(inspect).to eq("              Int8          my_int8: 52               (0x34)\n")
 
-        int16 = Types::Int16.new(45)
+        int16 = BinStruct::Int16.new(value: 45)
         inspect = Inspect.inspect_attribute('my_int16', int16)
         expect(inspect).to eq("             Int16         my_int16: 45               (0x002d)\n")
 
-        enum = Types::Int32leEnum.new({'one' => 1, 'two' => 2})
+        enum = BinStruct::Int32leEnum.new(enum: {'one' => 1, 'two' => 2})
         inspect = Inspect.inspect_attribute('my_enum', enum)
         expect(inspect).to eq("       Int32leEnum          my_enum: one              (0x00000001)\n")
       end
 
       it 'return a formatted string for an attribute responding to #to_human' do
-        oui = Types::OUI.new(b2: 0x45, b1: 0xfe, b0: 0x12)
+        oui = BinStruct::OUI.new(b2: 0x45, b1: 0xfe, b0: 0x12)
         inspect = Inspect.inspect_attribute('my_oui', oui)
         expect(inspect).to eq("               OUI           my_oui: 45:fe:12\n")
       end
 
       it 'return a formatted string for another attribute type' do
-        str = Types::String.new.read('abc')
+        str = BinStruct::String.new.read('abc')
         inspect = Inspect.inspect_attribute('my_str', str)
         expect(inspect).to eq("            String           my_str: \"abc\"\n")
       end

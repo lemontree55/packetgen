@@ -148,7 +148,7 @@ module PacketGen
         it 'returns a string with type and vendor fields' do
           eap = EAP.new(code: 'Request', type: 254)
           str = eap.inspect
-          (eap.fields - %i[body]).each do |attr|
+          (eap.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

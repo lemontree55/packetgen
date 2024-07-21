@@ -10,20 +10,20 @@ module PacketGen
             opt = Option.new
             expect(opt.kind).to eq(0)
             expect(opt[:length].value).to be(nil)
-            expect(opt[:value]).to be_a(Types::String)
+            expect(opt[:value]).to be_a(BinStruct::String)
           end
 
           it 'infers correct Int subclass when value is an integer' do
             opt = Option.new(length: 3, value: 0x80)
-            expect(opt[:value]).to be_a(Types::Int8)
+            expect(opt[:value]).to be_a(BinStruct::Int8)
             expect(opt.value).to eq(0x80)
 
             opt = Option.new(length: 4, value: 0x8000)
-            expect(opt[:value]).to be_a(Types::Int16)
+            expect(opt[:value]).to be_a(BinStruct::Int16)
             expect(opt.value).to eq(0x8000)
 
             opt = Option.new(length: 6, value: 0x80000000)
-            expect(opt[:value]).to be_a(Types::Int32)
+            expect(opt[:value]).to be_a(BinStruct::Int32)
             expect(opt.value).to eq(0x80000000)
           end
 

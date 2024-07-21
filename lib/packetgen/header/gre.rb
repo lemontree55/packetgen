@@ -26,7 +26,7 @@ module PacketGen
       # IP protocol number for GRE
       IP_PROTOCOL = 47
 
-      define_field :u16, Types::Int16
+      define_attr :u16, BinStruct::Int16
 
       # @!attribute c
       #   @return [Boolean]
@@ -38,26 +38,26 @@ module PacketGen
       #   @return [Integer]
       # @!attribute ver
       #   @return [Integer]
-      define_bit_fields_on :u16, :c, :r, :k, :s, :reserved0, 9, :ver, 3
+      define_bit_attrs_on :u16, :c, :r, :k, :s, :reserved0, 9, :ver, 3
 
       # @!attribute protocol_type
       #   @return [Integer]
-      define_field :protocol_type, Types::Int16
+      define_attr :protocol_type, BinStruct::Int16
       # @!attribute checksum
       #   @return [Integer]
-      define_field :checksum, Types::Int16, default: 0, optional: ->(gre) { gre.c? }
+      define_attr :checksum, BinStruct::Int16, default: 0, optional: lambda(&:c?)
       # @!attribute reserved1
       #   @return [Integer]
-      define_field :reserved1, Types::Int16, default: 0, optional: ->(gre) { gre.c? }
+      define_attr :reserved1, BinStruct::Int16, default: 0, optional: lambda(&:c?)
       # @!attribute key
       #   @return [Integer]
-      define_field :key, Types::Int32, optional: ->(gre) { gre.k? }
+      define_attr :key, BinStruct::Int32, optional: lambda(&:k?)
       # @!attribute sequence_number
       #   @return [Integer]
-      define_field :sequence_number, Types::Int32, optional: ->(gre) { gre.s? }
+      define_attr :sequence_number, BinStruct::Int32, optional: lambda(&:s?)
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
 
       alias seqnum sequence_number
       alias seqnum= sequence_number=
