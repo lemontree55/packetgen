@@ -35,8 +35,9 @@ module PacketGen
       pcap.setpromisc(promisc)
       pcap.settimeout(TIMEOUT)
       # Monitor MUST be set before pcap is activated
-      pcap.setmonitor monitor unless monitor.nil?
+      pcap.setmonitor(monitor) unless monitor.nil?
       pcap.activate
+      pcap
     end
 
     # Capture packets from a network interface
