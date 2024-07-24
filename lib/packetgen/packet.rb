@@ -61,20 +61,20 @@ module PacketGen
     # @param [Hash] options specific options for +protocol+
     # @return [Packet]
     def self.gen(protocol, options={})
-      self.new.add protocol, options
+      self.new.add(protocol, options)
     end
 
     # Parse a binary string and generate a Packet from it.
     #   # auto-detect first header
-    #   Packet.parse str
+    #   Packet.parse(str)
     #   # force decoding a Ethernet header for first header
-    #   Packet.parse str, first_header: 'Eth'
+    #   Packet.parse(str, first_header: 'Eth')
     # @param [String] binary_str
     # @param [String,nil] first_header First protocol header. +nil+ means discover it!
     # @return [Packet]
     # @raise [ArgumentError] +first_header+ is an unknown header
     def self.parse(binary_str, first_header: nil)
-      new.parse binary_str, first_header: first_header
+      new.parse(binary_str, first_header: first_header)
     end
 
     # Capture packets from wire.
@@ -142,7 +142,7 @@ module PacketGen
       # options[:packet]= self is speedier than options.merge(packet: self)
       options[:packet] = self
       header = klass.new(options)
-      add_header header
+      add_header(header)
       self
     end
 
@@ -159,7 +159,7 @@ module PacketGen
       # options[:packet]= self is speedier than options.merge(packet: self)
       options[:packet] = self
       header = klass.new(options)
-      add_header header, previous_header: prev
+      add_header(header, previous_header: prev)
       idx = headers.index(prev) + 1
       headers[idx, 0] = header
       header[:body] = nxt
@@ -173,7 +173,7 @@ module PacketGen
     # @return [Boolean]
     # @raise [ArgumentError] unknown protocol
     def is?(protocol)
-      klass = check_protocol protocol
+      klass = check_protocol(protocol)
       headers.any?(klass)
     end
 
@@ -181,7 +181,7 @@ module PacketGen
     # @return [void]
     def calc_checksum
       headers.reverse_each do |header|
-        header.calc_checksum if header.respond_to? :calc_checksum
+        header.calc_checksum if header.respond_to?(:calc_checksum)
       end
     end
 
@@ -189,21 +189,24 @@ module PacketGen
     # @return [void]
     def calc_length
       headers.reverse_each do |header|
-        header.calc_length if header.respond_to? :calc_length
+        header.calc_length if header.respond_to?(:calc_length)
       end
     end
 
     # Recalculate all calculatable fields (for now: length and checksum)
     # @return [void]
+    # @author LemonTree55
     def calc
-      calc_length
-      calc_checksum
+      headers.reverse_each do |header|
+        header.calc_length if header.respond_to?(:calc_length)
+        header.calc_checksum if header.respond_to?(:calc_checksum)
+      end
     end
 
     # Get packet body
     # @return [Types]
     def body
-      last_header[:body] if last_header.respond_to? :body
+      last_header[:body] if last_header.respond_to?(:body)
     end
 
     # Set packet body
@@ -229,7 +232,7 @@ module PacketGen
     alias write to_f
 
     # Send packet on wire. Use first header +#to_w+ method.
-    # @param [String] iface interface name. Default to first non-loopback interface
+    # @param [String,nil] iface interface name. Default to first non-loopback interface
     # @param [Boolean] calc if +true+, call {#calc} on packet before sending it.
     # @param [Integer] number number of times to send the packets
     # @param [Integer,Float] interval time, in seconds, between sending 2 packets
@@ -239,12 +242,12 @@ module PacketGen
     def to_w(iface=nil, calc: true, number: 1, interval: 1)
       iface ||= PacketGen.default_iface
 
-      if first_header.respond_to? :to_w
+      if first_header.respond_to?(:to_w)
         self.calc if calc
 
         number.times do
           first_header.to_w(iface)
-          sleep interval if number > 1
+          sleep(interval) if number > 1
         end
       else
         type = first_header.protocol_name
@@ -257,12 +260,12 @@ module PacketGen
     # @param [Boolean] parsing set to +true+ to not update last current header field
     #    from binding with first other's one. Use only when current header field
     #    has its value set accordingly.
-    # @return [self] +self+ with new headers from +other+
+    # @return [self] +self+ updated with new headers from +other+
     # @raise [BindingError] do not known how to encapsulate
     # @since 1.1.0
     def encapsulate(other, parsing: false)
       other.headers.each_with_index do |h, i|
-        add_header h, parsing: i.positive? || parsing
+        add_header(h, parsing: i.positive? || parsing)
       end
     end
 
@@ -286,8 +289,8 @@ module PacketGen
 
     # Parse a binary string and populate Packet from it.
     # @param [String] binary_str
-    # @param [String,nil] first_header First protocol header. +nil+ means discover it!
-    # @return [Packet] self
+    # @param [String,nil] first_header First protocol header name. +nil+ means discover it!
+    # @return [self]
     # @raise [ParseError] +first_header+ is an unknown header
     # @raise [BindingError] unknwon binding between some headers
     def parse(binary_str, first_header: nil)
@@ -299,7 +302,7 @@ module PacketGen
         raise ParseError, "cannot identify first header in string: #{binary_str.inspect}" if first_header.nil?
       end
 
-      add first_header
+      add(first_header)
       headers[-1, 1] = last_header.read(binary_str)
 
       # Decode upper headers recursively
@@ -317,12 +320,14 @@ module PacketGen
       str << Inspect.inspect_body(body)
     end
 
+    # Check equality at binary level
     # @param [Packet] other
     # @return [Boolean]
     def ==(other)
       to_s == other.to_s
     end
 
+    # +true+ is {#==} is +true+ with another packet, or if +other+ is a protocol name String, whose protocol is in Packet.
     # @param [Packet] other
     # @return [Boolean]
     # @since 3.1.2
@@ -331,7 +336,7 @@ module PacketGen
       when PacketGen::Packet
         self == other
       when String
-        is? other
+        is?(other)
       else
         false
       end
@@ -363,7 +368,7 @@ module PacketGen
     def initialize_copy(_other)
       @headers = headers.map(&:dup)
       headers.each do |header|
-        add_magic_header_method header
+        add_magic_header_method(header)
       end
       invalidate_header_cache
     end
@@ -410,17 +415,20 @@ module PacketGen
     end
 
     # @overload header(klass, layer=1)
+    #  Get a header given its class and its layer (example: IP-in-IP encapsulation)
     #  @param [Class] klass
     #  @param [Integer] layer
     # @overload header(klass, options={})
+    #  Get a header given its class, and set some attributes
     #  @param [String] klass
-    #  @param [Hash] options
-    #  @raise [ArgumentError] unknown option
-    # @return [Header::Base]
+    #  @param [Hash] options attributes to set
+    #  @raise [ArgumentError] unknown attribute
+    # @return [Header::Base,nil]
     def header(klass, arg)
       layer = arg.is_a?(Integer) ? arg : 1
       header = find_header(klass, layer)
-      return header unless arg.is_a? Hash
+      return nil if header.nil?
+      return header unless arg.is_a?(Hash)
 
       arg.each do |key, value|
         raise ArgumentError, "unknown #{key} attribute for #{klass}" unless header.respond_to?(:"#{key}=")
@@ -434,12 +442,14 @@ module PacketGen
     # Get header from cache, or find it in packet
     # @param [Class] klass
     # @param [Integer] layer
-    # @return [Header::Base]
+    # @return [Header::Base,nil]
     def find_header(klass, layer)
       header = fetch_header_from_cache(klass, layer)
       return header if header
 
-      header = headers.select { |h| h.is_a? klass }[layer - 1]
+      header = headers.select { |h| h.is_a?(klass) }[layer - 1]
+      return nil if header.nil?
+
       add_header_to_cache(header, klass, layer)
       header
     end
@@ -468,9 +478,9 @@ module PacketGen
       header.packet = self
       headers << header unless previous_header
 
-      return if respond_to? header.method_name
+      return if respond_to?(header.method_name)
 
-      add_magic_header_method header
+      add_magic_header_method(header)
     end
 
     # Bind +header+ to +prev_header+.
@@ -497,7 +507,7 @@ module PacketGen
 
     # Try to guess header from +binary_str+
     # @param [String] binary_str
-    # @return [String] header/protocol name
+    # @return [String,nil] header/protocol name, or nil if cannot be guessed
     def guess_first_header(binary_str)
       first_header = nil
       Header.all.each do |hklass|
@@ -529,7 +539,7 @@ module PacketGen
         nheader = nheader.read(last_known_hdr.body)
         next unless nheader.parse?
 
-        add_header nheader, parsing: true
+        add_header(nheader, parsing: true)
         break if last_header == last_known_hdr
       end
     end

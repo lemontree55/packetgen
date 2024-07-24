@@ -220,6 +220,39 @@ module PacketGen
       end
     end
 
+    describe 'protocol magical method' do
+      let(:pkt) { Packet.gen('Eth').add('IP').add('IP').add('TCP') }
+
+      it 'gets header from given protocol' do
+        tcp = pkt.tcp
+        expect(tcp).to eq(pkt.headers[-1])
+        expect(tcp).to be_a(Header::TCP)
+      end
+
+      it 'gets header from given protocol and layer' do
+        ip1 = pkt.ip
+        ip2 = pkt.ip(2)
+        expect(ip1).not_to eq(ip2)
+        expect(ip1).to eq(pkt.headers[1])
+        expect(ip2).to eq(pkt.headers[2])
+      end
+
+      it 'gets nil if layer is too big' do
+        bad_ip = pkt.ip(55)
+        expect(bad_ip).to be_nil
+      end
+
+      it 'raises if protocol is not in packet' do
+        expect { pkt.udp }.to raise_error(NoMethodError)
+      end
+
+      it 'sets header attributes when feeding with a Hash' do
+        pkt.tcp(dport: 143, sport: 45_555)
+        expect(pkt.tcp.dport).to eq(143)
+        expect(pkt.tcp.sport).to eq(45_555)
+      end
+    end
+
     describe '#is?' do
       before(:each) do
         @pkt = Packet.gen('IP')
