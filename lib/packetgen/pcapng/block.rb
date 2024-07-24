@@ -22,13 +22,15 @@ module PacketGen
       #  32-bit block length
       #  @return [Integer]
       define_attr :block_len, BinStruct::Int32
-      # @!attribute block_len
+      # @!attribute block_len2
       #  32-bit block length
       #  @return [Integer]
       define_attr :block_len2, BinStruct::Int32
 
       def initialize(options={})
         super
+        endianness(options[:endian] || :little)
+        recalc_block_len
       end
 
       # Has this block option?
@@ -38,7 +40,7 @@ module PacketGen
         @attributes.key?(:options) && @attributes[:options].sz.positive?
       end
 
-      # Calculate block length and update :block_len and block_len2 fields
+      # Calculate block length and update +block_len+ and +block_len2+ fields
       # @return [void]
       def recalc_block_len
         len = attributes.map { |f| @attributes[f].to_s }.join.size
@@ -46,20 +48,19 @@ module PacketGen
       end
 
       # Pad given field to 32 bit boundary, if needed
-      # @param [Array<Symbol>] attributes.block attributes.to pad
+      # @param [Array<Symbol>] fields fields to pad
       # @return [void]
+      # @author LemonTree55
       def pad_field(*fields)
         fields.each do |field|
           obj = @attributes[field]
-          pad_size = (obj.sz % 4).zero? ? 0 : (4 - (obj.sz % 4))
-          obj << "\x00" * pad_size
+          obj << "\x00" * -(obj.sz % -4)
         end
       end
 
       private
 
       # Set the endianness for the various Int classes handled by self.
-      # Must be called by all subclass #initialize method.
       # @param [:little, :big] endian
       # @return [:little, :big] returns endian
       def endianness(endian)
@@ -75,19 +76,19 @@ module PacketGen
       end
 
       def to_io(str_or_io)
-        return str_or_io if str_or_io.respond_to? :read
+        return str_or_io if str_or_io.respond_to?(:read)
 
         StringIO.new(force_binary(str_or_io.to_s))
       end
 
       def remove_padding(io, data_len)
         data_pad_len = (4 - (data_len % 4)) % 4
-        io.read data_pad_len
+        io.read(data_pad_len)
         data_pad_len
       end
 
       def read_blocklen2_and_check(io)
-        self[:block_len2].read io.read(4)
+        self[:block_len2].read(io.read(4))
         check_len_coherency
       end
     end

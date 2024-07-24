@@ -23,17 +23,6 @@ module PacketGen
       #  @return [BinStruct::String]
       define_attr_before :block_len2, :body, BinStruct::String
 
-      # @option options [:little, :big] :endian set block endianness
-      # @option options [Integer] :type
-      # @option options [Integer] :block_len block total length
-      # @option options [::String] :body
-      # @option options [Integer] :block_len2 block total length
-      def initialize(options={})
-        super
-        endianness(options[:endian] || :little)
-        recalc_block_len
-      end
-
       # Has this block options?
       # @return [false]
       # @since 2.7.0
@@ -48,9 +37,9 @@ module PacketGen
         io = to_io(str_or_io)
         return self if io.eof?
 
-        self[:type].read io.read(4)
-        self[:block_len].read io.read(4)
-        self[:body].read io.read(self[:block_len].to_i - MIN_SIZE)
+        self[:type].read(io.read(4))
+        self[:block_len].read(io.read(4))
+        self[:body].read(io.read(self[:block_len].to_i - MIN_SIZE))
         read_blocklen2_and_check(io)
 
         self
@@ -59,7 +48,7 @@ module PacketGen
       # Return the object as a String
       # @return [String]
       def to_s
-        pad_field :body
+        pad_field(:body)
         recalc_block_len
         super
       end

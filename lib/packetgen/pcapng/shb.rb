@@ -81,8 +81,6 @@ module PacketGen
         super
         @interfaces = []
         @unknown_blocks = []
-        endianness(options[:endian] || :little)
-        recalc_block_len
         self.type = options[:type] || PcapNG::SHB_TYPE.to_i
       end
 
@@ -93,9 +91,9 @@ module PacketGen
         io = to_io(str_or_io)
         return self if io.eof?
 
-        self[:type].read check_shb(io)
+        self[:type].read(check_shb(io))
         %i[block_len magic ver_major ver_minor section_len].each do |attr|
-          self[attr].read io.read(self[attr].sz)
+          self[attr].read(io.read(self[attr].sz))
         end
         handle_magic_and_check(self[:magic].to_s)
 
@@ -120,7 +118,7 @@ module PacketGen
         body = @interfaces.map(&:to_s).join
         self.section_len = body.size unless self.section_len == SECTION_LEN_UNDEFINED
 
-        pad_field :options
+        pad_field(:options)
         recalc_block_len
         super + body
       end

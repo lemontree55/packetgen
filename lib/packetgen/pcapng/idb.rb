@@ -61,10 +61,8 @@ module PacketGen
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
         super
-        endianness(options[:endian] || :little)
         @packets = []
         @options_decoded = false
-        recalc_block_len
         self.type = options[:type] || PcapNG::IDB_TYPE.to_i
       end
 
@@ -76,9 +74,9 @@ module PacketGen
         return self if io.eof?
 
         %i[type block_len link_type reserved snaplen].each do |attr|
-          self[attr].read io.read(self[attr].sz)
+          self[attr].read(io.read(self[attr].sz))
         end
-        self[:options].read io.read(self.block_len - MIN_SIZE)
+        self[:options].read(io.read(self.block_len - MIN_SIZE))
         read_blocklen2_and_check(io)
 
         self
@@ -107,7 +105,7 @@ module PacketGen
       # Return the object as a String
       # @return [String]
       def to_s
-        pad_field :options
+        pad_field(:options)
         recalc_block_len
         super << @packets.map(&:to_s).join
       end
