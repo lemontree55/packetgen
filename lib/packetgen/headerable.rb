@@ -33,7 +33,7 @@ module PacketGen
     # @param [Class] klass
     # @return [void]
     def self.included(klass)
-      klass.extend ClassMethods
+      klass.extend(ClassMethods)
     end
 
     # Return header protocol name
@@ -65,7 +65,7 @@ module PacketGen
     end
 
     # @api private
-    # Set packet to which this header belongs
+    # Set packet to which this header belongs to
     # @param [Packet] packet
     # @return [Packet] packet
     def packet=(packet)
@@ -88,6 +88,16 @@ module PacketGen
     def read(str)
       # Do not call super and rescue NoMethodError: too slow
       raise NotImplementedError, "#{self.class} should implement #read" if method(:read).super_method.nil?
+
+      super
+    end
+
+    # @abstract This method MUST be redefined by subclasses.
+    # Generate binary string from header
+    # @return [String]
+    # @raise [NotImplementedError]
+    def to_s
+      raise NotImplementedError, "#{self.class} should implement #to_s" if method(:to_s).super_method.nil?
 
       super
     end

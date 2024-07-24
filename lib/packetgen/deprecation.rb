@@ -8,7 +8,7 @@ module PacketGen
   module Deprecation
     # Default remove version for deprecated classes/methods
     # @since 3.1.0
-    REMOVE_VERSION = '4.0.0'
+    REMOVE_VERSION = '5.0.0'
 
     # @private
     # @param [String] remove_version
@@ -35,7 +35,7 @@ module PacketGen
       message = +"#{file}:#{line}: #{complete_deprecated_method_name} is deprecated"
       message << " in favor of #{complete_new_method_name}" unless new_method.nil?
       message << '. ' << self.removed(remove_version)
-      warn message
+      warn(message)
     end
 
     # Warn when using a deprecated method
@@ -49,7 +49,7 @@ module PacketGen
       message = +"#{file}:#{line}: #{klass} is deprecated"
       message << " in favor of #{new_klass}" unless new_klass.nil?
       message << '. ' << self.removed(remove_version)
-      warn message
+      warn(message)
     end
 
     # Warn when using a deprecated method's option
@@ -66,7 +66,7 @@ module PacketGen
       method_name = "#{base_name}#{method}"
       message = +"option #{option} is deprecated for method #{method_name}. "
       message << self.removed(remove_version)
-      warn message
+      warn(message)
     end
   end
 end
