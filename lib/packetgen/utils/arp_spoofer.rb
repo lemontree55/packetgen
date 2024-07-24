@@ -22,15 +22,15 @@ module PacketGen
     # @author Sylvain Daubert
     # @since 2.1.3
     class ARPSpoofer
-      # @param [Integer,Float,nil] timeout spoof will happen for this amount
+      # @param [Numeric,nil] timeout spoof will happen for this amount
       #  of time
-      # @param [Integer,Float] interval time between 2 ARP packets
+      # @param [Numeric] interval time between 2 ARP packets
       # @param [String,nil] iface network interface on which do spoofing.
       #  Defaults to {PacketGen.default_iface}
       def initialize(timeout: nil, interval: 1.0, iface: nil)
         @timeout = timeout
         @timeout = @timeout.to_f if @timeout
-        @interval = interval
+        @interval = interval.to_f
         @iface = iface || PacketGen.default_iface
         @targets = {}
         @arp_packets = {}
@@ -56,19 +56,19 @@ module PacketGen
       # @param [String] target_ip target IP address
       # @return [void]
       def remove(target_ip)
-        @targets.delete target_ip
-        @arp_packets.delete target_ip
+        @targets.delete(target_ip)
+        @arp_packets.delete(target_ip)
       end
 
       # Get registered targets (all targets, registered with {#add} and {#start})
-      # @return [Array<String>] list of target IP addresses
+      # @return [Array<String>] list of registeres IP addresses
       def registered_targets
         @targets.keys
       end
 
       # Get active targets (registered with {#start}, or all after using
       # {#start_all})
-      # @return [Array<String>] list of target IP addresses
+      # @return [Array<String>] list of active IP addresses
       def active_targets
         @arp_packets.keys
       end
@@ -83,23 +83,23 @@ module PacketGen
       #  an ARP request is made to get it.
       # @return [void]
       def start(target_ip, spoofed_ip, options={})
-        add target_ip, spoofed_ip, options
-        activate target_ip
+        add(target_ip, spoofed_ip, options)
+        activate(target_ip)
       end
 
       # Stop spoofing on given target
       # @param [String] target_ip target IP address
       # @return [void]
       def stop(target_ip)
-        deactivate target_ip
-        remove target_ip
+        deactivate(target_ip)
+        remove(target_ip)
       end
 
       # Start spoofing on all targets added with {#add}.
       # @return [void]
       def start_all
         @targets.each_key do |target_ip|
-          activate target_ip
+          activate(target_ip)
         end
       end
 
@@ -107,7 +107,7 @@ module PacketGen
       # @return [void]
       def stop_all
         @targets.each_key do |target_ip|
-          deactivate target_ip
+          deactivate(target_ip)
         end
       end
 
@@ -115,9 +115,7 @@ module PacketGen
       # @param [String] target_ip target IP address
       # @return [Boolean]
       def active?(target_ip)
-        # rubocop:disable Style/ReturnNilInPredicateMethodDefinition
-        return unless @targets.key?(target_ip)
-        # rubocop:enable Style/ReturnNilInPredicateMethodDefinition
+        return false unless @targets.key?(target_ip)
 
         @targets[target_ip][:active]
       end
@@ -126,6 +124,7 @@ module PacketGen
       # was set on {#initialize}.
       def wait
         @spoof_thread.join
+        @spoof_thread = nil
       end
 
       private
@@ -143,7 +142,7 @@ module PacketGen
       # Create spoof thread
       def create_spoof_thread
         @spoof_thread = Thread.new(@queue, @timeout, @interval) do |queue, timeout, interval|
-          while timeout.nil? || timeout > 0.0
+          while timeout.nil? || timeout.positive?
             packets = queue.pop unless queue.empty?
             send_packets_on_wire(packets) unless packets.empty?
             timeout -= interval if timeout
@@ -161,9 +160,9 @@ module PacketGen
       # @param [String] target_ip
       # @return [void]
       def deactivate(target_ip)
-        @arp_packets.delete target_ip
+        @arp_packets.delete(target_ip)
         if @arp_packets.empty?
-          @spoof_thread.kill
+          @spoof_thread&.kill
           @spoof_thread = nil
         else
           @queue << @arp_packets.values
