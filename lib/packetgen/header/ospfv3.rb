@@ -24,15 +24,15 @@ module PacketGen
     #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # An OSPFv3 header consists of:
-    # * a {#version} field ({Types::Int8}),
-    # * a {#type} field ({Types::Int8Enum}),
-    # * a {#length} field ({Types::Int16}). The length includes the header,
-    # * a {#router_id} field ({Types::Int32}),
-    # * an {#area_id} field ({Types::Int32}),
-    # * a {#checksum} field ({Types::Int16}),
-    # * an {#instance_id} field ({Types::Int8}),
-    # * a {#reserved} field ({Types::Int8}),
-    # * and a {#body} ({Types::String}).
+    # * a {#version} field ({BinStruct::Int8}),
+    # * a {#type} field ({BinStruct::Int8Enum}),
+    # * a {#length} field ({BinStruct::Int16}). The length includes the header,
+    # * a {#router_id} field ({BinStruct::Int32}),
+    # * an {#area_id} field ({BinStruct::Int32}),
+    # * a {#checksum} field ({BinStruct::Int16}),
+    # * an {#instance_id} field ({BinStruct::Int8}),
+    # * a {#reserved} field ({BinStruct::Int8}),
+    # * and a {#body} ({BinStruct::String}).
     #
     # == Create an OSPFv3 header
     #   # standalone
@@ -74,38 +74,38 @@ module PacketGen
       # @!attribute version
       #  8-bit OSPF version
       #  @return [Integer]
-      define_field :version, Types::Int8, default: 3
+      define_attr :version, BinStruct::Int8, default: 3
       # @!attribute type
       #  8-bit OSPF packet type. Types are defined in {TYPES}.
       #  @return [Integer]
-      define_field :type, Types::Int8Enum, enum: TYPES
+      define_attr :type, BinStruct::Int8Enum, enum: TYPES
       # @!attribute length
       #  16-bit OSPF packet length
       #  @return [Integer]
-      define_field :length, Types::Int16
+      define_attr :length, BinStruct::Int16
       # @!attribute router_id
       #  32-bit router ID
       #  @return [Integer]
-      define_field :router_id, Types::Int32
+      define_attr :router_id, BinStruct::Int32
       # @!attribute area_id
       #  32-bit area ID
       #  @return [Integer]
-      define_field :area_id, Types::Int32
+      define_attr :area_id, BinStruct::Int32
       # @!attribute checksum
       #  16-bit OSPF packet checksum
       #  @return [Integer]
-      define_field :checksum, Types::Int16
+      define_attr :checksum, BinStruct::Int16
       # @!attribute instance_id
       #  8-bit instance ID.
       #  @return [Integer]
-      define_field :instance_id, Types::Int8
+      define_attr :instance_id, BinStruct::Int8
       # @!attribute reserved
       #  8-bit reserved field.
       #  @return [Integer]
-      define_field :reserved, Types::Int8, default: 0
+      define_attr :reserved, BinStruct::Int8, default: 0
       # @!attribute body
       #  @return [String,Base]
-      define_field :body, Types::String
+      define_attr :body, BinStruct::String
 
       # @api private
       # Helper class method to define an OSPFv3 options field.
@@ -136,9 +136,9 @@ module PacketGen
       #    routing calculations.
       #    @return [Boolean]
       def self.define_options(hdr)
-        hdr.define_field :options, Types::Int24
-        hdr.define_bit_fields_on :options, :z, 18, :dc_opt, :r_opt,
-                                 :n_opt, :x_opt, :e_opt, :v6_opt
+        hdr.define_attr :options, BinStruct::Int24
+        hdr.define_bit_attrs_on :options, :z, 18, :dc_opt, :r_opt,
+                                :n_opt, :x_opt, :e_opt, :v6_opt
       end
 
       # @api private

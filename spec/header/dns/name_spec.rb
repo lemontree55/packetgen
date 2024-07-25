@@ -29,7 +29,7 @@ module PacketGen
 
             offset = DNS.new.sz
             str = binary("\x03www" + [0xc0, offset].pack('C2'))
-            name.read str
+            name.read(str)
             expect(name.to_human).to eq('www.example.net.')
           end
         end

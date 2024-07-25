@@ -10,29 +10,29 @@ module PacketGen
   module Header
     class DHCPv6
       # A DHCPv6 consists of:
-      # * a {#type} ({Types::Int16}),
-      # * a {#length} ({Types::Int16}),
-      # * and a {#data} ({Types::String}).
+      # * a {#type} ({BinStruct::Int16}),
+      # * a {#length} ({BinStruct::Int16}),
+      # * and a {#data} ({BinStruct::String}).
       #
       # Subclasses handles known options. These subclasses may remove {#data}
       # field to replace it by specific option field(s).
       # @author Sylvain Daubert
-      class Option < Types::Fields
-        include Types::Fieldable
+      class Option < BinStruct::Struct
+        include BinStruct::Structable
 
         # @!attribute type
         #  16-bit option type
         #  @return [Integer]
-        define_field :type, Types::Int16
+        define_attr :type, BinStruct::Int16
         # @!attribute length
         #  16-bit option length
         #  @return [Integer]
-        define_field :length, Types::Int16
+        define_attr :length, BinStruct::Int16
         # @!attribute data
         #  variable length option data.
         #  @return [String]
-        define_field :data, Types::String,
-                     builder: ->(h, t) { t.new(length_from: h[:length]) }
+        define_attr :data, BinStruct::String,
+                    builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         class << self
           # Get Option subclasses
@@ -63,7 +63,7 @@ module PacketGen
             when String
               if DHCPv6.const_defined?(options[:type])
                 klass = DHCPv6.const_get(options[:type])
-                options.delete :type
+                options.delete(:type)
                 klass.new(options) if klass < Option
               end
             else
@@ -111,12 +111,12 @@ module PacketGen
       # DHCPv6 Client ID option
       # @author Sylvain Daubert
       class ClientID < Option
-        update_field :type, default: 1
-        remove_field :data
+        update_attr :type, default: 1
+        remove_attr :data
 
         # @!attribute duid
         #  @return [DUID]
-        define_field :duid, DUID
+        define_attr :duid, DUID
 
         # Get human-readable data (DUID)
         # @return [String]
@@ -128,32 +128,32 @@ module PacketGen
       # DHCPv6 Server ID option
       # @author Sylvain Daubert
       class ServerID < ClientID
-        update_field :type, default: 2
+        update_attr :type, default: 2
       end
 
       # DHCPv6 Identity Association for Non-temporary Addresses Option
       # @author Sylvain Daubert
       class IANA < Option
-        update_field :type, default: 3
-        remove_field :data
+        update_attr :type, default: 3
+        remove_attr :data
 
         # @!attribute iaid
         #  32-bit IAID field
         #  @return [Integer]
-        define_field :iaid, Types::Int32
+        define_attr :iaid, BinStruct::Int32
         # @!attribute t1
         #  32-bit T1 field
         #  @return [Integer]
-        define_field :t1, Types::Int32
+        define_attr :t1, BinStruct::Int32
         # @!attribute t2
         #  32-bit T2 field
         #  @return [Integer]
-        define_field :t2, Types::Int32
+        define_attr :t2, BinStruct::Int32
         # @!attribute options
         #  options field
         #  @return [String]
-        define_field :options, Types::String,
-                     builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 12 } }
+        define_attr :options, BinStruct::String,
+                    builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 12 } }
 
         # Get human-readable data (IAID, T1 and T2)
         # @return [String]
@@ -165,18 +165,18 @@ module PacketGen
       # DHCPv6 Identity Association for Temporary Addresses Option
       # @author Sylvain Daubert
       class IATA < Option
-        update_field :type, default: 4
-        remove_field :data
+        update_attr :type, default: 4
+        remove_attr :data
 
         # @!attribute iaid
         #  32-bit IAID field
         #  @return [Integer]
-        define_field :iaid, Types::Int32
+        define_attr :iaid, BinStruct::Int32
         # @!attribute options
         #  options field
         #  @return [String]
-        define_field :options, Types::String,
-                     builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 4 } }
+        define_attr :options, BinStruct::String,
+                    builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 4 } }
 
         # Get human-readable data (IAID)
         # @return [String]
@@ -188,26 +188,26 @@ module PacketGen
       # DHCPv6 IA Address option
       # @author Sylvain Daubert
       class IAAddr < Option
-        update_field :type, default: 5
-        remove_field :data
+        update_attr :type, default: 5
+        remove_attr :data
 
         # @attribute ipv6
         #  IPv6 address
         # @return [IPv6::Addr]
-        define_field :ipv6, IPv6::Addr
+        define_attr :ipv6, IPv6::Addr
         # @attribute preferred_lifetime
         #  32-bit preferred lifetime
         #  @return [Integer]
-        define_field :preferred_lifetime, Types::Int32
+        define_attr :preferred_lifetime, BinStruct::Int32
         # @attribute valid_lifetime
         #  32-bit valid lifetime
         #  @return [Integer]
-        define_field :valid_lifetime, Types::Int32
+        define_attr :valid_lifetime, BinStruct::Int32
         # @!attribute options
         #  options field
         #  @return [String]
-        define_field :options, Types::String,
-                     builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 24 } }
+        define_attr :options, BinStruct::String,
+                    builder: ->(h, t) { t.new length_from: -> { h[:length].to_i - 24 } }
 
         # Get human-readable data (ipv6, preferred lifetime and valid lifetime)
         # @return [String]
@@ -217,21 +217,21 @@ module PacketGen
       end
 
       # List of requested options for {ORO} option.
-      # Set of {Types::Int16}
+      # Set of {BinStruct::Int16}
       # @author Sylvain Daubert
-      class RequestedOptions < Types::Array
-        set_of Types::Int16
+      class RequestedOptions < BinStruct::Array
+        set_of BinStruct::Int16
       end
 
       # DHCPv6 Option Request Option
       # @author Sylvain Daubert
       class ORO < Option
-        update_field :type, default: 6
-        remove_field :data
+        update_attr :type, default: 6
+        remove_attr :data
 
         # @!attribute options
         #   @return [RequestedOptions]
-        define_field :options, RequestedOptions, builder: ->(h, t) { t.new(length_from: h[:length]) }
+        define_attr :options, RequestedOptions, builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         # Get human-readable data
         # @return [String]
@@ -243,13 +243,13 @@ module PacketGen
       # DHCPv6 Preference option
       # @author Sylvain Daubert
       class Preference < Option
-        update_field :type, default: 7
-        remove_field :data
+        update_attr :type, default: 7
+        remove_attr :data
 
         # @!attribute value
         #  8-bit value
         #  @return [Integer]
-        define_field :value, Types::Int8
+        define_attr :value, BinStruct::Int8
 
         # Get human-readable data (value)
         # @return [String]
@@ -261,13 +261,13 @@ module PacketGen
       # DHCPv6 Elapsed Time option
       # @author Sylvain Daubert
       class ElapsedTime < Option
-        update_field :type, default: 8
-        remove_field :data
+        update_attr :type, default: 8
+        remove_attr :data
 
         # @!attribute value
         #  16-bit value
         #  @return [Integer]
-        define_field :value, Types::Int16
+        define_attr :value, BinStruct::Int16
 
         # Get human-readable data (value)
         # @return [String]
@@ -279,19 +279,19 @@ module PacketGen
       # DHCPv6 Relay Message option
       # @author Sylvain Daubert
       class RelayMessage < Option
-        update_field :type, default: 9
+        update_attr :type, default: 9
       end
 
       # DHCPv6 Server Unicast option
       # @author Sylvain Daubert
       class ServerUnicast < Option
-        update_field :type, default: 12
-        remove_field :data
+        update_attr :type, default: 12
+        remove_attr :data
 
         # @!attribute addr
         #  IPv6 server address
         # @return [IPv6::Addr]
-        define_field :addr, IPv6::Addr
+        define_attr :addr, IPv6::Addr
 
         # Get human-readable data (addr)
         # @return [String]
@@ -303,14 +303,14 @@ module PacketGen
       # DHCPv6 Status Code option
       # @author Sylvain Daubert
       class StatusCode < ElapsedTime
-        update_field :type, default: 13
+        update_attr :type, default: 13
       end
 
       # DHCPv6 Rapid Commit option
       # @author Sylvain Daubert
       class RapidCommit < Option
-        update_field :type, default: 14
-        remove_field :data
+        update_attr :type, default: 14
+        remove_attr :data
       end
     end
   end

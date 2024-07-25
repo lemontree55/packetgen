@@ -25,29 +25,29 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # Such a header consists of:
-      # * a {#next} header field ({Types::Int8}),
-      # * a {#length} field ({Types::Int8}),
-      # * an {#options} field ({Types::String}),
+      # * a {#next} header field ({BinStruct::Int8}),
+      # * a {#length} field ({BinStruct::Int8}),
+      # * an {#options} field ({BinStruct::String}),
       # * and a {#body}, containing next header.
       # @author Sylvain Daubert
       class Extension < Base
         # @!attribute next
         #  8-bit Next header field
         #  @return [Integer]
-        define_field :next, Types::Int8
+        define_attr :next, BinStruct::Int8
         # @!attribute length
         #  8-bit extension length, in 8-octets units, not including the
         #  first 8 octets.
         #  @return [Integer]
-        define_field :length, Types::Int8
+        define_attr :length, BinStruct::Int8
         # @!attribute options
         #  Specific options of extension header
         #  @return [String]
-        define_field :options, Types::String,
-                     builder: ->(h, t) { t.new(length_from: -> { h.real_length }) }
+        define_attr :options, BinStruct::String,
+                    builder: ->(h, t) { t.new(length_from: -> { h.real_length }) }
         # @!attribute body
         #  @return [String,Base]
-        define_field :body, Types::String
+        define_attr :body, BinStruct::String
 
         # Get real extension header length
         # @return [Integer]

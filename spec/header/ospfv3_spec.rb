@@ -110,7 +110,7 @@ module PacketGen
           ospf = OSPFv3.new
           str  = ospf.inspect
           expect(str).to be_a(String)
-          (ospf.fields - %i(body)).each do |attr|
+          (ospf.attributes - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

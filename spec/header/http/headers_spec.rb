@@ -8,8 +8,8 @@ module PacketGen
         let(:hsh) { { 'Content-Type' => 'text/html', 'Connection' => 'keep-alive' } }
         let(:encoded_headers) { "Content-Type: text/html\r\nConnection: keep-alive\r\n\r\n" }
 
-        it 'is Fieldable' do
-          Headers < Types::Fieldable
+        it 'is BinStruct::Structable' do
+          Headers < BinStruct::Structable
         end
 
         describe '#read' do

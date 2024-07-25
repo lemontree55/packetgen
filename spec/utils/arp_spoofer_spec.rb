@@ -112,8 +112,8 @@ module PacketGen
           expect(as.active?('1.2.3.4')).to be(false)
         end
 
-        it 'returns nil for unknown target' do
-          expect(as.active?('10.0.0.1')).to be(nil)
+        it 'returns false for unknown target' do
+          expect(as.active?('10.0.0.1')).to be(false)
         end
       end
     end

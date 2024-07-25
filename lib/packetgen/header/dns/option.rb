@@ -11,28 +11,28 @@ module PacketGen
     class DNS
       # @!parse
       #  # DNS option is a TLV object:
-      #  # * {#code} is a {Types::Int16},
-      #  # * {#length} is a {Types::Int16},
-      #  # * {#data} is a {Types::String}.
+      #  # * {#code} is a {BinStruct::Int16},
+      #  # * {#length} is a {BinStruct::Int16},
+      #  # * {#data} is a {BinStruct::String}.
       #  #
       #  # @since 1.3.0
-      #  # @since 3.1.0 defined with {Types::AbstractTLV}
-      #  # @!parse class Option < Types::AbstractTLV; end
+      #  # @since 3.1.0 defined with {BinStruct::AbstractTLV}
+      #  # @!parse class Option < BinStruct::AbstractTLV; end
       #  # @!attribute code
       #  #   Alias for {#type}
       #  #   @return [Integer]
       #  # @!attribute data
       #  #   Alias for {#value}
-      #  #   @return [Types::String]
-      #  class Option < Types::AbstractTLV; end
+      #  #   @return [BinStruct::String]
+      #  class Option < BinStruct::AbstractTLV; end
       # @private
-      Option = Types::AbstractTLV.create(type_class: Types::Int16,
-                                         length_class: Types::Int16,
-                                         aliases: { code: :type, data: :value })
+      Option = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16,
+                                             length_class: BinStruct::Int16,
+                                             aliases: { code: :type, data: :value })
 
       # Array of {Option}.
       # @since 3.1.1
-      class ArrayOfOptions < Types::Array
+      class ArrayOfOptions < BinStruct::Array
         set_of Option
       end
     end

@@ -107,14 +107,14 @@ PacketGen.write('more_packets.pcapng', packets)
 ```
 
 ### Add custom header/protocol
-Since v1.1.0, PacketGen permits adding your own header classes.
+PacketGen permits adding your own header classes.
 First, define the new header class. For example:
 
 ```ruby
 module MyModule
  class MyHeader < PacketGen::Header::Base
-   define_field :field1, PacketGen::Types::Int32
-   define_field :field2, PacketGen::Types::Int32
+   define_attr :field1, BinStruct::Int32
+   define_attr :field2, BinStruct::Int32
  end
 end
 ```
@@ -135,8 +135,8 @@ PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
 And use it:
 
 ```ruby
-pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)
-pkt.myheader.field2.read 0x01
+pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678, field2: 0x87654321)
+pkt.to_w # Send it on wire
 ```
 
 ## Interactive console

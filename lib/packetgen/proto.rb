@@ -10,7 +10,7 @@
 require 'socket'
 
 module PacketGen
-  # Module handling some helper methods for protocols
+  # Module handling some helper methods for well_known protocols
   # @author Sylvain Daubert
   # @since 2.1.2
   module Proto

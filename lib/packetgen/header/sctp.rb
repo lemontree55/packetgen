@@ -46,23 +46,23 @@ module PacketGen
       # @!attribute sport
       #  16-bit TCP source port
       #  @return [Integer]
-      define_field :sport, Types::Int16
+      define_attr :sport, BinStruct::Int16
       # @!attribute dport
       #  16-bit TCP destination port
       #  @return [Integer]
-      define_field :dport, Types::Int16
+      define_attr :dport, BinStruct::Int16
       # @!attribute verification_tag
       #  32-bit verification tag
       #  @return [Integer]
-      define_field :verification_tag, Types::Int32
+      define_attr :verification_tag, BinStruct::Int32
       # @!attribute checksum
       #  32-bit TCP checksum
       #  @return [Integer]
-      define_field :checksum, Types::Int32le
+      define_attr :checksum, BinStruct::Int32le
       # @!attribute chunks
       #  List of chunks this packet transports
       #  @return [ArrayOfChunk]
-      define_field :chunks, ArrayOfChunk
+      define_attr :chunks, ArrayOfChunk
 
       # Compute SCTP checksum
       def calc_checksum

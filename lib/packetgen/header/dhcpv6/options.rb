@@ -19,7 +19,7 @@ module PacketGen
       #   duid = PacketGen::Header::DHCPv6::DUID_LL.new(link_addr: '08:00:27:fe:8f:95')
       #   options << { type: 1, duid: duid }
       # @author Sylvain Daubert
-      class Options < Types::Array
+      class Options < BinStruct::Array
         set_of DHCPv6::Option
 
         # Separator used in {#to_human}.

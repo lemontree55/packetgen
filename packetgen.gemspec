@@ -38,8 +38,9 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.7.0'
 
+  spec.add_dependency 'bin_struct', '>=0.2.0'
+  spec.add_dependency 'digest-crc', '~> 0'
   spec.add_dependency 'interfacez', '~>1.0'
   spec.add_dependency 'pcaprub', '~>0.13.0'
   spec.add_dependency 'rasn1', '~>0.13', '>=0.13.1'
-  spec.add_dependency 'digest-crc', '~> 0'
 end

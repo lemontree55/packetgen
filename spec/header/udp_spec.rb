@@ -121,7 +121,7 @@ module PacketGen
           udp = UDP.new
           str = udp.inspect
           expect(str).to be_a(String)
-          (udp.fields - %i(body)).each do |attr|
+          (udp.attributes - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

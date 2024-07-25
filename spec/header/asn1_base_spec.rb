@@ -8,8 +8,8 @@ module PacketGen
     describe ASN1Base do
 
       class TestBase2 < Base
-        define_field :field1, Types::Int8
-        define_field :field2, Types::Int8
+        define_attr :field1, BinStruct::Int8
+        define_attr :field2, BinStruct::Int8
       end
 
       class ASN1ToBind < ASN1Base

@@ -36,7 +36,7 @@ module PacketGen
           while !str.empty? && (self.size < @counter.to_i)
             question = Question.new(@dns).read(str)
             str.slice!(0, question.sz)
-            push question
+            push(question)
           end
           self
         end

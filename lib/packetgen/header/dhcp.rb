@@ -12,7 +12,7 @@ module PacketGen
     # RFC 2131}
     #
     # A DHCP header is quite simple. It is composed of:
-    # * a {#magic} field ({Types::Int32}) to retrieve it in a BOOTP header,
+    # * a {#magic} field ({BinStruct::Int32}) to retrieve it in a BOOTP header,
     # * a, {#options} field ({Options} type, which is a collection of DHCP
     #   options).
     #
@@ -50,10 +50,10 @@ module PacketGen
 
       # @!attribute magic
       #   @return [Integer]
-      define_field :magic, Types::Int32, default: 0x63825563
+      define_attr :magic, BinStruct::Int32, default: 0x63825563
       # @!attribute options
       #   @return [DHCP::Options]
-      define_field :options, DHCP::Options
+      define_attr :options, DHCP::Options
 
       # differentiate from BOOTP by checking presence of DHCP magic
       # @return [Boolean]

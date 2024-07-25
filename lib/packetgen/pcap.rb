@@ -9,7 +9,6 @@ require_relative 'pcaprub_wrapper'
 
 module PacketGen
   # Module to read PCAP files
-  # @author Sylvain Daubert
   # @api private
   # @since 3.1.4
   module Pcap
@@ -17,10 +16,12 @@ module PacketGen
     # @param [String] filename
     # @return [Array<Packet>]
     # @author Kent Gruber
+    # @author LemonTree55
     def self.read(filename)
       packets = []
-      PCAPRUBWrapper.read_pcap(filename: filename) do |packet|
-        next unless (packet = PacketGen.parse(packet.to_s))
+      PCAPRUBWrapper.read_pcap(filename: filename) do |raw_packet|
+        packet = PacketGen.parse(raw_packet.to_s)
+        next if packet.nil?
 
         packets << packet
       end

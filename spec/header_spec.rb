@@ -2,8 +2,8 @@ require_relative 'spec_helper'
 
 module PGTestModule
   class TestHeader < PacketGen::Header::Base
-    define_field :field1, PacketGen::Types::Int32
-    define_field :field2, PacketGen::Types::Int32
+    define_attr :field1, BinStruct::Int32
+    define_attr :field2, BinStruct::Int32
   end
 end
 

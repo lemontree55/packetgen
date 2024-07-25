@@ -152,7 +152,7 @@ module PacketGen
           arp = ARP.new
           str = arp.inspect
           expect(str).to be_a(String)
-          (arp.fields - %i(body)).each do |attr|
+          (arp.attributes - %i(body)).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

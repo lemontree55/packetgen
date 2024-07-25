@@ -34,7 +34,7 @@ module PacketGen
             data = SackChunk.new(options)
             options.each do |key, value|
               val = data.send(key)
-              val = val.map(&:to_human) if val.is_a?(Types::Array)
+              val = val.map(&:to_human) if val.is_a?(BinStruct::Array)
               expect(val).to eq(value)
             end
           end

@@ -49,17 +49,17 @@ module PacketGen
         # @!attribute reserved
         #  16-bit reserved field
         # @return [Integer]
-        define_field :reserved, Types::Int16, default: 0
+        define_attr :reserved, BinStruct::Int16, default: 0
         # @!attribute number_of_gr
         #  16-bit Number of group records in {#group_records}
         #  @return [Integer]
-        define_field :number_of_gr, Types::Int16, default: 0
+        define_attr :number_of_gr, BinStruct::Int16, default: 0
 
         # @!attribute group_records
         #  Array of group records
         #  @return [GroupRecords]
-        define_field :group_records, GroupRecords,
-                     builder: ->(h, t) { t.new(counter: h[:number_of_gr]) }
+        define_attr :group_records, GroupRecords,
+                    builder: ->(h, t) { t.new(counter: h[:number_of_gr]) }
       end
     end
 

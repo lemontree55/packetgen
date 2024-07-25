@@ -15,9 +15,9 @@ module PacketGen
     #   |     Type      |     Code      |          Checksum             |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A ICMP header consists of:
-    # * a {#type} field ({Types::Int8} type),
-    # * a {#code} field ({Types::Int8} type),
-    # * a {#checksum} field ({Types::Int16} type),
+    # * a {#type} field ({BinStruct::Int8} type),
+    # * a {#code} field ({BinStruct::Int8} type),
+    # * a {#checksum} field ({BinStruct::Int16} type),
     # * and a {#body}.
     #
     # == Create a ICMP header
@@ -41,18 +41,18 @@ module PacketGen
       # @!attribute type
       #  8-bit ICMP type
       #  @return [Integer]
-      define_field :type, Types::Int8
+      define_attr :type, BinStruct::Int8
       # @!attribute code
       #  8-bit ICMP code
       #  @return [Integer]
-      define_field :code, Types::Int8
+      define_attr :code, BinStruct::Int8
       # @!attribute checksum
       #  16-bit ICMP checksum
       #  @return [Integer]
-      define_field :checksum, Types::Int16
+      define_attr :checksum, BinStruct::Int16
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]
