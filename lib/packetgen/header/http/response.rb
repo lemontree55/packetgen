@@ -36,6 +36,7 @@ module PacketGen
       #   http_resp.headers     = { "Host": "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
+      # @author LemonTree55
       class Response < Base
         # @!attribute version
         #   @return [BinStruct::String]
@@ -125,9 +126,9 @@ module PacketGen
           first_line = headers.shift.split
           return if first_line.size < 3
 
-          self[:version].read first_line[0]
-          self[:status_code].read first_line[1]
-          self[:status_mesg].read first_line[2..].join(' ')
+          self[:version].read(first_line[0])
+          self[:status_code].read(first_line[1])
+          self[:status_mesg].read(first_line[2..].join(' '))
         end
 
         def raise_on_bad_version_status

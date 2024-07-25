@@ -58,9 +58,9 @@ module PacketGen
 
         def define_applicable_attributes
           super
-          if @applicable_attributes.include? :mac2
-            @applicable_attributes -= %i[mac2] unless SUBTYPES_WITH_MAC2.include? self.subtype
-          elsif SUBTYPES_WITH_MAC2.include? self.subtype
+          if @applicable_attributes.include?(:mac2)
+            @applicable_attributes -= %i[mac2] unless SUBTYPES_WITH_MAC2.include?(self.subtype)
+          elsif SUBTYPES_WITH_MAC2.include?(self.subtype)
             @applicable_attributes[3, 0] = :mac2
           end
         end

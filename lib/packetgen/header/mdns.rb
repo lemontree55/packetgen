@@ -47,7 +47,7 @@ module PacketGen
       def added_to_packet(packet)
         mdns_idx = packet.headers.size
         packet.instance_eval "def mdnsize() @headers[#{mdns_idx}].mdnsize; end" # def mdnsize() @headers[4].mdnsize; end
-        return unless packet.is? 'UDP'
+        return unless packet.is?('UDP')
         return unless packet.udp.sport.zero?
 
         packet.udp.sport = UDP_PORT

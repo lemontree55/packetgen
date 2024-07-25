@@ -201,7 +201,7 @@ module PacketGen
       # Calculate length field from content
       # @return [Integer]
       def calc_length
-        Base.calculate_and_set_length self
+        Base.calculate_and_set_length(self)
       end
 
       # Say is this EAP header has {#type} field
@@ -217,7 +217,7 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        return if packet.respond_to? :eap
+        return if packet.respond_to?(:eap)
 
         packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end") # def eap(arg=nil); header(EAP, arg); end
       end

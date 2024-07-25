@@ -86,12 +86,12 @@ module PacketGen
         if self.instance_of? TFTP
           super
           if OPCODES.value? opcode
-            TFTP.const_get(human_opcode).new.read str
+            TFTP.const_get(human_opcode).new.read(str)
           else
             self
           end
         else
-          old_read str
+          old_read(str)
         end
       end
 
@@ -130,7 +130,7 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        return if packet.respond_to? :tftp
+        return if packet.respond_to?(:tftp)
 
         packet.instance_eval("def tftp(arg=nil); header(#{self.class}, arg); end") # def tftp(arg=nil); header(TFTP, arg); end
       end
@@ -140,7 +140,7 @@ module PacketGen
       def decode_tftp_packet(pkt)
         tftp = Packet.parse(pkt.body, first_header: 'TFTP')
         udp_dport = pkt.udp.dport
-        pkt.encapsulate tftp
+        pkt.encapsulate(tftp)
         # need to fix it as #encapsulate force it to 69
         pkt.udp.dport = udp_dport
       end

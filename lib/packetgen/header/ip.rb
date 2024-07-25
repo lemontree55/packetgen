@@ -160,7 +160,7 @@ module PacketGen
       # @return [Integer]
       def self.sum16(hdr)
         old_checksum = nil
-        if hdr.respond_to? :checksum=
+        if hdr.respond_to?(:checksum)
           old_checksum = hdr.checksum
           hdr.checksum = 0
         end
@@ -178,8 +178,8 @@ module PacketGen
       # This method:
       # * checks a checksum is not greater than 0xffff. If it is,
       #   reduces it.
-      # * inverts reduced self[attr].
-      # * forces self[attr] to 0xffff if computed self[attr] is 0.
+      # * inverts reduced checksum.
+      # * forces checksum to 0xffff if computed checksum is 0.
       # @param [Integer] checksum checksum to reduce
       # @return [Integer] reduced checksum
       def self.reduce_checksum(checksum)
@@ -203,7 +203,7 @@ module PacketGen
       # @return [Integer]
       # @since 3.0.0 add +ihl+ calculation
       def calc_length
-        Base.calculate_and_set_length self
+        Base.calculate_and_set_length(self)
         self.ihl = 5 + self[:options].sz / 4
       end
 
@@ -216,14 +216,14 @@ module PacketGen
 
       # Send IP packet on wire.
       #
-      # When sending packet at IP level, +checksum+ and +length+ attributes.are set by
+      # When sending packet at IP level, +checksum+ and +length+ attributes are set by
       # kernel, so bad IP packets cannot be sent this way. To do so, use {Eth#to_w}.
       # @param [String,nil] _iface interface name. Not used
       # @return [void]
       def to_w(_iface=nil)
         sock = Socket.new(Socket::AF_INET, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
-        sock.send to_s, 0, sockaddrin
+        sock.send(to_s, 0, sockaddrin)
         sock.close
       end
 

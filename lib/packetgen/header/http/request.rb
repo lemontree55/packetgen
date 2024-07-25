@@ -35,6 +35,7 @@ module PacketGen
       #
       # @author Kent 'picat' Gruber
       # @author Sylvain Daubert
+      # @author LemonTree55
       # @since 3.1.0 Rename +#method+ into {#verb} to not mask +Object#method+.
       class Request < Base
         # @!attribute verb
@@ -70,9 +71,9 @@ module PacketGen
         def read(str)
           lines = lines(str)
           first_line_words = lines.shift.split
-          self[:verb].read first_line_words[0]
-          self[:path].read first_line_words[1]
-          self[:version].read first_line_words[2]
+          self[:verb].read(first_line_words[0])
+          self[:path].read(first_line_words[1])
+          self[:version].read(first_line_words[2])
 
           # requests can sometimes have a payload
           headers, data = headers_and_payload_from_lines(lines)

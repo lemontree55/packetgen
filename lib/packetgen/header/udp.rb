@@ -89,7 +89,7 @@ module PacketGen
       # Compute length and set +length+ field
       # @return [Integer]
       def calc_length
-        Base.calculate_and_set_length self
+        Base.calculate_and_set_length(self)
       end
 
       # Invert source and destination port numbers

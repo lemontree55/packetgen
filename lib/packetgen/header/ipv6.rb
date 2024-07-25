@@ -150,7 +150,7 @@ module PacketGen
       def to_w(_iface=nil)
         sock = Socket.new(Socket::AF_INET6, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
-        sock.send to_s, 0, sockaddrin
+        sock.send(to_s, 0, sockaddrin)
         sock.close
       end
 

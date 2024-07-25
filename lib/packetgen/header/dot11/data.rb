@@ -45,22 +45,22 @@ module PacketGen
           case ds
           when 0
             # MAC1: RA/DA, MAC2: TA/SA
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
           when 1
             # MAC1: RA/BSSID, MAC2: TA/SA, MAC3: DA
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
             self.to_ds = false
             self.from_ds = true
           when 2
             # MAC1: RA/DA, MAC2: BSSID, MAC3: SA or BSSID
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
             self.to_ds = true
             self.from_ds = false
           when 3
             # MAC1: RA, MAC2: TA
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
             # MAC3: DA, MAC4: SA
-            invert_mac :mac3, :mac4
+            invert_mac(:mac3, :mac4)
           end
           self
         end

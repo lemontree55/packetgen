@@ -63,7 +63,7 @@ module PacketGen
             when String
               if DHCPv6.const_defined?(options[:type])
                 klass = DHCPv6.const_get(options[:type])
-                options.delete :type
+                options.delete(:type)
                 klass.new(options) if klass < Option
               end
             else

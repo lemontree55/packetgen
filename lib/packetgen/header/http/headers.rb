@@ -76,7 +76,7 @@ module PacketGen
         end
 
         # Read human-readable data to populate header data.
-        # @param [String, Hash] data
+        # @param [Hash] data
         # @return [self]
         def from_human(data)
           read(data)

@@ -281,24 +281,24 @@ module PacketGen
       def read(str)
         fcs = Dot11.fcs?
 
-        if self.instance_of? Dot11
+        if self.instance_of?(Dot11)
           return self if str.nil?
 
           force_binary str
-          self[:frame_ctrl].read str[0, 2]
+          self[:frame_ctrl].read(str[0, 2])
 
           case type
           when 0
-            Dot11::Management.new.read str
+            Dot11::Management.new.read(str)
           when 1
-            Dot11::Control.new.read str
+            Dot11::Control.new.read(str)
           when 2
-            Dot11::Data.new.read str
+            Dot11::Data.new.read(str)
           else
-            private_read str, fcs
+            private_read(str, fcs)
           end
         else
-          private_read str, fcs
+          private_read(str, fcs)
         end
       end
 
@@ -324,9 +324,9 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = if self.instance_of? Dot11
+        str = if self.instance_of?(Dot11)
                 Inspect.dashed_line("#{self.class} #{human_type}", 1)
-              elsif self.respond_to? :human_subtype
+              elsif self.respond_to?(:human_subtype)
                 Inspect.dashed_line("#{self.class} #{human_subtype}", 1)
               else
                 Inspect.dashed_line(self.class.to_s, 1)
@@ -354,7 +354,7 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        return if packet.respond_to? :dot11
+        return if packet.respond_to?(:dot11)
 
         packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end") # def dot11(arg=nil); header(Dot11, arg); end
       end
@@ -368,15 +368,15 @@ module PacketGen
 
       def handle_mac4
         if to_ds? && from_ds?
-          @applicable_attributes[6, 0] = :mac4 unless @applicable_attributes.include? :mac4
+          @applicable_attributes[6, 0] = :mac4 unless @applicable_attributes.include?(:mac4)
         else
-          remove_from_applicable_attributes :mac4
+          remove_from_applicable_attributes(:mac4)
         end
       end
 
       def handle_ht_ctrl
         if order?
-          unless @applicable_attributes.include? :ht_ctrl
+          unless @applicable_attributes.include?(:ht_ctrl)
             idx = @applicable_attributes.index(:body)
             @applicable_attributes[idx, 0] = :ht_ctrl
           end
@@ -387,9 +387,9 @@ module PacketGen
 
       def handle_fcs
         if Dot11.fcs?
-          @applicable_attributes << :fcs unless @applicable_attributes.include? :fcs
+          @applicable_attributes << :fcs unless @applicable_attributes.include?(:fcs)
         else
-          remove_from_applicable_attributes :fcs
+          remove_from_applicable_attributes(:fcs)
         end
       end
 
@@ -403,10 +403,10 @@ module PacketGen
         self[:frame_ctrl].read str[0, 2]
         define_applicable_attributes
         if fcs
-          old_read str[0...-4]
-          self[:fcs].read str[-4..]
+          old_read(str[0...-4])
+          self[:fcs].read(str[-4..])
         else
-          old_read str
+          old_read(str)
         end
         self
       end

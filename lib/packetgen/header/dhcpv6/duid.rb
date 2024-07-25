@@ -50,7 +50,7 @@ module PacketGen
               self
             end
           else
-            private_read str
+            private_read(str)
           end
         end
 

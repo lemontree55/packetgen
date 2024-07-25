@@ -200,7 +200,7 @@ module PacketGen
         private
 
         def record_from_hash(hsh)
-          raise ArgumentError, 'hash should have :type key' unless hsh.key? :type
+          raise ArgumentError, 'hash should have :type key' unless hsh.key?(:type)
 
           klass = if @only_headers
                     LSAHeader
@@ -220,8 +220,8 @@ module PacketGen
         def get_lsa_class_by_human_type(htype)
           klassname = "LSA#{htype.to_s.delete('-')}"
           begin
-            if OSPFv3.const_defined? klassname
-              OSPFv3.const_get klassname
+            if OSPFv3.const_defined?(klassname)
+              OSPFv3.const_get(klassname)
             else
               LSA
             end

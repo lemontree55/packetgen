@@ -11,6 +11,7 @@ module PacketGen
     class DNS
       # DNS Ressource Record
       # @author Sylvain Daubert
+      # @author LemonTree55
       class RR < Question
         # @!attribute ttl
         #  32-bit time to live
@@ -24,6 +25,41 @@ module PacketGen
         #  @return [BinStruct::String]
         define_attr :rdata, BinStruct::String,
                     builder: ->(rr, t) { t.new(length_from: rr[:rdlength]) }
+
+        # @private RData struct
+        class RData < BinStruct::Struct
+          attr_accessor :dns
+
+          def initialize(options={})
+            @dns = options.delete(:dns)
+            super
+          end
+        end
+
+        # @private MX struct
+        class MX < RData
+          define_attr :pref, BinStruct::Int16
+          define_attr :exchange, Name, builder: ->(h, t) { t.new(dns: h.dns) }
+        end
+
+        # @private SOA struct
+        class SOA < RData
+          define_attr :mname, Name, builder: ->(h, t) { t.new(dns: h.dns) }
+          define_attr :rname, Name, builder: ->(h, t) { t.new(dns: h.dns) }
+          define_attr :serial, BinStruct::Int32
+          define_attr :refresh, BinStruct::Int32
+          define_attr :retryi, BinStruct::Int32
+          define_attr :expire, BinStruct::Int32
+          define_attr :minimum, BinStruct::Int32
+        end
+
+        # @private SRV struct
+        class SRV < RData
+          define_attr :priority, BinStruct::Int16
+          define_attr :weight, BinStruct::Int16
+          define_attr :port, BinStruct::Int16
+          define_attr :target, Name, builder: ->(h, t) { t.new(dns: h.dns) }
+        end
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -60,8 +96,7 @@ module PacketGen
 
           case type
           when TYPES['NS'], TYPES['PTR'], TYPES['CNAME']
-            name = Name.new
-            name.dns = self[:name].dns
+            name = Name.new(dns: self[:name].dns)
             str = name.read(self[:rdata]).to_human
           when TYPES['SOA']
             str = human_soa_rdata
@@ -78,7 +113,7 @@ module PacketGen
         # Get human readable class
         # @return [String]
         def human_rrclass
-          if self[:name].dns.is_a? MDNS
+          if self[:name].dns.is_a?(MDNS)
             str = self.class::CLASSES.key(self.rrclass & 0x7fff) || '0x%04x' % (self.rrclass & 0x7fff)
             str += ' CACHE-FLUSH' if (self.rrclass & 0x8000).positive?
             str
@@ -105,44 +140,22 @@ module PacketGen
         end
 
         def human_mx_data
-          name = Name.new
-          name.dns = self[:name].dns
-
-          pref = BinStruct::Int16.new.read(self[:rdata][0, 2])
-          exchange = name.read(self[:rdata][2..]).to_human
-
-          '%u %s' % [pref.to_i, exchange]
+          mx = MX.new(dns: self[:name].dns).read(self[:rdata])
+          "#{mx.pref} #{mx.exchange}"
         end
 
-        # rubocop:disable Metrics/AbcSize
+        # /rubocop:disable Metrics/AbcSize
         def human_soa_rdata
-          name = Name.new
-          name.dns = self[:name].dns
-          mname = name.read(self[:rdata]).dup
-          rname = name.read(self[:rdata][mname.sz..])
+          soa = SOA.new(dns: self[:name].dns).read(self[:rdata])
 
-          serial = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz, 4])
-          refresh = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 4, 4])
-          retryi = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 8, 4])
-          expire = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 12, 4])
-          minimum = BinStruct::Int32.new.read(self[:rdata][mname.sz + rname.sz + 16, 4])
-
-          "#{mname.to_human} #{rname.to_human} #{serial.to_i} #{refresh.to_i} " \
-            "#{retryi.to_i} #{expire.to_i} #{minimum.to_i}"
+          "#{soa.mname} #{soa.rname} #{soa.serial} #{soa.refresh} " \
+            "#{soa.retryi} #{soa.expire} #{soa.minimum}"
         end
 
         def human_srv_data
-          name = Name.new
-          name.dns = self[:name].dns
-
-          priority = BinStruct::Int16.new.read(self[:rdata][0, 2])
-          weight = BinStruct::Int16.new.read(self[:rdata][2, 2])
-          port = BinStruct::Int16.new.read(self[:rdata][4, 2])
-          target = name.read(self[:rdata][6, self[:rdata].size]).to_human
-
-          "#{priority.to_i} #{weight.to_i} #{port.to_i} #{target}"
+          srv = SRV.new(dns: self[:name].dns).read(self[:rdata])
+          "#{srv.priority} #{srv.weight} #{srv.port} #{srv.target}"
         end
-        # rubocop:enable Metrics/AbcSize
       end
     end
   end

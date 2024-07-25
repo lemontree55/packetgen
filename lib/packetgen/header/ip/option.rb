@@ -76,7 +76,7 @@ module PacketGen
 
           @types = {}
           Option.constants.each do |cst|
-            next unless cst.to_s.end_with? '_TYPE'
+            next unless cst.to_s.end_with?('_TYPE')
 
             optname = cst.to_s.sub('_TYPE', '')
             @types[optname] = Option.const_get(cst)
@@ -109,7 +109,7 @@ module PacketGen
         # Get binary string. Set {#length} field.
         # @return [String]
         def to_s
-          self.length = super.size if respond_to? :length
+          self.length = super.size if respond_to?(:length)
           super
         end
 
@@ -124,8 +124,8 @@ module PacketGen
         private
 
         def class2type
-          opt_name = self.class.to_s.gsub(/.*::/, '')
-          Option.const_get(:"#{opt_name}_TYPE") if Option.const_defined? :"#{opt_name}_TYPE"
+          opt_sym = :"#{self.class.to_s.gsub(/.*::/, '')}_TYPE"
+          Option.const_get(opt_sym) if Option.const_defined?(opt_sym)
         end
 
         def initialize_length_if_needed(options)

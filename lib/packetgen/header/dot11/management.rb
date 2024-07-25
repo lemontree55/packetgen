@@ -54,7 +54,7 @@ module PacketGen
         # @return [self]
         # @since 2.1.3
         def add_element(type:, value:)
-          raise FormatError, 'Before adding an Element, you have to add a Dot11::SubMngt subclass instance' unless self[:body].is_a? SubMngt
+          raise FormatError, 'Before adding an Element, you have to add a Dot11::SubMngt subclass instance' unless self[:body].is_a?(SubMngt)
 
           self[:body].elements << { type: type, value: value }
           self

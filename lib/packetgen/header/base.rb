@@ -130,12 +130,12 @@ module PacketGen
         # @param [BinStruct::Struct] fields
         # @return [void]
         def set(fields)
-          @bindings.first.each { |b| b.set fields }
+          @bindings.first.each { |b| b.set(fields) }
         end
       end
 
       # @private
-      # On inheritage, create +@known_header+ class variable
+      # On inheritance, create +@known_header+ class variable
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
@@ -182,11 +182,10 @@ module PacketGen
         #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
         # @since 2.7.0
         def bind(header_klass, args={})
-          if @known_headers[header_klass].nil?
+          bindings = @known_headers[header_klass]
+          if bindings.nil?
             bindings = Bindings.new
             @known_headers[header_klass] = bindings
-          else
-            bindings = @known_headers[header_klass]
           end
           bindings.new_set
           args.each do |key, value|
@@ -242,7 +241,7 @@ module PacketGen
       def ip_header(header)
         hid = header_id(header)
         iph = packet.headers[0...hid].reverse.find { |h| h.is_a?(IP) || h.is_a?(IPv6) }
-        raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
+        raise FormatError, 'no IP nor IPv6 header in packet' if iph.nil?
 
         iph
       end

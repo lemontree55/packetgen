@@ -11,6 +11,7 @@ module PacketGen
     class DNS
       # DNS Name, defined as a suite of labels. A label is of type {BinStruct::IntString}.
       # @author Sylvain Daubert
+      # @author LemonTree55
       class Name < BinStruct::Array
         # Mask to decode a pointer on another label
         POINTER_MASK = 0xc000
@@ -18,7 +19,10 @@ module PacketGen
         # @return [DNS]
         attr_accessor :dns
 
-        def initialize
+        # @param [Hash] options
+        # @option options [DNS] :dns
+        def initialize(options={})
+          @dns = options.delete(:dns)
           super
           @pointer = nil
           @pointer_name = nil
@@ -59,11 +63,11 @@ module PacketGen
           clear
           return self if str.nil?
 
-          PacketGen.force_binary str
+          PacketGen.force_binary(str)
           start = 0
           loop do
             index = str[start, 2].unpack1('n')
-            if pointer? index
+            if pointer?(index)
               # Pointer on another label
               @pointer = str[start, 2]
               break
