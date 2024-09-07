@@ -125,14 +125,26 @@ module PacketGen
     end
 
     describe '.write' do
-      let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
-
-      it '.write writes a Array of Packet to a file' do
+      it 'writes an Array of Packet to a PcapNG file' do
+        file = ::File.join(__dir__, 'pcapng', 'sample.pcapng')
         ary = Packet.read(file)
         write_file = Tempfile.new('pcapng')
         begin
           Packet.write(write_file.path, ary)
-          expect(Packet.read(write_file.path)).to eq(ary)
+          expect(PcapNG::File.new.read_packets(write_file.path)).to eq(ary)
+        ensure
+          write_file.close
+          write_file.unlink
+        end
+      end
+
+      it 'writes an Array of Packet to a pcap file' do
+        file = ::File.join(__dir__, 'sample.pcap')
+        ary = Packet.read(file)
+        write_file = Tempfile.new('test.pcap')
+        begin
+          Packet.write(write_file.path, ary)
+          expect(Pcap.read(write_file.path)).to eq(ary)
         ensure
           write_file.close
           write_file.unlink

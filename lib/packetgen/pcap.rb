@@ -8,7 +8,7 @@
 require_relative 'pcaprub_wrapper'
 
 module PacketGen
-  # Module to read PCAP files
+  # Module to read/write PCAP files
   # @api private
   # @since 3.1.4
   module Pcap
@@ -26,6 +26,16 @@ module PacketGen
         packets << packet
       end
       packets
+    end
+
+    # Write binary packets to a PCAP file
+    # @param [String] filename
+    # @param [Array<String>] packets
+    # @return [void]
+    # @since 4.0.0
+    # @author LemonTree55
+    def self.write(filename, packets)
+      PCAPRUBWrapper.pcap_write(filename, packets.map(&:to_s))
     end
   end
 end

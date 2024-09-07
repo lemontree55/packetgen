@@ -112,16 +112,23 @@ module PacketGen
       Pcap.read(filename)
     end
 
-    # Write packets to +filename+
+    # Write packets to +filename+, as pcap or PcapNG file
     #
     # For more options, see {PcapNG::File}.
     # @param [String] filename
     # @param [Array<Packet>] packets packets to write
     # @return [void]
+    # @since 4.0.0 write a pcap file if filename extension is +.pcap+
+    # @author Sylvain Daubert
+    # @author LemonTree55 (pcap)
     def self.write(filename, packets)
-      pf = PcapNG::File.new
-      pf.read_array(packets)
-      pf.to_f(filename)
+      if filename.end_with?('.pcap')
+        Pcap.write(filename, packets)
+      else
+        pf = PcapNG::File.new
+        pf.read_array(packets)
+        pf.to_f(filename)
+      end
     end
 
     # @private

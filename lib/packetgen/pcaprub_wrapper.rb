@@ -10,6 +10,7 @@ require 'pcaprub'
 module PacketGen
   # Wrapper around PCAPRUB
   # @author Sylvain Daubert
+  # @author LemonTree55
   # @api private
   # @since 3.1.4
   module PCAPRUBWrapper
@@ -74,6 +75,20 @@ module PacketGen
     # @author Kent Gruber
     def self.read_pcap(filename:, &block)
       PCAPRUB::Pcap.open_offline(filename).each_packet(&block)
+    end
+
+    # Write binary packets to a PCAP file
+    # @param [String] filename
+    # @param [Array<String>] packets
+    # @return [void]
+    # @since 4.0.0
+    # @author LemonTree55
+    def self.write_pcap(filename:, packets:)
+      PCAPRUB::Pcap.dump_open(filename) do |pcap|
+        packets.each do |packet|
+          pcap.dump(packet)
+        end
+      end
     end
   end
 end
