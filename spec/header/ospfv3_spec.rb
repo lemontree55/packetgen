@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 OSPFv3_PCAP = File.join(__dir__, 'ospfv3.pcapng')
@@ -9,16 +11,17 @@ module PacketGen
         it 'in IP packets with protocol 89' do
           expect(IPv6).to know_header(OSPFv3).with(next: 89)
         end
+
         it 'accepts to be added in IPv6 packets' do
           pkt = PacketGen.gen('IPv6')
-          expect { pkt.add('OSPFv3') }.to_not raise_error
+          expect { pkt.add('OSPFv3') }.not_to raise_error
           expect(pkt.ipv6.next).to eq(89)
         end
       end
 
       describe '#initialize' do
         it 'creates an OSPFv3 header with default values' do
-          ospf                = OSPFv3.new
+          ospf = OSPFv3.new
           expect(ospf.version).to eq(3)
           expect(ospf.type).to eq(1)
           expect(ospf.human_type).to eq('HELLO')
@@ -31,7 +34,7 @@ module PacketGen
         end
 
         it 'accepts options' do
-          options             = {
+          options = {
             version: 45,
             type: 'LS_ACK',
             length: 152,
@@ -68,8 +71,8 @@ module PacketGen
           raw_pkt = PcapNG::File.new.read_packet_bytes(OSPFv3_PCAP)[0]
           pkt     = Packet.parse(raw_pkt)
 
-          expect(pkt.is? 'IPv6').to be(true)
-          expect(pkt.is? 'OSPFv3').to be(true)
+          expect(pkt.is?('IPv6')).to be(true)
+          expect(pkt.is?('OSPFv3')).to be(true)
 
           ospf = pkt.ospfv3
           expect(ospf.version).to eq(3)
@@ -99,8 +102,8 @@ module PacketGen
           pkt.ospfv3.calc_length
           pkt.ospfv3.calc_checksum
 
-          expected = binary("\x03\x01\x00\x10\xc0\xa8\xaa\x08" +
-                                  "\x00\x00\x00\x01\x91\xd1\x00\x00")
+          expected = binary("\x03\x01\x00\x10\xc0\xa8\xaa\x08" \
+                            "\x00\x00\x00\x01\x91\xd1\x00\x00")
           expect(pkt.ospfv3.to_s).to eq(expected)
         end
       end
@@ -110,7 +113,7 @@ module PacketGen
           ospf = OSPFv3.new
           str  = ospf.inspect
           expect(str).to be_a(String)
-          (ospf.attributes - %i(body)).each do |attr|
+          (ospf.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -125,14 +128,14 @@ module PacketGen
         end
 
         it 'sets Hop-limit to 1 if destination address is a mcast one' do
-          pkt.ipv6.dst          = 'ff02::5'
+          pkt.ipv6.dst = 'ff02::5'
           pkt.ospfize
           expect(pkt.ipv6.hop).to eq(1)
         end
 
         it 'sets Hop-limit to 1 when setting a mcast destination address' do
           pkt.ospfize
-          expect(pkt.ipv6.hop).to_not eq(1)
+          expect(pkt.ipv6.hop).not_to eq(1)
           pkt.ospfize(dst: 'ff02::5')
           expect(pkt.ipv6.hop).to eq(1)
         end
@@ -164,8 +167,8 @@ module PacketGen
             expect(hello.r_opt?).to be(true)
             expect(hello.e_opt?).to be(true)
             expect(hello.v6_opt?).to be(true)
-            %w(x n dc).each do |attr|
-              expect(hello.send("#{attr}_opt?")).to be(false)
+            %w[x n dc].each do |attr|
+              expect(hello.send(:"#{attr}_opt?")).to be(false)
             end
             expect(hello.hello_interval).to eq(10)
             expect(hello.dead_interval).to eq(40)
@@ -226,7 +229,7 @@ module PacketGen
             lsah = lsa.to_lsa_header
             expect(lsah).to be_a(OSPFv3::LSAHeader)
             lsa_hash = lsa.to_h
-            %i(router_priority options interface_addr prefix_count prefixes).each do |attr|
+            %i[router_priority options interface_addr prefix_count prefixes].each do |attr|
               lsa_hash.delete(attr)
             end
             expect(lsah.to_h).to eq(lsa_hash)
@@ -315,27 +318,27 @@ module PacketGen
             expected = [{ type: 'Router',
                           reserved: 0,
                           link_state_id: '0.0.0.0',
-                          advertising_router: '2.2.2.2'},
+                          advertising_router: '2.2.2.2' },
                         { type: 'Inter-Area-Prefix',
                           reserved: 0,
                           link_state_id: '0.0.0.3',
-                          advertising_router: '2.2.2.2'},
+                          advertising_router: '2.2.2.2' },
                         { type: 'Inter-Area-Prefix',
                           reserved: 0,
                           link_state_id: '0.0.0.2',
-                          advertising_router: '2.2.2.2'},
+                          advertising_router: '2.2.2.2' },
                         { type: 'Inter-Area-Prefix',
                           reserved: 0,
                           link_state_id: '0.0.0.1',
-                          advertising_router: '2.2.2.2'},
+                          advertising_router: '2.2.2.2' },
                         { type: 'Inter-Area-Prefix',
                           reserved: 0,
                           link_state_id: '0.0.0.0',
-                          advertising_router: '2.2.2.2'},
+                          advertising_router: '2.2.2.2' },
                         { type: 'Link',
                           reserved: 0,
                           link_state_id: '0.0.0.5',
-                          advertising_router: '2.2.2.2'}]
+                          advertising_router: '2.2.2.2' }]
             expect(lsr.lsrs.map(&:to_h)).to eq(expected)
             expect(lsr.lsrs[0].to_human).to eq('LSR<Router,0.0.0.0,2.2.2.2>')
           end
@@ -343,7 +346,7 @@ module PacketGen
       end
 
       describe OSPFv3::LSUpdate do
-        before(:each) do
+        before do
           @lsup = OSPFv3::LSUpdate.new
           @lsup.lsas << { type: 'Router', age: 36, link_state_id: '0.0.0.1',
                           advertising_router: '1.1.1.1', sequence_number: 1 }
@@ -356,8 +359,8 @@ module PacketGen
             expect(@lsup.lsas_count).to eq(2)
 
             @lsup.calc_checksum
-            expect(@lsup.lsas[0].checksum).to_not eq(0)
-            expect(@lsup.lsas[1].checksum).to_not eq(0)
+            expect(@lsup.lsas[0].checksum).not_to eq(0)
+            expect(@lsup.lsas[1].checksum).not_to eq(0)
           end
         end
 
@@ -460,10 +463,10 @@ module PacketGen
 
             lsack = ospf.body
             expect(lsack.lsas.size).to eq(6)
-            lsack.lsas.each { |lsa| expect(lsa).to be_a(OSPFv3::LSAHeader) }
+            expect(lsack.lsas).to all(be_a(OSPFv3::LSAHeader))
 
             types = lsack.lsas.map(&:human_type)
-            expect(types).to eq(%w(Router) + %w(Inter-Area-Prefix) * 4 + %w(Link))
+            expect(types).to eq(%w[Router] + %w[Inter-Area-Prefix] * 4 + %w[Link])
           end
         end
       end

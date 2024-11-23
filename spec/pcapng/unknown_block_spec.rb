@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module PcapNG
     describe UnknownBlock do
-      before(:each) { @ub = UnknownBlock.new }
+      before { @ub = UnknownBlock.new }
 
-      it 'should have correct initialization values' do
+      it 'has correct initialization values' do
         expect(@ub).to be_a(UnknownBlock)
         expect(@ub.endian).to eq(:little)
         expect(@ub.type).to eq(0)
@@ -15,14 +17,14 @@ module PacketGen
       end
 
       context 'when reading' do
-        it 'should accept a String' do
+        it 'accepts a String' do
           str = "\xff\xff\xff\xff\x0c\x00\x00\x00\x0c\x00\x00\x00"
-          expect { @ub.read(str) }.to_not raise_error
+          expect { @ub.read(str) }.not_to raise_error
           expect(@ub.type).to eq(0xffffffff)
           expect(@ub.block_len).to eq(12)
         end
 
-        it 'should accept an IO' do
+        it 'accepts an IO' do
           ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
             @ub.read(f)
           end
@@ -32,7 +34,7 @@ module PacketGen
       end
 
       describe '#to_s' do
-        it 'should pad body field' do
+        it 'pads body field' do
           @ub.type = 42
           @ub.body = '123'
 

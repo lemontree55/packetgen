@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
   module Header
     class DNS
-
       describe Name do
         let(:name) { Name.new }
         let(:dns) { DNS.new }
@@ -16,10 +17,10 @@ module PacketGen
 
         describe '#read' do
           it 'sets Name from a binary string' do
-            name.read(binary "\0")
+            name.read(binary("\0"))
             expect(name.to_human).to eq('.')
 
-            name.read generate_label_str(['www', 'example', 'net'])
+            name.read generate_label_str(%w[www example net])
             expect(name.to_human).to eq('www.example.net.')
           end
 
@@ -28,7 +29,7 @@ module PacketGen
             name.dns = dns
 
             offset = DNS.new.sz
-            str = binary("\x03www" + [0xc0, offset].pack('C2'))
+            str = binary("\x03www#{[0xc0, offset].pack('C2')}")
             name.read(str)
             expect(name.to_human).to eq('www.example.net.')
           end

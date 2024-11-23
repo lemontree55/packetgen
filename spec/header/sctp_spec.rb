@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -8,14 +10,16 @@ module PacketGen
           expect(IP).to know_header(SCTP).with(protocol: 132)
           expect(IPv6).to know_header(SCTP).with(next: 132)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('SCTP') }.to_not raise_error
+          expect { pkt.add('SCTP') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(132)
         end
+
         it 'accepts to be added in IPv6 packets' do
           pkt = PacketGen.gen('IPv6')
-          expect { pkt.add('SCTP') }.to_not raise_error
+          expect { pkt.add('SCTP') }.not_to raise_error
           expect(pkt.ipv6.next).to eq(132)
         end
       end
@@ -180,8 +184,8 @@ module PacketGen
 
           chunk0 = sctp.chunks[0]
           chunk1 = sctp.chunks[1]
-          chunk0.body << "1234"
-          chunk1.body << "12345678"
+          chunk0.body << '1234'
+          chunk1.body << '12345678'
           sctp.calc_length
           expect(chunk0.length).to eq(8)
           expect(chunk1.length).to eq(12)

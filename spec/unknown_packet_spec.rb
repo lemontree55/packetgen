@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require_relative 'spec_helper'
 require 'tempfile'
 
 module PacketGen
   describe UnknownPacket do
-    before(:each) do
+    before do
       @bin_str = Packet.gen('Eth', ethertype: 42, body: (1..4).to_a.pack('C*')).to_s
       @pkt = UnknownPacket.new
       @pkt.body = @bin_str
@@ -24,8 +26,12 @@ module PacketGen
     end
 
     describe '#to_f' do
-      before(:each) { @write_file = Tempfile.new('unknown_packet') }
-      after(:each) { @write_file.close; @write_file.unlink }
+      before { @write_file = Tempfile.new('unknown_packet') }
+
+      after do
+        @write_file.close
+        @write_file.unlink
+      end
 
       it 'writes packet as a PcapNG file' do
         @pkt.to_f(@write_file.path)
@@ -44,7 +50,7 @@ module PacketGen
       end
 
       it 'returns false if #to_s is not equal' do
-        expect(@pkt == "12345").to be(false)
+        expect(@pkt == '12345').to be(false)
       end
     end
 

@@ -1,10 +1,18 @@
+# frozen_string_literal: true
+
 require_relative 'spec_helper'
 require 'tempfile'
+
+module PacketGenTests
+  class AddIntStringTest < PacketGen::Header::Base
+    define_attr :field, BinStruct::IntString
+  end
+end
 
 module PacketGen
   describe Packet do
     describe '.gen' do
-      before(:each) do
+      before do
         @pkt = Packet.gen('IP')
       end
 
@@ -45,7 +53,7 @@ module PacketGen
     end
 
     describe '.parse' do
-      before(:each) do
+      before do
         file = PcapNG::File.new
         fname = File.join(__dir__, 'pcapng', 'sample.pcapng')
         @raw_pkts = file.read_packet_bytes(fname)
@@ -110,13 +118,13 @@ module PacketGen
       it 'reads a PcapNG file and returns a Array of Packet' do
         ary = Packet.read(pcapng_file)
         expect(ary).to be_a(Array)
-        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+        expect(ary).to all(be_a(Packet))
       end
 
       it 'reads a pcap file and returns a Array of Packet' do
         ary = Packet.read(pcap_file)
         expect(ary).to be_a(Array)
-        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+        expect(ary).to all(be_a(Packet))
       end
 
       it 'raises error on unknown file' do
@@ -175,7 +183,7 @@ module PacketGen
     end
 
     describe '#add' do
-      before(:each) do
+      before do
         @pkt = Packet.gen('IP')
       end
 
@@ -221,10 +229,7 @@ module PacketGen
         end
 
         it 'may set a IntString' do
-          class AddIntStringTest < Header::Base
-            define_attr :field, BinStruct::IntString
-          end
-          Header.add_class AddIntStringTest
+          Header.add_class(PacketGenTests::AddIntStringTest)
           pkt = Packet.gen('AddIntStringTest', field: 'This is a string')
           expect(pkt.addintstringtest[:field].to_human).to eq('This is a string')
           expect(pkt.addintstringtest[:field].to_s).to eq("\x10This is a string")
@@ -266,7 +271,7 @@ module PacketGen
     end
 
     describe '#is?' do
-      before(:each) do
+      before do
         @pkt = Packet.gen('IP')
       end
 
@@ -304,7 +309,10 @@ module PacketGen
       end
 
       it 'sends a packet on wire', :sudo do
-        Thread.new { sleep 0.1; pkt.to_w('lo') }
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo')
+        end
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -320,7 +328,10 @@ module PacketGen
         pkt.body = '123'
         pkt.ip.id = 0 # to remove randomness on checksum computation
 
-        Thread.new { sleep 0.1; pkt.to_w('lo') }
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo')
+        end
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -332,7 +343,10 @@ module PacketGen
       end
 
       it 'does not calculate calculatable attributes.if calc is false', :sudo do
-        Thread.new { sleep 0.1; pkt.to_w('lo', calc: false) }
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo', calc: false)
+        end
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -362,8 +376,12 @@ module PacketGen
     end
 
     describe '#to_f' do
-      before(:each) { @write_file = Tempfile.new('packet') }
-      after(:each) { @write_file.close; @write_file.unlink }
+      before { @write_file = Tempfile.new('packet') }
+
+      after do
+        @write_file.close
+        @write_file.unlink
+      end
 
       it 'writes packet as a PcapNG file' do
         pkt1 = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff)
@@ -433,7 +451,7 @@ module PacketGen
                     .add('IP', src: '1.0.0.1', dst: '1.0.0.2')
                     .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
                     .add('ICMP', type: 8, code: 0)
-        pkt.decapsulate(pkt. eth, pkt.ip)
+        pkt.decapsulate(pkt.eth, pkt.ip)
         expect(pkt.headers.size).to eq(2)
         expect(pkt.is?('IP')).to be(true)
         expect(pkt.is?('ICMP')).to be(true)

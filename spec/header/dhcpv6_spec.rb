@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 DUID_LLT_DATA = binary("\x00\x01\x00\x01\x29\xc0\xde\x21\x00\x11\x22\x33\x44\x55").freeze
@@ -13,14 +15,15 @@ module PacketGen
           expect(UDP).to know_header(DHCPv6)
           expect(UDP).to know_header(DHCPv6::Relay)
         end
+
         it 'accepts to be added in UDP packets' do
           pkt = PacketGen.gen('UDP')
-          expect { pkt.add('DHCPv6') }.to_not raise_error
+          expect { pkt.add('DHCPv6') }.not_to raise_error
           expect(pkt.udp.sport).to eq(546)
           expect(pkt.udp.dport).to eq(547)
 
           pkt = PacketGen.gen('UDP')
-          expect { pkt.add('DHCPv6::Relay') }.to_not raise_error
+          expect { pkt.add('DHCPv6::Relay') }.not_to raise_error
           expect(pkt.udp.sport).to eq(546)
         end
       end
@@ -29,7 +32,7 @@ module PacketGen
         it 'reads a DHCPv6 header' do
           raw = read_raw_packets('dhcpv6.pcapng').first
           pkt = PacketGen.parse(raw)
-          expect(pkt.is? 'DHCPv6').to be(true)
+          expect(pkt.is?('DHCPv6')).to be(true)
 
           dhcpv6 = pkt.dhcpv6
           expect(dhcpv6.msg_type).to eq(1)
@@ -41,7 +44,7 @@ module PacketGen
           expect(dhcpv6.options.first.duid.to_human).to eq('DUID_LLT<2015-01-02 21:52:08 UTC,08:00:27:fe:8f:95>')
         end
 
-        it 'reads a DHCPv6::Relay header'  # TODO: need a file to parse
+        it 'reads a DHCPv6::Relay header' # TODO: need a file to parse
       end
 
       describe '#options' do
@@ -211,15 +214,15 @@ module PacketGen
     end
 
     describe DHCPv6::DUID_LLT do
-      describe "#time=" do
+      describe '#time=' do
         it 'sets time' do
           new_time = Time.utc(2011, 1, 1, 12, 13, 14)
           duid = DHCPv6::DUID_LLT.new
           old_time = duid.time
           duid.time = new_time
-          expect(duid.time).to_not eq(old_time)
+          expect(duid.time).not_to eq(old_time)
           expect(duid.time).to eq(new_time)
-          expect(duid[:time].to_i).to eq(347199194)
+          expect(duid[:time].to_i).to eq(347_199_194)
         end
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
@@ -9,7 +11,7 @@ module PacketGen
         let(:encoded_headers) { "Content-Type: text/html\r\nConnection: keep-alive\r\n\r\n" }
 
         it 'is BinStruct::Structable' do
-          Headers < BinStruct::Structable
+          expect(Headers < BinStruct::Structable).to be(true)
         end
 
         describe '#read' do

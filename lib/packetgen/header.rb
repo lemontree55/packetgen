@@ -53,7 +53,7 @@ module PacketGen
         @header_classes = nil
       end
 
-      # Remove a foreign header previously added by {.add_header_class}
+      # Remove a foreign header previously added by {.add_class}
       # from known header classes.
       # @param [Class] klass
       # @return [void]

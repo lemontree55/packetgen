@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe Eth::MacAddr do
-      before(:each) do
+      before do
         @mac = Eth::MacAddr.new.from_human('00:01:02:03:04:05')
       end
 
@@ -23,7 +24,6 @@ module PacketGen
     end
 
     describe Eth do
-
       describe '#initialize' do
         it 'creates a Ethernet header with default values' do
           eth = Eth.new
@@ -48,7 +48,7 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:eth) { Eth.new}
+        let(:eth) { Eth.new }
 
         it 'sets header from a string' do
           str = (0...eth.sz).to_a.pack('C*') + 'body'
@@ -61,21 +61,21 @@ module PacketGen
       end
 
       describe 'setters' do
-        before(:each) do
+        before do
           @eth = Eth.new
         end
 
         it '#dst= accepts a MAC address string' do
           @eth.dst = 'ff:fe:fd:fc:fb:fa'
           6.times do |i|
-            expect(@eth[:dst]["a#{i}".to_sym].to_i).to eq(0xff - i)
+            expect(@eth[:dst][:"a#{i}"].to_i).to eq(0xff - i)
           end
         end
 
         it '#src= accepts a MAC address string' do
           @eth.src = 'ff:fe:fd:fc:fb:fa'
           6.times do |i|
-            expect(@eth[:src]["a#{i}".to_sym].to_i).to eq(0xff - i)
+            expect(@eth[:src][:"a#{i}"].to_i).to eq(0xff - i)
           end
         end
 
@@ -93,13 +93,16 @@ module PacketGen
         it 'send a Eth header on wire', :sudo do
           body = binary("\x00" * 64)
           pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff',
-                           src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
-          Thread.new { sleep 0.1; pkt.eth.to_w('lo') }
+                                  src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
+          Thread.new do
+            sleep 0.1
+            pkt.eth.to_w('lo')
+          end
           packets = Packet.capture(iface: 'lo', max: 1,
                                    filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                    timeout: 2)
           packet = packets.first
-          expect(packet.is? 'Eth').to be(true)
+          expect(packet.is?('Eth')).to be(true)
           expect(packet.eth.dst).to eq('ff:ff:ff:ff:ff:ff')
           expect(packet.eth.src).to eq('ff:ff:ff:ff:ff:ff')
           expect(packet.eth.ethertype).to eq(0x0800)
@@ -111,7 +114,7 @@ module PacketGen
         it 'returns a binary string' do
           ethx = Eth.new(dst: '00:01:02:03:04:05', ethertype: 0x800).to_s
           expected = binary("\x00\x01\x02\x03\x04\x05" \
-                                            "\x00\x00\x00\x00\x00\x00\x08\x00")
+                            "\x00\x00\x00\x00\x00\x00\x08\x00")
           expect(ethx).to eq(expected)
         end
       end
@@ -121,7 +124,7 @@ module PacketGen
           eth = Eth.new
           str = eth.inspect
           expect(str).to be_a(String)
-          (eth.attributes - %i(body)).each do |attr|
+          (eth.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

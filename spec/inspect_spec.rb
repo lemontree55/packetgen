@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module PacketGen
@@ -12,7 +14,7 @@ module PacketGen
         inspect = Inspect.inspect_attribute('my_int16', int16)
         expect(inspect).to eq("             Int16         my_int16: 45               (0x002d)\n")
 
-        enum = BinStruct::Int32leEnum.new(enum: {'one' => 1, 'two' => 2})
+        enum = BinStruct::Int32leEnum.new(enum: { 'one' => 1, 'two' => 2 })
         inspect = Inspect.inspect_attribute('my_enum', enum)
         expect(inspect).to eq("       Int32leEnum          my_enum: one              (0x00000001)\n")
       end
@@ -32,7 +34,7 @@ module PacketGen
 
     describe '.inspect_asn1_attribute' do
       it 'returns a formatted string for a RASN1::Types::Enumerated' do
-        enum = RASN1::Types::Enumerated.new(enum: { one: 1, two: 2})
+        enum = RASN1::Types::Enumerated.new(enum: { one: 1, two: 2 })
         enum.value = 2
         inspect = Inspect.inspect_asn1_attribute('my_enum', enum)
         expect(inspect).to eq("        ENUMERATED          my_enum: two              (0x02)\n")
@@ -53,7 +55,7 @@ module PacketGen
 
       it 'returns a formatted string for others types' do
         os = RASN1::Types::OctetString.new
-        os.value = "abcd"
+        os.value = 'abcd'
         inspect = Inspect.inspect_asn1_attribute('my_str', os)
         expect(inspect).to eq("      OCTET STRING           my_str: \"abcd\"\n")
 
@@ -75,12 +77,12 @@ module PacketGen
       it 'returns a string for body' do
         body = (0..17).to_a.pack('C*') << (0x2a..0x2c).to_a.pack('C*')
         str = Inspect.inspect_body(body)
-        expected = '---- Body ' << '-' * 60 << "\n"
+        expected = +'---- Body ' << '-' * 60 << "\n"
         expected << " 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15\n"
         expected << '-' * 70 << "\n"
-        expected << " 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f"
+        expected << ' 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f'
         expected << '  ' << '.' * 16 << "\n"
-        expected << " 10 11 2a 2b 2c"
+        expected << ' 10 11 2a 2b 2c'
         expected << ' ' * 35 << "..*+,\n"
         expected << '-' * 70 << "\n"
         expect(str).to eq(expected)

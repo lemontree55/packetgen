@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
@@ -21,16 +23,16 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0x1234,
-                      flags: 0x5678,
-                      length: 42,
-                      ctsn_ack: 0x01020304,
-                      a_rwnd: 0x05060708,
-                      num_gap: 2,
-                      num_dup_tsn: 1,
-                      gaps: [0x000010002, 0x00100020],
-                      dup_tsns: [0x12345678]
-                      }
+              type: 0x1234,
+              flags: 0x5678,
+              length: 42,
+              ctsn_ack: 0x01020304,
+              a_rwnd: 0x05060708,
+              num_gap: 2,
+              num_dup_tsn: 1,
+              gaps: [0x000010002, 0x00100020],
+              dup_tsns: [0x12345678]
+            }
             data = SackChunk.new(options)
             options.each do |key, value|
               val = data.send(key)

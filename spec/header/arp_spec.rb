@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -7,18 +9,20 @@ module PacketGen
         it 'in Eth packets' do
           expect(Eth).to know_header(ARP).with(ethertype: 0x806)
         end
+
         it 'accepts to be added in Eth packets' do
           pkt = PacketGen.gen('Eth')
-          expect { pkt.add('ARP') }.to_not raise_error
+          expect { pkt.add('ARP') }.not_to raise_error
           expect(pkt.eth.ethertype).to eq(0x806)
         end
 
         it 'in Dot1q packets' do
           expect(Dot1q).to know_header(ARP).with(ethertype: 0x806)
         end
+
         it 'accepts to be added in Dot1q packets' do
           pkt = PacketGen.gen('Dot1q')
-          expect { pkt.add('ARP') }.to_not raise_error
+          expect { pkt.add('ARP') }.not_to raise_error
           expect(pkt.dot1q.ethertype).to eq(0x806)
         end
       end
@@ -40,16 +44,16 @@ module PacketGen
 
         it 'accepts options' do
           options = {
-                     htype: 0xf000,
-                     ptype: 0x1234,
-                     hlen: 255,
-                     plen: 254,
-                     opcode: 2,
-                     src_mac: '01:02:03:03:03:03',
-                     dst_mac: 'ff:ff:ff:ff:ff:ff',
-                     src_ip: '10.0.0.1',
-                     dst_ip: '10.0.0.2'
-                    }
+            htype: 0xf000,
+            ptype: 0x1234,
+            hlen: 255,
+            plen: 254,
+            opcode: 2,
+            src_mac: '01:02:03:03:03:03',
+            dst_mac: 'ff:ff:ff:ff:ff:ff',
+            src_ip: '10.0.0.1',
+            dst_ip: '10.0.0.2'
+          }
           arp = ARP.new(options)
           options.each do |key, value|
             expect(arp.send(key)).to eq(value)
@@ -61,7 +65,7 @@ module PacketGen
         let(:arp) { ARP.new }
 
         it 'sets header from a string' do
-          str = (0...arp.sz).to_a.pack('C*') + 'arp body'
+          str = (0...arp.sz).to_a.pack('C*') << 'arp body'
           arp.read str
           expect(arp.htype).to eq(0x0001)
           expect(arp.ptype).to eq(0x0203)
@@ -77,7 +81,7 @@ module PacketGen
       end
 
       describe 'setters' do
-        before(:each) do
+        before do
           @arp = ARP.new
         end
 
@@ -109,28 +113,28 @@ module PacketGen
         it '#src_mac= accepts a MAC address string' do
           @arp.src_mac = 'ff:fe:fd:fc:fb:fa'
           6.times do |i|
-            expect(@arp[:sha]["a#{i}".to_sym].to_i).to eq(0xff - i)
+            expect(@arp[:sha][:"a#{i}"].to_i).to eq(0xff - i)
           end
         end
 
         it '#dst_mac= accepts a MAC address string' do
           @arp.dst_mac = 'ff:fe:fd:fc:fb:fa'
           6.times do |i|
-            expect(@arp[:tha]["a#{i}".to_sym].to_i).to eq(0xff - i)
+            expect(@arp[:tha][:"a#{i}"].to_i).to eq(0xff - i)
           end
         end
 
         it '#src_ip= accepts a IP address string' do
           @arp.src_ip = '128.129.130.131'
           4.times do |i|
-            expect(@arp[:spa]["a#{i+1}".to_sym].to_i).to eq(128+i)
+            expect(@arp[:spa][:"a#{i + 1}"].to_i).to eq(128 + i)
           end
         end
 
         it '#dst_ip= accepts a IP address string' do
           @arp.dst_ip = '1.2.3.4'
           4.times do |i|
-            expect(@arp[:tpa]["a#{i+1}".to_sym].to_i).to eq(1+i)
+            expect(@arp[:tpa][:"a#{i + 1}"].to_i).to eq(1 + i)
           end
         end
       end
@@ -152,7 +156,7 @@ module PacketGen
           arp = ARP.new
           str = arp.inspect
           expect(str).to be_a(String)
-          (arp.attributes - %i(body)).each do |attr|
+          (arp.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

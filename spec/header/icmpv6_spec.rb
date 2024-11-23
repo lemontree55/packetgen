@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -9,9 +11,10 @@ module PacketGen
         it 'in IP packets' do
           expect(IPv6).to know_header(ICMPv6).with(next: 58)
         end
+
         it 'accepts to be added in IPv6 packets' do
           pkt = PacketGen.gen('IPv6')
-          expect { pkt.add('ICMPv6') }.to_not raise_error
+          expect { pkt.add('ICMPv6') }.not_to raise_error
           expect(pkt.ipv6.next).to eq(58)
         end
       end
@@ -36,7 +39,7 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:icmp) { ICMPv6.new}
+        let(:icmp) { ICMPv6.new }
 
         it 'sets header from a string' do
           str = PcapNG::File.new.read_packet_bytes(pcapng_file).first
@@ -47,7 +50,7 @@ module PacketGen
           expected = "\0\0\0\0\x2a\x01\x0e\x35\x8b\x7f\x9c\x10\x12\x8b" \
                      "\x3c\x32\xc3\xe4\xc0\x1b\x01\x01\x68\xa3\x78\x03" \
                      "\xcc\xb2"
-          expect(icmp.body).to eq(binary expected)
+          expect(icmp.body).to eq(binary(expected))
         end
       end
 
@@ -57,7 +60,7 @@ module PacketGen
           packets.each do |pkt|
             checksum = pkt.icmpv6.checksum
             pkt.icmpv6.checksum = 0
-            expect(pkt.icmpv6.checksum).to_not eq(checksum)
+            expect(pkt.icmpv6.checksum).not_to eq(checksum)
             pkt.calc
             expect(pkt.icmpv6.checksum).to eq(checksum)
           end
@@ -65,7 +68,7 @@ module PacketGen
       end
 
       describe 'setters' do
-        let(:icmp) { ICMPv6.new}
+        let(:icmp) { ICMPv6.new }
 
         it '#type= accepts integers' do
           icmp.type = 0xef
@@ -79,7 +82,7 @@ module PacketGen
 
         it '#checksum= accepts integers' do
           icmp.checksum = 0xffff
-          expect(icmp[:checksum].to_i).to eq(65535)
+          expect(icmp[:checksum].to_i).to eq(65_535)
         end
       end
 
@@ -87,7 +90,7 @@ module PacketGen
         it 'returns a binary string' do
           str = PcapNG::File.new.read_packet_bytes(pcapng_file).first
           icmp = Packet.parse(str)
-            expect(icmp.to_s).to eq(str)
+          expect(icmp.to_s).to eq(str)
         end
       end
 
@@ -96,7 +99,7 @@ module PacketGen
           icmpv6 = ICMPv6.new
           str = icmpv6.inspect
           expect(str).to be_a(String)
-          (icmpv6.attributes - %i(body)).each do |attr|
+          (icmpv6.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

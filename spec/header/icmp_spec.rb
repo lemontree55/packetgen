@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -7,9 +9,10 @@ module PacketGen
         it 'in IP packets' do
           expect(IP).to know_header(ICMP).with(protocol: 1)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('ICMP') }.to_not raise_error
+          expect { pkt.add('ICMP') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(1)
         end
       end
@@ -34,7 +37,7 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:icmp) { ICMP.new}
+        let(:icmp) { ICMP.new }
 
         it 'sets header from a string' do
           str = (1..icmp.sz).to_a.pack('C*') + 'body'
@@ -55,7 +58,7 @@ module PacketGen
       end
 
       describe 'setters' do
-        let(:icmp) { ICMP.new}
+        let(:icmp) { ICMP.new }
 
         it '#type= accepts integers' do
           icmp.type = 0xef
@@ -69,7 +72,7 @@ module PacketGen
 
         it '#checksum= accepts integers' do
           icmp.checksum = 0xffff
-          expect(icmp[:checksum].to_i).to eq(65535)
+          expect(icmp[:checksum].to_i).to eq(65_535)
         end
       end
 
@@ -86,7 +89,7 @@ module PacketGen
           icmp = ICMP.new
           str = icmp.inspect
           expect(str).to be_a(String)
-          (icmp.attributes - %i(body)).each do |attr|
+          (icmp.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

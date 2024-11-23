@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -8,14 +10,16 @@ module PacketGen
           expect(IP).to know_header(UDP).with(protocol: 17)
           expect(IPv6).to know_header(UDP).with(next: 17)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('UDP') }.to_not raise_error
+          expect { pkt.add('UDP') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(17)
         end
+
         it 'accepts to be added in IPv6 packets' do
           pkt = PacketGen.gen('IPv6')
-          expect { pkt.add('UDP') }.to_not raise_error
+          expect { pkt.add('UDP') }.not_to raise_error
           expect(pkt.ipv6.next).to eq(17)
         end
       end
@@ -51,10 +55,10 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:udp) { UDP.new}
+        let(:udp) { UDP.new }
 
         it 'sets header from a string' do
-          str = (0...udp.sz).to_a.pack('C*') + 'body'
+          str = (0...udp.sz).to_a.pack('C*') << 'body'
           udp.read str
           expect(udp.sport).to eq(0x0001)
           expect(udp.dport).to eq(0x0203)
@@ -66,15 +70,15 @@ module PacketGen
 
       describe '#calc_checksum' do
         it 'computes UDP over IP header checksum' do
-          pkt = Packet.gen('IP').add('UDP', sport: 1, dport: 65000)
+          pkt = Packet.gen('IP').add('UDP', sport: 1, dport: 65_000)
           pkt.body = 'abcd'
           pkt.calc
           expect(pkt.udp.checksum).to eq(0x3f23)
         end
 
         it 'computes UDP over IPv6 header checksum' do
-          pkt = Packet.gen('IPv6', src: '2145::1', dst: '1:2:3:4:5:6:7:809').
-                add('UDP', sport: 41000, dport: 42000)
+          pkt = Packet.gen('IPv6', src: '2145::1', dst: '1:2:3:4:5:6:7:809')
+                      .add('UDP', sport: 41_000, dport: 42_000)
           pkt.body = 'abcd'
           pkt.calc
           expect(pkt.udp.checksum).to eq(0xcd6b)
@@ -82,7 +86,7 @@ module PacketGen
       end
 
       describe 'setters' do
-        before(:each) do
+        before do
           @udp = UDP.new
         end
 
@@ -111,8 +115,8 @@ module PacketGen
         it 'returns a binary string' do
           udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
           udp.calc_length
-          expected_str = "\x00" * 4 + "\x00\x0c\x00\x00\x00\x01\x02\x03"
-          expect(udp.to_s).to eq(binary expected_str)
+          expected_str = "\x00" * 4 << "\x00\x0c\x00\x00\x00\x01\x02\x03"
+          expect(udp.to_s).to eq(binary(expected_str))
         end
       end
 
@@ -121,7 +125,7 @@ module PacketGen
           udp = UDP.new
           str = udp.inspect
           expect(str).to be_a(String)
-          (udp.attributes - %i(body)).each do |attr|
+          (udp.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end

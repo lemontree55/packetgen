@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module CaptureHelper
   SYS_ENV = { 'LC_ALL' => 'C' }.freeze
 
@@ -20,12 +22,12 @@ module CaptureHelper
   end
 
   # capture(options) { system 'ping -c 125 127.0.0.1 }
-  def capture(options={}, &blk)
+  def capture(options={})
     timeout = options[:timeout] || 0
     cap = PacketGen::Capture.new
-    cap_thread = Thread.new { cap.start(**options) }
+    Thread.new { cap.start(**options) }
     sleep 0.1
-    blk.call
+    yield
     sleep timeout + 2
     cap.stop
     cap
