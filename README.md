@@ -1,20 +1,27 @@
 
 [![Gem Version](https://badge.fury.io/rb/packetgen.svg)](https://badge.fury.io/rb/packetgen)
 [![Action status](https://github.com/lemontree55/packetgen/workflows/ci/badge.svg?branch=master)](https://github.com/lemontree55/packetgen/actions?query=workflow%3Aci)
+
 # PacketGen
 
 PacketGen provides simple ways to generate, send and capture network packets.
 
 ## Installation
+
 PacketGen depends on PcapRub, which needs pcap development files to install. On Debian, you have to do:
 
-    $ sudo apt install libpcap-dev
+```bash
+sudo apt install libpcap-dev
+```
 
 Installation using RubyGems is then easy:
 
-    $ gem install packetgen
+```bash
+gem install packetgen
+```
 
 Or add it to a Gemfile:
+
 ```ruby
 gem 'packetgen'
 ```
@@ -22,6 +29,7 @@ gem 'packetgen'
 ## Usage
 
 ### Easily create packets
+
 ```ruby
 PacketGen.gen('IP')             # generate a IP packet object
 PacketGen.gen('TCP')            # generate a TCP over IP packet object
@@ -37,6 +45,7 @@ PacketGen.gen('IP').to_s
 ```
 
 ### Send packets on wire
+
 ```ruby
 # send Ethernet packet
 PacketGen.gen('Eth', src: '00:00:00:00:00:01', dst: '00:00:00:00:00:02').to_w
@@ -52,11 +61,13 @@ PacketGen.gen('RadioTap').
 ```
 
 ### Parse packets from binary data
+
 ```ruby
 packet = PacketGen.parse(binary_data)
 ```
 
 ### Capture packets from wire
+
 ```ruby
 # Capture packets from first network interface, action from a block
 PacketGen.capture do |packet|
@@ -71,6 +82,7 @@ packets = PacketGen.capture(iface: 'eth0', filter: 'ip src 1.1.1.2', max: 1)
 ```
 
 ### Easily manipulate packets
+
 ```ruby
 # access header fields
 pkt = PacketGen.gen('IP').add('TCP')
@@ -96,6 +108,7 @@ pkt2.decapsulate(pkt2.ip)              # pkt2 is now inner IP/TCP packet
 ```
 
 ### Read/write PcapNG files
+
 ```ruby
 # read a PcapNG file, containing multiple packets
 packets = PacketGen.read('file.pcapng')
@@ -107,6 +120,7 @@ PacketGen.write('more_packets.pcapng', packets)
 ```
 
 ### Add custom header/protocol
+
 Since v1.1.0, PacketGen permits adding your own header classes.
 First, define the new header class. For example:
 
@@ -140,19 +154,22 @@ pkt.myheader.field2.read 0x01
 ```
 
 ## Interactive console
+
 PacketGen provides an interactive console: `pgconsole`.
 
 In this console, context includes PacketGen module to give direct access to PacketGen
 classes. A special `config` object gives local network configuration:
 
-    $ pgconsole
-    pg(main)> config
-    => #<PacketGen::Config:0x00559f27d2afe8
-     @hwaddr="75:74:73:72:71:70",
-     @iface="eth0",
-     @ipaddr="192.168.0.2">
-    pg(main)> packets = capture(max: 5)
-    pg(main)> exit
+```shell
+$ pgconsole
+pg(main)> config
+=> #<PacketGen::Config:0x00559f27d2afe8
+ @hwaddr="75:74:73:72:71:70",
+ @iface="eth0",
+ @ipaddr="192.168.0.2">
+pg(main)> packets = capture(max: 5)
+pg(main)> exit
+```
 
 If `pry` gem is installed, it is used as backend for `pgconsole`, else IRB is used.
 
@@ -167,20 +184,18 @@ Available plugins (available as gem) are:
 
 ## See also
 
-Wiki: https://github.com/lemontree55/packetgen/wiki
+Wiki: <https://github.com/lemontree55/packetgen/wiki>
 
-API documentation: http://www.rubydoc.info/gems/packetgen
+API documentation: <http://www.rubydoc.info/gems/packetgen>
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/lemontree55/packetgen.
+Bug reports and pull requests are welcome on GitHub at <https://github.com/lemontree55/packetgen>.
 
 ## License
 
 MIT License (see [LICENSE](https://github.com/lemontree55/packetgen/blob/master/LICENSE))
 
 ### Other sources
-All original code maintains its copyright from its original authors and licensing.
 
-This is mainly for PcapNG (originally copied from [PacketFu](https://github.com/packetfu/packetfu),
-but i am the original author.
+All original code maintains its copyright from its original authors and licensing.
