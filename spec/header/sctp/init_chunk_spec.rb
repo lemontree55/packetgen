@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 INIT_CHUNK_WITH_PARAMS = '<chunk:INIT,param:<IPv4: 92.168.52.17>,<IPv6: 2c00:5d3::42>,<StateCookie: "cookie">,<Unrecognized: <<unknown:42>: "abc">,<Hostname: www.example.com>,<SupportedAddrTypes: IPv4,IPv6>,<CookiePreservative: 1545>,<ECN>>'
@@ -23,15 +25,15 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0xffff,
-                      flags: 0x1234,
-                      length: 42,
-                      initiate_tag: 0x01020304,
-                      a_rwnd: 0x05060708,
-                      nos: 0x8000,
-                      nis: 0xf00E,
-                      initial_tsn: 0x090a0b0c,
-                      }
+              type: 0xffff,
+              flags: 0x1234,
+              length: 42,
+              initiate_tag: 0x01020304,
+              a_rwnd: 0x05060708,
+              nos: 0x8000,
+              nis: 0xf00E,
+              initial_tsn: 0x090a0b0c,
+            }
             init = InitChunk.new(options)
             options.each do |key, value|
               expect(init.send(key)).to eq(value)
@@ -48,10 +50,10 @@ module PacketGen
             init = InitChunk.new
             init.parameters << { type: 'IPv4', value: '92.168.52.17' }
             init.parameters << { type: 'IPv6', value: '2c00:5d3::42' }
-            init.parameters << { type: 'StateCookie', value: "cookie" }
+            init.parameters << { type: 'StateCookie', value: 'cookie' }
             init.parameters << { type: 'Unrecognized', value: Parameter.new(type: 42, value: 'abc') }
             init.parameters << { type: 'Hostname', value: 'www.example.com' }
-            init.parameters << { type: 'SupportedAddrTypes', value: [5, 6]}
+            init.parameters << { type: 'SupportedAddrTypes', value: [5, 6] }
             init.parameters << { type: 'CookiePreservative', value: 1_545 }
             init.parameters << { type: 'ECN' }
 
@@ -64,6 +66,7 @@ module PacketGen
           let(:init) { InitChunk.new }
           let(:param1) { Parameter.new(type: 42, value: 'AAAA') }
           let(:param2) { IPv4Parameter.new(type: 'IPv4', value: '10.0.0.1') }
+
           it 'accepts Parameter using <<' do
             init.parameters << param1
             init.parameters << param2
@@ -73,9 +76,9 @@ module PacketGen
           end
 
           it 'accepts Hash describing a Parameter using <<' do
-            init.parameters << { type: 42, value: 'AAAA'}
-            init.parameters << { type: 5, value: '10.0.0.1'}
-            init.parameters << { type: 'IPv4', value: '10.0.0.1'}
+            init.parameters << { type: 42, value: 'AAAA' }
+            init.parameters << { type: 5, value: '10.0.0.1' }
+            init.parameters << { type: 'IPv4', value: '10.0.0.1' }
             expect(init.parameters.size).to eq(3)
             expect(init.parameters[0]).to be_a(Parameter)
             expect(init.parameters[0].to_s).to eq(param1.to_s)

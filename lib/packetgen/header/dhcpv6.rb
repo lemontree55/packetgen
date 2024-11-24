@@ -22,8 +22,8 @@ module PacketGen
     #   |                                                               |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A DHCPv6 header is made of:
-    # * a {#msg_type} field ({Types::Int8Enum}),
-    # * a {#transaction_id} field ({Types::Int24}),
+    # * a {#msg_type} field ({BinStruct::Int8Enum}),
+    # * a {#transaction_id} field ({BinStruct::Int24}),
     # * and an {#options} field ({DHCPv6::Options}).
     #
     # == Create a DHCPv6 header
@@ -72,20 +72,20 @@ module PacketGen
       # @!attribute msg_type
       #   8-bit message type
       #   @return [Integer]
-      define_field :msg_type, Types::Int8Enum, enum: MESSAGE_TYPES
+      define_attr :msg_type, BinStruct::Int8Enum, enum: MESSAGE_TYPES
       # @!attribute transaction_id
       #   24-bit transaction ID
       # @return [Integer]
-      define_field :transaction_id, Types::Int24
+      define_attr :transaction_id, BinStruct::Int24
       # @!attribute options
       #   @return [DHCPv6::Options]
-      define_field :options, DHCPv6::Options
+      define_attr :options, DHCPv6::Options
 
       # Populate object from string
       # @param [String] str
       # @return [DHCPv6,DHCPv6::Relay]
       def read(str)
-        msg_type = Types::Int8.new.read(str)
+        msg_type = BinStruct::Int8.new.read(str)
 
         case msg_type
         when 12, 13

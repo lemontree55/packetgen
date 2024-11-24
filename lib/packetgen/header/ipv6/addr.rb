@@ -14,41 +14,41 @@ module PacketGen
     class IPv6
       # IPv6 address, as a group of 8 2-byte words
       # @author Sylvain Daubert
-      class Addr < Types::Fields
-        include Types::Fieldable
+      class Addr < BinStruct::Struct
+        include BinStruct::Structable
 
         # @!attribute a1
         #  1st 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a1, Types::Int16
+        define_attr :a1, BinStruct::Int16
         # @!attribute a2
         #  2nd 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a2, Types::Int16
+        define_attr :a2, BinStruct::Int16
         # @!attribute a3
         #  3rd 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a3, Types::Int16
+        define_attr :a3, BinStruct::Int16
         # @!attribute a4
         #  4th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a4, Types::Int16
+        define_attr :a4, BinStruct::Int16
         # @!attribute a5
         #  5th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a5, Types::Int16
+        define_attr :a5, BinStruct::Int16
         # @!attribute a6
         #  6th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a6, Types::Int16
+        define_attr :a6, BinStruct::Int16
         # @!attribute a7
         #  7th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a7, Types::Int16
+        define_attr :a7, BinStruct::Int16
         # @!attribute a8
         #  8th 2-byte word of IPv6 address
         #  @return [Integer]
-        define_field :a8, Types::Int16
+        define_attr :a8, BinStruct::Int16
 
         # rubocop:disable Metrics/AbcSize
 
@@ -83,7 +83,7 @@ module PacketGen
         # Return an array of address 16-bit words
         # @return [Array<Integer>]
         def to_a
-          @fields.values
+          @attributes.values
         end
 
         # Return true if this address is a multicast one
@@ -94,13 +94,13 @@ module PacketGen
 
         def ==(other)
           other.is_a?(self.class) &&
-            fields.all? { |attr| self[attr].value == other[attr].value }
+            attributes.all? { |attr| self[attr].value == other[attr].value }
         end
       end
 
       # Class to handle series of IPv6 addresses
       # @author Sylvain Daubert
-      class ArrayOfAddr < Types::Array
+      class ArrayOfAddr < BinStruct::Array
         set_of IPv6::Addr
 
         # Push a IPv6 address to the array
@@ -109,7 +109,7 @@ module PacketGen
         #   array << '2001:1234::125'
         def push(addr)
           addr = Addr.new.from_human(addr) unless addr.is_a?(Addr)
-          super(addr)
+          super
         end
       end
     end

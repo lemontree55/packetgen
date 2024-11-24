@@ -8,6 +8,7 @@
 # This program is published under MIT license.
 
 require 'packetgen/version'
+require 'bin_struct'
 require 'interfacez'
 
 # PacketGen is a network packet generator and analyzor.
@@ -100,12 +101,13 @@ module PacketGen
   def self.default_iface
     return @default_iface if defined? @default_iface
 
-    @default_iface = Interfacez.raw_interface_addresses.each do |iface|
+    Interfacez.raw_interface_addresses.each do |iface|
       next unless iface.broadaddr
       next unless Interfacez.ipv4_address_of(iface.name)
       next unless Interfacez.ipv6_address_of(iface.name)
 
-      break iface.name
+      @default_iface = iface.name
+      break
     end
   end
 
@@ -133,7 +135,6 @@ end
 
 require 'packetgen/deprecation'
 require 'packetgen/inspect'
-require 'packetgen/types'
 require 'packetgen/pcapng'
 require 'packetgen/pcap'
 require 'packetgen/packet'

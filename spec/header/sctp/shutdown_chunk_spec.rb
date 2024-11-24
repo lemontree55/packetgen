@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
@@ -16,11 +18,11 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0xffff,
-                      flags: 0x1234,
-                      length: 42,
-                      ctsn_ack: 0x01020304,
-                      }
+              type: 0xffff,
+              flags: 0x1234,
+              length: 42,
+              ctsn_ack: 0x01020304,
+            }
             shutdown = ShutdownChunk.new(options)
             options.each do |key, value|
               expect(shutdown.send(key)).to eq(value)
@@ -55,10 +57,10 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0xffff,
-                      flags: 0x1234,
-                      length: 42,
-                      }
+              type: 0xffff,
+              flags: 0x1234,
+              length: 42,
+            }
             shutdown = ShutdownAckChunk.new(options)
             options.each do |key, value|
               expect(shutdown.send(key)).to eq(value)
@@ -93,10 +95,10 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0xffff,
-                      flags: 0x1234,
-                      length: 42,
-                      }
+              type: 0xffff,
+              flags: 0x1234,
+              length: 42,
+            }
             shutdown = ShutdownCompleteChunk.new(options)
             options.each do |key, value|
               expect(shutdown.send(key)).to eq(value)

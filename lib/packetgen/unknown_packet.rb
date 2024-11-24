@@ -30,7 +30,7 @@ module PacketGen
     end
 
     # Get packet body
-    # @return [Types]
+    # @return [String]
     def body
       @binary_str
     end
@@ -66,7 +66,7 @@ module PacketGen
       str << Inspect.inspect_body(body)
     end
 
-    # equality if {#to_s} is equal
+    # equality if {#to_s} are equal
     # @return [Boolean]
     def ==(other)
       to_s == other.to_s

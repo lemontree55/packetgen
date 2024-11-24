@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
@@ -20,14 +22,14 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0x1234,
-                      flags: 0x5678,
-                      length: 42,
-                      tsn: 0x01020304,
-                      stream_id: 0xabcd,
-                      stream_sn: 0xef01,
-                      ppid: 0xf0e0d0c0,
-                      }
+              type: 0x1234,
+              flags: 0x5678,
+              length: 42,
+              tsn: 0x01020304,
+              stream_id: 0xabcd,
+              stream_sn: 0xef01,
+              ppid: 0xf0e0d0c0,
+            }
             data = DataChunk.new(options)
             options.each do |key, value|
               expect(data.send(key)).to eq(value)

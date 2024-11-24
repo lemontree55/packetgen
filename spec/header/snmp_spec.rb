@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe SNMP do
       let(:ber) { read_raw_packets('snmp.pcapng') }
 
@@ -13,9 +14,10 @@ module PacketGen
           expect(UDP).to know_header(SNMP).with(sport: 162)
           expect(UDP).to know_header(SNMP).with(dport: 162)
         end
+
         it 'accepts to be added in UDP packets' do
           pkt = PacketGen.gen('UDP')
-          expect { pkt.add('SNMP') }.to_not raise_error
+          expect { pkt.add('SNMP') }.not_to raise_error
           expect(pkt.udp.dport).to eq(161)
         end
       end
@@ -36,7 +38,7 @@ module PacketGen
           snmp = SNMP.new(options)
           expect(snmp.version).to eq('v3')
           expect(snmp.community).to eq('community')
-          expect(snmp.pdu).to be(nil)
+          expect(snmp.pdu).to be_nil
         end
 
         it 'accepts a PDU' do
@@ -50,7 +52,7 @@ module PacketGen
           expect(pdu[:varbindlist][0]).to be_a(SNMP::VarBind)
           expect(pdu[:varbindlist][0][:name].value).to eq('1.2.3.4')
           expect(pdu[:varbindlist][0][:value]).to be_a(RASN1::Types::Any)
-          expect(pdu[:varbindlist][0][:value].value).to be(nil)
+          expect(pdu[:varbindlist][0][:value].value).to be_nil
         end
       end
 
@@ -58,14 +60,14 @@ module PacketGen
         let(:snmp) { SNMP.new }
 
         it 'reads a getRequest from a string' do
-          snmp.read ber[0][42..-1]
+          snmp.read ber[0][42..]
           expect(snmp.version).to eq('v1')
           expect(snmp.community).to eq('public')
           expect(snmp.data.root.chosen).to eq(SNMP::PDU_GET)
         end
 
         it 'reads a getResponse from a string' do
-          snmp.read ber[1][42..-1]
+          snmp.read ber[1][42..]
           expect(snmp.version).to eq('v1')
           expect(snmp.community).to eq('public')
           expect(snmp.data.root.chosen).to eq(SNMP::PDU_RESPONSE)
@@ -103,7 +105,7 @@ module PacketGen
                        value: RASN1::Types::Null.new }
           varlist << { name: '1.3.6.1.2.1.1.6.0',
                        value: RASN1::Types::Null.new }
-          expect(snmp.to_s).to eq(ber[0][42..-1])
+          expect(snmp.to_s).to eq(ber[0][42..])
         end
       end
 
@@ -114,7 +116,7 @@ module PacketGen
           %w[version community data].each do |attr|
             expect(str).to include(attr)
           end
-          expect(str).to_not include('ASN.1 content')
+          expect(str).not_to include('ASN.1 content')
         end
 
         it 'returns a String with PDU data' do

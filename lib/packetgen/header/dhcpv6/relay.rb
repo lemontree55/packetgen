@@ -21,25 +21,25 @@ module PacketGen
         # @!attribute msg_type
         #   8-bit message type
         #   @return [Integer]
-        define_field :msg_type, Types::Int8Enum, enum: MESSAGE_TYPES
+        define_attr :msg_type, BinStruct::Int8Enum, enum: MESSAGE_TYPES
         # @!attribute hop_count
         #   8-bit hop count (number of relay agents that have relayed
         #   this message)
         #   @return [Integer]
-        define_field :hop_count, Types::Int8
+        define_attr :hop_count, BinStruct::Int8
         # @!attribute link
         #   Link address: address that will be used by the server to identify
         #   the link on which the client is located
         #   @return [IPv6::Addr]
-        define_field :link, IPv6::Addr
+        define_attr :link, IPv6::Addr
         # @!attribute peer
         #   Peer address: the address of the client or relay agent from which
         #   the message to be relayed was received
         #   @return [IPv6::Addr]
-        define_field :peer, IPv6::Addr
+        define_attr :peer, IPv6::Addr
         # @!attribute options
         #   @return [DHCPv6::Options]
-        define_field :options, DHCPv6::Options
+        define_attr :options, DHCPv6::Options
       end
     end
 

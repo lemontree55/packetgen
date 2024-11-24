@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module Header
     describe IP::Addr do
-      before(:each) do
+      before do
         @ipaddr = IP::Addr.new.from_human('192.168.25.43')
       end
 
@@ -28,27 +30,30 @@ module PacketGen
         it 'in Eth packets' do
           expect(Eth).to know_header(IP).with(ethertype: 0x800)
         end
+
         it 'accepts to be added in Eth packets' do
           pkt = PacketGen.gen('Eth')
-          expect { pkt.add('IP') }.to_not raise_error
+          expect { pkt.add('IP') }.not_to raise_error
           expect(pkt.eth.ethertype).to eq(0x800)
         end
 
         it 'in SNAP packets' do
           expect(SNAP).to know_header(IP).with(proto_id: 0x800)
         end
+
         it 'accepts to be added in SNAP packets' do
           pkt = PacketGen.gen('SNAP')
-          expect { pkt.add('IP') }.to_not raise_error
+          expect { pkt.add('IP') }.not_to raise_error
           expect(pkt.snap.proto_id).to eq(0x800)
         end
 
         it 'in IP packets' do
           expect(IP).to know_header(IP).with(protocol: 4)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('IP') }.to_not raise_error
+          expect { pkt.add('IP') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(4)
         end
       end
@@ -115,7 +120,7 @@ module PacketGen
 
         it 'reads a IP header with options' do
           pkt = PacketGen.read(File.join(__dir__, 'ip_opts.pcapng')).first
-          expect(pkt.is? 'IP').to be(true)
+          expect(pkt.is?('IP')).to be(true)
 
           ip = pkt.ip
           expect(ip.ihl).to eq(11)
@@ -150,7 +155,7 @@ module PacketGen
       end
 
       describe 'setters' do
-        before(:each) do
+        before do
           @ip = IP.new
         end
 
@@ -192,7 +197,7 @@ module PacketGen
         it '#src= accepts dotted addresses' do
           @ip.src = '1.2.3.4'
           1.upto(4) do |i|
-            expect(@ip[:src]["a#{i}".to_sym].to_i).to eq(i)
+            expect(@ip[:src][:"a#{i}"].to_i).to eq(i)
           end
           expect(@ip[:src].to_i).to eq(0x01020304)
         end
@@ -200,7 +205,7 @@ module PacketGen
         it '#dst= accepts dotted addresses' do
           @ip.dst = '1.2.3.4'
           1.upto(4) do |i|
-            expect(@ip[:dst]["a#{i}".to_sym].to_i).to eq(i)
+            expect(@ip[:dst][:"a#{i}"].to_i).to eq(i)
           end
           expect(@ip[:dst].to_i).to eq(0x01020304)
         end
@@ -214,12 +219,15 @@ module PacketGen
         it 'sends a IP header on wire', :sudo do
           body = binary("\x00" * 64)
           pkt = Packet.gen('IP').add('UDP', sport: 35_535, dport: 65_535, body: body)
-          Thread.new { sleep 0.1; pkt.ip.to_w('lo') }
+          Thread.new do
+            sleep 0.1
+            pkt.ip.to_w('lo')
+          end
           packets = Packet.capture(iface: 'lo', max: 1,
                                    filter: 'ip dst 127.0.0.1 and ip proto 17 and port 35535',
                                    timeout: 2)
           packet = packets.first
-          expect(packet.is? 'IP').to be(true)
+          expect(packet.is?('IP')).to be(true)
           expect(packet.ip.dst).to eq('127.0.0.1')
           expect(packet.ip.protocol).to eq(UDP::IP_PROTOCOL)
           expect(packet.udp.sport).to eq(35_535)
@@ -235,7 +243,7 @@ module PacketGen
         idx = [ip.id].pack('n')
         expected = "\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
                    "\x7f\x00\x00\x01\x7f\x00\x00\x01"
-        expect(ip.to_s).to eq(binary expected)
+        expect(ip.to_s).to eq(binary(expected))
       end
     end
 
@@ -353,9 +361,9 @@ module PacketGen
             .to eq('RR:1.2.3.4,5.6.7.8')
           expect(IP::Option.build(type: 'SI', id: 0xfedc).to_human)
             .to eq('SI:65244')
-          expect(IP::Option.build(type: 'RA', value: 12345).to_human)
+          expect(IP::Option.build(type: 'RA', value: 12_345).to_human)
             .to eq('RA:12345')
-          expect(IP::Option.build(type: 0x7f, data: "abcd").to_human)
+          expect(IP::Option.build(type: 0x7f, data: 'abcd').to_human)
             .to eq('unk-127:"abcd"')
         end
       end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'spec_helper'
 
 shared_examples 'headerable' do |klass|
@@ -26,6 +28,7 @@ shared_examples 'headerable' do |klass|
   it 'responds to #packet=' do
     expect(object).to respond_to(:packet=)
   end
+
   it 'responds to #added_to_packet' do
     expect(object).to respond_to(:added_to_packet)
   end

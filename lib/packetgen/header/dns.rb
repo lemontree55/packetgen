@@ -141,34 +141,34 @@ module PacketGen
 
       # @!attribute id
       #  @return [Integer]
-      define_field :id, Types::Int16
+      define_attr :id, BinStruct::Int16
       # @!attribute u16
       #  @return [Integer]
-      define_field :u16, Types::Int16
+      define_attr :u16, BinStruct::Int16
       # @!attribute qdcount
       #  @return [Integer]
-      define_field :qdcount, Types::Int16
+      define_attr :qdcount, BinStruct::Int16
       # @!attribute ancount
       #  @return [Integer]
-      define_field :ancount, Types::Int16
+      define_attr :ancount, BinStruct::Int16
       # @!attribute nscount
       #  @return [Integer]
-      define_field :nscount, Types::Int16
+      define_attr :nscount, BinStruct::Int16
       # @!attribute arcount
       #  @return [Integer]
-      define_field :arcount, Types::Int16
+      define_attr :arcount, BinStruct::Int16
       # @!attribute qd
       #  @return [QDSection]
-      define_field :qd, QDSection, builder: ->(h, t) { t.new(h, h[:qdcount]) }
+      define_attr :qd, QDSection, builder: ->(h, t) { t.new(h, h[:qdcount]) }
       # @!attribute an
       #  @return [RRSection]
-      define_field :an, RRSection, builder: ->(h, t) { t.new(h, h[:ancount]) }
+      define_attr :an, RRSection, builder: ->(h, t) { t.new(h, h[:ancount]) }
       # @!attribute ns
       #  @return [RRSection]
-      define_field :ns, RRSection, builder: ->(h, t) { t.new(h, h[:nscount]) }
+      define_attr :ns, RRSection, builder: ->(h, t) { t.new(h, h[:nscount]) }
       # @!attribute ar
       #  @return [RRSection]
-      define_field :ar, RRSection, builder: ->(h, t) { t.new(h, h[:arcount]) }
+      define_attr :ar, RRSection, builder: ->(h, t) { t.new(h, h[:arcount]) }
 
       # @!attribute qr
       #   @return [Boolean] query (+false+) or response (+true+)
@@ -188,8 +188,8 @@ module PacketGen
       #   @return [Boolean] Checking Disabled
       # @!attribute rcode
       #   @return [Integer] Response code. See {RCODES}.
-      define_bit_fields_on :u16, :qr, :opcode, 4, :aa, :tc, :rd, :ra, :z,
-                           :ad, :cd, :rcode, 4
+      define_bit_attrs_on :u16, :qr, :opcode, 4, :aa, :tc, :rd, :ra, :z,
+                          :ad, :cd, :rcode, 4
 
       undef opcode=, rcode=
 

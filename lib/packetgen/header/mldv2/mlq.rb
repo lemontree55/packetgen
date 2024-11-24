@@ -57,18 +57,18 @@ module PacketGen
       #  *                                                               *
       #  |                                                               |
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      # +type+, +code+ and +checksum+ are fields from {ICMPv6} header.
+      # +type+, +code+ and +checksum+ are attributes.from {ICMPv6} header.
       #
-      # MLQ fields are:
-      # * {#max_resp_code #max_resp_code} ({Types::Int16}),
-      # * {#reserved #reserved} ({Types::Int16}),
+      # MLQ attributes.are:
+      # * {#max_resp_code #max_resp_code} ({BinStruct::Int16}),
+      # * {#reserved #reserved} ({BinStruct::Int16}),
       # * {#mcast_addr #mcast_addr} ({IPv6::Addr}),
-      # * {#flags} ({Types::Int8}), with sub-fields:
+      # * {#flags} ({BinStruct::Int8}), with sub-fields:
       #   * a 4-bit {#flag_resv} field,
       #   * a 1-bit {#flag_s} boolean,
       #   * a 3-bit {#flag_qrv} field,
-      # * {#qqic} ({Types::Int8}),
-      # * {#number_of_sources} ({Types::Int16}),
+      # * {#qqic} ({BinStruct::Int8}),
+      # * {#number_of_sources} ({BinStruct::Int16}),
       # * and {#source_addr}, a {IPv6::ArrayOfAddr}.
       #
       # == Max Resp Delay
@@ -80,20 +80,20 @@ module PacketGen
         # @!attribute flags
         #  8-bit flags
         #  @return [Integer]
-        define_field_before :body, :flags, Types::Int8
+        define_attr_before :body, :flags, BinStruct::Int8
         # @!attribute qqic
         #  8-bit QQIC
         #  @return [Integer]
-        define_field_before :body, :qqic, Types::Int8
+        define_attr_before :body, :qqic, BinStruct::Int8
         # @!attribute number_of_sources
         #  16-bit number of sources
         #  @return [Integer]
-        define_field_before :body, :number_of_sources, Types::Int16
+        define_attr_before :body, :number_of_sources, BinStruct::Int16
         # @!attribute source_addr
         #  Array of IPv6 source addresses
         #  @return [IPv6::ArrayOfAddr]
-        define_field_before :body, :source_addr, IPv6::ArrayOfAddr,
-                            builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
+        define_attr_before :body, :source_addr, IPv6::ArrayOfAddr,
+                           builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
 
         # @!attribute flag_resv
         #   4-bit reserved field in {#flags}
@@ -104,7 +104,7 @@ module PacketGen
         # @!attribute flag_qrv
         #   3-bit QRV (Querier's Robustness Variable)
         #   @return [Integer]
-        define_bit_fields_on :flags, :flag_resv, 4, :flag_s, :flag_qrv, 3
+        define_bit_attrs_on :flags, :flag_resv, 4, :flag_s, :flag_qrv, 3
 
         # Getter for +max_resp_code+ for MLDv2 packets. Use {MLDv2.decode}.
         # @return [Integer]

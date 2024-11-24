@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
   module Header
     class DNS
-
       describe Question do
         let(:dns) { DNS.new }
 
@@ -23,7 +24,7 @@ module PacketGen
             }
             q = Question.new(dns, options)
 
-            expect(q.name).to eq(options.delete :name)
+            expect(q.name).to eq(options.delete(:name))
             options.each do |key, value|
               expect(q.send(key)).to eq(value)
             end
@@ -38,7 +39,7 @@ module PacketGen
             expect(q.type).to eq(2)
             expect(q.rrclass).to eq(3)
 
-            str = generate_label_str(%w(example org)) << [1, 1].pack('nn')
+            str = generate_label_str(%w[example org]) << [1, 1].pack('nn')
             q = Question.new(dns).read(str)
             expect(q.name).to eq('example.org.')
             expect(q.type).to eq(1)
@@ -49,8 +50,8 @@ module PacketGen
         describe '#to_s' do
           it 'returns a binary string' do
             q = Question.new(dns, name: 'example.net')
-            expected_str = generate_label_str(%w(example net)) << [1, 1].pack('nn')
-            expect(q.to_s).to eq(binary expected_str)
+            expected_str = generate_label_str(%w[example net]) << [1, 1].pack('nn')
+            expect(q.to_s).to eq(binary(expected_str))
           end
         end
 

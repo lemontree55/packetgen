@@ -13,22 +13,21 @@ module PacketGen
   # This namespace handles all buitlin headers, such as {IP} or {TCP}.
   #
   # == Add a foreign header class
-  # PacketGen permits adding you own header classes.
+  # PacketGen permits adding your own header classes.
   # First, define the new header class. By example:
   #  module MyModule
   #    class MyHeader < PacketGen::Header::Base
-  #      define_field :field1, PacketGen::Types::Int32
-  #      define_field :field2, PacketGen::Types::Int32
+  #      define_attr :field1, BinStruct::Int32
+  #      define_attr :field2, BinStruct::Int32
   #    end
   #   end
   # Then, class must be declared to PacketGen:
-  #  PacketGen::Header.add_class MyModule::MyHeader
+  #  PacketGen::Header.add_class(MyModule::MyHeader)
   # Finally, bindings must be declared:
   #  # bind MyHeader as IP protocol number 254 (needed by Packet#parse and Packet#add)
-  #  PacketGen::Header::IP.bind_header MyModule::MyHeader, protocol: 254
+  #  PacketGen::Header::IP.bind_header(MyModule::MyHeader, protocol: 254)
   # And use it:
-  #  pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678)
-  #  pkt.myheader.field2.read 0x01
+  #  pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678, field3: 0x87654321)
   # @author Sylvain Daubert
   module Header
     @added_header_classes = {}
@@ -54,7 +53,7 @@ module PacketGen
         @header_classes = nil
       end
 
-      # Remove a foreign header (previously added by {.add_header_class}
+      # Remove a foreign header previously added by {.add_class}
       # from known header classes.
       # @param [Class] klass
       # @return [void]
@@ -70,8 +69,8 @@ module PacketGen
       # @return [Class,nil]
       # @since 1.1.0
       def get_header_class_by_name(name)
-        if Header.const_defined? name
-          Header.const_get name
+        if Header.const_defined?(name)
+          Header.const_get(name)
         else
           @added_header_classes[name]
         end

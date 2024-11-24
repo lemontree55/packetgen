@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 Warning[:deprecated] = true
 
 begin
@@ -27,7 +28,6 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].sort.each { |f| require f }
 RSpec.configure do |c|
   c.include CaptureHelper
   c.include BindingHelper
-  c.include EspHelper
   c.include LabelHelper
 end
 

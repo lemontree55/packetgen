@@ -11,8 +11,8 @@ module PacketGen
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
     # * a source MAC address (MacAddr),
-    # * a {#ethertype} ({Types::Int16}),
-    # * and a body (a {Types::String} or another Header class).
+    # * a {#ethertype} ({BinStruct::Int16}),
+    # * and a body (a {BinStruct::String} or another Header class).
     #
     # == Create a Ethernet header
     #  # standalone
@@ -33,27 +33,27 @@ module PacketGen
     class Eth < Base
       # Ethernet MAC address, as a group of 6 bytes
       # @author Sylvain Daubert
-      class MacAddr < Types::Fields
-        include Types::Fieldable
+      class MacAddr < BinStruct::Struct
+        include BinStruct::Structable
 
         # @!attribute a0
         #  @return [Integer] first byte from MacAddr
-        define_field :a0, Types::Int8
+        define_attr :a0, BinStruct::Int8
         # @!attribute a1
         #  @return [Integer] second byte from MacAddr
-        define_field :a1, Types::Int8
+        define_attr :a1, BinStruct::Int8
         # @!attribute a2
         #  @return [Integer] third byte from MacAddr
-        define_field :a2, Types::Int8
+        define_attr :a2, BinStruct::Int8
         # @!attribute a3
         #  @return [Integer] fourth byte from MacAddr
-        define_field :a3, Types::Int8
+        define_attr :a3, BinStruct::Int8
         # @!attribute a4
         #  @return [Integer] fifth byte from MacAddr
-        define_field :a4, Types::Int8
+        define_attr :a4, BinStruct::Int8
         # @!attribute a5
         #  @return [Integer] sixth byte from MacAddr
-        define_field :a5, Types::Int8
+        define_attr :a5, BinStruct::Int8
 
         # Read a human-readable string to populate +MacAddr+
         # @param [String] str
@@ -65,7 +65,7 @@ module PacketGen
           raise ArgumentError, 'not a MAC address' unless bytes.size == 6
 
           6.times do |i|
-            self[:"a#{i}"].read(bytes[i].to_i(16))
+            self[:"a#{i}"].from_human(bytes[i].to_i(16))
           end
           self
         end
@@ -73,27 +73,27 @@ module PacketGen
         # +MacAddr+ in human readable form (colon format)
         # @return [String]
         def to_human
-          fields.map { |m| '%02x' % self[m] }.join(':')
+          attributes.map { |m| '%02x' % self[m] }.join(':')
         end
 
         def ==(other)
           other.is_a?(self.class) &&
-            fields.all? { |attr| self[attr].value == other[attr].value }
+            attributes.all? { |attr| self[attr].value == other[attr].value }
         end
       end
 
       # @!attribute dst
       #  @return [MacAddr] Destination MAC address
-      define_field :dst, MacAddr, default: '00:00:00:00:00:00'
+      define_attr :dst, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute src
       #  @return [MacAddr] Source MAC address
-      define_field :src, MacAddr, default: '00:00:00:00:00:00'
+      define_attr :src, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute ethertype
       #  @return [Integer] 16-bit integer to determine payload type
-      define_field :ethertype, Types::Int16, default: 0
+      define_attr :ethertype, BinStruct::Int16, default: 0
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
 
       # send Eth packet on wire.
       # @param [String] iface interface name

@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe IGMPv3 do
       describe 'bindings' do
         it 'in IP packets' do
           expect(IP).to know_header(IGMPv3).with(protocol: 2, frag: 0, ttl: 1, tos: 0xc0)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('IGMPv3') }.to_not raise_error
+          expect { pkt.add('IGMPv3') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(2)
           expect(pkt.ip.frag).to eq(0)
           expect(pkt.ip.ttl).to eq(1)
@@ -35,7 +37,7 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:igmp) { IGMPv3.new}
+        let(:igmp) { IGMPv3.new }
 
         it 'sets header from a string' do
           str = (1..igmp.sz).to_a.pack('C*') + 'body'
@@ -47,11 +49,11 @@ module PacketGen
 
         it 'reads a IGMPv3 header in a real packet' do
           pkt = PacketGen.gen('IP', src: '192.168.0.1', dst: '224.0.0.1',
-                              ttl: 1, protocol: 2, tos: 0xc0)
+                                    ttl: 1, protocol: 2, tos: 0xc0)
           pkt.body = "\x11\x00\xee\xff"
           parsed_pkt = PacketGen.parse(pkt.to_s)
-          expect(parsed_pkt.is? 'IP').to be(true)
-          expect(parsed_pkt.is? 'IGMPv3').to be(true)
+          expect(parsed_pkt.is?('IP')).to be(true)
+          expect(parsed_pkt.is?('IGMPv3')).to be(true)
           expect(parsed_pkt.igmpv3.human_type).to eq('MembershipQuery')
           expect(parsed_pkt.igmpv3.max_resp_time).to eq(0)
         end
@@ -79,7 +81,7 @@ module PacketGen
           igmp = IGMPv3.new
           str = igmp.inspect
           expect(str).to be_a(String)
-          (igmp.fields - %i(body)).each do |attr|
+          (igmp.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -94,7 +96,7 @@ module PacketGen
           expect(pkt.ip.ttl).to eq(1)
           expect(pkt.ip.options.size).to eq(1)
           expect(pkt.ip.options[0]).to be_a(IP::RA)
-          expected = "\x46\xc0\x00\x1c\x00\x00\x00\x00\x01\x02\xd6\xd6"
+          expected = +"\x46\xc0\x00\x1c\x00\x00\x00\x00\x01\x02\xd6\xd6"
           expected << "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00"
           expected << "\x11\x00\xee\xff"
           expect(pkt.to_s).to eq(binary(expected))
@@ -102,10 +104,10 @@ module PacketGen
       end
 
       describe '#max_resp_time' do
-        let (:igmp) { IGMPv3.new }
+        let(:igmp) { IGMPv3.new }
 
         it 'sets IGMPv3 encoded Max Resp Time' do
-          igmp.max_resp_time = 10000
+          igmp.max_resp_time = 10_000
           expect(igmp[:max_resp_time].value).to eq(0xe3)
         end
 
@@ -120,9 +122,9 @@ module PacketGen
 
         it 'decodes a V3 extended Membership Query' do
           pkt = packets.first
-          expect(pkt.is? 'IGMPv3').to be(true)
+          expect(pkt.is?('IGMPv3')).to be(true)
           expect(pkt.igmpv3.type).to eq(0x11)
-          expect(pkt.is? 'IGMPv3::MQ').to be(true)
+          expect(pkt.is?('IGMPv3::MQ')).to be(true)
           expect(pkt.igmpv3_mq.group_addr).to eq('224.0.0.9')
           expect(pkt.igmpv3_mq.u8).to eq(0xf)
           expect(pkt.igmpv3_mq.flag_s?).to be(true)
@@ -135,11 +137,11 @@ module PacketGen
 
         it 'decodes a V3 extended Membership Report' do
           pkt = packets.last
-          expect(pkt.is? 'IGMPv3').to be(true)
+          expect(pkt.is?('IGMPv3')).to be(true)
           expect(pkt.igmpv3.type).to eq(0x22)
           expect(pkt.igmpv3.max_resp_code).to eq(0)
           expect(pkt.igmpv3.checksum).to eq(0x276d)
-          expect(pkt.is? 'IGMPv3::MR').to be(true)
+          expect(pkt.is?('IGMPv3::MR')).to be(true)
           expect(pkt.igmpv3_mr.reserved).to eq(0)
           expect(pkt.igmpv3_mr.number_of_gr).to eq(1)
           expect(pkt.igmpv3_mr.group_records.size).to eq(1)
