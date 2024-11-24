@@ -117,7 +117,7 @@ module PacketGen
         @options_decoded = true
         return @ts_resol = 1E-6 if tsresol.nil?
 
-        @ts_resol = if (tsresol & 0x80).zero?
+        @ts_resol = if tsresol.nobits?(0x80)
                       10**-tsresol
                     else
                       2**-(tsresol & 0x7f)

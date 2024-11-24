@@ -115,7 +115,7 @@ module PacketGen
         def human_rrclass
           if self[:name].dns.is_a?(MDNS)
             str = self.class::CLASSES.key(self.rrclass & 0x7fff) || '0x%04x' % (self.rrclass & 0x7fff)
-            str += ' CACHE-FLUSH' if (self.rrclass & 0x8000).positive?
+            str += ' CACHE-FLUSH' if self.rrclass.anybits?(0x8000)
             str
           else
             self.class::CLASSES.key(self.rrclass) || '0x%04x' % self.rrclass

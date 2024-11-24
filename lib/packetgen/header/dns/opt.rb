@@ -94,7 +94,7 @@ module PacketGen
             self[:ttl].value = self[:ttl].to_i & (0xffffffff & ~(1 << 15))
             self[:ttl].value |= (b & 1) << 15
           end
-          ((self[:ttl].to_i >> 15) & 1) == 1
+          self[:ttl].to_i.anybits?(0x8000)
         end
         alias do? do=
 
