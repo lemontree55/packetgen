@@ -77,8 +77,6 @@ module PacketGen
         def initialize(dns, options={})
           super(options)
           self[:name].dns = dns
-          self.type = options[:type] if options[:type]
-          self.rrclass = options[:rrclass] if options[:rrclass]
         end
 
         undef rrclass=

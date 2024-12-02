@@ -95,7 +95,13 @@ module PacketGen
       # @!attribute u32
       #  First 32-bit word of IPv6 header
       #  @return [Integer]
-      define_attr :u32, BinStruct::Int32, default: 0x6000_0000
+      # @!attribute version
+      #   @return [Integer] 4-bit version attribute
+      # @!attribute traffic_class
+      #   @return [Integer] 8-bit traffic_class attribute
+      # @!attribute flow_label
+      #   @return [Integer] 20-bit flow_label attribute
+      define_bit_attr :u32, default: 0x60000000, version: 4, traffic_class: 8, flow_label: 20
       # @!attribute length
       #  16-bit word of IPv6 payload length
       #  @return [Integer]
@@ -119,14 +125,6 @@ module PacketGen
       # @!attribute body
       #  @return [BinStruct::String,Header::Base]
       define_attr :body, BinStruct::String
-
-      # @!attribute version
-      #   @return [Integer] 4-bit version attribute
-      # @!attribute traffic_class
-      #   @return [Integer] 8-bit traffic_class attribute
-      # @!attribute flow_label
-      #   @return [Integer] 20-bit flow_label attribute
-      define_bit_attrs_on :u32, :version, 4, :traffic_class, 8, :flow_label, 20
 
       # Compute length and set +len+ field
       # @return [Integer]

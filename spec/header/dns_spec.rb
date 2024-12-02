@@ -157,7 +157,7 @@ module PacketGen
 
         it '#opcode= accepts integers' do
           dns.opcode = 1
-          expect((dns[:u16].value & 0x7800) >> 11).to eq(1)
+          expect((dns[:u16].to_i & 0x7800) >> 11).to eq(1)
         end
 
         it '#opcode= accepts known string opcodes' do
@@ -173,7 +173,7 @@ module PacketGen
 
         it '#rcode= accepts integers' do
           dns.rcode = 8
-          expect(dns[:u16].value & 0xf).to eq(8)
+          expect(dns[:u16].to_i & 0xf).to eq(8)
         end
 
         it '#rcode= accepts known string opcodes' do

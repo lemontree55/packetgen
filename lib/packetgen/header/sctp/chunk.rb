@@ -163,19 +163,20 @@ module PacketGen
         #  @return [String]
         define_attr :body, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
 
+        remove_attr :flags
         # @!attribute flag_i
         #  IMMEDIATE flag
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute flag_u
         #  UNORDERED flag
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute flag_b
         #  BEGINNING fragment flag
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute flag_e
         #  ENDING fragment flag
-        #  @return [Boolean]
-        define_bit_attrs_on :flags, :flag_res, 4, :flag_i, :flag_u, :flag_b, :flag_e
+        #  @return [Integer]
+        define_bit_attr_after :type, :flags, flag_res: 4, flag_i: 1, flag_u: 1, flag_b: 1, flag_e: 1
 
         private
 
@@ -435,9 +436,10 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class AbortChunk < ErrorChunk
+        remove_attr :flags
         # @!attribute flag_t
-        #  @return [Boolean]
-        define_bit_attrs_on :flags, :flag_res, 7, :flag_t
+        #  @return [Integer]
+        define_bit_attr_after :type, :flags, flag_res: 7, flag_t: 1
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['ABORT'] unless options.key?(:type)
@@ -532,9 +534,10 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class ShutdownCompleteChunk < BaseChunk
+        remove_attr :flags
         # @!attribute flag_t
-        #  @return [Boolean]
-        define_bit_attrs_on :flags, :flag_res, 7, :flag_t
+        #  @return [Integer]
+        define_bit_attr_after :type, :flags, flag_res: 7, flag_t: 1
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['SHUTDOWN_COMPLETE'] unless options.key?(:type)

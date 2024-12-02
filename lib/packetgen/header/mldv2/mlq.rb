@@ -80,7 +80,16 @@ module PacketGen
         # @!attribute flags
         #  8-bit flags
         #  @return [Integer]
-        define_attr_before :body, :flags, BinStruct::Int8
+        # @!attribute flag_resv
+        #   4-bit reserved field in {#flags}
+        #   @return [Integer]
+        # @!attribute flag_s
+        #   S Flag (Suppress Router-Side Processing)
+        #   @return [Integer]
+        # @!attribute flag_qrv
+        #   3-bit QRV (Querier's Robustness Variable)
+        #   @return [Integer]
+        define_bit_attr_before :body, :flags, flag_resv: 4, flag_s: 1, flag_qrv: 3
         # @!attribute qqic
         #  8-bit QQIC
         #  @return [Integer]
@@ -94,17 +103,6 @@ module PacketGen
         #  @return [IPv6::ArrayOfAddr]
         define_attr_before :body, :source_addr, IPv6::ArrayOfAddr,
                            builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
-
-        # @!attribute flag_resv
-        #   4-bit reserved field in {#flags}
-        #   @return [Integer]
-        # @!attribute flag_s
-        #   S Flag (Suppress Router-Side Processing)
-        #   @return [Boolean]
-        # @!attribute flag_qrv
-        #   3-bit QRV (Querier's Robustness Variable)
-        #   @return [Integer]
-        define_bit_attrs_on :flags, :flag_resv, 4, :flag_s, :flag_qrv, 3
 
         # Getter for +max_resp_code+ for MLDv2 packets. Use {MLDv2.decode}.
         # @return [Integer]

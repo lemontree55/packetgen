@@ -118,27 +118,25 @@ module PacketGen
       #    @return [Integer]
       #  @!attribute dc_opt
       #    This bit describes the router's handling of demand circuits.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute r_opt
       #    This bit indicates whether the originator is an active router.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute n_opt
       #    This bit indicates whether or not the router is attached to an NSSA.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute x_opt
       #    This bit should be set to 0, and ignored when received.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute e_opt
       #    This bit describes the way AS-external-LSAs are flooded.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute v6_opt
       #    If this bit is clear, the router/link should be excluded from IPv6
       #    routing calculations.
-      #    @return [Boolean]
+      #    @return [Integer]
       def self.define_options(hdr)
-        hdr.define_attr :options, BinStruct::Int24
-        hdr.define_bit_attrs_on :options, :z, 18, :dc_opt, :r_opt,
-                                :n_opt, :x_opt, :e_opt, :v6_opt
+        hdr.define_bit_attr :options, z: 18, dc_opt: 1, r_opt: 1, n_opt: 1, x_opt: 1, e_opt: 1, v6_opt: 1
       end
 
       # @api private

@@ -82,7 +82,13 @@ module PacketGen
       # @!attribute flags
       #  16-bit flag field
       #  @return [Integer]
-      define_attr :flags, BinStruct::Int16
+      # @!attribute b
+      #  Broadcast flag, from {#flags}
+      # @return [Boolean]
+      # @!attribute mbz
+      #  15-bit Must Be Zero bits, from {#flags}
+      # @return [Boolean]
+      define_bit_attr :flags, b: 1, mbz: 15
 
       # @!attribute ciaddr
       #  client IP address
@@ -122,14 +128,6 @@ module PacketGen
       # @!attribute body
       #   @return [String]
       define_attr :body, BinStruct::String
-
-      # @!attribute b
-      #  Broadcast flag, from {#flags}
-      # @return [Boolean]
-      # @!attribute mbz
-      #  15-bit Must Be Zero bits, from {#flags}
-      # @return [Boolean]
-      define_bit_attrs_on :flags, :b, :mbz, 15
 
       # @return [String]
       def inspect

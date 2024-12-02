@@ -80,17 +80,16 @@ module PacketGen
         # @!attribute flags
         #  16-bit interface flags ({#i_flag}, {#m_flag} and {#ms_flag})
         #  @return [Integer]
-        define_attr :flags, BinStruct::Int16
         # @!attribute i_flag
         #  Init bit from {#flags} field
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute m_flag
         #  More bit from {#flags} field
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute ms_flag
         #  Master/Slave bit from {#flags} field
-        #  @return [Boolean]
-        define_bit_attrs_on :flags, :zz, 13, :i_flag, :m_flag, :ms_flag
+        #  @return [Integer]
+        define_bit_attr :flags, zz: 13, i_flag: 1, m_flag: 1, ms_flag: 1
 
         # @!attribute sequence_number
         #  32-bit DD sequence number, used to sequence the collection of Database

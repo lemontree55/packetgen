@@ -144,7 +144,27 @@ module PacketGen
       define_attr :id, BinStruct::Int16
       # @!attribute u16
       #  @return [Integer]
-      define_attr :u16, BinStruct::Int16
+      # @!attribute qr
+      #   @return [Boolean] query (+false+) or response (+true+)
+      # @!attribute opcode
+      #   @return [Integer] Kind of query. See {OPCODES}.
+      # @!attribute aa
+      #   @return [Boolean] Authoritative answer
+      # @!attribute tc
+      #   @return [Boolean] Truncation
+      # @!attribute rd
+      #   @return [Boolean] Recursion Desired
+      # @!attribute ra
+      #   @return [Boolean] Recursion Available
+      # @!attribute ad
+      #   @return [Boolean] Authentic Data
+      # @!attribute cd
+      #   @return [Boolean] Checking Disabled
+      # @!attribute rcode
+      #   @return [Integer] Response code. See {RCODES}.
+      define_bit_attr :u16, qr: 1, opcode: 4, aa: 1, tc: 1, rd: 1, ra: 1, z: 1, ad: 1, cd: 1, rcode: 4
+      undef opcode=, rcode=
+
       # @!attribute qdcount
       #  @return [Integer]
       define_attr :qdcount, BinStruct::Int16
@@ -169,29 +189,6 @@ module PacketGen
       # @!attribute ar
       #  @return [RRSection]
       define_attr :ar, RRSection, builder: ->(h, t) { t.new(h, h[:arcount]) }
-
-      # @!attribute qr
-      #   @return [Boolean] query (+false+) or response (+true+)
-      # @!attribute opcode
-      #   @return [Integer] Kind of query. See {OPCODES}.
-      # @!attribute aa
-      #   @return [Boolean] Authoritative answer
-      # @!attribute tc
-      #   @return [Boolean] Truncation
-      # @!attribute rd
-      #   @return [Boolean] Recursion Desired
-      # @!attribute ra
-      #   @return [Boolean] Recursion Available
-      # @!attribute ad
-      #   @return [Boolean] Authentic Data
-      # @!attribute cd
-      #   @return [Boolean] Checking Disabled
-      # @!attribute rcode
-      #   @return [Integer] Response code. See {RCODES}.
-      define_bit_attrs_on :u16, :qr, :opcode, 4, :aa, :tc, :rd, :ra, :z,
-                          :ad, :cd, :rcode, 4
-
-      undef opcode=, rcode=
 
       # Set opcode
       # @param [Integer,String] value

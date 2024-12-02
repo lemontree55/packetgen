@@ -48,7 +48,16 @@ module PacketGen
         # @!attribute u8
         #  First 8-bit field, composed of {#resv}, {#flag_s} and {#qrv}
         #  @return [Integer]
-        define_attr :u8, BinStruct::Int8
+        # @!attribute resv
+        #  4-bit reserved field in
+        #  @return [Integer]
+        # @!attribute flag_s
+        #  1-bit S flag (Suppress Router-Side Processing)
+        #  @return [Integer]
+        # @!attribute qrv
+        #  3-bit Querier's Robustness Variable
+        #  @return [Integer]
+        define_bit_attr :u8, resv: 4, flag_s: 1, qrv: 3
         # @!attribute qqic
         #  8-bit QQIC
         #  @return [Integer,Float]
@@ -63,17 +72,6 @@ module PacketGen
         #  @return [IP::ArrayOfAddr]
         define_attr :source_addr, IP::ArrayOfAddr,
                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
-
-        # @!attribute resv
-        #  4-bit reserved field in
-        #  @return [Integer]
-        # @!attribute flag_s
-        #  1-bit S flag (Suppress Router-Side Processing)
-        #  @return [Boolean]
-        # @!attribute qrv
-        #  3-bit Querier's Robustness Variable
-        #  @return [Integer]
-        define_bit_attrs_on :u8, :resv, 4, :flag_s, :qrv, 3
 
         undef qqic, qqic=
 

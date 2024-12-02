@@ -47,7 +47,17 @@ module PacketGen
         # @!attribute type
         #  8-bit option type
         # @return [Integer]
-        define_attr :type, BinStruct::Int8
+        # @!attribute copied
+        #  1-bit copied flag from {#type} field
+        #  @return [Integer]
+        # @!attribute option_class
+        #  2-bit option class (0: control, 2: debug and measurement, 1 and 3:
+        #  reserved) from {#type} field
+        #  @return [Integer]
+        # !@attribute number
+        #  5-bit option number from {#type} field
+        #  @return [Integer]
+        define_bit_attr :type, copied: 1, option_class: 2, number: 5
         # @!attribute length
         #  8-bit option length. If 0, there is no +length+ field in option
         # @return [Integer]
@@ -57,18 +67,6 @@ module PacketGen
         # @return [String]
         define_attr :data, BinStruct::String, optional: ->(h) { h.length > 2 },
                                               builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
-
-        # @!attribute copied
-        #  1-bit copied flag from {#type} field
-        #  @return [Boolean]
-        # @!attribute option_class
-        #  2-bit option class (0: control, 2: debug and measurement, 1 and 3:
-        #  reserved) from {#type} field
-        #  @return [Integer]
-        # !@attribute number
-        #  5-bit option number from {#type} field
-        #  @return [Integer]
-        define_bit_attrs_on :type, :copied, :option_class, 2, :number, 5
 
         # @return [Hash]
         def self.types

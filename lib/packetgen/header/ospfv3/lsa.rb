@@ -70,23 +70,21 @@ module PacketGen
         # @attribute flags
         #  8-bit flag word
         #  @return [Integer]
-        define_attr :flags, BinStruct::Int8
+        # @!attribute nt_flag
+        #  @return [Integer]
+        # @!attribute v_flag
+        #  @return [Integer]
+        # @!attribute e_flag
+        #  @return [Integer]
+        # @!attribute b_flag
+        #  @return [Integer]
+        define_bit_attr :flags, zz: 3, nt_flag: 1, x_flag: 1, v_flag: 1, e_flag: 1, b_flag: 1
         # @!macro define_ospfv3_options
         OSPFv3.define_options(self)
         # @attribute links
         #  @return [ArrayOfLink]
         define_attr :links, ArrayOfLink, builder: ->(h, t) { t.new(length_from: -> { h.length - h.offset_of(:links) }) }
 
-        # @!attribute nt_flag
-        #  @return [Boolean]
-        # @!attribute v_flag
-        #  @return [Boolean]
-        # @!attribute e_flag
-        #  @return [Boolean]
-        # @!attribute b_flag
-        #  @return [Boolean]
-        define_bit_attrs_on :flags, :zz, 3, :nt_flag, :x_flag, :v_flag, :e_flag,
-                            :b_flag
       end
 
       # This class handles OSPFv3 LSA Network payloads.
@@ -190,7 +188,7 @@ module PacketGen
 
         # @param [Hash] options
         # @option options [BinStruct::Int] counter Int object used as a counter for this set
-        # @option options [Boolean] only_headers if +true+, only {LSAHeader LSAHeaders}
+        # @option options [Integer] only_headers if +true+, only {LSAHeader LSAHeaders}
         #  will be added to this array.
         def initialize(options={})
           super

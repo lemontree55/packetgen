@@ -137,30 +137,28 @@ module PacketGen
       #    {#n_opt}, {#l_opt}, {#dc_opt}, {#o_opt} and {#dn_opt}.
       #    @return [Integer]
       #  @!attribute dn_opt
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute o_opt
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute dc_opt
       #    This bit describes the router's handling of demand circuits.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute l_opt
       #    This specifies if a LLS Data block is present.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute n_opt
       #    This bit specifies if NSSA is supported.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute mc_opt
       #    This bit describes whether IP multicast datagrams are forwarded.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute e_opt
       #    This bit describes the way AS-external-LSAs are flooded.
-      #    @return [Boolean]
+      #    @return [Integer]
       #  @!attribute mt_opt
-      #    @return [Boolean]
+      #    @return [Integer]
       def self.define_options(hdr)
-        hdr.define_attr :options, BinStruct::Int8
-        hdr.define_bit_attrs_on :options, :dn_opt, :o_opt, :dc_opt, :l_opt,
-                                :n_opt, :mc_opt, :e_opt, :mt_opt
+        hdr.define_bit_attr :options, dn_opt: 1, o_opt: 1, dc_opt: 1, l_opt: 1, n_opt: 1, mc_opt: 1, e_opt: 1, mt_opt: 1
       end
 
       # @api private

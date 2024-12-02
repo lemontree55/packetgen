@@ -20,7 +20,9 @@ module PacketGen
       define_attr :version, BinStruct::Int8, default: 0
       # @!attribute flags
       #  @return [Integer] 8-bit PPI flags
-      define_attr :flags, BinStruct::Int8
+      # @!attribute align
+      #  @return [Boolean] align flag from {#flags} attribute
+      define_bit_attr :flags, reserved: 7, align: 1
       # @!attribute length
       #  @return [Integer] 16-bit PPI header length
       define_attr :length, BinStruct::Int16le, default: 8
@@ -33,9 +35,6 @@ module PacketGen
       # @!attribute body
       #  @return [Type::String]
       define_attr :body, BinStruct::String
-      # @!attribute align
-      #  @return [Boolean] align flag from {#flags} attribute
-      define_bit_attrs_on :flags, :reserved, 7, :align
 
       # Check version field
       # @see [Base#parse?]
@@ -189,38 +188,6 @@ module PacketGen
 
       # @!attribute frame_ctrl
       #  @return [Integer] 16-bit frame control word
-      define_attr :frame_ctrl, BinStruct::Int16, default: 0
-      # @!attribute id
-      #  @return [Integer] 16-bit ID/Duration word
-      define_attr :id, BinStruct::Int16le, default: 0
-      # @!attribute mac1
-      #  @return [Eth::MacAddr]
-      define_attr :mac1, Eth::MacAddr
-      # @!attribute mac2
-      #  @return [Eth::MacAddr]
-      define_attr :mac2, Eth::MacAddr
-      # @!attribute mac3
-      #  @return [Eth::MacAddr]
-      define_attr :mac3, Eth::MacAddr
-      # @!attribute sequence_ctrl
-      #  @return [Integer] 16-bit sequence control word
-      define_attr :sequence_ctrl, BinStruct::Int16le, default: 0
-      # @!attribute mac4
-      #  @return [Eth::MacAddr]
-      define_attr :mac4, Eth::MacAddr
-      # @!attribute qos_ctrl
-      #  @return [Integer] 16-bit QoS control word
-      define_attr :qos_ctrl, BinStruct::Int16
-      # @!attribute ht_ctrl
-      #  @return [Integer] 16-bit HT control word
-      define_attr :ht_ctrl, BinStruct::Int32
-      # @!attribute body
-      #  @return [BinStruct::String]
-      define_attr :body, BinStruct::String
-      # @!attribute fcs
-      #  @return [BinStruct::Int32le]
-      define_attr :fcs, BinStruct::Int32le
-
       # @!attribute subtype
       #  @return [Integer] 4-bit frame subtype from {#frame_ctrl}
       # @!attribute type
@@ -243,16 +210,44 @@ module PacketGen
       #  @return [Boolean] from_ds flag from {#frame_ctrl}
       # @!attribute to_ds
       #  @return [Boolean] to_ds flag from {#frame_ctrl}
-      define_bit_attrs_on :frame_ctrl, :subtype, 4, :type, 2, :proto_version, 2,
-                          :order, :wep, :md, :pwmngt, :retry, :mf, :from_ds, :to_ds
-
+      define_bit_attr :frame_ctrl, subtype: 4, type: 2, proto_version: 2, order: 1,
+                                   wep: 1, md: 1, pwmngt: 1, retry: 1, mf: 1, from_ds: 1, to_ds: 1
+      # @!attribute id
+      #  @return [Integer] 16-bit ID/Duration word
+      define_attr :id, BinStruct::Int16le, default: 0
+      # @!attribute mac1
+      #  @return [Eth::MacAddr]
+      define_attr :mac1, Eth::MacAddr
+      # @!attribute mac2
+      #  @return [Eth::MacAddr]
+      define_attr :mac2, Eth::MacAddr
+      # @!attribute mac3
+      #  @return [Eth::MacAddr]
+      define_attr :mac3, Eth::MacAddr
+      # @!attribute sequence_ctrl
+      #  @return [Integer] 16-bit sequence control word
       # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
       #  @return [Integer]
       #  @since 2.1.3
       # @!attribute fragment_number (4-bit field from {#sequence_ctrl})
       #  @return [Integer]
       #  @since 2.1.3
-      define_bit_attrs_on :sequence_ctrl, :sequence_number, 12, :fragment_number, 4
+      define_bit_attr :sequence_ctrl, sequence_number: 12, fragment_number: 4
+      # @!attribute mac4
+      #  @return [Eth::MacAddr]
+      define_attr :mac4, Eth::MacAddr
+      # @!attribute qos_ctrl
+      #  @return [Integer] 16-bit QoS control word
+      define_attr :qos_ctrl, BinStruct::Int16
+      # @!attribute ht_ctrl
+      #  @return [Integer] 16-bit HT control word
+      define_attr :ht_ctrl, BinStruct::Int32
+      # @!attribute body
+      #  @return [BinStruct::String]
+      define_attr :body, BinStruct::String
+      # @!attribute fcs
+      #  @return [BinStruct::Int32le]
+      define_attr :fcs, BinStruct::Int32le
 
       alias duration id
       # @private

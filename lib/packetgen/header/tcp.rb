@@ -78,7 +78,7 @@ module PacketGen
   end
 end
 
-# Need to load Options now, as this is used through define_bit_attrs_on,
+# Need to load Options now, as this is used through define_bit_attr,
 # which make a call to TCP.new, which needs Options
 require_relative 'tcp/options'
 
@@ -106,7 +106,34 @@ module PacketGen
       define_attr :acknum, BinStruct::Int32
       # @!attribute u16
       #  @return [Integer] 16-bit word used by flags and bit fields
-      define_attr :u16, BinStruct::Int16
+      # @!attribute data_offset
+      #  @return [Integer] 4-bit data offset from {#u16}
+      # @!attribute reserved
+      #  @return [Integer] 3-bit reserved from {#u16}
+      # @!attribute flags
+      #  @return [Integer] 9-bit flags from {#u16}
+      # @!attribute flag_ns
+      #  @return [Integer] 1-bit NS flag
+      # @!attribute flag_cwr
+      #  @return [Integer] 1-bit CWR flag
+      # @!attribute flag_ece
+      #  @return [Integer] 1-bit ECE flag
+      # @!attribute flag_urg
+      #  @return [Integer] 1-bit URG flag
+      # @!attribute flag_ack
+      #  @return [Integer] 1-bit ACK flag
+      # @!attribute flag_psh
+      #  @return [Integer] 1-bit PSH flag
+      # @!attribute flag_rst
+      #  @return [Integer] 1-bit RST flag
+      # @!attribute flag_syn
+      #  @return [Integer] 1-bit SYN flag
+      # @!attribute flag_fin
+      #  @return [Integer] 1-bit FIN flag
+      define_bit_attr :u16, data_offset: 4, reserved: 3, flag_ns: 1, flag_cwr: 1, flag_ece: 1, flag_urg: 1, flag_ack: 1, flag_psh: 1,
+                            flag_rst: 1, flag_syn: 1, flag_fin: 1
+      alias hlen data_offset
+      alias hlen= data_offset=
       # @!attribute window
       #  16-bit TCP window size
       #  @return [Integer]
@@ -158,38 +185,22 @@ module PacketGen
       def initialize(options={})
         opts = { data_offset: 5 }.merge!(options)
         super(opts)
+        self.flags = opts[:flags] if opts.key?(:flags)
       end
 
-      # @!attribute data_offset
-      #  @return [Integer] 4-bit data offset from {#u16}
-      # @!attribute reserved
-      #  @return [Integer] 3-bit reserved from {#u16}
-      # @!attribute flags
-      #  @return [Integer] 9-bit flags from {#u16}
-      define_bit_attrs_on :u16, :data_offset, 4, :reserved, 3, :flags, 9
-      alias hlen data_offset
-      alias hlen= data_offset=
+      # Get all flags value from [#u16]
+      # @return [Integer]
+      def flags
+        self.u16 & 0x1ff
+      end
 
-      # @!attribute flag_ns
-      #  @return [Boolean] 1-bit NS flag
-      # @!attribute flag_cwr
-      #  @return [Boolean] 1-bit CWR flag
-      # @!attribute flag_ece
-      #  @return [Boolean] 1-bit ECE flag
-      # @!attribute flag_urg
-      #  @return [Boolean] 1-bit URG flag
-      # @!attribute flag_ack
-      #  @return [Boolean] 1-bit ACK flag
-      # @!attribute flag_psh
-      #  @return [Boolean] 1-bit PSH flag
-      # @!attribute flag_rst
-      #  @return [Boolean] 1-bit RST flag
-      # @!attribute flag_syn
-      #  @return [Boolean] 1-bit SYN flag
-      # @!attribute flag_fin
-      #  @return [Boolean] 1-bit FIN flag
-      define_bit_attrs_on :u16, :_, 7, :flag_ns, :flag_cwr, :flag_ece, :flag_urg,
-                          :flag_ack, :flag_psh, :flag_rst, :flag_syn, :flag_fin
+      # Set all flags at once
+      # @parameter [Integer] value
+      # @return [Integer]
+      def flags=(value)
+        new_u16 = (self.u16 & 0xfe00) | (value & 0x1ff)
+        self[:u16].from_human(new_u16)
+      end
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]

@@ -96,7 +96,7 @@ module PacketGen
           it 'accepts options' do
             options = {
               type: 0xffff,
-              flags: 0x1234,
+              flags: 0x42,
               length: 42,
             }
             shutdown = ShutdownCompleteChunk.new(options)

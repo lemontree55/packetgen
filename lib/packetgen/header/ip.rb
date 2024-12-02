@@ -100,7 +100,11 @@ module PacketGen
       # @!attribute u8
       #  First byte of IP header. May be accessed through {#version} and {#ihl}.
       #  @return [Integer] first byte of IP header.
-      define_attr :u8, BinStruct::Int8, default: 0x45
+      # @!attribute version
+      #   @return [Integer] 4-bit version attribute
+      # @!attribute ihl
+      #   @return [Integer] 4-bit IP header length attribute
+      define_bit_attr :u8, default: 0x45, version: 4, ihl: 4
       # @!attribute tos
       #   @return [Integer] 8-bit Type of Service self[attr]
       define_attr :tos, BinStruct::Int8, default: 0
@@ -112,7 +116,15 @@ module PacketGen
       define_attr :id, BinStruct::Int16, default: ->(_) { rand(65_535) }
       # @!attribute frag
       #   @return [Integer] 16-bit frag word
-      define_attr :frag, BinStruct::Int16, default: 0
+      # @!attribute flag_rsv
+      #   @return [Boolean] reserved bit from flags
+      # @!attribute flag_df
+      #   @return [Boolean] Don't Fragment flag
+      # @!attribute flag_mf
+      #   @return [Boolean] More Fragment flags
+      # @!attribute fragment_offset
+      #   @return [Integer] 13-bit fragment offset
+      define_bit_attr :frag, flag_rsv: 1, flag_df: 1, flag_mf: 1, fragment_offset: 13
       # @!attribute ttl
       #   @return [Integer] 8-bit Time To Live self[attr]
       define_attr :ttl, BinStruct::Int8, default: 64
@@ -136,22 +148,6 @@ module PacketGen
       # @!attribute body
       #  @return [BinStruct::String,Header::Base]
       define_attr :body, BinStruct::String
-
-      # @!attribute version
-      #   @return [Integer] 4-bit version attribute
-      # @!attribute ihl
-      #   @return [Integer] 4-bit IP header length attribute
-      define_bit_attrs_on :u8, :version, 4, :ihl, 4
-
-      # @!attribute flag_rsv
-      #   @return [Boolean] reserved bit from flags
-      # @!attribute flag_df
-      #   @return [Boolean] Don't Fragment flag
-      # @!attribute flag_mf
-      #   @return [Boolean] More Fragment flags
-      # @!attribute fragment_offset
-      #   @return [Integer] 13-bit fragment offset
-      define_bit_attrs_on :frag, :flag_rsv, :flag_df, :flag_mf, :fragment_offset, 13
 
       # Helper method to compute sum of 16-bit words. Used to compute IP-style
       # checksums.
@@ -227,18 +223,6 @@ module PacketGen
         sock.close
       end
 
-      # @return [String]
-      def inspect
-        super do |attr|
-          case attr
-          when :u8
-            inspect_u8
-          when :frag
-            inspect_frag
-          end
-        end
-      end
-
       # Check version field
       # @see [Base#parse?]
       def parse?
@@ -258,25 +242,6 @@ module PacketGen
       def reply!
         self[:src], self[:dst] = self[:dst], self[:src]
         self
-      end
-
-      private
-
-      def inspect_u8
-        shift = Inspect.shift_level
-        str = Inspect.inspect_attribute(:u8, self[:u8])
-        str << shift << Inspect::FMT_ATTR % ['', 'version', version]
-        str << shift << Inspect::FMT_ATTR % ['', 'ihl', ihl]
-      end
-
-      def inspect_frag
-        shift = Inspect.shift_level
-        str = Inspect.inspect_attribute(:frag, self[:frag])
-        flags = %i[rsv df mf].select { |flag| send(:"flag_#{flag}?") }.map(&:upcase)
-        flags_str = flags.empty? ? 'none' : flags.join(',')
-        str << shift << Inspect::FMT_ATTR % ['', 'flags', flags_str]
-        foff = Inspect.int_dec_hex(fragment_offset, 4)
-        str << shift << Inspect::FMT_ATTR % ['', 'frag_offset', foff]
       end
     end
 

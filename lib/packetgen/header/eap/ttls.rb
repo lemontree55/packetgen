@@ -22,22 +22,20 @@ module PacketGen
         update_attr :type, default: 21
         # @!attribute flags
         #  @return [Integer] 8-bit flags
-        define_attr_before :body, :flags, BinStruct::Int8
-
         # @!attribute l
-        #  Say if length field is included. Defined on {#flags} field.
-        #  @return [Boolean]
+        #  Say if length field is included
+        #  @return [Integer]
         # @!attribute m
-        #  Say if there are more fragments. Defined on {#flags} field.
-        #  @return [Boolean]
+        #  Say if there are more fragments
+        #  @return [Integer]
         # @!attribute s
-        #  If set, this message is a TLS-Start. Defined on {#flags} field.
-        #  @return [Boolean]
+        #  If set, this message is a TLS-Start
+        #  @return [Integer]
         # @!attribute reserved
         #  @return [Integer] 2-bit reserved integer
         # @!attribute version
         #  @return [Integer] 3-bit version
-        define_bit_attrs_on :flags, :l, :m, :s, :reserved, 2, :version, 3
+        define_bit_attr_before :body, :flags, l: 1, m: 1, s: 1, reserved: 2, version: 3
         alias length_present? l?
         alias more_fragments? m?
         alias tls_start? s?

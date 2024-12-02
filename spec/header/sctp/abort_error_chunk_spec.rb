@@ -59,7 +59,7 @@ module PacketGen
       [AbortChunk, ErrorChunk].each do |klass|
         describe klass do
           describe '#initialize' do
-            it 'creates an InitChunk header with default values' do
+            it "creates an #{klass} header with default values" do
               obj = klass.new
               expect(obj).to be_a(klass)
               expect(obj.type).to eq(klass == AbortChunk ? 6 : 9)
@@ -71,7 +71,7 @@ module PacketGen
             it 'accepts options' do
               options = {
                 type: 0xffff,
-                flags: 0x1234,
+                flags: 0x42,
                 length: 42,
               }
               obj = klass.new(options)

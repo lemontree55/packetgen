@@ -26,8 +26,6 @@ module PacketGen
       # IP protocol number for GRE
       IP_PROTOCOL = 47
 
-      define_attr :u16, BinStruct::Int16
-
       # @!attribute c
       #   @return [Boolean]
       # @!attribute k
@@ -38,7 +36,7 @@ module PacketGen
       #   @return [Integer]
       # @!attribute ver
       #   @return [Integer]
-      define_bit_attrs_on :u16, :c, :r, :k, :s, :reserved0, 9, :ver, 3
+      define_bit_attr :u16, c: 1, r: 1, k: 1, s: 1, reserved0: 9, ver: 3
 
       # @!attribute protocol_type
       #   @return [Integer]

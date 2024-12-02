@@ -102,7 +102,13 @@ module PacketGen
         # @attribute u16
         #  16-bit flag word
         #  @return [Integer]
-        define_attr :u16, BinStruct::Int16
+        # @attribute v_flag
+        #  @return [Integer]
+        # @attribute e_flag
+        #  @return [Integer]
+        # @attribute b_flag
+        #  @return [Integer]
+        define_bit_attr :u16, z: 5, v_flag: 1, e_flag: 1, b_flag: 1, zz: 8
         # @attribute link_count
         #  Number of links
         #  @return [Integer]
@@ -110,14 +116,6 @@ module PacketGen
         # @attribute links
         #  @return [ArrayOfLink]
         define_attr :links, ArrayOfLink, builder: ->(h, t) { t.new(counter: h[:link_count]) }
-
-        # @attribute v_flag
-        #  @return [Boolean]
-        # @attribute e_flag
-        #  @return [Boolean]
-        # @attribute b_flag
-        #  @return [Boolean]
-        define_bit_attrs_on :u16, :z, 5, :v_flag, :e_flag, :b_flag, :zz, 8
       end
 
       # This class handles LSA Network payloads.
@@ -145,7 +143,11 @@ module PacketGen
 
         # @!attribute u8
         #  @return [Integer]
-        define_attr :u8, BinStruct::Int8
+        # @!attribute e_flag
+        #  @return [Integer]
+        # @!attribute tos
+        #  @return [Integer]
+        define_bit_attr :u8, e_flag: 1, tos: 7
         # @!attribute metric
         #  @return [Integer]
         define_attr :metric, BinStruct::Int24
@@ -155,12 +157,6 @@ module PacketGen
         # @!attribute ext_route_tag
         #  @return [Integer]
         define_attr :ext_route_tag, BinStruct::Int32
-
-        # @!attribute e_flag
-        #  @return [Boolean]
-        # @!attribute tos
-        #  @return [Integer]
-        define_bit_attrs_on :u8, :e_flag, :tos, 7
 
         # @return [String]
         def to_human

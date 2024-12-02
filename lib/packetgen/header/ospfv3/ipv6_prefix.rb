@@ -28,7 +28,23 @@ module PacketGen
         #  Prefix capabilities. See also capability bits: {#dn_opt}, {#p_opt},
         #  {#la_opt} and {#nu_opt}.
         #  @return [Options]
-        define_attr :options, BinStruct::Int8
+        # @!attribute dn_opt
+        #  This bit controls an inter-area-prefix-LSAs or AS-external-LSAs
+        #  re-advertisement in a VPN environment.
+        #  @return [Integer]
+        # @!attribute p_opt
+        #  The "propagate" bit.  Set on NSSA area prefixes that should be
+        #  readvertised by the translating NSSA area border.
+        #  @return [Integer]
+        # @!attribute la_opt
+        #  The "local address" capability bit.  If set, the prefix is
+        #  actually an IPv6 interface address of the Advertising Router.
+        #  @return [Integer]
+        # @!attribute nu_opt
+        #  The "no unicast" capability bit.  If set, the prefix should be
+        #  excluded from IPv6 unicast calculations.
+        #  @return [Integer]
+        define_bit_attr :options, zz: 3, dn_opt: 1, p_opt: 1, z: 1, la_opt: 1, nu_opt: 1
         # @!attribute reserved
         #  Reserved field in most of LSA types.
         #  @return [Integer]
@@ -37,24 +53,6 @@ module PacketGen
         #  IPv6 Prefix as an array of 32-bit words
         #  @return [Prefix]
         define_attr :prefix, BinStruct::ArrayOfInt32, builder: ->(h, t) { t.new(length_from: -> { h.length / 8 }) }
-
-        # @!attribute dn_opt
-        #  This bit controls an inter-area-prefix-LSAs or AS-external-LSAs
-        #  re-advertisement in a VPN environment.
-        #  @return [Boolean]
-        # @!attribute p_opt
-        #  The "propagate" bit.  Set on NSSA area prefixes that should be
-        #  readvertised by the translating NSSA area border.
-        #  @return [Boolean]
-        # @!attribute la_opt
-        #  The "local address" capability bit.  If set, the prefix is
-        #  actually an IPv6 interface address of the Advertising Router.
-        #  @return [Boolean]
-        # @!attribute nu_opt
-        #  The "no unicast" capability bit.  If set, the prefix should be
-        #  excluded from IPv6 unicast calculations.
-        #  @return [Boolean]
-        define_bit_attrs_on :options, :zz, 3, :dn_opt, :p_opt, :z, :la_opt, :nu_opt
 
         # Get human-readable prefix
         # @return [String]

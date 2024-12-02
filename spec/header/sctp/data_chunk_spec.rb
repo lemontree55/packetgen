@@ -23,7 +23,7 @@ module PacketGen
           it 'accepts options' do
             options = {
               type: 0x1234,
-              flags: 0x5678,
+              flags: 0x56,
               length: 42,
               tsn: 0x01020304,
               stream_id: 0xabcd,

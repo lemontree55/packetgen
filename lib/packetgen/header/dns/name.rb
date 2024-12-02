@@ -43,7 +43,7 @@ module PacketGen
           return self if str.nil?
 
           str.split('.').each do |label|
-            self << BinStruct::IntString.new(string: label)
+            self << BinStruct::IntString.new(value: label)
           end
           self << BinStruct::IntString.new
         end
