@@ -36,18 +36,18 @@ module PacketGen
       # @!attribute link_type
       #  16-bit link type
       #  @return [Integer]
-      define_field_before :block_len2, :link_type, Types::Int16, default: 1
+      define_attr_before :block_len2, :link_type, BinStruct::Int16, default: 1
       # @!attribute reserved
       #  16-bit reserved field
       #  @return [Integer]
-      define_field_before :block_len2, :reserved, Types::Int16, default: 0
+      define_attr_before :block_len2, :reserved, BinStruct::Int16, default: 0
       # @!attribute snaplen
       #  32-bit snap length
       #  @return [Integer]
-      define_field_before :block_len2, :snaplen, Types::Int32, default: 0
+      define_attr_before :block_len2, :snaplen, BinStruct::Int32, default: 0
       # @!attribute options
-      #  @return [Types::String]
-      define_field_before :block_len2, :options, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :options, BinStruct::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -61,10 +61,8 @@ module PacketGen
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
         super
-        endianness(options[:endian] || :little)
         @packets = []
         @options_decoded = false
-        recalc_block_len
         self.type = options[:type] || PcapNG::IDB_TYPE.to_i
       end
 
@@ -76,9 +74,9 @@ module PacketGen
         return self if io.eof?
 
         %i[type block_len link_type reserved snaplen].each do |attr|
-          self[attr].read io.read(self[attr].sz)
+          self[attr].read(io.read(self[attr].sz))
         end
-        self[:options].read io.read(self.block_len - MIN_SIZE)
+        self[:options].read(io.read(self.block_len - MIN_SIZE))
         read_blocklen2_and_check(io)
 
         self
@@ -107,7 +105,7 @@ module PacketGen
       # Return the object as a String
       # @return [String]
       def to_s
-        pad_field :options
+        pad_field(:options)
         recalc_block_len
         super << @packets.map(&:to_s).join
       end
@@ -119,7 +117,7 @@ module PacketGen
         @options_decoded = true
         return @ts_resol = 1E-6 if tsresol.nil?
 
-        @ts_resol = if (tsresol & 0x80).zero?
+        @ts_resol = if tsresol.nobits?(0x80)
                       10**-tsresol
                     else
                       2**-(tsresol & 0x7f)

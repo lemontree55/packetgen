@@ -26,9 +26,9 @@ module PacketGen
         end
       end
 
-      Error = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                        length_class: Types::Int16,
-                                        field_in_length: 'TLV')
+      Error = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                            length_class: BinStruct::Int16,
+                                            attr_in_length: 'TLV')
 
       # Base class/factory for {AbortChunk} and {ErrorChunk} error causes
       # @author Sylvain Daubert
@@ -65,7 +65,7 @@ module PacketGen
 
       # Handle array of {Error} and {ErrorMixin} classes.
       # @author Sylvain Daubert
-      class ArrayOfError < Types::Array
+      class ArrayOfError < BinStruct::Array
         set_of Error
 
         private
@@ -83,10 +83,10 @@ module PacketGen
         end
       end
 
-      InvalidStreamIdError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                       length_class: Types::Int16,
-                                                       value_class: Types::Int32,
-                                                       field_in_length: 'TLV')
+      InvalidStreamIdError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                           length_class: BinStruct::Int16,
+                                                           value_class: BinStruct::Int32,
+                                                           attr_in_length: 'TLV')
 
       # InvalidStreamIdentifier error
       # @author Sylvain Daubert
@@ -115,16 +115,16 @@ module PacketGen
         # @param [Integer] val
         def from_human(val)
           super
-          self.value <<= 16 if self[:value] < Types::Int
+          self.value <<= 16 if self[:value] < BinStruct::Int
         end
       end
       InvalidStreamIdError.define_type_enum(Error::TYPES)
       InvalidStreamIdError.define_type_default('InvalidStreamId')
 
-      MissingMandatoryParameterError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                                 length_class: Types::Int16,
-                                                                 value_class: Types::ArrayOfInt16,
-                                                                 field_in_length: 'TLV')
+      MissingMandatoryParameterError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                     length_class: BinStruct::Int16,
+                                                                     value_class: BinStruct::ArrayOfInt16,
+                                                                     attr_in_length: 'TLV')
 
       # MissingMandatoryParameter error. Indicate that one or more
       # mandatory TLV parameters are missing in a received {InitChunk}
@@ -141,10 +141,10 @@ module PacketGen
       MissingMandatoryParameterError.define_type_enum(Error::TYPES)
       MissingMandatoryParameterError.define_type_default('MissingMandatoryParameter')
 
-      StaleCookieError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                   length_class: Types::Int16,
-                                                   value_class: Types::Int32,
-                                                   field_in_length: 'TLV')
+      StaleCookieError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                       length_class: BinStruct::Int16,
+                                                       value_class: BinStruct::Int32,
+                                                       attr_in_length: 'TLV')
 
       # StaleCookie error. Indicates the receipt of a valid State Cookie that
       # has expired.
@@ -155,9 +155,9 @@ module PacketGen
       StaleCookieError.define_type_enum(Error::TYPES)
       StaleCookieError.define_type_default('StaleCookie')
 
-      OutOfResourceError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                     length_class: Types::Int16,
-                                                     field_in_length: 'TLV')
+      OutOfResourceError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                         length_class: BinStruct::Int16,
+                                                         attr_in_length: 'TLV')
 
       # Out of ressource error. Indicates that the sender is out of resource.
       # @author Sylvain Daubert
@@ -172,10 +172,10 @@ module PacketGen
       OutOfResourceError.define_type_enum(Error::TYPES)
       OutOfResourceError.define_type_default('OutOfResource')
 
-      UnresolvableAddressError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                           length_class: Types::Int16,
-                                                           value_class: Parameter,
-                                                           field_in_length: 'TLV')
+      UnresolvableAddressError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                               length_class: BinStruct::Int16,
+                                                               value_class: Parameter,
+                                                               attr_in_length: 'TLV')
 
       # Out of ressource error. Indicates that the sender is out of resource.
       # @author Sylvain Daubert
@@ -203,10 +203,10 @@ module PacketGen
       UnresolvableAddressError.define_type_enum(Error::TYPES)
       UnresolvableAddressError.define_type_default('UnresolvableAddress')
 
-      UnrecognizedChunkTypeError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                             length_class: Types::Int16,
-                                                             value_class: BaseChunk,
-                                                             field_in_length: 'TLV')
+      UnrecognizedChunkTypeError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                 length_class: BinStruct::Int16,
+                                                                 value_class: BaseChunk,
+                                                                 attr_in_length: 'TLV')
 
       # Unrecognized chunk type error. The receiver does not understand the chunk and the upper bits of the 'Chunk Type'
       # are set to 01 or 11.
@@ -222,9 +222,9 @@ module PacketGen
       UnrecognizedChunkTypeError.define_type_enum(Error::TYPES)
       UnrecognizedChunkTypeError.define_type_default('UnrecognizedChunkType')
 
-      InvalidMandatoryParameterError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                                 length_class: Types::Int16,
-                                                                 field_in_length: 'TLV')
+      InvalidMandatoryParameterError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                     length_class: BinStruct::Int16,
+                                                                     attr_in_length: 'TLV')
 
       # Invalid mandatory parameter error. Returned to the originator of an INIT or INIT ACK chunk when one of the
       # mandatory parameters is set to an invalid value.
@@ -240,10 +240,10 @@ module PacketGen
       InvalidMandatoryParameterError.define_type_enum(Error::TYPES)
       InvalidMandatoryParameterError.define_type_default('InvalidMandatoryParameter')
 
-      UnrecognizedParametersError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                              length_class: Types::Int16,
-                                                              value_class: ArrayOfParameter,
-                                                              field_in_length: 'TLV')
+      UnrecognizedParametersError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                  length_class: BinStruct::Int16,
+                                                                  value_class: ArrayOfParameter,
+                                                                  attr_in_length: 'TLV')
 
       # Unrecognized parameters error. Returned to the originator of the INIT ACK chunk if the receiver does not
       # recognize one or more Optional TLV parameters in the INIT ACK chunk.
@@ -259,10 +259,10 @@ module PacketGen
       UnrecognizedParametersError.define_type_enum(Error::TYPES)
       UnrecognizedParametersError.define_type_default('UnrecognizedParameters')
 
-      NoUserDataError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                  length_class: Types::Int16,
-                                                  value_class: Types::Int32,
-                                                  field_in_length: 'TLV')
+      NoUserDataError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                      length_class: BinStruct::Int16,
+                                                      value_class: BinStruct::Int32,
+                                                      attr_in_length: 'TLV')
 
       # No user data error. Returned when a received {DataChunk} was received with no data.
       # @author Sylvain Daubert
@@ -272,9 +272,9 @@ module PacketGen
       NoUserDataError.define_type_enum(Error::TYPES)
       NoUserDataError.define_type_default('NoUserData')
 
-      CookieReceivedWhileShuttingDownError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                                       length_class: Types::Int16,
-                                                                       field_in_length: 'TLV')
+      CookieReceivedWhileShuttingDownError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                           length_class: BinStruct::Int16,
+                                                                           attr_in_length: 'TLV')
 
       # Cookie received while shutting down error.
       # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
@@ -290,10 +290,10 @@ module PacketGen
       CookieReceivedWhileShuttingDownError.define_type_enum(Error::TYPES)
       CookieReceivedWhileShuttingDownError.define_type_default('CookieReceivedWhileShuttingDown')
 
-      RestartAssociationWithNewAddressError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                                        length_class: Types::Int16,
-                                                                        value_class: ArrayOfParameter,
-                                                                        field_in_length: 'TLV')
+      RestartAssociationWithNewAddressError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                            length_class: BinStruct::Int16,
+                                                                            value_class: ArrayOfParameter,
+                                                                            attr_in_length: 'TLV')
 
       # Cookie received while shutting down error.
       # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
@@ -309,9 +309,9 @@ module PacketGen
       RestartAssociationWithNewAddressError.define_type_enum(Error::TYPES)
       RestartAssociationWithNewAddressError.define_type_default('RestartAssociationWithNewAddress')
 
-      UserInitiatedAbortError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                          length_class: Types::Int16,
-                                                          field_in_length: 'TLV')
+      UserInitiatedAbortError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                              length_class: BinStruct::Int16,
+                                                              attr_in_length: 'TLV')
 
       # User-Initiated abort error.
       # @author Sylvain Daubert
@@ -326,9 +326,9 @@ module PacketGen
       UserInitiatedAbortError.define_type_enum(Error::TYPES)
       UserInitiatedAbortError.define_type_default('UserInitiatedAbort')
 
-      ProtocolViolationError = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                         length_class: Types::Int16,
-                                                         field_in_length: 'TLV')
+      ProtocolViolationError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                             length_class: BinStruct::Int16,
+                                                             attr_in_length: 'TLV')
 
       # Protocol violation error.
       # @author Sylvain Daubert

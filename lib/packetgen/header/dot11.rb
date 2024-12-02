@@ -17,25 +17,24 @@ module PacketGen
     class PPI < Base
       # @!attribute version
       #  @return [Integer] 8-bit PPI version
-      define_field :version, Types::Int8, default: 0
+      define_attr :version, BinStruct::Int8, default: 0
       # @!attribute flags
       #  @return [Integer] 8-bit PPI flags
-      define_field :flags, Types::Int8
-      # @!attribute length
-      #  @return [Integer] 16-bit PPI header length
-      define_field :length, Types::Int16le, default: 8
-      # @!attribute dlt
-      #  @return [Integer] 32-bit PPI data link type
-      define_field :dlt, Types::Int32le
-      # @!attribute ppi_fields
-      #  @return [Type::String] concatenation of PPI fields
-      define_field :ppi_fields, Types::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 8 }) }
-      # @!attribute body
-      #  @return [Type::String]
-      define_field :body, Types::String
       # @!attribute align
       #  @return [Boolean] align flag from {#flags} attribute
-      define_bit_fields_on :flags, :reserved, 7, :align
+      define_bit_attr :flags, reserved: 7, align: 1
+      # @!attribute length
+      #  @return [Integer] 16-bit PPI header length
+      define_attr :length, BinStruct::Int16le, default: 8
+      # @!attribute dlt
+      #  @return [Integer] 32-bit PPI data link type
+      define_attr :dlt, BinStruct::Int32le
+      # @!attribute ppi_fields
+      #  @return [Type::String] concatenation of PPI fields
+      define_attr :ppi_fields, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 8 }) }
+      # @!attribute body
+      #  @return [Type::String]
+      define_attr :body, BinStruct::String
 
       # Check version field
       # @see [Base#parse?]
@@ -65,22 +64,22 @@ module PacketGen
     class RadioTap < Base
       # @!attribute version
       #  @return [Integer] 8-bit version
-      define_field :version, Types::Int8, default: 0
+      define_attr :version, BinStruct::Int8, default: 0
       # @!attribute pad
       #  @return [Integer] 8-bit pad
-      define_field :pad, Types::Int8, default: 0
+      define_attr :pad, BinStruct::Int8, default: 0
       # @!attribute length
       #  @return [Integer] 16-bit RadioTap header length
-      define_field :length, Types::Int16le, default: 8
+      define_attr :length, BinStruct::Int16le, default: 8
       # @!attribute present_flags
       #  @return [Integer] 32-bit integer
-      define_field :present_flags, Types::Int32le
+      define_attr :present_flags, BinStruct::Int32le
       # @!attribute radio_fields
       #  @return [Type::String] concatenation of RadioTap fields
-      define_field :radio_fields, Types::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 8 }) }
+      define_attr :radio_fields, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 8 }) }
       # @!attribute body
       #  @return [Type::String]
-      define_field :body, Types::String
+      define_attr :body, BinStruct::String
 
       # Check version field
       # @see [Base#parse?]
@@ -108,18 +107,18 @@ module PacketGen
     # @abstract This is a base class to demultiplex different IEEE 802.11 frames when
     #   parsing.
     # A IEEE 802.11 header may consist of at least:
-    # * a {#frame_ctrl} ({Types::Int16}),
-    # * a {#id}/duration ({Types::Int16le}),
+    # * a {#frame_ctrl} ({BinStruct::Int16}),
+    # * a {#id}/duration ({BinStruct::Int16le}),
     # * and a {#mac1} ({Eth::MacAddr}).
     # Depending on frame type and subtype, it may also contains:
     # * a {#mac2} ({Eth::MacAddr}),
     # * a {#mac3} ({Eth::MacAddr}),
-    # * a {#sequence_ctrl} ({Types::Int16}),
+    # * a {#sequence_ctrl} ({BinStruct::Int16}),
     # * a {#mac4} ({Eth::MacAddr}),
-    # * a {#qos_ctrl} ({Types::Int16}),
-    # * a {#ht_ctrl} ({Types::Int32}),
-    # * a {#body} (a {Types::String} or another {Base} class),
-    # * a Frame check sequence ({#fcs}, of type {Types::Int32le})
+    # * a {#qos_ctrl} ({BinStruct::Int16}),
+    # * a {#ht_ctrl} ({BinStruct::Int32}),
+    # * a {#body} (a {BinStruct::String} or another {Base} class),
+    # * a Frame check sequence ({#fcs}, of type {BinStruct::Int32le})
     #
     # == Header accessors
     # As Dot11 header types are defined under Dot11 namespace, Dot11 header accessors
@@ -189,38 +188,6 @@ module PacketGen
 
       # @!attribute frame_ctrl
       #  @return [Integer] 16-bit frame control word
-      define_field :frame_ctrl, Types::Int16, default: 0
-      # @!attribute id
-      #  @return [Integer] 16-bit ID/Duration word
-      define_field :id, Types::Int16le, default: 0
-      # @!attribute mac1
-      #  @return [Eth::MacAddr]
-      define_field :mac1, Eth::MacAddr
-      # @!attribute mac2
-      #  @return [Eth::MacAddr]
-      define_field :mac2, Eth::MacAddr
-      # @!attribute mac3
-      #  @return [Eth::MacAddr]
-      define_field :mac3, Eth::MacAddr
-      # @!attribute sequence_ctrl
-      #  @return [Integer] 16-bit sequence control word
-      define_field :sequence_ctrl, Types::Int16le, default: 0
-      # @!attribute mac4
-      #  @return [Eth::MacAddr]
-      define_field :mac4, Eth::MacAddr
-      # @!attribute qos_ctrl
-      #  @return [Integer] 16-bit QoS control word
-      define_field :qos_ctrl, Types::Int16
-      # @!attribute ht_ctrl
-      #  @return [Integer] 16-bit HT control word
-      define_field :ht_ctrl, Types::Int32
-      # @!attribute body
-      #  @return [Types::String]
-      define_field :body, Types::String
-      # @!attribute fcs
-      #  @return [Types::Int32le]
-      define_field :fcs, Types::Int32le
-
       # @!attribute subtype
       #  @return [Integer] 4-bit frame subtype from {#frame_ctrl}
       # @!attribute type
@@ -243,32 +210,60 @@ module PacketGen
       #  @return [Boolean] from_ds flag from {#frame_ctrl}
       # @!attribute to_ds
       #  @return [Boolean] to_ds flag from {#frame_ctrl}
-      define_bit_fields_on :frame_ctrl, :subtype, 4, :type, 2, :proto_version, 2,
-                           :order, :wep, :md, :pwmngt, :retry, :mf, :from_ds, :to_ds
-
+      define_bit_attr :frame_ctrl, subtype: 4, type: 2, proto_version: 2, order: 1,
+                                   wep: 1, md: 1, pwmngt: 1, retry: 1, mf: 1, from_ds: 1, to_ds: 1
+      # @!attribute id
+      #  @return [Integer] 16-bit ID/Duration word
+      define_attr :id, BinStruct::Int16le, default: 0
+      # @!attribute mac1
+      #  @return [Eth::MacAddr]
+      define_attr :mac1, Eth::MacAddr
+      # @!attribute mac2
+      #  @return [Eth::MacAddr]
+      define_attr :mac2, Eth::MacAddr
+      # @!attribute mac3
+      #  @return [Eth::MacAddr]
+      define_attr :mac3, Eth::MacAddr
+      # @!attribute sequence_ctrl
+      #  @return [Integer] 16-bit sequence control word
       # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
       #  @return [Integer]
       #  @since 2.1.3
       # @!attribute fragment_number (4-bit field from {#sequence_ctrl})
       #  @return [Integer]
       #  @since 2.1.3
-      define_bit_fields_on :sequence_ctrl, :sequence_number, 12, :fragment_number, 4
+      define_bit_attr :sequence_ctrl, sequence_number: 12, fragment_number: 4
+      # @!attribute mac4
+      #  @return [Eth::MacAddr]
+      define_attr :mac4, Eth::MacAddr
+      # @!attribute qos_ctrl
+      #  @return [Integer] 16-bit QoS control word
+      define_attr :qos_ctrl, BinStruct::Int16
+      # @!attribute ht_ctrl
+      #  @return [Integer] 16-bit HT control word
+      define_attr :ht_ctrl, BinStruct::Int32
+      # @!attribute body
+      #  @return [BinStruct::String]
+      define_attr :body, BinStruct::String
+      # @!attribute fcs
+      #  @return [BinStruct::Int32le]
+      define_attr :fcs, BinStruct::Int32le
 
       alias duration id
       # @private
-      alias old_fields fields
+      alias old_attributes attributes
 
       # @param [Hash] options
       # @see Base#initialize
       def initialize(options={})
         super
-        @applicable_fields = old_fields
+        @applicable_attributes = old_attributes
       end
 
       # Get all used field names
       # @return [Array<Symbol>]
-      def fields
-        @applicable_fields
+      def attributes
+        @applicable_attributes
       end
 
       # @private
@@ -281,24 +276,24 @@ module PacketGen
       def read(str)
         fcs = Dot11.fcs?
 
-        if self.instance_of? Dot11
+        if self.instance_of?(Dot11)
           return self if str.nil?
 
           force_binary str
-          self[:frame_ctrl].read str[0, 2]
+          self[:frame_ctrl].read(str[0, 2])
 
           case type
           when 0
-            Dot11::Management.new.read str
+            Dot11::Management.new.read(str)
           when 1
-            Dot11::Control.new.read str
+            Dot11::Control.new.read(str)
           when 2
-            Dot11::Data.new.read str
+            Dot11::Data.new.read(str)
           else
-            private_read str, fcs
+            private_read(str, fcs)
           end
         else
-          private_read str, fcs
+          private_read(str, fcs)
         end
       end
 
@@ -312,8 +307,8 @@ module PacketGen
 
       # @return [String]
       def to_s
-        define_applicable_fields
-        @applicable_fields.map { |f| force_binary @fields[f].to_s }.join
+        define_applicable_attributes
+        @applicable_attributes.map { |f| force_binary @attributes[f].to_s }.join
       end
 
       # Get human readable type
@@ -324,19 +319,19 @@ module PacketGen
 
       # @return [String]
       def inspect
-        str = if self.instance_of? Dot11
+        str = if self.instance_of?(Dot11)
                 Inspect.dashed_line("#{self.class} #{human_type}", 1)
-              elsif self.respond_to? :human_subtype
+              elsif self.respond_to?(:human_subtype)
                 Inspect.dashed_line("#{self.class} #{human_subtype}", 1)
               else
                 Inspect.dashed_line(self.class.to_s, 1)
               end
 
-        define_applicable_fields
-        @applicable_fields.each do |attr|
+        define_applicable_attributes
+        @applicable_attributes.each do |attr|
           next if attr == :body
 
-          str << Inspect.inspect_attribute(attr, @fields[attr], 1)
+          str << Inspect.inspect_attribute(attr, @attributes[attr], 1)
         end
         str
       end
@@ -354,46 +349,46 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        return if packet.respond_to? :dot11
+        return if packet.respond_to?(:dot11)
 
         packet.instance_eval("def dot11(arg=nil); header(#{self.class}, arg); end") # def dot11(arg=nil); header(Dot11, arg); end
       end
 
       private
 
-      def remove_from_applicable_fields(fields)
-        fields = [fields] unless fields.is_a? Array
-        @applicable_fields -= fields
+      def remove_from_applicable_attributes(attributes)
+        attributes = [attributes] unless attributes.is_a? Array
+        @applicable_attributes -= attributes
       end
 
       def handle_mac4
         if to_ds? && from_ds?
-          @applicable_fields[6, 0] = :mac4 unless @applicable_fields.include? :mac4
+          @applicable_attributes[6, 0] = :mac4 unless @applicable_attributes.include?(:mac4)
         else
-          remove_from_applicable_fields :mac4
+          remove_from_applicable_attributes(:mac4)
         end
       end
 
       def handle_ht_ctrl
         if order?
-          unless @applicable_fields.include? :ht_ctrl
-            idx = @applicable_fields.index(:body)
-            @applicable_fields[idx, 0] = :ht_ctrl
+          unless @applicable_attributes.include?(:ht_ctrl)
+            idx = @applicable_attributes.index(:body)
+            @applicable_attributes[idx, 0] = :ht_ctrl
           end
         else
-          remove_from_applicable_fields %i[ht_ctrl]
+          remove_from_applicable_attributes %i[ht_ctrl]
         end
       end
 
       def handle_fcs
         if Dot11.fcs?
-          @applicable_fields << :fcs unless @applicable_fields.include? :fcs
+          @applicable_attributes << :fcs unless @applicable_attributes.include?(:fcs)
         else
-          remove_from_applicable_fields :fcs
+          remove_from_applicable_attributes(:fcs)
         end
       end
 
-      def define_applicable_fields
+      def define_applicable_attributes
         handle_mac4
         handle_ht_ctrl
         handle_fcs
@@ -401,12 +396,12 @@ module PacketGen
 
       def private_read(str, fcs)
         self[:frame_ctrl].read str[0, 2]
-        define_applicable_fields
+        define_applicable_attributes
         if fcs
-          old_read str[0...-4]
-          self[:fcs].read str[-4..]
+          old_read(str[0...-4])
+          self[:fcs].read(str[-4..])
         else
-          old_read str
+          old_read(str)
         end
         self
       end

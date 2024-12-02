@@ -286,7 +286,7 @@ module PacketGen
       end
 
       # accessor to data payload
-      # @return [ASN1::Types::Choice]
+      # @return [ASN1::BinStruct::Choice]
       def data
         @elements[:data]
       end
@@ -319,7 +319,7 @@ module PacketGen
       # @since 2.7.0 Set UDP sport according to bindings, only if sport is 0.
       #  Needed by new bind API.
       def added_to_packet(packet)
-        return unless packet.is? 'UDP'
+        return unless packet.is?('UDP')
         return unless packet.udp.sport.zero?
 
         packet.udp.sport = packet.udp.dport

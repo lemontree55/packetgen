@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -7,9 +9,10 @@ module PacketGen
         it 'in Dot1x packets' do
           expect(Dot1x).to know_header(EAP).with(type: 0)
         end
+
         it 'accepts to be added in Dot1x packets' do
           pkt = PacketGen.gen('Dot1x')
-          expect { pkt.add('EAP') }.to_not raise_error
+          expect { pkt.add('EAP') }.not_to raise_error
           expect(pkt.dot1x.type).to eq(0)
         end
       end
@@ -59,7 +62,7 @@ module PacketGen
           expect(eap.type).to eq(5)
           expect(eap.body).to eq('body')
 
-          str = (3..(EAP.new.sz+2)).to_a.pack('C*') + 'body'
+          str = (3..(EAP.new.sz + 2)).to_a.pack('C*') + 'body'
           eap.read str
           expect(eap.code).to eq(3)
           expect(eap.id).to eq(4)
@@ -73,9 +76,9 @@ module PacketGen
           raws = PcapNG::File.new.read_packet_bytes(file)
 
           pkt = Packet.parse(raws[2])
-          expect(pkt.is? 'Dot11::Data').to be(true)
-          expect(pkt.is? 'Dot1x').to be(true)
-          expect(pkt.is? 'EAP').to be(true)
+          expect(pkt.is?('Dot11::Data')).to be(true)
+          expect(pkt.is?('Dot1x')).to be(true)
+          expect(pkt.is?('EAP')).to be(true)
           expect(pkt.eap).to be_a_response
           expect(pkt.eap.code).to eq(2)
           expect(pkt.eap.human_code).to eq('Response')
@@ -85,7 +88,7 @@ module PacketGen
           expect(pkt.body).to eq('WFA-SimpleConfig-Enrollee-1-0')
 
           pkt = Packet.parse(raws[3])
-          expect(pkt.is? 'EAP').to be(true)
+          expect(pkt.is?('EAP')).to be(true)
           expect(pkt.eap).to be_a_request
           expect(pkt.eap.code).to eq(1)
           expect(pkt.eap.human_code).to eq('Request')
@@ -97,9 +100,9 @@ module PacketGen
           expect(pkt.body).to eq(binary("\x01\x00"))
 
           pkt = Packet.parse(raws.last)
-          expect(pkt.is? 'EAP').to be(true)
+          expect(pkt.is?('EAP')).to be(true)
           expect(pkt.eap).to be_a_failure
-          expect(pkt.eap).to_not be_a_success
+          expect(pkt.eap).not_to be_a_success
           expect(pkt.eap.human_code).to eq('Failure')
           expect(pkt.eap.id).to eq(18)
         end
@@ -130,7 +133,7 @@ module PacketGen
             expect(str).to include(attr.to_s)
           end
           %i[type vendor_id vendor_type].each do |attr|
-            expect(str).to_not include(attr.to_s)
+            expect(str).not_to include(attr.to_s)
           end
         end
 
@@ -141,14 +144,14 @@ module PacketGen
             expect(str).to include(attr.to_s)
           end
           %i[vendor_id vendor_type].each do |attr|
-            expect(str).to_not include(attr.to_s)
+            expect(str).not_to include(attr.to_s)
           end
         end
 
         it 'returns a string with type and vendor fields' do
           eap = EAP.new(code: 'Request', type: 254)
           str = eap.inspect
-          (eap.fields - %i[body]).each do |attr|
+          (eap.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -197,16 +200,16 @@ module PacketGen
 
           it 'decodes complex strings' do
             pkt = @packets[3]
-            expect(pkt.is? 'EAP').to be(true)
+            expect(pkt.is?('EAP')).to be(true)
             expect(pkt.eap).to be_a_request
             expect(pkt.eap.human_type).to eq('EAP-TLS')
             expect(pkt.eap_tls.flags).to eq(0x20)
-            expect(pkt.eap_tls).to_not be_length_present
-            expect(pkt.eap_tls).to_not be_more_fragments
+            expect(pkt.eap_tls).not_to be_length_present
+            expect(pkt.eap_tls).not_to be_more_fragments
             expect(pkt.eap_tls).to be_tls_start
 
             pkt = @packets[4]
-            expect(pkt.is? 'EAP::TLS').to be(true)
+            expect(pkt.is?('EAP::TLS')).to be(true)
             expect(pkt.eap).to be_a_response
             expect(pkt.eap.human_type).to eq('EAP-TLS')
             expect(pkt.eap_tls.flags).to eq(0)
@@ -216,9 +219,10 @@ module PacketGen
 
         describe '#inspect' do
           let(:eaptls) { EAP::TLS.new }
+
           it 'only prints present fields' do
             str = eaptls.inspect
-            expect(str).to_not include('tls_length')
+            expect(str).not_to include('tls_length')
 
             eaptls2 = EAP::TLS.new(l: true)
             str = eaptls2.inspect
@@ -234,6 +238,7 @@ module PacketGen
 
       describe EAP::TTLS do
         let(:eapttls) { EAP::TTLS.new }
+
         describe '#initialize' do
           it 'creates a EAP::TTLS header with default values' do
             expect(eapttls.type?).to be(true)

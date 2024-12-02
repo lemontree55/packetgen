@@ -1,10 +1,18 @@
+# frozen_string_literal: true
+
 require_relative 'spec_helper'
 require 'tempfile'
+
+module PacketGenTests
+  class AddIntStringTest < PacketGen::Header::Base
+    define_attr :field, BinStruct::IntString
+  end
+end
 
 module PacketGen
   describe Packet do
     describe '.gen' do
-      before(:each) do
+      before do
         @pkt = Packet.gen('IP')
       end
 
@@ -45,7 +53,7 @@ module PacketGen
     end
 
     describe '.parse' do
-      before(:each) do
+      before do
         file = PcapNG::File.new
         fname = File.join(__dir__, 'pcapng', 'sample.pcapng')
         @raw_pkts = file.read_packet_bytes(fname)
@@ -110,13 +118,13 @@ module PacketGen
       it 'reads a PcapNG file and returns a Array of Packet' do
         ary = Packet.read(pcapng_file)
         expect(ary).to be_a(Array)
-        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+        expect(ary).to all(be_a(Packet))
       end
 
       it 'reads a pcap file and returns a Array of Packet' do
         ary = Packet.read(pcap_file)
         expect(ary).to be_a(Array)
-        expect(ary.all? { |el| el.is_a? Packet }).to be(true)
+        expect(ary).to all(be_a(Packet))
       end
 
       it 'raises error on unknown file' do
@@ -125,14 +133,26 @@ module PacketGen
     end
 
     describe '.write' do
-      let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
-
-      it '.write writes a Array of Packet to a file' do
+      it 'writes an Array of Packet to a PcapNG file' do
+        file = ::File.join(__dir__, 'pcapng', 'sample.pcapng')
         ary = Packet.read(file)
         write_file = Tempfile.new('pcapng')
         begin
           Packet.write(write_file.path, ary)
-          expect(Packet.read(write_file.path)).to eq(ary)
+          expect(PcapNG::File.new.read_packets(write_file.path)).to eq(ary)
+        ensure
+          write_file.close
+          write_file.unlink
+        end
+      end
+
+      it 'writes an Array of Packet to a pcap file' do
+        file = ::File.join(__dir__, 'sample.pcap')
+        ary = Packet.read(file)
+        write_file = Tempfile.new('test.pcap')
+        begin
+          Packet.write(write_file.path, ary)
+          expect(Pcap.read(write_file.path)).to eq(ary)
         ensure
           write_file.close
           write_file.unlink
@@ -163,7 +183,7 @@ module PacketGen
     end
 
     describe '#add' do
-      before(:each) do
+      before do
         @pkt = Packet.gen('IP')
       end
 
@@ -187,7 +207,7 @@ module PacketGen
         expect(@pkt.ip(2).protocol).to eq(0)
       end
 
-      it 'sets provided fields in arguments' do
+      it 'sets provided attributes.in arguments' do
         @pkt.add('TCP', sport: 12_345, dport: 5_678)
         expect(@pkt.tcp.sport).to eq(12_345)
         expect(@pkt.tcp.dport).to eq(5_678)
@@ -200,10 +220,58 @@ module PacketGen
       it 'raises on unknown association' do
         expect { @pkt.add 'Eth' }.to raise_error(BindingError, /IP\.bind_layer\(.*Eth/)
       end
+
+      context '(bug #91)' do
+        it 'may set a CString' do
+          pkt = Packet.gen('BOOTP', file: 'test.txt')
+          expect(pkt.bootp.file).to eq('test.txt')
+          expect(pkt.bootp[:file].to_s).to eq("test.txt#{([0] * 120).pack('C*')}")
+        end
+
+        it 'may set a IntString' do
+          Header.add_class(PacketGenTests::AddIntStringTest)
+          pkt = Packet.gen('AddIntStringTest', field: 'This is a string')
+          expect(pkt.addintstringtest[:field].to_human).to eq('This is a string')
+          expect(pkt.addintstringtest[:field].to_s).to eq("\x10This is a string")
+        end
+      end
+    end
+
+    describe 'protocol magical method' do
+      let(:pkt) { Packet.gen('Eth').add('IP').add('IP').add('TCP') }
+
+      it 'gets header from given protocol' do
+        tcp = pkt.tcp
+        expect(tcp).to eq(pkt.headers[-1])
+        expect(tcp).to be_a(Header::TCP)
+      end
+
+      it 'gets header from given protocol and layer' do
+        ip1 = pkt.ip
+        ip2 = pkt.ip(2)
+        expect(ip1).not_to eq(ip2)
+        expect(ip1).to eq(pkt.headers[1])
+        expect(ip2).to eq(pkt.headers[2])
+      end
+
+      it 'gets nil if layer is too big' do
+        bad_ip = pkt.ip(55)
+        expect(bad_ip).to be_nil
+      end
+
+      it 'raises if protocol is not in packet' do
+        expect { pkt.udp }.to raise_error(NoMethodError)
+      end
+
+      it 'sets header attributes when feeding with a Hash' do
+        pkt.tcp(dport: 143, sport: 45_555)
+        expect(pkt.tcp.dport).to eq(143)
+        expect(pkt.tcp.sport).to eq(45_555)
+      end
     end
 
     describe '#is?' do
-      before(:each) do
+      before do
         @pkt = Packet.gen('IP')
       end
 
@@ -241,7 +309,10 @@ module PacketGen
       end
 
       it 'sends a packet on wire', :sudo do
-        Thread.new { sleep 0.1; pkt.to_w('lo') }
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo')
+        end
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -257,7 +328,10 @@ module PacketGen
         pkt.body = '123'
         pkt.ip.id = 0 # to remove randomness on checksum computation
 
-        Thread.new { sleep 0.1; pkt.to_w('lo') }
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo')
+        end
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -268,8 +342,11 @@ module PacketGen
         expect(packet.ip.checksum).to eq(0x75df)
       end
 
-      it 'does not calculate calculatable fields if calc is false', :sudo do
-        Thread.new { sleep 0.1; pkt.to_w('lo', calc: false) }
+      it 'does not calculate calculatable attributes.if calc is false', :sudo do
+        Thread.new do
+          sleep 0.1
+          pkt.to_w('lo', calc: false)
+        end
         packets = Packet.capture(iface: 'lo', max: 1,
                                  filter: 'ether dst ff:ff:ff:ff:ff:ff',
                                  timeout: 2)
@@ -299,8 +376,12 @@ module PacketGen
     end
 
     describe '#to_f' do
-      before(:each) { @write_file = Tempfile.new('packet') }
-      after(:each) { @write_file.close; @write_file.unlink }
+      before { @write_file = Tempfile.new('packet') }
+
+      after do
+        @write_file.close
+        @write_file.unlink
+      end
 
       it 'writes packet as a PcapNG file' do
         pkt1 = Packet.gen('Eth').add('IP', src: '1.1.1.1', dst: '2.2.2.2', id: 0xffff)
@@ -370,7 +451,7 @@ module PacketGen
                     .add('IP', src: '1.0.0.1', dst: '1.0.0.2')
                     .add('IP', src: '10.0.0.1', dst: '10.0.0.2')
                     .add('ICMP', type: 8, code: 0)
-        pkt.decapsulate(pkt. eth, pkt.ip)
+        pkt.decapsulate(pkt.eth, pkt.ip)
         expect(pkt.headers.size).to eq(2)
         expect(pkt.is?('IP')).to be(true)
         expect(pkt.is?('ICMP')).to be(true)

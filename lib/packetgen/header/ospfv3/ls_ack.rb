@@ -40,8 +40,8 @@ module PacketGen
         # @!attribute lsas
         #  Array of {LSA LSAs}
         #  @return [ArrayOfLSA]
-        define_field :lsas, ArrayOfLSA,
-                     builder: ->(_h, t) { t.new(only_headers: true) }
+        define_attr :lsas, ArrayOfLSA,
+                    builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end
 

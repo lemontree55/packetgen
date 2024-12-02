@@ -12,7 +12,6 @@ require 'singleton'
 module PacketGen
   # Config class to provide +config+ object to pgconsole
   # @author Sylvain Daubert
-  # @author Kent 'picat' Gruber
   # @since 1.4.1
   # @since 2.1.3 Config is singleton
   class Config

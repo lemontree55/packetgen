@@ -1,16 +1,18 @@
+# frozen_string_literal: true
+
 require 'packetgen/utils'
 require_relative 'spec_helper'
 
-ARP_OUTPUT = """? (192.168.1.1) at 00:01:02:03:04:05 [ether] on eth0
+ARP_OUTPUT = "? (192.168.1.1) at 00:01:02:03:04:05 [ether] on eth0
 ? (192.168.1.2) at 00:11:22:33:44:55 on wlan0
-"""
+"
 
-IP_OUTPUT = """192.168.1.1 dev wlp4s0 lladdr 05:04:03:02:01:00 REACHABLE
+IP_OUTPUT = "192.168.1.1 dev wlp4s0 lladdr 05:04:03:02:01:00 REACHABLE
 192.168.1.2 dev ens33 lladdr 55:44:33:22:11:00 REACHABLE
-"""
+"
 
 def double_config
-  config = class_double("PacketGen::Config").as_stubbed_const
+  config = class_double(PacketGen::Config).as_stubbed_const
   config_inst = instance_double(PacketGen::Config)
   allow(config).to receive(:instance).and_return(config_inst)
 
@@ -18,42 +20,42 @@ def double_config
 end
 
 def double_capture_class
-  capture = class_double("PacketGen::Capture").as_stubbed_const
+  capture = class_double(PacketGen::Capture).as_stubbed_const
   capture_inst = instance_double(PacketGen::Capture)
-  expect(capture).to receive(:new).and_return(capture_inst)
+  allow(capture).to receive(:new).and_return(capture_inst)
 
   [capture, capture_inst]
 end
 
 def double_pcaprubwrapper_module
-  class_double("PacketGen::PCAPRUBWrapper").as_stubbed_const
+  class_double(PacketGen::PCAPRUBWrapper).as_stubbed_const
 end
 
 def double_arp_spoof_class
-  klass_dbl = class_double("PacketGen::Utils::ARPSpoofer").as_stubbed_const
+  klass_dbl = class_double(PacketGen::Utils::ARPSpoofer).as_stubbed_const
   inst_dbl = instance_double(PacketGen::Utils::ARPSpoofer)
-  expect(klass_dbl).to receive(:new).and_return(inst_dbl)
+  allow(klass_dbl).to receive(:new).and_return(inst_dbl)
 
   [klass_dbl, inst_dbl]
 end
 
 module PacketGen
   describe Utils do
-    it ".cache_from_arp_command ets ARP cache from arp command" do
+    it '.cache_from_arp_command ets ARP cache from arp command' do
       cache = Utils.cache_from_arp_command(ARP_OUTPUT)
       expect(cache.size).to eq(2)
       expect(cache['192.168.1.1']).to eq(['00:01:02:03:04:05', 'eth0'])
       expect(cache['192.168.1.2']).to eq(['00:11:22:33:44:55', 'wlan0'])
     end
 
-    it ".cache_from_ip_command gets ARP cache from ip neigh command" do
+    it '.cache_from_ip_command gets ARP cache from ip neigh command' do
       cache = Utils.cache_from_ip_command(IP_OUTPUT)
       expect(cache.size).to eq(2)
       expect(cache['192.168.1.1']).to eq(['05:04:03:02:01:00', 'wlp4s0'])
       expect(cache['192.168.1.2']).to eq(['55:44:33:22:11:00', 'ens33'])
     end
 
-    it ".arp returns a IP addrdess from a MAC one (no_cache: true)" do
+    it '.arp returns a IP addrdess from a MAC one (no_cache: true)' do
       _config, config_inst = double_config
       _capture, capture_inst = double_capture_class
       inject = double_pcaprubwrapper_module
@@ -65,8 +67,7 @@ module PacketGen
       reply = PacketGen.gen('Eth', dst: my_mac, src: target_mac)
                        .add('ARP', tha: my_mac, tpa: my_ip, spa: target_ip, sha: target_mac)
 
-      allow(config_inst).to receive(:hwaddr).and_return(my_mac)
-      allow(config_inst).to receive(:ipaddr).and_return(my_ip)
+      allow(config_inst).to receive_messages(hwaddr: my_mac, ipaddr: my_ip)
 
       expected_pkt = PacketGen.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff', src: my_mac)
                               .add('ARP', sha: my_mac, spa: my_ip, tpa: target_ip)
@@ -116,10 +117,10 @@ module PacketGen
       _capture, capture_inst = double_capture_class
       inject = double_pcaprubwrapper_module
 
-      expect(arp_spoofer_inst).to receive(:add).with(target1, target2, {iface: 'iface0'})
-      expect(arp_spoofer_inst).to receive(:add).with(target2, target1, {iface: 'iface0'})
+      expect(arp_spoofer_inst).to receive(:add).with(target1, target2, { iface: 'iface0' })
+      expect(arp_spoofer_inst).to receive(:add).with(target2, target1, { iface: 'iface0' })
       expect(config_inst).to receive(:hwaddr).and_return(my_mac)
-      expect(config_inst).to receive(:ipaddr).and_return({'iface0' => my_ip})
+      expect(config_inst).to receive(:ipaddr).and_return({ 'iface0' => my_ip })
       expect(arp_spoofer_inst).to receive(:start_all)
       allow(Utils).to receive(:arp).with(target1).and_return(mac1)
       allow(Utils).to receive(:arp).with(target2).and_return(mac2)

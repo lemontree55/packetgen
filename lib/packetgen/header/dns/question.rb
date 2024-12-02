@@ -11,8 +11,8 @@ module PacketGen
     class DNS
       # DNS Question
       # @author Sylvain Daubert
-      class Question < Types::Fields
-        include Types::Fieldable
+      class Question < BinStruct::Struct
+        include BinStruct::Structable
 
         # Ressource Record types
         TYPES = {
@@ -59,15 +59,15 @@ module PacketGen
         # @!attribute name
         #  Question domain name
         #  @return [String]
-        define_field :name, Name, default: '.'
+        define_attr :name, Name, default: '.'
         # @!attribute type
         #  16-bit question type
         #  @return [Integer]
-        define_field :type, Types::Int16Enum, default: 1, enum: TYPES
+        define_attr :type, BinStruct::Int16Enum, default: 1, enum: TYPES
         # @!attribute rrclass
         #  16-bit question class
         #  @return [Integer]
-        define_field :rrclass, Types::Int16Enum, default: 1, enum: CLASSES
+        define_attr :rrclass, BinStruct::Int16Enum, default: 1, enum: CLASSES
 
         # @param [DNS] dns
         # @param [Hash] options
@@ -77,8 +77,6 @@ module PacketGen
         def initialize(dns, options={})
           super(options)
           self[:name].dns = dns
-          self.type = options[:type] if options[:type]
-          self.rrclass = options[:rrclass] if options[:rrclass]
         end
 
         undef rrclass=
@@ -95,7 +93,7 @@ module PacketGen
               end
           raise ArgumentError, "unknown class #{val.inspect}" unless v
 
-          self[:rrclass].read v
+          self[:rrclass].from_human(v)
         end
 
         # Check type

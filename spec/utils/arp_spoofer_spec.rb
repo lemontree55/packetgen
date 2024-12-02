@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 require 'packetgen/utils'
 
@@ -19,15 +21,15 @@ module PacketGen
 
       describe '#initialize' do
         it 'accepts Integer value for timeout' do
-          expect { ARPSpoofer.new timeout: 45 }.to_not raise_error
+          expect { ARPSpoofer.new timeout: 45 }.not_to raise_error
         end
 
         it 'accepts nil value for timeout' do
-          expect { ARPSpoofer.new timeout: nil }.to_not raise_error
+          expect { ARPSpoofer.new timeout: nil }.not_to raise_error
         end
 
         it 'accepts Float value for timeout' do
-          expect { ARPSpoofer.new timeout: 125.5 }.to_not raise_error
+          expect { ARPSpoofer.new timeout: 125.5 }.not_to raise_error
         end
       end
 
@@ -36,13 +38,13 @@ module PacketGen
           as.add '1.2.3.4', '5.6.7.8'
           as.add '1.2.3.8', '5.6.7.9'
           expect(as.registered_targets).to include('1.2.3.4', '1.2.3.8')
-          expect(as.registered_targets).to_not include('5.6.7.8', '5.6.7.9')
+          expect(as.registered_targets).not_to include('5.6.7.8', '5.6.7.9')
           expect(as.active?('1.2.3.4')).to be(false)
         end
 
         it 'accepts options' do
           expect { as.add '1.2.3.4', '5.6.7.8', mac: '00:00:00:00:00:00' }
-            .to_not raise_error
+            .not_to raise_error
         end
       end
 
@@ -51,7 +53,7 @@ module PacketGen
           as.add '1.2.3.4', '5.6.7.8'
           expect(as.registered_targets).to include('1.2.3.4')
           as.remove '1.2.3.4'
-          expect(as.registered_targets).to_not include('1.2.3.4')
+          expect(as.registered_targets).not_to include('1.2.3.4')
         end
       end
 
@@ -87,7 +89,7 @@ module PacketGen
           as.wait
           expect(as.all_packets.last.length).to eq(1)
           packet = as.all_packets.last.first
-          expect(packet.arp.tpa).to_not eq('1.2.3.4')
+          expect(packet.arp.tpa).not_to eq('1.2.3.4')
         end
 
         it 'stops sending thread when last target is removed' do
@@ -95,7 +97,7 @@ module PacketGen
                                          target_mac: '00:00:00:00:00:01'
           sleep(0.1)
           as.stop '1.2.3.4'
-          expect(as.instance_eval { @spoof_thread }).to be(nil)
+          expect(as.instance_eval { @spoof_thread }).to be_nil
         end
       end
 
@@ -112,8 +114,8 @@ module PacketGen
           expect(as.active?('1.2.3.4')).to be(false)
         end
 
-        it 'returns nil for unknown target' do
-          expect(as.active?('10.0.0.1')).to be(nil)
+        it 'returns false for unknown target' do
+          expect(as.active?('10.0.0.1')).to be(false)
         end
       end
     end

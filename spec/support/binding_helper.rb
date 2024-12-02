@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module BindingHelper
-
   class KnowHeaderMatcher
-
     def initialize(header)
       @header = header
       @args = nil
@@ -11,10 +9,11 @@ module BindingHelper
 
     def matches?(prev_header)
       @prev_header = prev_header
-      result = prev_header.known_headers.keys.include?(@header)
-      if @args and @args.is_a? Hash
+      result = prev_header.known_headers.key?(@header)
+      if @args.is_a?(Hash)
         bindings = prev_header.known_headers[@header]
         return false unless bindings
+
         result &&= bindings.one? do |subbindings|
           subbindings.all? do |binding|
             if binding.is_a?(PacketGen::Header::Base::ProcBinding)
@@ -34,7 +33,7 @@ module BindingHelper
     end
 
     def failure_message
-      str = +"expected #@header to be a known header from #{@prev_header}"
+      str = +"expected #{@header} to be a known header from #{@prev_header}"
       if @bad_args
         str << "\n         expected: #{@bad_args.inspect}"
         str << "\nto be included in: " \
@@ -47,8 +46,8 @@ module BindingHelper
       str = "expected #{@header} to not be a known header from #{@prev_header}"
       if @bad_args
         str << "\n        expected: #{@bad_args.inspect}"
-          str << "\nto not be included in: " \
-                 "#{@prev_header.known_headers[@header].inspect}"
+        str << "\nto not be included in: " \
+               "#{@prev_header.known_headers[@header].inspect}"
       end
       str
     end
@@ -68,6 +67,7 @@ module BindingHelper
   end
 
   def remove_binding(klass1, klass2)
-    klass1.known_headers.delete klass2
+    klass1.known_headers.delete(klass2)
+    PacketGen::Header.remove_class(klass2)
   end
 end

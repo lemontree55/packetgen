@@ -26,8 +26,8 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A MLD header consists of:
-    # * a {#max_resp_delay} field ({Types::Int16} type),
-    # * a {#reserved} field ({Types::Int16} type),
+    # * a {#max_resp_delay} field ({BinStruct::Int16} type),
+    # * a {#reserved} field ({BinStruct::Int16} type),
     # * a {#mcast_addr} field ({Header::IPv6::Addr} type),
     # * and a {#body} (unused for MLDv1).
     #
@@ -49,20 +49,20 @@ module PacketGen
       # @!attribute max_resp_delay
       #  16-bit MLD Max Response Delay
       #  @return [Integer]
-      define_field :max_resp_delay, Types::Int16
+      define_attr :max_resp_delay, BinStruct::Int16
       alias max_resp_code max_resp_delay
       alias max_resp_code= max_resp_delay=
       # @!attribute reserved
       #  16-bit Reserved field
       #  @return [Integer]
-      define_field :reserved, Types::Int16
+      define_attr :reserved, BinStruct::Int16
       # @!attribute mcast_addr
       #  IPv6 Multicast address
       #  @return [IPv6::Addr]
-      define_field :mcast_addr, IPv6::Addr, default: '::'
+      define_attr :mcast_addr, IPv6::Addr, default: '::'
       # @!attribute body
       #  @return [String,Base]
-      define_field :body, Types::String
+      define_attr :body, BinStruct::String
 
       # @api private
       # @note This method is used internally by PacketGen and should not be

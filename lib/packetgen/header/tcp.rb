@@ -29,9 +29,9 @@ module PacketGen
     #   |                             data                              |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A TCP header consists of:
-    # * a source port ({#sport}, {Types::Int16} type),
+    # * a source port ({#sport}, {BinStruct::Int16} type),
     # * a destination port ({#dport}, +Int16+ type),
-    # * a sequence number ({#seqnum}, {Types::Int32} type),
+    # * a sequence number ({#seqnum}, {BinStruct::Int32} type),
     # * an acknownledge number ({#acknum}, +Int32+ type),
     # * a 16-bit field ({#u16}, +Int16+ type) composed of:
     #   * a 4-bit {#data_offset} self[attr],
@@ -41,7 +41,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+ type),
     # * a urgent pointer ({#urg_pointer}, +Int16+ type),
     # * an optional {#options} field ({Options} type),
-    # * and a {#body} ({Types::String} type).
+    # * and a {#body} ({BinStruct::String} type).
     #
     # == Create a TCP header
     #  # standalone
@@ -78,7 +78,7 @@ module PacketGen
   end
 end
 
-# Need to load Options now, as this is used through define_bit_fields_on,
+# Need to load Options now, as this is used through define_bit_attr,
 # which make a call to TCP.new, which needs Options
 require_relative 'tcp/options'
 
@@ -91,41 +91,68 @@ module PacketGen
       # @!attribute sport
       #  16-bit TCP source port
       #  @return [Integer]
-      define_field :sport, Types::Int16
+      define_attr :sport, BinStruct::Int16
       # @!attribute dport
       #  16-bit TCP destination port
       #  @return [Integer]
-      define_field :dport, Types::Int16
+      define_attr :dport, BinStruct::Int16
       # @!attribute seqnum
       #  32-bit TCP sequence number
       #  @return [Integer]
-      define_field :seqnum, Types::Int32, default: ->(_) { rand(2**32) }
+      define_attr :seqnum, BinStruct::Int32, default: ->(_) { rand(2**32) }
       # @!attribute acknum
       #  32-bit TCP acknowledgement number
       #  @return [Integer]
-      define_field :acknum, Types::Int32
+      define_attr :acknum, BinStruct::Int32
       # @!attribute u16
       #  @return [Integer] 16-bit word used by flags and bit fields
-      define_field :u16, Types::Int16
+      # @!attribute data_offset
+      #  @return [Integer] 4-bit data offset from {#u16}
+      # @!attribute reserved
+      #  @return [Integer] 3-bit reserved from {#u16}
+      # @!attribute flags
+      #  @return [Integer] 9-bit flags from {#u16}
+      # @!attribute flag_ns
+      #  @return [Integer] 1-bit NS flag
+      # @!attribute flag_cwr
+      #  @return [Integer] 1-bit CWR flag
+      # @!attribute flag_ece
+      #  @return [Integer] 1-bit ECE flag
+      # @!attribute flag_urg
+      #  @return [Integer] 1-bit URG flag
+      # @!attribute flag_ack
+      #  @return [Integer] 1-bit ACK flag
+      # @!attribute flag_psh
+      #  @return [Integer] 1-bit PSH flag
+      # @!attribute flag_rst
+      #  @return [Integer] 1-bit RST flag
+      # @!attribute flag_syn
+      #  @return [Integer] 1-bit SYN flag
+      # @!attribute flag_fin
+      #  @return [Integer] 1-bit FIN flag
+      define_bit_attr :u16, data_offset: 4, reserved: 3, flag_ns: 1, flag_cwr: 1, flag_ece: 1, flag_urg: 1, flag_ack: 1, flag_psh: 1,
+                            flag_rst: 1, flag_syn: 1, flag_fin: 1
+      alias hlen data_offset
+      alias hlen= data_offset=
       # @!attribute window
       #  16-bit TCP window size
       #  @return [Integer]
-      define_field :window, Types::Int16
+      define_attr :window, BinStruct::Int16
       # @!attribute checksum
       #  16-bit TCP checksum
       #  @return [Integer]
-      define_field :checksum, Types::Int16
+      define_attr :checksum, BinStruct::Int16
       # @!attribute urg_pointer
       #  16-bit TCP urgent data pointer
       #  @return [Integer]
-      define_field :urg_pointer, Types::Int16
+      define_attr :urg_pointer, BinStruct::Int16
       # @!attribute options
       #  TCP options
       #  @return [Options]
-      define_field :options, TCP::Options, builder: ->(h, t) { t.new(length_from: -> { h.data_offset > 5 ? (h.data_offset - 5) * 4 : 0 }) }
+      define_attr :options, TCP::Options, builder: ->(h, t) { t.new(length_from: -> { h.data_offset > 5 ? (h.data_offset - 5) * 4 : 0 }) }
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
 
       alias source_port sport
       alias source_port= sport=
@@ -158,38 +185,22 @@ module PacketGen
       def initialize(options={})
         opts = { data_offset: 5 }.merge!(options)
         super(opts)
+        self.flags = opts[:flags] if opts.key?(:flags)
       end
 
-      # @!attribute data_offset
-      #  @return [Integer] 4-bit data offset from {#u16}
-      # @!attribute reserved
-      #  @return [Integer] 3-bit reserved from {#u16}
-      # @!attribute flags
-      #  @return [Integer] 9-bit flags from {#u16}
-      define_bit_fields_on :u16, :data_offset, 4, :reserved, 3, :flags, 9
-      alias hlen data_offset
-      alias hlen= data_offset=
+      # Get all flags value from [#u16]
+      # @return [Integer]
+      def flags
+        self.u16 & 0x1ff
+      end
 
-      # @!attribute flag_ns
-      #  @return [Boolean] 1-bit NS flag
-      # @!attribute flag_cwr
-      #  @return [Boolean] 1-bit CWR flag
-      # @!attribute flag_ece
-      #  @return [Boolean] 1-bit ECE flag
-      # @!attribute flag_urg
-      #  @return [Boolean] 1-bit URG flag
-      # @!attribute flag_ack
-      #  @return [Boolean] 1-bit ACK flag
-      # @!attribute flag_psh
-      #  @return [Boolean] 1-bit PSH flag
-      # @!attribute flag_rst
-      #  @return [Boolean] 1-bit RST flag
-      # @!attribute flag_syn
-      #  @return [Boolean] 1-bit SYN flag
-      # @!attribute flag_fin
-      #  @return [Boolean] 1-bit FIN flag
-      define_bit_fields_on :u16, :_, 7, :flag_ns, :flag_cwr, :flag_ece, :flag_urg,
-                           :flag_ack, :flag_psh, :flag_rst, :flag_syn, :flag_fin
+      # Set all flags at once
+      # @parameter [Integer] value
+      # @return [Integer]
+      def flags=(value)
+        new_u16 = (self.u16 & 0xfe00) | (value & 0x1ff)
+        self[:u16].from_human(new_u16)
+      end
 
       # Compute checksum and set +checksum+ field
       # @return [Integer]

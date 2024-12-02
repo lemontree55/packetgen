@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -12,14 +14,16 @@ module PacketGen
           expect(TCP).to know_header(DNS).with(sport: 53)
           expect(TCP).to know_header(DNS).with(dport: 53)
         end
+
         it 'accepts to be added in UDP packets' do
           pkt = PacketGen.gen('UDP')
-          expect { pkt.add('DNS') }.to_not raise_error
+          expect { pkt.add('DNS') }.not_to raise_error
           expect(pkt.udp.dport).to eq(53)
         end
+
         it 'accepts to be added in TCP packets' do
           pkt = PacketGen.gen('TCP')
-          expect { pkt.add('DNS') }.to_not raise_error
+          expect { pkt.add('DNS') }.not_to raise_error
           expect(pkt.tcp.dport).to eq(53)
         end
       end
@@ -66,14 +70,14 @@ module PacketGen
 
           options.each do |key, value|
             meth = key.to_s
-            meth << '?' if value.is_a?(TrueClass) or value.is_a?(FalseClass)
+            meth << '?' if value.is_a?(TrueClass) || value.is_a?(FalseClass)
             expect(dns.send(meth.to_sym)).to eq(value)
           end
         end
-     end
+      end
 
       describe '#read' do
-        let(:dns) { DNS.new}
+        let(:dns) { DNS.new }
 
         it 'sets header from a string' do
           str = (0...dns.sz).to_a.pack('C*')
@@ -91,7 +95,7 @@ module PacketGen
 
         it 'also sets others sections from a string' do
           str = read_raw_packets(dns_pcapng).last
-          dns.read str[0x3e..-1]
+          dns.read str[0x3e..]
           expect(dns.id).to eq(0xd10)
           expect(dns.u16.to_i).to be(0x8180)
           expect(dns.response?).to be(true)
@@ -124,7 +128,7 @@ module PacketGen
       end
 
       describe 'setters' do
-        let(:dns) { DNS.new}
+        let(:dns) { DNS.new }
 
         it '#id= accepts integers' do
           dns.id = 0x8000
@@ -153,7 +157,7 @@ module PacketGen
 
         it '#opcode= accepts integers' do
           dns.opcode = 1
-          expect((dns[:u16].value & 0x7800) >> 11).to eq(1)
+          expect((dns[:u16].to_i & 0x7800) >> 11).to eq(1)
         end
 
         it '#opcode= accepts known string opcodes' do
@@ -169,7 +173,7 @@ module PacketGen
 
         it '#rcode= accepts integers' do
           dns.rcode = 8
-          expect(dns[:u16].value & 0xf).to eq(8)
+          expect(dns[:u16].to_i & 0xf).to eq(8)
         end
 
         it '#rcode= accepts known string opcodes' do
@@ -189,7 +193,7 @@ module PacketGen
           strings = read_raw_packets(dns_pcapng)
           strings.each do |str|
             pkt = Packet.parse(str)
-            expect(pkt.is? 'DNS').to be(true)
+            expect(pkt.is?('DNS')).to be(true)
             expect(pkt.to_s).to eq(str)
           end
         end
@@ -200,7 +204,7 @@ module PacketGen
           dns = DNS.new
           str = dns.inspect
           expect(str).to be_a(String)
-          (dns.fields - %i(u16) + %i(flags opcode rcode)).each do |attr|
+          (dns.attributes - %i[u16] + %i[flags opcode rcode]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -211,22 +215,22 @@ module PacketGen
 
         it 'may add a Question to question section' do
           q = DNS::Question.new(dns, name: 'www.example.org')
-          expect { dns.qd << q }.to change { dns.qdcount }.by(1)
-          expected_str = "\x00" * 5 + "\x01" + "\x00" * 6 +
-                         generate_label_str(%w(www example org)) +
+          expect { dns.qd << q }.to change(dns, :qdcount).by(1)
+          expected_str = +"\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00" <<
+                         generate_label_str(%w[www example org]) <<
                          "\x00\x01\x00\x01"
-          expect(dns.to_s).to eq(binary expected_str)
+          expect(dns.to_s).to eq(binary(expected_str))
         end
 
         it 'may add a RR to answer section' do
           an = DNS::RR.new(dns, name: 'www.example.org', type: 'AAAA', ttl: 3600,
-                           rdata: IPAddr.new('2000::1').hton)
-          expect { dns.an << an }.to change { dns.ancount }.by(1)
-          expected_str = "\x00" * 7 + "\x01" + "\x00" * 4 +
-                         generate_label_str(%w(www example org)) +
-                         "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" +
-                         "\x00" * 14 + "\x01"
-          expect(dns.to_s).to eq(binary expected_str)
+                                rdata: IPAddr.new('2000::1').hton)
+          expect { dns.an << an }.to change(dns, :ancount).by(1)
+          expected_str = +"\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00" <<
+                         generate_label_str(%w[www example org]) <<
+                         "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" \
+                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
+          expect(dns.to_s).to eq(binary(expected_str))
         end
       end
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -8,9 +10,10 @@ module PacketGen
           it 'in ICMPv6 packets' do
             expect(ICMPv6).to know_header(MLQ).with(type: 130, body: '0' * 24)
           end
+
           it 'accepts to be added in ICMPv6 packets' do
             pkt = PacketGen.gen('ICMPv6')
-            expect { pkt.add('MLDv2::MLQ') }.to_not raise_error
+            expect { pkt.add('MLDv2::MLQ') }.not_to raise_error
             expect(pkt.icmpv6.type).to eq(130)
           end
         end
@@ -39,7 +42,7 @@ module PacketGen
         end
 
         describe '#read' do
-          let(:mlq) { MLDv2::MLQ.new}
+          let(:mlq) { MLDv2::MLQ.new }
 
           it 'sets header from a string' do
             str = (1..mlq.sz).to_a.pack('C*')
@@ -53,17 +56,17 @@ module PacketGen
           end
 
           it 'reads a MLDv2 MLQ header from a real packet' do
-            pkt = PacketGen.gen('IPv6', src: 'fe80::1', dst: 'ff02::1', hop: 1).
-                            add('IPv6::HopByHop').
-                            add('ICMPv6', type: 130, code: 0)
-            pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: Types::Int16.new(0).to_s }
-            pkt.body = "\x00\x7f\x00\x00" + ([0] * 16).pack('C*') +
+            pkt = PacketGen.gen('IPv6', src: 'fe80::1', dst: 'ff02::1', hop: 1)
+                           .add('IPv6::HopByHop')
+                           .add('ICMPv6', type: 130, code: 0)
+            pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: BinStruct::Int16.new(value: 0).to_s }
+            pkt.body = +"\x00\x7f\x00\x00" << ([0] * 16).pack('C*') <<
                        [1, 0x2000, 0, 0, 0, 0, 0, 0, 1].pack('Nn*')
             pkt.calc
             parsed_pkt = PacketGen.parse(pkt.to_s)
-            expect(parsed_pkt.is? 'IPv6').to be(true)
-            expect(parsed_pkt.is? 'ICMPv6').to be(true)
-            expect(parsed_pkt.is? 'MLDv2::MLQ').to be(true)
+            expect(parsed_pkt.is?('IPv6')).to be(true)
+            expect(parsed_pkt.is?('ICMPv6')).to be(true)
+            expect(parsed_pkt.is?('MLDv2::MLQ')).to be(true)
             expect(parsed_pkt.mldv2_mlq.max_resp_delay).to eq(127)
             expect(parsed_pkt.mldv2_mlq.reserved).to eq(0)
             expect(parsed_pkt.mldv2_mlq.mcast_addr).to eq('::')
@@ -77,7 +80,7 @@ module PacketGen
 
           it 'reads a MLDv2 MLQ header from a pcap' do
             pkt = PacketGen.read(File.join(__dir__, 'mldv2.pcapng'))[1]
-            expect(pkt.is? 'MLDv2::MLQ').to be(true)
+            expect(pkt.is?('MLDv2::MLQ')).to be(true)
             mlq = pkt.mldv2_mlq
             expect(mlq.max_resp_code).to eq(0)
             expect(mlq.mcast_addr).to eq('ff02::1')
@@ -96,11 +99,11 @@ module PacketGen
           let(:mlq) { MLDv2::MLQ.new }
 
           it 'sets encoded Max Resp Code' do
-            [1, 1000, 32767].each do |value|
+            [1, 1000, 32_767].each do |value|
               mlq.max_resp_delay = value
               expect(mlq.max_resp_code).to eq(value)
             end
-            mlq.max_resp_delay = 32768
+            mlq.max_resp_delay = 32_768
             expect(mlq.max_resp_code).to eq(0x8000)
             mlq.max_resp_delay = 8_387_583
             expect(mlq.max_resp_code).to eq(0xfffe)
@@ -111,12 +114,12 @@ module PacketGen
           end
 
           it 'gets decoded Max Resp Delay' do
-            [1, 1000, 32767].each do |value|
+            [1, 1000, 32_767].each do |value|
               mlq.max_resp_code = value
               expect(mlq.max_resp_delay).to eq(value)
             end
             mlq.max_resp_code = 0x8000
-            expect(mlq.max_resp_delay).to eq(32768)
+            expect(mlq.max_resp_delay).to eq(32_768)
             mlq.max_resp_code = 0xfffe
             expect(mlq.max_resp_delay).to eq(8_386_560)
             mlq.max_resp_code = 0xffff
@@ -127,9 +130,9 @@ module PacketGen
         describe '#to_s' do
           it 'returns a binary string' do
             mlq = MLDv2::MLQ.new(max_resp_delay: 20,
-                                mcast_addr: 'ff02::1')
+                                 mcast_addr: 'ff02::1')
             mlq.source_addr << '2000::1'
-            expected = "\x00\x14\x00\x00"
+            expected = +"\x00\x14\x00\x00"
             expected << [0xff02, 0, 0, 0, 0, 0, 0, 1].pack('n*')
             expected << [1, 0x2000, 0, 0, 0, 0, 0, 0, 1].pack('Nn*')
             expect(mlq.to_s).to eq(expected)
@@ -141,7 +144,7 @@ module PacketGen
             mlq = MLDv2::MLQ.new
             str = mlq.inspect
             expect(str).to be_a(String)
-            (mlq.fields - %i(body)).each do |attr|
+            (mlq.attributes - %i[body]).each do |attr|
               expect(str).to include(attr.to_s)
             end
           end
@@ -153,9 +156,10 @@ module PacketGen
           it 'in ICMPv6 packets' do
             expect(ICMPv6).to know_header(MLR).with(type: 143)
           end
+
           it 'accepts to be added in ICMPv6 packets' do
             pkt = PacketGen.gen('ICMPv6')
-            expect { pkt.add('MLDv2::MLR') }.to_not raise_error
+            expect { pkt.add('MLDv2::MLR') }.not_to raise_error
             expect(pkt.icmpv6.type).to eq(143)
           end
         end
@@ -163,8 +167,8 @@ module PacketGen
         describe '#read' do
           it 'parses a MLDv2::MLR packet' do
             pkt = PacketGen.read(File.join(__dir__, 'mldv2.pcapng'))[0]
-            expect(pkt.is? 'ICMPv6').to be(true)
-            expect(pkt.is? 'MLDv2::MLR').to be(true)
+            expect(pkt.is?('ICMPv6')).to be(true)
+            expect(pkt.is?('MLDv2::MLR')).to be(true)
             expect(pkt.mldv2_mlr.number_of_mar).to eq(1)
             expect(pkt.mldv2_mlr.records.size).to eq(1)
             mar = pkt.mldv2_mlr.records.first

@@ -16,23 +16,23 @@ module PacketGen
       # (data frame).
       #
       # A IEEE 802.11 data header consists of:
-      # * a {#frame_ctrl} ({Types::Int16}),
-      # * a {#id}/duration ({Types::Int16le}),
+      # * a {#frame_ctrl} ({BinStruct::Int16}),
+      # * a {#id}/duration ({BinStruct::Int16le}),
       # * a {#mac2} ({Eth::MacAddr}),
       # * a {#mac3} ({Eth::MacAddr}),
-      # * a {#sequence_ctrl} ({Types::Int16}),
+      # * a {#sequence_ctrl} ({BinStruct::Int16}),
       # * sometimes a {#mac4} ({Eth::MacAddr}),
-      # * sometimes a {#qos_ctrl} ({Types::Int16}),
-      # * a {#body} (a {Types::String} or another {Base} class),
-      # * and a Frame check sequence ({#fcs}, of type {Types::Int32le}).
+      # * sometimes a {#qos_ctrl} ({BinStruct::Int16}),
+      # * a {#body} (a {BinStruct::String} or another {Base} class),
+      # * and a Frame check sequence ({#fcs}, of type {BinStruct::Int32le}).
       # @author Sylvain Daubert
       class Data < Dot11
         # @param [Hash] options
         # @see Base#initialize
         def initialize(options={})
           super({ type: 2 }.merge!(options))
-          @applicable_fields -= %i[mac4 qos_ctrl ht_ctrl]
-          define_applicable_fields
+          @applicable_attributes -= %i[mac4 qos_ctrl ht_ctrl]
+          define_applicable_attributes
         end
 
         # Invert source and destination addresses (see Table 8-19 from
@@ -45,22 +45,22 @@ module PacketGen
           case ds
           when 0
             # MAC1: RA/DA, MAC2: TA/SA
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
           when 1
             # MAC1: RA/BSSID, MAC2: TA/SA, MAC3: DA
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
             self.to_ds = false
             self.from_ds = true
           when 2
             # MAC1: RA/DA, MAC2: BSSID, MAC3: SA or BSSID
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
             self.to_ds = true
             self.from_ds = false
           when 3
             # MAC1: RA, MAC2: TA
-            invert_mac :mac1, :mac2
+            invert_mac(:mac1, :mac2)
             # MAC3: DA, MAC4: SA
-            invert_mac :mac3, :mac4
+            invert_mac(:mac3, :mac4)
           end
           self
         end
@@ -111,19 +111,19 @@ module PacketGen
           end
         end
 
-        def define_applicable_fields
+        def define_applicable_attributes
           super
-          if (subtype >= 8) && !@applicable_fields.include?(:qos_ctrl)
+          if (subtype >= 8) && !@applicable_attributes.include?(:qos_ctrl)
             # Insert after mac4, if present
             # else insert after sequence_ctrl
-            if @applicable_fields.include? :mac4
-              idx = @applicable_fields.index(:mac4)
-              @applicable_fields[idx, 0] = :qos_ctrl
+            if @applicable_attributes.include? :mac4
+              idx = @applicable_attributes.index(:mac4)
+              @applicable_attributes[idx, 0] = :qos_ctrl
             else
-              @applicable_fields[6, 0] = :qos_ctrl
+              @applicable_attributes[6, 0] = :qos_ctrl
             end
           elsif subtype < 8
-            @applicable_fields -= %i[qos_ctrl]
+            @applicable_attributes -= %i[qos_ctrl]
           end
         end
 

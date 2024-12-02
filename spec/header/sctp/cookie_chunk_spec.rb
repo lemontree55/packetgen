@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
@@ -16,11 +18,11 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0xffff,
-                      flags: 0x1234,
-                      length: 42,
-                      cookie: 'qwerty',
-                      }
+              type: 0xffff,
+              flags: 0x1234,
+              length: 42,
+              cookie: 'qwerty',
+            }
             cookie = CookieEchoChunk.new(options)
             options.each do |key, value|
               expect(cookie.send(key)).to eq(value)
@@ -56,10 +58,10 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0xffff,
-                      flags: 0x1234,
-                      length: 42,
-                      }
+              type: 0xffff,
+              flags: 0x1234,
+              length: 42,
+            }
             cookie = CookieAckChunk.new(options)
             options.each do |key, value|
               expect(cookie.send(key)).to eq(value)

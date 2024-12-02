@@ -1,8 +1,15 @@
+# frozen_string_literal: true
+
 require_relative 'spec_helper'
 require 'tempfile'
 
+module PacketGenTest1
+  class TestHeader < PacketGen::Header::Base
+  end
+end
+
 describe PacketGen do
-  let(:file) { ::File.join(__dir__, 'pcapng', 'sample.pcapng') }
+  let(:file) { File.join(__dir__, 'pcapng', 'sample.pcapng') }
 
   describe '.gen' do
     it 'generate a Packet' do
@@ -12,7 +19,7 @@ describe PacketGen do
   end
 
   describe '.parse' do
-    before(:each) do
+    before do
       @raw_pkts = PacketGen::PcapNG::File.new.read_packet_bytes(file)
     end
 
@@ -25,8 +32,8 @@ describe PacketGen do
       expect(pkt.eth.dst).to eq('00:03:2f:1a:74:de')
       expect(pkt.udp.checksum).to eq(0x8bf8)
 
-      expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }.
-        not_to raise_error
+      expect { pkt = PacketGen.parse(@raw_pkts.first, first_header: 'Eth') }
+        .not_to raise_error
     end
   end
 
@@ -34,7 +41,7 @@ describe PacketGen do
     it 'generates packets from a file' do
       ary = PacketGen.read(file)
       expect(ary).to be_a(Array)
-      expect(ary.all? { |el| el.is_a? PacketGen::Packet }).to be(true)
+      expect(ary).to all(be_a(PacketGen::Packet))
     end
   end
 
@@ -52,7 +59,7 @@ describe PacketGen do
     end
   end
 
-  describe '.capture', :sudo  do
+  describe '.capture', :sudo do
     it 'captures packets' do
       yielded_packets = []
       packets = nil
@@ -68,11 +75,6 @@ describe PacketGen do
   end
 
   describe '.header' do
-    module PacketGenTest1
-      class TestHeader < PacketGen::Header::Base
-      end
-    end
-
     after(:all) do
       PacketGen::Header.remove_class PacketGenTest1::TestHeader
     end

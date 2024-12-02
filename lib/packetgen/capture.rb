@@ -61,7 +61,7 @@ module PacketGen
       @packets     = []
       @raw_packets = []
       @timestamps = []
-      set_options iface, max, timeout, filter, promisc, parse, snaplen, monitor
+      set_options(iface, max, timeout, filter, promisc, parse, snaplen, monitor)
     end
 
     # Start capture
@@ -75,7 +75,7 @@ module PacketGen
     # @author Sylvain Daubert
     # @author optix2000 - add monitor argument
     def start(iface: nil, max: nil, timeout: nil, filter: nil, promisc: false, parse: true, snaplen: nil, monitor: nil, &block)
-      set_options iface, max, timeout, filter, promisc, parse, snaplen, monitor
+      set_options(iface, max, timeout, filter, promisc, parse, snaplen, monitor)
 
       @cap_thread = Thread.new do
         PCAPRUBWrapper.capture(**capture_args) do |packet|

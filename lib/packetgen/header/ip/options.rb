@@ -11,7 +11,7 @@ module PacketGen
     class IP
       # Class to handle IP options
       # @author Sylvain Daubert
-      class Options < Types::Array
+      class Options < BinStruct::Array
         set_of Option
 
         HUMAN_SEPARATOR = ';'

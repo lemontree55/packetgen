@@ -33,14 +33,14 @@ module PacketGen
       #   |                              ...                               |
       #
       # A DB description payload is composed of:
-      # * a 8-bit {#reserved} field ({Types::Int8}),
-      # * a 24-bit {#options} field ({Types::Int24}),
-      # * a 16-bit {#mtu} field ({Types::Int16}),
-      # * a 16-bit {#flags} field ({Types::Int16}). Supported flags are:
+      # * a 8-bit {#reserved} field ({BinStruct::Int8}),
+      # * a 24-bit {#options} field ({BinStruct::Int24}),
+      # * a 16-bit {#mtu} field ({BinStruct::Int16}),
+      # * a 16-bit {#flags} field ({BinStruct::Int16}). Supported flags are:
       #   * {i_flag},
       #   * {m_flag},
       #   * {ms_flag},
-      # * a 32-bit {#sequence_number} field ({Types::Int32}),
+      # * a 32-bit {#sequence_number} field ({BinStruct::Int32}),
       # * and an array of {LSAHeader LSAHeaders} ({#lsas}, {ArrayOfLSA}).
       #
       # == Create a DbDescription payload
@@ -68,7 +68,7 @@ module PacketGen
         # @!attribute reserved
         #  8-bit zero field before {#options} one
         #  @return [Integer]
-        define_field :reserved, Types::Int8, default: 0
+        define_attr :reserved, BinStruct::Int8, default: 0
 
         # @!macro define_options
         OSPFv3.define_options(self)
@@ -76,34 +76,33 @@ module PacketGen
         # @!attribute mtu
         #  16-bit interface MTU
         #  @return [Integer]
-        define_field :mtu, Types::Int16
+        define_attr :mtu, BinStruct::Int16
         # @!attribute flags
         #  16-bit interface flags ({#i_flag}, {#m_flag} and {#ms_flag})
         #  @return [Integer]
-        define_field :flags, Types::Int16
         # @!attribute i_flag
         #  Init bit from {#flags} field
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute m_flag
         #  More bit from {#flags} field
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute ms_flag
         #  Master/Slave bit from {#flags} field
-        #  @return [Boolean]
-        define_bit_fields_on :flags, :zz, 13, :i_flag, :m_flag, :ms_flag
+        #  @return [Integer]
+        define_bit_attr :flags, zz: 13, i_flag: 1, m_flag: 1, ms_flag: 1
 
         # @!attribute sequence_number
         #  32-bit DD sequence number, used to sequence the collection of Database
         #  Description Packets.
         #  @return [Integer]
-        define_field :sequence_number, Types::Int32
+        define_attr :sequence_number, BinStruct::Int32
         alias seqnum sequence_number
         alias seqnum= sequence_number=
 
         # @!attribute lsas
         #  Array of LSA headers
         #  @return [ArrayOfLSAHeader]
-        define_field :lsas, ArrayOfLSA, builder: ->(_h, t) { t.new(only_headers: true) }
+        define_attr :lsas, ArrayOfLSA, builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end
 

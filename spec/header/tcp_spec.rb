@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -8,14 +10,16 @@ module PacketGen
           expect(IP).to know_header(TCP).with(protocol: 6)
           expect(IPv6).to know_header(TCP).with(next: 6)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('TCP') }.to_not raise_error
+          expect { pkt.add('TCP') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(6)
         end
+
         it 'accepts to be added in IPv6 packets' do
           pkt = PacketGen.gen('IPv6')
-          expect { pkt.add('TCP') }.to_not raise_error
+          expect { pkt.add('TCP') }.not_to raise_error
           expect(pkt.ipv6.next).to eq(6)
         end
       end
@@ -26,7 +30,7 @@ module PacketGen
           expect(tcp).to be_a(TCP)
           expect(tcp.sport).to eq(0)
           expect(tcp.dport).to eq(0)
-          expect(tcp.seqnum).to_not eq(0)
+          expect(tcp.seqnum).not_to eq(0)
           expect(tcp.acknum).to eq(0)
           expect(tcp.hlen).to eq(5)
           expect(tcp.reserved).to eq(0)
@@ -61,12 +65,12 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:tcp) { TCP.new}
+        let(:tcp) { TCP.new }
 
         it 'sets header from a string' do
           ary = (0...tcp.sz).to_a
           ary[12] |= 0x50
-          str = ary.pack('C*') + 'body'
+          str = ary.pack('C*') << 'body'
           tcp.read str
           expect(tcp.sport).to eq(0x0001)
           expect(tcp.dport).to eq(0x0203)
@@ -89,7 +93,7 @@ module PacketGen
           packets.each do |pkt|
             checksum = pkt.tcp.checksum
             pkt.tcp.checksum = 0
-            expect(pkt.tcp.checksum).to_not eq(checksum)
+            expect(pkt.tcp.checksum).not_to eq(checksum)
             pkt.tcp.calc_checksum
             expect(pkt.tcp.checksum).to eq(checksum)
           end
@@ -97,10 +101,10 @@ module PacketGen
 
         it 'computes TCP over IPv6 header checksum' do
           pkt = Packet.read(File.join(__dir__, '..', 'pcapng', 'ipv6_tcp.pcapng'))[1]
-          expect(pkt.is? 'IPv6').to be(true)
+          expect(pkt.is?('IPv6')).to be(true)
           checksum = pkt.tcp.checksum
           pkt.tcp.checksum = 0
-          expect(pkt.tcp.checksum).to_not eq(checksum)
+          expect(pkt.tcp.checksum).not_to eq(checksum)
           pkt.tcp.calc_checksum
           expect(pkt.tcp.checksum).to eq(checksum)
         end
@@ -130,20 +134,19 @@ module PacketGen
         end
 
         it '#window= accepts integers' do
-          tcp.window = 60000
-          expect(tcp[:window].value).to eq(60000)
+          tcp.window = 60_000
+          expect(tcp[:window].value).to eq(60_000)
         end
 
         it '#checksum= accepts integers' do
-          tcp.checksum = 65500
-          expect(tcp[:checksum].value).to eq(65500)
+          tcp.checksum = 65_500
+          expect(tcp[:checksum].value).to eq(65_500)
         end
 
         it '#urg_pointer= accepts integers' do
-          tcp.urg_pointer = 37560
-          expect(tcp[:urg_pointer].value).to eq(37560)
+          tcp.urg_pointer = 37_560
+          expect(tcp[:urg_pointer].value).to eq(37_560)
         end
-
       end
 
       describe '#to_s' do
@@ -167,28 +170,28 @@ module PacketGen
           tcp = TCP.new
           str = tcp.inspect
           expect(str).to be_a(String)
-          (tcp.fields - %i(body) + %i(data_offset reserved flags)).each do |attr|
+          (tcp.attributes - %i[body] + %i[data_offset reserved flags]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
       end
 
-      context 'flags field' do
+      context 'with flags field' do
         let(:tcp) { TCP.new }
 
         it 'may be accessed through all flag_* methods' do
-          all_flags = (%i(flag_ns flag_cwr flag_ece flag_urg flag_ack flag_psh) +
-                       %i(flag_rst flag_syn flag_fin)).reverse
+          all_flags = (%i[flag_ns flag_cwr flag_ece flag_urg flag_ack flag_psh] +
+                       %i[flag_rst flag_syn flag_fin]).reverse
           8.downto(0) do |i|
-            expect(tcp.send "#{all_flags[i]}?").to eq(false)
+            expect(tcp.send(:"#{all_flags[i]}?")).to be(false)
             tcp.flags = 1 << i
-            expect(tcp.send "#{all_flags[i]}?").to eq(true)
-            tcp.send "#{all_flags[i]}=", false
+            expect(tcp.send(:"#{all_flags[i]}?")).to be(true)
+            tcp.send :"#{all_flags[i]}=", false
             expect(tcp.flags).to eq(0)
           end
 
           tcp.flags = 0x155
-          9.times { |i| expect(tcp.send "#{all_flags[i]}?").to be(i % 2 == 0) }
+          9.times { |i| expect(tcp.send(:"#{all_flags[i]}?")).to be(i.even?) }
         end
       end
     end

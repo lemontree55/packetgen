@@ -15,10 +15,10 @@ module PacketGen
       #  #
       #  # An {Element} is a piece of data contained in a Dot11 management frame.
       #  # @since 1.4.0
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
-      #  class Element < Types::AbstractTLV; end
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  class Element < BinStruct::AbstractTLV; end
       # @private
-      Element = Types::AbstractTLV.create
+      Element = BinStruct::AbstractTLV.create
 
       class Element
         # Known element types
@@ -44,7 +44,7 @@ module PacketGen
 
       # Array of {Element}.
       # @since 3.1.1
-      class ArrayOfElements < Types::Array
+      class ArrayOfElements < BinStruct::Array
         set_of Element
       end
     end

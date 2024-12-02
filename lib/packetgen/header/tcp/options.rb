@@ -13,7 +13,7 @@ module PacketGen
     class TCP
       # Container for TCP options in {TCP TCP header}.
       # @author Sylvain Daubert
-      class Options < Types::Array
+      class Options < BinStruct::Array
         set_of Option
 
         # Get {Option} subclasses
@@ -23,7 +23,7 @@ module PacketGen
 
           @klasses = []
           Option.constants.each do |cst|
-            next unless cst.to_s.end_with? '_KIND'
+            next unless cst.to_s.end_with?('_KIND')
 
             optname = cst.to_s.sub('_KIND', '')
             @klasses[Option.const_get(cst)] = TCP.const_get(optname)

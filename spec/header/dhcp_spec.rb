@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -7,9 +9,10 @@ module PacketGen
         it 'in BOOTP packets' do
           expect(BOOTP).to know_header(DHCP)
         end
+
         it 'accepts to be added in BOOTP packets' do
           pkt = PacketGen.gen('BOOTP')
-          expect { pkt.add('DHCP') }.to_not raise_error
+          expect { pkt.add('DHCP') }.not_to raise_error
         end
       end
 
@@ -17,8 +20,8 @@ module PacketGen
         it 'read a DHCP header' do
           raw = read_raw_packets('dhcp.pcapng').first
           pkt = PacketGen.parse(raw)
-          expect(pkt.is? 'BOOTP').to be(true)
-          expect(pkt.is? 'DHCP').to be(true)
+          expect(pkt.is?('BOOTP')).to be(true)
+          expect(pkt.is?('DHCP')).to be(true)
 
           dhcp = pkt.dhcp
           expect(dhcp.magic).to eq(0x63825363)
@@ -34,7 +37,7 @@ module PacketGen
         let(:dhcp) { DHCP.new }
 
         it 'accepts an option as a hash' do
-          dhcp.options << { type: 'router', value: '10.0.0.1'}
+          dhcp.options << { type: 'router', value: '10.0.0.1' }
           expect(dhcp.options.size).to eq(1)
           expect(dhcp.options.first.type).to eq(3)
           expect(dhcp.options.first.human_type).to eq('router')

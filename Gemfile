@@ -8,11 +8,11 @@ gemspec
 gem 'bundler', '>=2.2', '<3'
 
 group :develoment do
+  gem 'debug'
   gem 'rake', '~> 13.0'
   gem 'rspec', '~> 3.12'
   gem 'ruby-lsp'
   gem 'yard', '~> 0.9'
-  gem 'debug'
 end
 
 group :noci do

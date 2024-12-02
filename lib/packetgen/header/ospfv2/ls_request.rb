@@ -9,27 +9,27 @@
 module PacketGen
   module Header
     class OSPFv2
-      # This class handle a LS request, which is composed 3 {Types::Int32} fields:
+      # This class handle a LS request, which is composed 3 {BinStruct::Int32} fields:
       # * {#type},
       # * {#link_state_id},
       # * and {#advertising_router}.
       # @author Sylvain Daubert
-      class LSR < Types::Fields
-        include Types::Fieldable
+      class LSR < BinStruct::Struct
+        include BinStruct::Structable
 
         # @!attribute type
         #  The type of the LSA to request.
         #  @return [Integer]
-        define_field :type, Types::Int32Enum, enum: LSAHeader::TYPES
+        define_attr :type, BinStruct::Int32Enum, enum: LSAHeader::TYPES
         # @!attribute link_state_id
         #  This field identifies the portion of the internet environment
         #  that is being described by the LSA to request.
         #  @return [String]
-        define_field :link_state_id, IP::Addr
+        define_attr :link_state_id, IP::Addr
         # @!attribute advertising_router
         #  The Router ID of the requested LSA.
         #  @return [String]
-        define_field :advertising_router, IP::Addr
+        define_attr :advertising_router, IP::Addr
 
         # Get human-readable type
         # @return [String]
@@ -43,10 +43,10 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {Types::Array array} to handle series
+      # This class defines a specialized {BinStruct::Array array} to handle series
       # of {LSR LSRs}.
       # @author Sylvain Daubert
-      class ArrayOfLSR < Types::Array
+      class ArrayOfLSR < BinStruct::Array
         set_of LSR
       end
 
@@ -82,7 +82,7 @@ module PacketGen
         # @!attribute lsrs
         #  Array of {LSR}
         #  @return [ArrayOfLSR]
-        define_field :lsrs, ArrayOfLSR
+        define_attr :lsrs, ArrayOfLSR
       end
     end
 

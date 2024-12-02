@@ -1,25 +1,28 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe Dot1x do
       describe 'binding' do
         it 'in Eth packets' do
           expect(Eth).to know_header(Dot1x).with(ethertype: 0x888e)
         end
+
         it 'in SNAP packets' do
           expect(SNAP).to know_header(Dot1x).with(proto_id: 0x888e)
         end
 
         it 'accepts to be added in Eth packets' do
           pkt = PacketGen.gen('Eth')
-          expect { pkt.add('Dot1x') }.to_not raise_error
+          expect { pkt.add('Dot1x') }.not_to raise_error
           expect(pkt.eth.ethertype).to eq(0x888e)
         end
+
         it 'accepts to be added in SNAP packets' do
           pkt = PacketGen.gen('SNAP')
-          expect { pkt.add('Dot1x') }.to_not raise_error
+          expect { pkt.add('Dot1x') }.not_to raise_error
           expect(pkt.snap.proto_id).to eq(0x888e)
         end
       end
@@ -61,7 +64,7 @@ module PacketGen
 
           it 'decodes a complex string' do
             packets = read_packets('dot1x.pcapng')
-            expect(packets[0].is? 'Dot1x').to be(true)
+            expect(packets[0].is?('Dot1x')).to be(true)
             expect(packets[0].dot1x.type).to eq(1)
             expect(packets[0].dot1x.human_type).to eq('Start')
             expect(packets[0].dot1x.length).to eq(0)
@@ -81,7 +84,7 @@ module PacketGen
           it 'returns a binary string' do
             dot1x = Dot1x.new
             expected = "\x01\x00\x00\x00"
-            expect(dot1x.to_s).to eq(binary expected)
+            expect(dot1x.to_s).to eq(binary(expected))
           end
         end
 
@@ -90,7 +93,7 @@ module PacketGen
             dot1x = Dot1x.new
             str = dot1x.inspect
             expect(str).to be_a(String)
-            (dot1x.to_h.keys - %i(body)).each do |attr|
+            (dot1x.to_h.keys - %i[body]).each do |attr|
               expect(str).to include(attr.to_s)
             end
           end
