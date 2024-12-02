@@ -122,6 +122,7 @@ PacketGen.write('more_packets.pcapng', packets)
 ### Add custom header/protocol
 
 PacketGen permits adding your own header classes.
+
 First, define the new header class. For example:
 
 ```ruby
@@ -199,6 +200,3 @@ MIT License (see [LICENSE](https://github.com/lemontree55/packetgen/blob/master/
 ### Other sources
 
 All original code maintains its copyright from its original authors and licensing.
-
-This is mainly for PcapNG (originally copied from [PacketFu](https://github.com/packetfu/packetfu),
-but i am the original author.
