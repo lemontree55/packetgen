@@ -96,7 +96,7 @@ module PacketGen
         # Get a human-readable string for this option
         # @return [String]
         def to_human
-          str = +"#{human_type}:"
+          str = "#{human_type}:"
           if respond_to?(:human_data) && !human_data.empty?
             str << human_data
           elsif !self[:data].nil?

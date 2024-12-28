@@ -121,14 +121,14 @@ module PacketGen
         # Get option as a human readable string
         # @return [String]
         def to_human
-          str = self.instance_of?(Option) ? +"unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
+          str = self.instance_of?(Option) ? "unk-#{kind}" : self.class.to_s.sub(/.*::/, '')
           str << ":#{self[:value].to_s.inspect}" if (length > 2) && !self[:value].to_s.empty?
           str
         end
 
         # @return [String]
         def inspect
-          str = +"#<#{self.class} kind=#{self[:kind].value.inspect} "
+          str = "#<#{self.class} kind=#{self[:kind].value.inspect} "
           str << "length=#{self[:length].value.inspect} " if self[:length].value
           str << "value=#{self[:value].inspect}>"
         end

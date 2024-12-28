@@ -84,7 +84,6 @@ module PacketGen
         # @attribute links
         #  @return [ArrayOfLink]
         define_attr :links, ArrayOfLink, builder: ->(h, t) { t.new(length_from: -> { h.length - h.offset_of(:links) }) }
-
       end
 
       # This class handles OSPFv3 LSA Network payloads.

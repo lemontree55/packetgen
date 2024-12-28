@@ -55,7 +55,7 @@ module PacketGen
         # Get human-redable chunk
         # @return [::String]
         def to_human
-          str = +"<chunk:#{human_type}"
+          str = "<chunk:#{human_type}"
           flags_str = flags_to_human
           str << ",flags:#{flags_str}" unless flags_str.empty?
           str << '>'
@@ -249,7 +249,7 @@ module PacketGen
 
         # @return [::String]
         def to_human
-          str = +"<chunk:#{human_type}"
+          str = "<chunk:#{human_type}"
           flags_str = flags_to_human
           str << ",flags:#{flags_str}" unless flags_str.empty?
           str << ",param:#{parameters.map(&:to_human).join(',')}" unless parameters.empty?
@@ -416,7 +416,7 @@ module PacketGen
 
         # @return [::String]
         def to_human
-          str = +"<chunk:#{human_type}"
+          str = "<chunk:#{human_type}"
           flags_str = flags_to_human
           str << ",flags:#{flags_str}" unless flags_str.empty?
           str << ",causes:#{error_causes.map(&:to_human).join(',')}" unless error_causes.empty?

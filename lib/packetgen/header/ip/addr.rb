@@ -27,7 +27,7 @@ module PacketGen
         #  @return [Integer] IP address fourth byte
         define_attr :a4, BinStruct::Int8
 
-        IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.freeze
+        IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
 
         # Read a dotted address
         # @param [String] str

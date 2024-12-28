@@ -114,7 +114,7 @@ module PacketGen
         # Get a human readable string
         # @return [String]
         def to_human
-          str = self.instance_of?(Option) ? +"unk-#{type}" : self.class.to_s.sub(/.*::/, '')
+          str = self.instance_of?(Option) ? "unk-#{type}" : self.class.to_s.sub(/.*::/, '')
           str << ":#{self[:data].to_s.inspect}" if respond_to?(:length) && (length > 2) && !self[:data].to_s.empty?
           str
         end

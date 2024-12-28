@@ -32,7 +32,7 @@ module PacketGen
       complete_new_method_name = "#{base_name}#{new_method}" unless new_method.nil?
 
       file, line = caller(2..2).first.split(':')[0, 2]
-      message = +"#{file}:#{line}: #{complete_deprecated_method_name} is deprecated"
+      message = "#{file}:#{line}: #{complete_deprecated_method_name} is deprecated"
       message << " in favor of #{complete_new_method_name}" unless new_method.nil?
       message << '. ' << self.removed(remove_version)
       warn(message)
@@ -46,7 +46,7 @@ module PacketGen
     # @since 3.1.0
     def self.deprecated_class(klass, new_klass=nil, remove_version: REMOVE_VERSION)
       file, line = caller(2..2).first.split(':')[0, 2]
-      message = +"#{file}:#{line}: #{klass} is deprecated"
+      message = "#{file}:#{line}: #{klass} is deprecated"
       message << " in favor of #{new_klass}" unless new_klass.nil?
       message << '. ' << self.removed(remove_version)
       warn(message)
@@ -64,7 +64,7 @@ module PacketGen
     def self.deprecated_option(klass, method, option, klass_method: false, remove_version: REMOVE_VERSION)
       base_name = "#{klass}#{klass_method ? '.' : '#'}"
       method_name = "#{base_name}#{method}"
-      message = +"option #{option} is deprecated for method #{method_name}. "
+      message = "option #{option} is deprecated for method #{method_name}. "
       message << self.removed(remove_version)
       warn(message)
     end

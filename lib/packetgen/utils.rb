@@ -31,9 +31,9 @@ module PacketGen
     # @private
     IP_PATH = '/usr/bin/ip'
     # @private
-    ARP_LINE_RE = /\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/.freeze
+    ARP_LINE_RE = /\((\d+\.\d+\.\d+\.\d+)\) at (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})(?: \[ether\])? on (\w+)/
     # @private
-    IP_LINE_RE = /^(\d+\.\d+\.\d+\.\d+) dev (\w+) lladdr (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})/.freeze
+    IP_LINE_RE = /^(\d+\.\d+\.\d+\.\d+) dev (\w+) lladdr (([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2})/
 
     # Get local ARP cache
     # @return [Hash] key: IP address, value: array containing MAC address and
