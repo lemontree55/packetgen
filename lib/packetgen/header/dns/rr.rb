@@ -135,7 +135,7 @@ module PacketGen
 
           case type
           when TYPES['A'], TYPES['AAAA']
-            IPAddr.new_ntoh(self[:rdata]).to_s
+            IPAddr.new_ntoh(self[:rdata].string).to_s
           end
         end
 
