@@ -11,7 +11,7 @@ module PacketGen
     class IGMPv3
       # Class to handle IGMPv3 Group Records.
       #
-      # A Group Record is a block of fields containing information
+      # A Group Record is a block of attributes.containing information
       # pertaining to the sender's membership in a single multicast group on
       # the interface from which the Report is sent.
       #
@@ -40,8 +40,8 @@ module PacketGen
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
-      class GroupRecord < Types::Fields
-        include Types::Fieldable
+      class GroupRecord < BinStruct::Struct
+        include BinStruct::Structable
 
         # Known record types
         RECORD_TYPES = {
@@ -56,29 +56,29 @@ module PacketGen
         # @!attribute type
         #  8-bit record type
         #  @return [Integer]
-        define_field :type, Types::Int8Enum, enum: RECORD_TYPES
+        define_attr :type, BinStruct::Int8Enum, enum: RECORD_TYPES
         # @!attribute aux_data_len
         #  8-bit length of of the Auxiliary Data field ({#aux_data}), in unit of
         #  32-bit words
         #  @return [Integer]
-        define_field :aux_data_len, Types::Int8, default: 0
+        define_attr :aux_data_len, BinStruct::Int8, default: 0
         # @!attribute number_of_sources
         #  16-bit Number of source addresses in {#source_addr}
         #  @return [Integer]
-        define_field :number_of_sources, Types::Int16, default: 0
+        define_attr :number_of_sources, BinStruct::Int16, default: 0
         # @!attribute multicast_addr
         #  IP multicast address to which this Group Record pertains
         #  @return [IP::Addr]
-        define_field :multicast_addr, IP::Addr, default: '0.0.0.0'
+        define_attr :multicast_addr, IP::Addr, default: '0.0.0.0'
         # @!attribute source_addr
         #  Array of source addresses
         #  @return [IP::ArrayOfAddr]
-        define_field :source_addr, IP::ArrayOfAddr,
-                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
+        define_attr :source_addr, IP::ArrayOfAddr,
+                    builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
         # @!attribute aux_data
         #  @return [String]
-        define_field :aux_data, Types::String,
-                     builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
+        define_attr :aux_data, BinStruct::String,
+                    builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
 
         def human_type
           self[:type].to_human
@@ -91,7 +91,7 @@ module PacketGen
 
       # Class to handle series of {GroupRecord}.
       # @author Sylvain Daubert
-      class GroupRecords < Types::Array
+      class GroupRecords < BinStruct::Array
         set_of GroupRecord
 
         # Separator used in {#to_human}.

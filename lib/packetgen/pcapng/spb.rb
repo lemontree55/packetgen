@@ -29,10 +29,10 @@ module PacketGen
       # @!attribute orig_len
       #  32-bit original length
       #  @return [Integer]
-      define_field_before :block_len2, :orig_len, Types::Int32, default: 0
+      define_attr_before :block_len2, :orig_len, BinStruct::Int32, default: 0
       # @!attribute data
-      #  @return [Types::String]
-      define_field_before :block_len2, :data, Types::String
+      #  @return [BinStruct::String]
+      define_attr_before :block_len2, :data, BinStruct::String
 
       # @param [Hash] options
       # @option options [:little, :big] :endian set block endianness
@@ -45,8 +45,6 @@ module PacketGen
       # @option options [Integer] :block_len2 block total length
       def initialize(options={})
         super
-        endianness(options[:endian] || :little)
-        recalc_block_len
         self.type = options[:type] || PcapNG::SPB_TYPE.to_i
       end
 
@@ -64,11 +62,11 @@ module PacketGen
         io = to_io(str_or_io)
         return self if io.eof?
 
-        self[:type].read io.read(4)
-        self[:block_len].read io.read(4)
-        self[:orig_len].read io.read(4)
+        self[:type].read(io.read(4))
+        self[:block_len].read(io.read(4))
+        self[:orig_len].read(io.read(4))
         data_len = compute_data_len
-        self[:data].read io.read(data_len)
+        self[:data].read(io.read(data_len))
         remove_padding(io, data_len)
         read_blocklen2_and_check(io)
 
@@ -79,7 +77,7 @@ module PacketGen
       # Return the object as a String
       # @return [String]
       def to_s
-        pad_field :data
+        pad_field(:data)
         recalc_block_len
         super
       end

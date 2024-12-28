@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
   module Header
     class DNS
-
       describe RR do
         let(:dns) { DNS.new }
 
@@ -29,7 +30,7 @@ module PacketGen
             }
             rr = RR.new(dns, options)
 
-            expect(rr.name).to eq(options.delete :name)
+            expect(rr.name).to eq(options.delete(:name))
             options.each do |key, value|
               expect(rr.send(key)).to eq(value)
             end
@@ -44,7 +45,7 @@ module PacketGen
             expect(rr.type).to eq(2)
             expect(rr.rrclass).to eq(3)
 
-            str = generate_label_str(%w(example org))
+            str = generate_label_str(%w[example org])
             str << [1, 1, 0x3_0000, 4, 192, 168, 1, 1].pack('nnNnC4')
             rr.read(str)
             expect(rr.name).to eq('example.org.')
@@ -77,9 +78,9 @@ module PacketGen
         describe '#to_s' do
           it 'returns a binary string' do
             rr = RR.new(dns, name: 'example.net')
-            expected_str = generate_label_str(%w(example net))
+            expected_str = generate_label_str(%w[example net])
             expected_str << [1, 1, 0, 0].pack('nnNn')
-            expect(rr.to_s).to eq(binary expected_str)
+            expect(rr.to_s).to eq(binary(expected_str))
           end
         end
 
@@ -99,25 +100,25 @@ module PacketGen
             expect(rr.human_rdata).to eq(ip)
           end
 
-          %w(NS PTR CNAME).each do |type|
-            it 'handles IN/#{type} records' do
+          %w[NS PTR CNAME].each do |type|
+            it "handles IN/#{type} records" do
               rr.type = type
-              rr.rdata = generate_label_str(%w(example net))
+              rr.rdata = generate_label_str(%w[example net])
               expect(rr.human_rdata).to eq('example.net.')
             end
           end
 
           it 'handles IN/MX records' do
             rr.type = 'MX'
-            rr.rdata = [10].pack('n') + generate_label_str(%w(example net))
+            rr.rdata = [10].pack('n') + generate_label_str(%w[example net])
             expect(rr.human_rdata).to eq('10 example.net.')
           end
 
           it 'handles IN/SRV records' do
-            str = [1, 2, 12345].pack('n*') + generate_label_str(%w(example net))
+            str = [1, 2, 12_345].pack('n*') + generate_label_str(%w[example net])
             rr.type = 'SRV'
             rr.rdata = str
-            expect(rr.human_rdata).to eq("1 2 12345 example.net.")
+            expect(rr.human_rdata).to eq('1 2 12345 example.net.')
           end
 
           it 'returns quotted binary string for others records' do
@@ -138,30 +139,30 @@ module PacketGen
           it 'returns a human readable string (IN class, AAAA type)' do
             ip6addr = '2a00:1:2:3:4::12e'
             rr = RR.new(dns, name: 'example.net', type: 'AAAA',
-                        ttl: 3600, rdata: IPAddr.new(ip6addr).hton)
+                             ttl: 3600, rdata: IPAddr.new(ip6addr).hton)
             expect(rr.to_human).to eq("AAAA IN example.net. TTL 3600 #{ip6addr}")
           end
 
-          %w(PTR NS CNAME).each do |type|
+          %w[PTR NS CNAME].each do |type|
             it "returns a human readable string (#{type} type)" do
               rr = RR.new(dns, name: 'example.net', type: type, rrclass: 3,
-                          ttl: 0x10000, rdata: generate_label_str([]))
+                               ttl: 0x10000, rdata: generate_label_str([]))
               expect(rr.to_human).to eq("#{type} CH example.net. TTL 65536 .")
             end
           end
 
           it 'returns a human readable string (MX type)' do
             rr = RR.new(dns, name: 'example.net', type: 'MX', rrclass: 4,
-                        rdata: "\x00\x20" + generate_label_str(%w(mail example net)))
+                             rdata: "\x00\x20#{generate_label_str(%w[mail example net])}")
             expect(rr.to_human).to eq('MX HS example.net. TTL 0 32 mail.example.net.')
           end
 
           it 'returns a human readable string (SOA type)' do
-            rdata = generate_label_str(%w(dns example net))
-            rdata << generate_label_str(%w(mailbox example.net))
-            rdata << [0xf_0000, 15000, 14999, 14998, 13210].pack('N*')
+            rdata = generate_label_str(%w[dns example net])
+            rdata << generate_label_str(%w[mailbox example.net])
+            rdata << [0xf_0000, 15_000, 14_999, 14_998, 13_210].pack('N*')
             rr = RR.new(dns, name: 'example.net', type: 6, rrclass: 3,
-                        rdata: rdata)
+                             rdata: rdata)
 
             expected_str = 'SOA CH example.net. TTL 0 dns.example.net. ' \
                            'mailbox.example.net. 983040 15000 14999 14998 13210'

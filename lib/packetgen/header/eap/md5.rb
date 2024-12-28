@@ -14,19 +14,19 @@ module PacketGen
       # @author Sylvain Daubert
       # @since 2.1.4
       class MD5 < EAP
-        update_field :type, default: 4
-        remove_field :body
+        update_attr :type, default: 4
+        remove_attr :body
 
         # @!attribute value_size
         #  @return [Integer] 8-bit value size
-        define_field :value_size, Types::Int8
+        define_attr :value_size, BinStruct::Int8
         # @!attribute value
         #  @return [::String]
-        define_field :value, Types::String,
-                     builder: ->(h, t) { t.new(length_from: h[:value_size]) }
+        define_attr :value, BinStruct::String,
+                    builder: ->(h, t) { t.new(length_from: h[:value_size]) }
         # @!attribute optional_name
         #  @return [::String]
-        define_field :optional_name, Types::String
+        define_attr :optional_name, BinStruct::String
       end
     end
   end

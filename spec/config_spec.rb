@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'packetgen/config'
 
 module PacketGen
-
   describe Config do
     let(:config) { Config.instance }
 

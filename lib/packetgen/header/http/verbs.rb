@@ -9,10 +9,8 @@
 module PacketGen
   module Header
     # @since 2.2.0
+    # @author Kent 'picat' Gruber
     module HTTP
-      # @abstract Collection of useful HTTP verbs.
-      # @author Kent 'picat' Gruber
-
       # Valid HTTP Verbs
       VERBS = %w[GET HEAD POST PUT DELETE CONNECT OPTIONS TRACE PATCH].freeze
 

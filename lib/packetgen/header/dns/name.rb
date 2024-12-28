@@ -9,26 +9,30 @@
 module PacketGen
   module Header
     class DNS
-      # DNS Name, defined as a suite of labels. A label is of type {Types::IntString}.
+      # DNS Name, defined as a suite of labels. A label is of type {BinStruct::IntString}.
       # @author Sylvain Daubert
-      class Name < Types::Array
+      # @author LemonTree55
+      class Name < BinStruct::Array
         # Mask to decode a pointer on another label
         POINTER_MASK = 0xc000
 
         # @return [DNS]
         attr_accessor :dns
 
-        def initialize
+        # @param [Hash] options
+        # @option options [DNS] :dns
+        def initialize(options={})
+          @dns = options.delete(:dns)
           super
           @pointer = nil
           @pointer_name = nil
         end
 
         # @!method push(label)
-        #  @param [Types::IntString] label
+        #  @param [BinStruct::IntString] label
         #  @return [Name] self
         # @!method <<(label)
-        #  @param [Types::IntString] label
+        #  @param [BinStruct::IntString] label
         #  @return [Name] self
 
         # Read a set of labels form a dotted string
@@ -39,9 +43,9 @@ module PacketGen
           return self if str.nil?
 
           str.split('.').each do |label|
-            self << Types::IntString.new(string: label)
+            self << BinStruct::IntString.new(value: label)
           end
-          self << Types::IntString.new
+          self << BinStruct::IntString.new
         end
 
         # Clear name
@@ -59,11 +63,11 @@ module PacketGen
           clear
           return self if str.nil?
 
-          PacketGen.force_binary str
+          PacketGen.force_binary(str)
           start = 0
           loop do
             index = str[start, 2].unpack1('n')
-            if pointer? index
+            if pointer?(index)
               # Pointer on another label
               @pointer = str[start, 2]
               break
@@ -119,7 +123,7 @@ module PacketGen
         end
 
         def add_label_from(str)
-          label = Types::IntString.new
+          label = BinStruct::IntString.new
           label.read(str)
           self << label
           label

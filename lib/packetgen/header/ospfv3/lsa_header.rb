@@ -29,8 +29,8 @@ module PacketGen
       # LSA headers are used as-is in {DbDescription} and {LSAck} payloads.
       # But this class is also a base class for different LSA class, as {LSARouter}.
       # @author Sylvain Daubert
-      class LSAHeader < Types::Fields
-        include Types::Fieldable
+      class LSAHeader < BinStruct::Struct
+        include BinStruct::Structable
 
         # LSA known types
         TYPES = {
@@ -47,34 +47,34 @@ module PacketGen
         # @!attribute age
         #  The time in seconds since the LSA was originated.
         #  @return [Integer]
-        define_field :age, Types::Int16
+        define_attr :age, BinStruct::Int16
         # @!attribute type
         #  The type of the LSA.
         #  @return [Integer]
-        define_field :type, Types::Int16Enum, enum: TYPES
+        define_attr :type, BinStruct::Int16Enum, enum: TYPES
         # @!attribute link_state_id
         #  This field identifies the portion of the internet environment
         #  that is being described by the LSA.
         #  @return [String]
-        define_field :link_state_id, IP::Addr
+        define_attr :link_state_id, IP::Addr
         # @!attribute advertising_router
         #  The Router ID of the router that originated the LSA.
         #  @return [String]
-        define_field :advertising_router, IP::Addr
+        define_attr :advertising_router, IP::Addr
         # @!attribute sequence_number
         #  @return [Integer]
-        define_field :sequence_number, Types::Int32
+        define_attr :sequence_number, BinStruct::Int32
         alias seqnum sequence_number
         alias seqnum= sequence_number=
         # @!attribute checksum
         #  The Fletcher checksum of the complete contents of the LSA,
         #  including the LSA header but excluding the LS age field.
         #  @return [Integer]
-        define_field :checksum, Types::Int16
+        define_attr :checksum, BinStruct::Int16
         # @!attribute length
         #  Length of the LSA, including the header.
         #  @return [Integer]
-        define_field :length, Types::Int16
+        define_attr :length, BinStruct::Int16
 
         # Compute and set Fletcher-16 checksum on LSA
         # @return [Integer]

@@ -13,28 +13,28 @@ module PacketGen
     #    * +#calc_checksum+, which computes header checksum,
     #    * +#calc_length+, which computes header length,
     #    * {#parse?},
-    #    * +#reply!+, which inverts needed fields to forge a response.
+    #    * +#reply!+, which inverts needed attributes.to forge a response.
     # @author Sylvain Daubert
-    class Base < Types::Fields
+    class Base < BinStruct::Struct
       include Headerable
 
       # @api private
       # Simple class to handle a header association
-      class Binding < Struct.new(:key, :value)
+      class Binding < ::Struct.new(:key, :value)
         # Check +fields+ responds to binding
-        # @param [Types::Fields] fields
+        # @param [BinStruct::Struct] fields
         # @return [Boolean]
         def check?(fields)
           case self[:value]
           when Proc
-            self[:value].call fields.send(self[:key])
+            self[:value].call(fields.send(self[:key]))
           else
             fields.send(self[:key]) == self[:value]
           end
         end
 
         # Set +fields+ field to binding value
-        # @param [Types::Fields] fields
+        # @param [BinStruct::Struct] fields
         # @return [void]
         def set(fields)
           case self[:value]
@@ -62,14 +62,14 @@ module PacketGen
         end
 
         # Check +fields+ responds to binding
-        # @param [Types::Fields] fields
+        # @param [BinStruct::Struct] fields
         # @return [Boolean]
         def check?(fields)
           @check.call(fields)
         end
 
         # Set +fields+ field to binding value
-        # @param [Types::Fields] fields
+        # @param [BinStruct::Struct] fields
         # @return [void]
         def set(fields)
           @set.call(fields)
@@ -120,22 +120,22 @@ module PacketGen
         end
 
         # Check +fields+ responds to set of bindings
-        # @param [Types::Fields] fields
+        # @param [BinStruct::Struct] fields
         # @return [Boolean]
         def check?(fields)
           @bindings.any? { |group| group.all? { |binding| binding.check?(fields) } }
         end
 
         # Set +fields+ to bindings value
-        # @param [Types::Fields] fields
+        # @param [BinStruct::Struct] fields
         # @return [void]
         def set(fields)
-          @bindings.first.each { |b| b.set fields }
+          @bindings.first.each { |b| b.set(fields) }
         end
       end
 
       # @private
-      # On inheritage, create +@known_header+ class variable
+      # On inheritance, create +@known_header+ class variable
       # @param [Class] klass
       # @return [void]
       def self.inherited(klass)
@@ -151,7 +151,7 @@ module PacketGen
 
         # Bind a upper header to current one.
         # @param [Class] header_klass header class to bind to current class
-        # @param [Hash] args current class fields and their value when +header_klass+
+        # @param [Hash] args current class attributes.and their value when +header_klass+
         #   is embedded in current class.
         #
         #   Given value may be a lambda, whose alone argument is the value extracted
@@ -182,11 +182,10 @@ module PacketGen
         #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
         # @since 2.7.0
         def bind(header_klass, args={})
-          if @known_headers[header_klass].nil?
+          bindings = @known_headers[header_klass]
+          if bindings.nil?
             bindings = Bindings.new
             @known_headers[header_klass] = bindings
-          else
-            bindings = @known_headers[header_klass]
           end
           bindings.new_set
           args.each do |key, value|
@@ -213,7 +212,7 @@ module PacketGen
         end
       end
 
-      # @see Types::Fields#initialize
+      # @see BinStruct::Struct#initialize
       def initialize(options={})
         @packet = options.delete(:packet) if options.key?(:packet)
         super
@@ -242,7 +241,7 @@ module PacketGen
       def ip_header(header)
         hid = header_id(header)
         iph = packet.headers[0...hid].reverse.find { |h| h.is_a?(IP) || h.is_a?(IPv6) }
-        raise FormatError, 'no IP or IPv6 header in packet' if iph.nil?
+        raise FormatError, 'no IP nor IPv6 header in packet' if iph.nil?
 
         iph
       end

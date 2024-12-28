@@ -12,15 +12,15 @@ module PacketGen
     # {https://tools.ietf.org/html/rfc3748 RFC 3748}
     #
     # A EAP header has:
-    # * a {#code} field ({Types::Int8Enum}),
-    # * a {#id} field ({Types::Int8}),
-    # * a {#length} field ({Types::Int16}).
+    # * a {#code} field ({BinStruct::Int8Enum}),
+    # * a {#id} field ({BinStruct::Int8}),
+    # * a {#length} field ({BinStruct::Int16}).
     # Request (code 1) and Response (code 2) packets also have:
-    # * a {#type} field (+Types::Int8Enum+).
+    # * a {#type} field (+BinStruct::Int8Enum+).
     # And Expanded Types (type 254) packets also have:
-    # * a {#vendor_id} field ({Types::Int24}),
-    # * a {#vendor_type} field ({Types::Int32}).
-    # Finally, all packets have a {#body} ({Types::String}).
+    # * a {#vendor_id} field ({BinStruct::Int24}),
+    # * a {#vendor_type} field ({BinStruct::Int32}).
+    # Finally, all packets have a {#body} ({BinStruct::String}).
     #
     # == Create EAP headers
     # An EAP header may be created this way:
@@ -82,41 +82,41 @@ module PacketGen
 
       # @!attribute code
       #  @return [Integer] 8-bit EAP code
-      define_field :code, Types::Int8Enum, enum: CODES
+      define_attr :code, BinStruct::Int8Enum, enum: CODES
 
       # @!attribute id
       #  @return [Integer] 8-bit identifier
-      define_field :id, Types::Int8
+      define_attr :id, BinStruct::Int8
 
       # @!attribute length
       #  @return [Integer] 16-bit length of EAP packet
-      define_field :length, Types::Int16, default: 4
+      define_attr :length, BinStruct::Int16, default: 4
 
       # @!attribute type
       #  This field is present only for Request or Response packets,
       #  with type different from Expanded Types (254).
       #  @return [Integer] 8-bit request or response type
-      define_field :type, Types::Int8Enum,
-                   enum: TYPES,
-                   optional: ->(eap) { eap.type? }
+      define_attr :type, BinStruct::Int8Enum,
+                  enum: TYPES,
+                  optional: lambda(&:type?)
 
       # @!attribute vendor_id
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 24-bit vendor ID
-      define_field :vendor_id, Types::Int24,
-                   optional: ->(eap) { eap.type? && (eap.type == 254) }
+      define_attr :vendor_id, BinStruct::Int24,
+                  optional: ->(eap) { eap.type? && (eap.type == 254) }
 
       # @!attribute vendor_type
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
       #  @return [Integer] 32-bit vendor type
-      define_field :vendor_type, Types::Int32,
-                   optional: ->(eap) { eap.type? && (eap.type == 254) }
+      define_attr :vendor_type, BinStruct::Int32,
+                  optional: ->(eap) { eap.type? && (eap.type == 254) }
 
       # @!attribute body
-      #  @return [Types::String, Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String, Header::Base]
+      define_attr :body, BinStruct::String
 
       # @return [EAP]
       def initialize(options={})
@@ -132,7 +132,7 @@ module PacketGen
       # @return [Dot11] may return a subclass object if a more specific class
       #   may be determined
       def read(str)
-        super(str)
+        super
         return self unless self.instance_of?(EAP)
         return self unless type?
 
@@ -201,7 +201,7 @@ module PacketGen
       # Calculate length field from content
       # @return [Integer]
       def calc_length
-        Base.calculate_and_set_length self
+        Base.calculate_and_set_length(self)
       end
 
       # Say is this EAP header has {#type} field
@@ -217,7 +217,7 @@ module PacketGen
       # @param [Packet] packet
       # @return [void]
       def added_to_packet(packet)
-        return if packet.respond_to? :eap
+        return if packet.respond_to?(:eap)
 
         packet.instance_eval("def eap(arg=nil); header(#{self.class}, arg); end") # def eap(arg=nil); header(EAP, arg); end
       end

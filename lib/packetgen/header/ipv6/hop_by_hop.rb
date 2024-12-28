@@ -11,10 +11,10 @@ module PacketGen
     class IPv6
       # @!parse
       #  # Option for {HopByHop} IPv6 extension header.
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
       #  class Option <AbstractTLV; end
       # @private
-      Option = Types::AbstractTLV.create
+      Option = BinStruct::AbstractTLV.create
 
       class Option
         # Known option types
@@ -37,10 +37,10 @@ module PacketGen
 
       # Special option pad1, for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
-      class Pad1 < Types::Fields
+      class Pad1 < BinStruct::Struct
         # @!attribute pad
         # @return [Integer]
-        define_field :pad, Types::Int8, default: 0
+        define_attr :pad, BinStruct::Int8, default: 0
 
         # @return [String]
         def to_human
@@ -50,7 +50,7 @@ module PacketGen
 
       # Array of {Option}, for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
-      class Options < Types::Array
+      class Options < BinStruct::Array
         set_of Option
 
         # Get options as a binary string. Add padding if needed.
@@ -96,18 +96,18 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # Hop-by-hop IPv6 extension header consists of:
-      # * a {#next} header field ({Types::Int8}),
-      # * a {#length} field ({Types::Int8}),
+      # * a {#next} header field ({BinStruct::Int8}),
+      # * a {#length} field ({BinStruct::Int8}),
       # * an {#options} field ({Options}),
       # * and a {#body}, containing next header.
       # @author Sylvain Daubert
       class HopByHop < Extension
         # redefine options field
-        remove_field :options
+        remove_attr :options
         # @!attribute options
         #  Specific options of extension header
         #  @return [Options]
-        define_field_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2 }) }
+        define_attr_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2 }) }
       end
     end
 

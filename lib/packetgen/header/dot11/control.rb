@@ -16,12 +16,12 @@ module PacketGen
       # (control frame).
       #
       # A IEEE 802.11 control header consists of:
-      # * a {#frame_ctrl} ({Types::Int16}),
-      # * a {#id}/duration ({Types::Int16le}),
+      # * a {#frame_ctrl} ({BinStruct::Int16}),
+      # * a {#id}/duration ({BinStruct::Int16le}),
       # * a {#mac1} ({Eth::MacAddr}).
       # * sometimes a {#mac2} ({Eth::MacAddr}),
-      # * a {#body} (a {Types::String} or another {Base} class),
-      # * and a Frame check sequence ({#fcs}, of type {Types::Int32le}).
+      # * a {#body} (a {BinStruct::String} or another {Base} class),
+      # * and a Frame check sequence ({#fcs}, of type {BinStruct::Int32le}).
       # @author Sylvain Daubert
       class Control < Dot11
         # Control subtypes
@@ -44,8 +44,8 @@ module PacketGen
         # @see Base#initialize
         def initialize(options={})
           super({ type: 1 }.merge!(options))
-          @applicable_fields -= %i[mac3 sequence_ctrl mac4 qos_ctrl ht_ctrl]
-          define_applicable_fields
+          @applicable_attributes -= %i[mac3 sequence_ctrl mac4 qos_ctrl ht_ctrl]
+          define_applicable_attributes
         end
 
         # Get human readable subtype
@@ -56,12 +56,12 @@ module PacketGen
 
         private
 
-        def define_applicable_fields
+        def define_applicable_attributes
           super
-          if @applicable_fields.include? :mac2
-            @applicable_fields -= %i[mac2] unless SUBTYPES_WITH_MAC2.include? self.subtype
-          elsif SUBTYPES_WITH_MAC2.include? self.subtype
-            @applicable_fields[3, 0] = :mac2
+          if @applicable_attributes.include?(:mac2)
+            @applicable_attributes -= %i[mac2] unless SUBTYPES_WITH_MAC2.include?(self.subtype)
+          elsif SUBTYPES_WITH_MAC2.include?(self.subtype)
+            @applicable_attributes[3, 0] = :mac2
           end
         end
       end

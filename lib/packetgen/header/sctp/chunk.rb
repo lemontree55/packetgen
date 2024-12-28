@@ -42,15 +42,15 @@ module PacketGen
         # @!attribute type
         #  8-bit SCTP chunk type
         #  @return [Integer]
-        define_field :type, Types::Int8Enum, enum: TYPES
+        define_attr :type, BinStruct::Int8Enum, enum: TYPES
         # @!attribute type
         #  8-bit SCTP chunk flags
         #  @return [Integer]
-        define_field :flags, Types::Int8
+        define_attr :flags, BinStruct::Int8
         # @!attribute length
         #  16-bit SCTP chunk length
         #  @return [Integer]
-        define_field :length, Types::Int16
+        define_attr :length, BinStruct::Int16
 
         # Get human-redable chunk
         # @return [::String]
@@ -91,7 +91,7 @@ module PacketGen
     class SCTP
       # Embed chunks for a given {SCTP} packet.
       # @author Sylvain Daubert
-      class ArrayOfChunk < Types::Array
+      class ArrayOfChunk < BinStruct::Array
         set_of BaseChunk
 
         private
@@ -121,7 +121,7 @@ module PacketGen
         # @!attribute body
         #  SCTP chunk value
         #  @return [String]
-        define_field :body, Types::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
+        define_attr :body, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
       end
 
       # Data chunk
@@ -145,37 +145,38 @@ module PacketGen
         # @!attribute tsn
         #   32-bit TSN for this DATA chunk
         #   @return [Integer]
-        define_field :tsn, Types::Int32
+        define_attr :tsn, BinStruct::Int32
         # @!attribute stream_id
         #  16-bit stream identifier
         #  @return [Integer]
-        define_field :stream_id, Types::Int16
+        define_attr :stream_id, BinStruct::Int16
         # @!attribute stream_sn
         #  16-bit stream sequence number
         #  @return [Integer]
-        define_field :stream_sn, Types::Int16
+        define_attr :stream_sn, BinStruct::Int16
         # @!attribute ppid
         #  32-bit payload protocol identifier
         #  @return [Integer]
-        define_field :ppid, Types::Int32
+        define_attr :ppid, BinStruct::Int32
         # @!attribute body
         #  SCTP chunk value
         #  @return [String]
-        define_field :body, Types::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
+        define_attr :body, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
 
+        remove_attr :flags
         # @!attribute flag_i
         #  IMMEDIATE flag
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute flag_u
         #  UNORDERED flag
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute flag_b
         #  BEGINNING fragment flag
-        #  @return [Boolean]
+        #  @return [Integer]
         # @!attribute flag_e
         #  ENDING fragment flag
-        #  @return [Boolean]
-        define_bit_fields_on :flags, :flag_res, 4, :flag_i, :flag_u, :flag_b, :flag_e
+        #  @return [Integer]
+        define_bit_attr_after :type, :flags, flag_res: 4, flag_i: 1, flag_u: 1, flag_b: 1, flag_e: 1
 
         private
 
@@ -212,27 +213,27 @@ module PacketGen
         # @!attribute initiate_tag
         #   32-bit Initiate Tag
         #   @return [Integer]
-        define_field :initiate_tag, Types::Int32
+        define_attr :initiate_tag, BinStruct::Int32
         # @!attribute a_wrnd
         #   32-bit Advertised Receiver Window Credit (a_rwnd)
         #   @return [Integer]
-        define_field :a_rwnd, Types::Int32
+        define_attr :a_rwnd, BinStruct::Int32
         # @!attribute nos
         #   16-bit Number of Outbound Streams
         #   @return [Integer]
-        define_field :nos, Types::Int16
+        define_attr :nos, BinStruct::Int16
         # @!attribute nis
         #   16-bit Number of Inbound Streams
         #   @return [Integer]
-        define_field :nis, Types::Int16
+        define_attr :nis, BinStruct::Int16
         # @!attribute initial_tsn
         #   32-bit Initial TSN
         #   @return [Integer]
-        define_field :initial_tsn, Types::Int32
+        define_attr :initial_tsn, BinStruct::Int32
         # @!attribute parameters
         #  List of parameters
         #  @return [ArrayOfParameter]
-        define_field :parameters, ArrayOfParameter
+        define_attr :parameters, ArrayOfParameter
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['INIT'] unless options.key?(:type)
@@ -315,28 +316,28 @@ module PacketGen
         # @!attribute ctsn_ack
         #   32-bit Cumulative TSN Ack
         #   @return [Integer]
-        define_field :ctsn_ack, Types::Int32
+        define_attr :ctsn_ack, BinStruct::Int32
         # @!attribute a_rwnd
         #   32-bit Advertised Receiver Window Credit
         #   @return [Integer]
-        define_field :a_rwnd, Types::Int32
+        define_attr :a_rwnd, BinStruct::Int32
         # @!attribute num_gap
         #   16-bit Number of Gap Ack Blocks
         #   @return [Integer]
-        define_field :num_gap, Types::Int32
+        define_attr :num_gap, BinStruct::Int32
         # @!attribute num_dup_tsn
         #   16-bit Number of Duplicate TSNs
         #   @return [Integer]
-        define_field :num_dup_tsn, Types::Int32
+        define_attr :num_dup_tsn, BinStruct::Int32
         # @!attribute gaps
         #   Array of 32-bit Integers, encoding boudaries of a Gap Ack Block.
         #   16 most significant bits encode block start. 16 least significant bits encode block end.
-        #   @return [Types::ArrayOfInt32]
-        define_field :gaps, Types::ArrayOfInt32
+        #   @return [BinStruct::ArrayOfInt32]
+        define_attr :gaps, BinStruct::ArrayOfInt32
         # @!attribute dup_tsns
         #   Array of 32-bit Duplicate TSNs.
-        #   @return [Types::ArrayOfInt32]
-        define_field :dup_tsns, Types::ArrayOfInt32
+        #   @return [BinStruct::ArrayOfInt32]
+        define_attr :dup_tsns, BinStruct::ArrayOfInt32
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['SACK'] unless options.key?(:type)
@@ -358,8 +359,8 @@ module PacketGen
       class HeartbeatChunk < BaseChunk
         # @!attribute info
         #   Array of Heartbeat information TLV.
-        #   @return [Types::ArrayOfInt32]
-        define_field :info, HearbeatInfoParameter
+        #   @return [BinStruct::ArrayOfInt32]
+        define_attr :info, HearbeatInfoParameter
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['HEARTBEAT'] unless options.key?(:type)
@@ -399,7 +400,7 @@ module PacketGen
       class ErrorChunk < BaseChunk
         # @!attribute error_causes
         #  @return [ArrayofError]
-        define_field :error_causes, ArrayOfError
+        define_attr :error_causes, ArrayOfError
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['ERROR'] unless options.key?(:type)
@@ -435,9 +436,10 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class AbortChunk < ErrorChunk
+        remove_attr :flags
         # @!attribute flag_t
-        #  @return [Boolean]
-        define_bit_fields_on :flags, :flag_res, 7, :flag_t
+        #  @return [Integer]
+        define_bit_attr_after :type, :flags, flag_res: 7, flag_t: 1
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['ABORT'] unless options.key?(:type)
@@ -464,7 +466,7 @@ module PacketGen
         # @!attribute cstn_ack
         #  32-bit cumulative TSN ack
         #  @return [Integer]
-        define_field :ctsn_ack, Types::Int32
+        define_attr :ctsn_ack, BinStruct::Int32
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['SHUTDOWN'] unless options.key?(:type)
@@ -501,7 +503,7 @@ module PacketGen
       class CookieEchoChunk < BaseChunk
         # @!attribute cookie
         #  @return [String]
-        define_field :cookie, Types::String
+        define_attr :cookie, BinStruct::String
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['COOKIE_ECHO'] unless options.key?(:type)
@@ -532,9 +534,10 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
       class ShutdownCompleteChunk < BaseChunk
+        remove_attr :flags
         # @!attribute flag_t
-        #  @return [Boolean]
-        define_bit_fields_on :flags, :flag_res, 7, :flag_t
+        #  @return [Integer]
+        define_bit_attr_after :type, :flags, flag_res: 7, flag_t: 1
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['SHUTDOWN_COMPLETE'] unless options.key?(:type)

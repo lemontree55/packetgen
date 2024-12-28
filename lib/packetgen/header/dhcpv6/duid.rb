@@ -11,8 +11,8 @@ module PacketGen
     class DHCPv6
       # @abstract Base class for DUID (DHCP Unique ID)
       # @author Sylvain Daubert
-      class DUID < Types::Fields
-        include Types::Fieldable
+      class DUID < BinStruct::Struct
+        include BinStruct::Structable
 
         TYPES = {
           'DUID-LLT' => 1,
@@ -23,12 +23,12 @@ module PacketGen
         # @!attribute type
         #  16-bit DUID type
         #  @return [Integer]
-        define_field :type, Types::Int16Enum, enum: TYPES
+        define_attr :type, BinStruct::Int16Enum, enum: TYPES
         # @!attribute body
-        #  @abstract replaced by specific fields in subclasses
+        #  @abstract replaced by specific attributes.in subclasses
         #  DUID data.
         #  @return [String]
-        define_field :body, Types::String
+        define_attr :body, BinStruct::String
 
         alias private_read read
         private :private_read
@@ -50,7 +50,7 @@ module PacketGen
               self
             end
           else
-            private_read str
+            private_read(str)
           end
         end
 
@@ -72,7 +72,7 @@ module PacketGen
       # DUID Based on Link-layer Address Plus Time
       # @author Sylvain Daubert
       class DUID_LLT < DUID
-        remove_field :body
+        remove_attr :body
 
         # Base time for time computation
         BASE_TIME = Time.utc(2000, 1, 1)
@@ -80,14 +80,14 @@ module PacketGen
         # @!attribute htype
         #  16-bit hardware protocol type
         #  @return [Integer]
-        define_field :htype, Types::Int16, default: 1
+        define_attr :htype, BinStruct::Int16, default: 1
         # @!attribute time
         #  32-bit time information
         #  @return [Time]
-        define_field :time, Types::Int32, default: (Time.now - BASE_TIME).to_i
+        define_attr :time, BinStruct::Int32, default: (Time.now - BASE_TIME).to_i
         # @!attribute link_addr
         #  @return [Eth::MacAddr]
-        define_field :link_addr, Eth::MacAddr
+        define_attr :link_addr, Eth::MacAddr
 
         undef time, time=
 
@@ -112,15 +112,15 @@ module PacketGen
       # DUID Based on Enterprise Number
       # @author Sylvain Daubert
       class DUID_EN < DUID
-        remove_field :body
+        remove_attr :body
 
         # @!attribute en
         #  32-bit entreprise number
         #  @return [Integer]
-        define_field :en, Types::Int32
+        define_attr :en, BinStruct::Int32
         # @!attribute identifier
         #  @return [String]
-        define_field :identifier, Types::String
+        define_attr :identifier, BinStruct::String
 
         # Get human-readable DUID description
         # @return [String]
@@ -132,15 +132,15 @@ module PacketGen
       # DUID Based on Link-layer
       # @author Sylvain Daubert
       class DUID_LL < DUID
-        remove_field :body
+        remove_attr :body
 
         # @!attribute htype
         #  16-bit hardware protocol type
         #  @return [Integer]
-        define_field :htype, Types::Int16, default: 1
+        define_attr :htype, BinStruct::Int16, default: 1
         # @!attribute link_addr
         #  @return [Eth::MacAddr]
-        define_field :link_addr, Eth::MacAddr
+        define_attr :link_addr, Eth::MacAddr
 
         # Get human-readable DUID description
         # @return [String]

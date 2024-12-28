@@ -59,51 +59,51 @@ module PacketGen
 
       # @!parse
       #  # Option class with string value. {#type #type} and {#length #length} are
-      #  # {Types::Int8}.
+      #  # {BinStruct::Int8}.
       #  #
       #  # See also {IPAddrOption}, {Int8Option}, {Int16Option} and {Int32Option}.
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
-      #  class Option < Types::AbstractTLV; end
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  class Option < BinStruct::AbstractTLV; end
       # @private
-      Option = Types::AbstractTLV.create
+      Option = BinStruct::AbstractTLV.create
       Option.define_type_enum DHCP_OPTIONS
       # @!parse
       #  # {Option} class with IP address value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
-      #  class IPAddrOption < Types::AbstractTLV; end
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  class IPAddrOption < BinStruct::AbstractTLV; end
       # @private
-      IPAddrOption = Types::AbstractTLV.create(value_class: IP::Addr)
+      IPAddrOption = BinStruct::AbstractTLV.create(value_class: IP::Addr)
       IPAddrOption.define_type_enum DHCP_OPTIONS
       # @!parse
       #  # {Option} class with int8 value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
-      #  class Int8Option < Types::AbstractTLV; end
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  class Int8Option < BinStruct::AbstractTLV; end
       # @private
-      Int8Option = Types::AbstractTLV.create(value_class: Types::Int8)
+      Int8Option = BinStruct::AbstractTLV.create(value_class: BinStruct::Int8)
       Int8Option.define_type_enum DHCP_OPTIONS
       # @!parse
       #  # {Option} class with int16 value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
-      #  class Int16Option < Types::AbstractTLV; end
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  class Int16Option < BinStruct::AbstractTLV; end
       # @private
-      Int16Option = Types::AbstractTLV.create(value_class: Types::Int16)
+      Int16Option = BinStruct::AbstractTLV.create(value_class: BinStruct::Int16)
       Int16Option.define_type_enum DHCP_OPTIONS
       # @!parse
       #  # {Option} class with int32 value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {Types::AbstractTLV}
-      #  class Int32Option < Types::AbstractTLV; end
+      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  class Int32Option < BinStruct::AbstractTLV; end
       # @private
-      Int32Option = Types::AbstractTLV.create(value_class: Types::Int32)
+      Int32Option = BinStruct::AbstractTLV.create(value_class: BinStruct::Int32)
       Int32Option.define_type_enum DHCP_OPTIONS
 
       # Class to indicate DHCP options end
-      class End < Types::Int8
-        def initialize(value=255)
+      class End < BinStruct::Int8
+        def initialize(options={ value: 255 })
           super
         end
 
@@ -115,7 +115,7 @@ module PacketGen
 
       # Class to indicate padding after DHCP options
       class Pad < End
-        def initialize(value=0)
+        def initialize(options={ value: 0 })
           super
         end
       end

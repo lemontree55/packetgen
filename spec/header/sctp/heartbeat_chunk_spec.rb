@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
@@ -16,11 +18,11 @@ module PacketGen
 
           it 'accepts options' do
             options = {
-                      type: 0x1234,
-                      flags: 0xaa,
-                      length: 42,
-                      info: HearbeatInfoParameter.new(value: 'abcd')
-                      }
+              type: 0x1234,
+              flags: 0xaa,
+              length: 42,
+              info: HearbeatInfoParameter.new(value: 'abcd')
+            }
             data = HeartbeatChunk.new(options)
             options.each do |key, value|
               expect(data.send(key)).to eq(value)

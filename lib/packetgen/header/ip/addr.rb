@@ -11,21 +11,21 @@ module PacketGen
     class IP
       # IP address, as a group of 4 bytes
       # @author Sylvain Daubert
-      class Addr < Types::Fields
-        include Types::Fieldable
+      class Addr < BinStruct::Struct
+        include BinStruct::Structable
 
         # @!attribute a1
         #  @return [Integer] IP address first byte
-        define_field :a1, Types::Int8
+        define_attr :a1, BinStruct::Int8
         # @!attribute a2
         #  @return [Integer] IP address seconf byte
-        define_field :a2, Types::Int8
+        define_attr :a2, BinStruct::Int8
         # @!attribute a3
         #  @return [Integer] IP address third byte
-        define_field :a3, Types::Int8
+        define_attr :a3, BinStruct::Int8
         # @!attribute a4
         #  @return [Integer] IP address fourth byte
-        define_field :a4, Types::Int8
+        define_attr :a4, BinStruct::Int8
 
         IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.freeze
 
@@ -37,10 +37,10 @@ module PacketGen
 
           m = str.match(IPV4_ADDR_REGEX)
           if m
-            self[:a1].read m[1].to_i
-            self[:a2].read m[2].to_i
-            self[:a3].read m[3].to_i
-            self[:a4].read m[4].to_i
+            self[:a1].from_human(m[1].to_i)
+            self[:a2].from_human(m[2].to_i)
+            self[:a3].from_human(m[3].to_i)
+            self[:a4].from_human(m[4].to_i)
           end
           self
         end
@@ -48,7 +48,7 @@ module PacketGen
         # Addr in human readable form (dotted format)
         # @return [String]
         def to_human
-          fields.map { |f| self[f].to_i.to_s }.join('.')
+          attributes.map { |f| self[f].to_i.to_s }.join('.')
         end
 
         # Addr as an integer
@@ -66,7 +66,7 @@ module PacketGen
 
         def ==(other)
           other.is_a?(self.class) &&
-            fields.all? { |attr| self[attr].value == other[attr].value }
+            attributes.all? { |attr| self[attr].value == other[attr].value }
         end
       end
     end

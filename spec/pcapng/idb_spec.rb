@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module PcapNG
     describe IDB do
-      before(:each) { @idb = IDB.new }
+      before { @idb = IDB.new }
 
-      it 'should have correct initialization values' do
+      it 'has correct initialization values' do
         expect(@idb).to be_a(IDB)
         expect(@idb.endian).to eq(:little)
         expect(@idb.type).to eq(PcapNG::IDB_TYPE.to_i)
@@ -15,7 +17,7 @@ module PacketGen
         expect(@idb.block_len2).to eq(@idb.block_len)
       end
 
-      it 'should decode tsresol on demand from its options' do
+      it 'decodes tsresol on demand from its options' do
         @idb[:options].read [9, 1, 4].pack('vvC')
         expect(@idb.ts_resol).to eq(1E-4)
 
@@ -24,9 +26,9 @@ module PacketGen
       end
 
       context 'when reading' do
-        it 'should accept a String' do
+        it 'accepts a String' do
           str = ::File.read(::File.join(__dir__, 'sample.pcapng'))[52, 32]
-          expect { @idb.read(str) }.to_not raise_error
+          expect { @idb.read(str) }.not_to raise_error
           expect(@idb.type).to eq(PcapNG::IDB_TYPE.to_i)
           expect(@idb.block_len).to eq(32)
           expect(@idb.link_type).to eq(PcapNG::LINKTYPE_ETHERNET)
@@ -34,7 +36,7 @@ module PacketGen
           expect(@idb.options?).to be(true)
         end
 
-        it 'should accept an IO' do
+        it 'accepts an IO' do
           ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
             f.seek(52, :CUR)
             @idb.read f

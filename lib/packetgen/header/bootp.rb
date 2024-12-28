@@ -12,23 +12,23 @@ module PacketGen
     # RFC 951}
     #
     # A BOOTP header consists of:
-    # * an operation code field ({#op} of type {Types::Int8Enum}),
-    # * a hardware address type ({#htype} of type {Types::Int8}),
-    # * a hardware address length ({#hlen} of type {Types::Int8}),
-    # * a {#hops} field ({Types::Int8}),
-    # * a transaction ID ({#xid} of type {Types::Int32}),
-    # * a {#secs} field (){Types::Int16}),
-    # * a {#flags} field (){Types::Int16}):
+    # * an operation code field ({#op} of type {BinStruct::Int8Enum}),
+    # * a hardware address type ({#htype} of type {BinStruct::Int8}),
+    # * a hardware address length ({#hlen} of type {BinStruct::Int8}),
+    # * a {#hops} field ({BinStruct::Int8}),
+    # * a transaction ID ({#xid} of type {BinStruct::Int32}),
+    # * a {#secs} field (){BinStruct::Int16}),
+    # * a {#flags} field (){BinStruct::Int16}):
     #   * a 1-bit broadcast flag ({#b}),
     #   * a 15-bit Must Be Zero field ({#mbz}),
     # * a {#ciaddr} field ({IP::Addr}),
     # * a {#yiaddr} field ({IP::Addr}),
     # * a {#siaddr} field ({IP::Addr}),
     # * a {#giaddr} field ({IP::Addr}),
-    # * a {#chaddr} field (16-byte {Types::String}),
-    # * a {#sname} field (64-byte {Types::CString}),
-    # * a {#file} field (128-byte {Types::CString}),
-    # * and a body ({Types::String}).
+    # * a {#chaddr} field (16-byte {BinStruct::String}),
+    # * a {#sname} field (64-byte {BinStruct::CString}),
+    # * a {#file} field (128-byte {BinStruct::CString}),
+    # * and a body ({BinStruct::String}).
     #
     # == Create a BOOTP header
     #   # standalone
@@ -52,84 +52,82 @@ module PacketGen
       # @!attribute op
       #   8-bit opcode
       #   @return [Integer]
-      define_field :op, Types::Int8Enum, enum: OPCODES
+      define_attr :op, BinStruct::Int8Enum, enum: OPCODES
 
       # @!attribute htype
       #  8-bit hardware address type
       #  @return [Integer]
-      define_field :htype, Types::Int8, default: 1
+      define_attr :htype, BinStruct::Int8, default: 1
 
       # @!attribute hlen
       #  8-bit hardware address length
       #  @return [Integer]
-      define_field :hlen, Types::Int8, default: 6
+      define_attr :hlen, BinStruct::Int8, default: 6
 
       # @!attribute hops
       #  @return [Integer]
-      define_field :hops, Types::Int8
+      define_attr :hops, BinStruct::Int8
 
       # @!attribute xid
       #  32-bit Transaction ID
       #  @return [Integer]
-      define_field :xid, Types::Int32
+      define_attr :xid, BinStruct::Int32
 
       # @!attribute secs
       #  16-bit integer: number of seconds elapsed since client began address
       #  acquisition or renewal process
       #  @return [Integer]
-      define_field :secs, Types::Int16
+      define_attr :secs, BinStruct::Int16
 
       # @!attribute flags
       #  16-bit flag field
       #  @return [Integer]
-      define_field :flags, Types::Int16
-
-      # @!attribute ciaddr
-      #  client IP address
-      #  @return [String]
-      define_field :ciaddr, IP::Addr
-
-      # @!attribute yiaddr
-      #  'your' (client) IP address
-      #  @return [String]
-      define_field :yiaddr, IP::Addr
-
-      # @!attribute siaddr
-      #  IP address of next server to use in bootstrap
-      #  @return [String]
-      define_field :siaddr, IP::Addr
-
-      # @!attribute giaddr
-      #  Relay agent IP address, used in booting via a relay agent
-      #  @return [String]
-      define_field :giaddr, IP::Addr
-
-      # @!attribute chaddr
-      #   client hardware address
-      #   @return [String]
-      define_field :chaddr, Types::String, static_length: 16
-
-      # @!attribute sname
-      #   optional server hostname, null-terminated string
-      #   @return [String]
-      define_field :sname, Types::CString, static_length: 64
-
-      # @!attribute file
-      #   Boot file name, null terminated string
-      #   @return [String]
-      define_field :file, Types::CString, static_length: 128
-
-      # @!attribute body
-      #   @return [String]
-      define_field :body, Types::String
-
       # @!attribute b
       #  Broadcast flag, from {#flags}
       # @return [Boolean]
       # @!attribute mbz
       #  15-bit Must Be Zero bits, from {#flags}
       # @return [Boolean]
-      define_bit_fields_on :flags, :b, :mbz, 15
+      define_bit_attr :flags, b: 1, mbz: 15
+
+      # @!attribute ciaddr
+      #  client IP address
+      #  @return [String]
+      define_attr :ciaddr, IP::Addr
+
+      # @!attribute yiaddr
+      #  'your' (client) IP address
+      #  @return [String]
+      define_attr :yiaddr, IP::Addr
+
+      # @!attribute siaddr
+      #  IP address of next server to use in bootstrap
+      #  @return [String]
+      define_attr :siaddr, IP::Addr
+
+      # @!attribute giaddr
+      #  Relay agent IP address, used in booting via a relay agent
+      #  @return [String]
+      define_attr :giaddr, IP::Addr
+
+      # @!attribute chaddr
+      #   client hardware address
+      #   @return [String]
+      define_attr :chaddr, BinStruct::String, static_length: 16
+
+      # @!attribute sname
+      #   optional server hostname, null-terminated string
+      #   @return [String]
+      define_attr :sname, BinStruct::CString, static_length: 64
+
+      # @!attribute file
+      #   Boot file name, null terminated string
+      #   @return [String]
+      define_attr :file, BinStruct::CString, static_length: 128
+
+      # @!attribute body
+      #   @return [String]
+      define_attr :body, BinStruct::String
 
       # @return [String]
       def inspect

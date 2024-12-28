@@ -9,13 +9,13 @@ module PacketGen
     describe '#initialize' do
       it 'accepts no options' do
         cap = nil
-        expect { cap = Capture.new }.to_not raise_error
+        expect { cap = Capture.new }.not_to raise_error
         expect(cap).to be_a(Capture)
       end
 
       it 'accepts options' do
         options = { max: 12, timeout: 30, filter: 'ip', promisc: true, snaplen: 45, monitor: true }
-        expect { Capture.new(**options) }.to_not raise_error
+        expect { Capture.new(**options) }.not_to raise_error
       end
     end
 
@@ -27,11 +27,9 @@ module PacketGen
 
         packets = cap.packets
         expect(packets).to be_a(Array)
-        expect(packets.size).to be >= 6   # some packets may be send by system during test
-        expect(packets.all? { |p| p.is_a? Packet }).to be(true)
-        packets.each do |packet|
-          expect(packet).to respond_to(:eth)
-        end
+        expect(packets.size).to be >= 6 # some packets may be send by system during test
+        expect(packets).to all(be_a(Packet))
+        expect(packets).to all(respond_to(:eth))
       end
 
       it 'captures unknown packets' do
@@ -43,7 +41,7 @@ module PacketGen
         end
 
         packet = cap.packets.find { |pkt| pkt.is_a?(UnknownPacket) }
-        expect(packet).to_not be(nil)
+        expect(packet).not_to be_nil
         expect(packet.body).to eq(bin_str)
       end
 
@@ -73,7 +71,7 @@ module PacketGen
 
         packets = cap.raw_packets
         expect(packets).to be_a(Array)
-        expect(packets.all? { |p| p.is_a? String }).to be(true)
+        expect(packets).to all(be_a(String))
       end
 
       it 'captures :max packets' do
@@ -118,9 +116,7 @@ module PacketGen
         cap_thread.join(0.5)
         expect(cap.packets.size).to be >= 2
         expect(timestamps.size).to eq(cap.packets.size)
-        timestamps.each do |ts|
-          expect(ts).to be_a(Time)
-        end
+        expect(timestamps).to all(be_a(Time))
       end
 
       it 'yields raw packet timestamp' do

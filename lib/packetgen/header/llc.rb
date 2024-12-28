@@ -12,25 +12,25 @@ module PacketGen
     # Logical-Link Control header
     #
     # A LLC header consists of:
-    # * a {#dsap} ({Types::Int8}),
-    # * a {#ssap} ({Types::Int8}),
-    # * a {#control} ({Types::Int8}),
-    # * and a {#body} (a {Types::String} or another {Base} class).
+    # * a {#dsap} ({BinStruct::Int8}),
+    # * a {#ssap} ({BinStruct::Int8}),
+    # * a {#control} ({BinStruct::Int8}),
+    # * and a {#body} (a {BinStruct::String} or another {Base} class).
     # @author Sylvain Daubert
     # @since 1.4.0
     class LLC < Base
       # @!attribute dsap
       #  @return [Integer] 8-bit dsap value
-      define_field :dsap, Types::Int8
+      define_attr :dsap, BinStruct::Int8
       # @!attribute ssap
       #  @return [Integer] 8-bit ssap value
-      define_field :ssap, Types::Int8
+      define_attr :ssap, BinStruct::Int8
       # @!attribute control
       #  @return [Integer] 8-bit control value
-      define_field :control, Types::Int8
+      define_attr :control, BinStruct::Int8
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
     end
     self.add_class LLC
     Dot11::Data.bind LLC, type: 2, wep?: false
@@ -38,21 +38,21 @@ module PacketGen
     # Sub-Network Access Protocol
     #
     # A SNAP header consists of:
-    # * a {#oui} ({Types::OUI}),
-    # * a {#proto_id} ({Types::Int16}),
-    # * and a {#body} (a {Types::String} or another {Base} class).
+    # * a {#oui} ({BinStruct::OUI}),
+    # * a {#proto_id} ({BinStruct::Int16}),
+    # * and a {#body} (a {BinStruct::String} or another {Base} class).
     # @author Sylvain Daubert
     # @since 1.4.0
     class SNAP < Base
       # @!attribute oui
-      #  @return [Types::OUI]
-      define_field :oui, Types::OUI
+      #  @return [BinStruct::OUI]
+      define_attr :oui, BinStruct::OUI
       # @!attribute proto_id
       #  @return [Integer] 16-bit protocol id
-      define_field :proto_id, Types::Int16
+      define_attr :proto_id, BinStruct::Int16
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
     end
     self.add_class SNAP
     LLC.bind SNAP, dsap: 170, ssap: 170, control: 3

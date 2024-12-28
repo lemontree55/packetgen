@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -7,36 +9,40 @@ module PacketGen
         it 'in IP packets' do
           expect(IP).to know_header(GRE).with(protocol: 47)
         end
+
         it 'accepts to be added in IP packets' do
           pkt = PacketGen.gen('IP')
-          expect { pkt.add('GRE') }.to_not raise_error
+          expect { pkt.add('GRE') }.not_to raise_error
           expect(pkt.ip.protocol).to eq(47)
         end
 
         it 'in IPv6 packets' do
           expect(IPv6).to know_header(GRE).with(next: 47)
         end
+
         it 'accepts to be added in IPv6 packets' do
           pkt = PacketGen.gen('IPv6')
-          expect { pkt.add('GRE') }.to_not raise_error
+          expect { pkt.add('GRE') }.not_to raise_error
           expect(pkt.ipv6.next).to eq(47)
         end
 
         it 'of IP packets' do
           expect(GRE).to know_header(IP).with(protocol_type: 0x800)
         end
+
         it 'accepts IP headers to be added' do
           pkt = PacketGen.gen('GRE')
-          expect { pkt.add('IP') }.to_not raise_error
+          expect { pkt.add('IP') }.not_to raise_error
           expect(pkt.gre.protocol_type).to eq(0x800)
         end
 
         it 'of IPv6 packets' do
           expect(GRE).to know_header(IPv6).with(protocol_type: 0x86dd)
         end
+
         it 'accepts IPv6 headers to be added' do
           pkt = PacketGen.gen('GRE')
-          expect { pkt.add('IPv6') }.to_not raise_error
+          expect { pkt.add('IPv6') }.not_to raise_error
           expect(pkt.gre.protocol_type).to eq(0x86dd)
         end
       end
@@ -104,9 +110,9 @@ module PacketGen
 
           it 'parses a complete GRE packet' do
             pkt = Packet.read(File.join(__dir__, 'gre.pcapng')).first
-            expect(pkt.is? 'IP').to be(true)
-            expect(pkt.is? 'GRE').to be(true)
-            expect(pkt.is? 'ICMP').to be(true)
+            expect(pkt.is?('IP')).to be(true)
+            expect(pkt.is?('GRE')).to be(true)
+            expect(pkt.is?('ICMP')).to be(true)
             expect(pkt.ip(1)).to be_a(Header::IP)
             expect(pkt.ip(1).body).to be_a(Header::GRE)
             expect(pkt.ip(2)).to be_a(Header::IP)
@@ -124,7 +130,7 @@ module PacketGen
         end
 
         describe '#to_s' do
-          let(:gre) { GRE.new}
+          let(:gre) { GRE.new }
 
           it 'returns a binary string' do
             gre.u16 = 0xb000
@@ -134,8 +140,8 @@ module PacketGen
             gre.seqnum = 0x53535353
             gre.body = 'body'
             expected_str = binary("\xb0\x00\x08\x00\xca\xfe\x00\x00" \
-                                                  "\xac\xac\xac\xac\x53\x53\x53\x53" \
-                                                  'body')
+                                  "\xac\xac\xac\xac\x53\x53\x53\x53" \
+                                  'body')
             expect(gre.to_s).to eq(expected_str)
           end
 
@@ -146,20 +152,20 @@ module PacketGen
             gre.seqnum = 0x53535353
             gre.body = 'body'
             expected_str = binary("\x30\x00\x08\x00" \
-                                                  "\xac\xac\xac\xac\x53\x53\x53\x53" \
-                                                  'body')
+                                  "\xac\xac\xac\xac\x53\x53\x53\x53" \
+                                  'body')
             expect(gre.to_s).to eq(expected_str)
           end
         end
 
         describe '#inspect' do
-          let(:gre) { GRE.new}
+          let(:gre) { GRE.new }
 
           it 'returns a String with all attributes' do
             gre.u16 = 0xb000
             str = gre.inspect
             expect(str).to be_a(String)
-            (gre.fields - %i(body)).each do |attr|
+            (gre.attributes - %i[body]).each do |attr|
               expect(str).to include(attr.to_s)
             end
           end
@@ -168,13 +174,13 @@ module PacketGen
             gre.u16 = 0x8000
             str = gre.inspect
             expect(str).to be_a(String)
-            fields = gre.fields - %i[body]
-            fields -= gre.optional_fields.reject { |f| gre.present?(f) }
-            fields.each do |attr|
+            attributes = gre.attributes - %i[body]
+            attributes -= gre.optional_attributes.reject { |f| gre.present?(f) }
+            attributes.each do |attr|
               expect(str).to include(attr.to_s)
             end
-            gre.optional_fields.reject { |f| gre.present?(f) }.each do |attr|
-              expect(str).to_not include(attr.to_s)
+            gre.optional_attributes.reject { |f| gre.present?(f) }.each do |attr|
+              expect(str).not_to include(attr.to_s)
             end
           end
         end

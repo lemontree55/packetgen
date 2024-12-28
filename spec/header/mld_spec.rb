@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module Header
-
     describe MLD do
       describe 'bindings' do
         it 'in ICMPv6 packets' do
@@ -10,9 +11,10 @@ module PacketGen
           expect(ICMPv6).to know_header(MLD).with(type: 131)
           expect(ICMPv6).to know_header(MLD).with(type: 132)
         end
+
         it 'accepts to be added in ICMPv6 packets' do
           pkt = PacketGen.gen('ICMPv6')
-          expect { pkt.add('MLD') }.to_not raise_error
+          expect { pkt.add('MLD') }.not_to raise_error
           expect(pkt.icmpv6.type).to eq(130)
         end
       end
@@ -36,7 +38,7 @@ module PacketGen
       end
 
       describe '#read' do
-        let(:mld) { MLD.new}
+        let(:mld) { MLD.new }
 
         it 'sets header from a string' do
           str = (1..mld.sz).to_a.pack('C*') + 'body'
@@ -47,17 +49,17 @@ module PacketGen
         end
 
         it 'reads a MLD header in a real packet' do
-          pkt = PacketGen.gen('IPv6', src: 'fe80::1', dst: 'ff02::1', hop: 1).
-                          add('IPv6::HopByHop').
-                          add('ICMPv6', type: 130, code: 0)
-          pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: Types::Int16.new(0).to_s }
-          pkt.body = "\x00\x7f\x00\x00" +
+          pkt = PacketGen.gen('IPv6', src: 'fe80::1', dst: 'ff02::1', hop: 1)
+                         .add('IPv6::HopByHop')
+                         .add('ICMPv6', type: 130, code: 0)
+          pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: BinStruct::Int16.new(value: 0).to_s }
+          pkt.body = +"\x00\x7f\x00\x00" <<
                      ([0] * 16).pack('C*')
           pkt.calc
           parsed_pkt = PacketGen.parse(pkt.to_s)
-          expect(parsed_pkt.is? 'IPv6').to be(true)
-          expect(parsed_pkt.is? 'ICMPv6').to be(true)
-          expect(parsed_pkt.is? 'MLD').to be(true)
+          expect(parsed_pkt.is?('IPv6')).to be(true)
+          expect(parsed_pkt.is?('ICMPv6')).to be(true)
+          expect(parsed_pkt.is?('MLD')).to be(true)
           expect(parsed_pkt.mld.max_resp_delay).to eq(127)
           expect(parsed_pkt.mld.reserved).to eq(0)
           expect(parsed_pkt.mld.mcast_addr).to eq('::')
@@ -68,7 +70,7 @@ module PacketGen
         it 'returns a binary string' do
           mld = MLD.new(max_resp_delay: 20,
                         mcast_addr: 'ff02::1')
-          expected = "\x00\x14\x00\x00"
+          expected = +"\x00\x14\x00\x00"
           expected << [0xff02, 0, 0, 0, 0, 0, 0, 1].pack('n*')
           expect(mld.to_s).to eq(expected)
         end
@@ -79,7 +81,7 @@ module PacketGen
           mld = MLD.new
           str = mld.inspect
           expect(str).to be_a(String)
-          (mld.fields - %i(body)).each do |attr|
+          (mld.attributes - %i[body]).each do |attr|
             expect(str).to include(attr.to_s)
           end
         end
@@ -94,16 +96,16 @@ module PacketGen
           expect(pkt.ipv6.hop).to eq(1)
           expect(pkt.ipv6.next).to eq(0)
           expect(pkt.ipv6.length).to eq(32)
-          expect(pkt.is? 'IPv6::HopByHop').to be(true)
+          expect(pkt.is?('IPv6::HopByHop')).to be(true)
           expect(pkt.ipv6_hopbyhop.options.size).to eq(2)
           expect(pkt.ipv6_hopbyhop.options[0].human_type).to eq('router_alert')
           expect(pkt.ipv6_hopbyhop.options[0].value).to eq("\x00\x00")
           expect(pkt.ipv6_hopbyhop.options[1].to_human).to eq('pad2')
           expect(pkt.ipv6_hopbyhop.next).to eq(ICMPv6::IP_PROTOCOL)
           expect(pkt.icmpv6.checksum).to eq(0x7daa)
-          expected = "\x60\x00\x00\x00\x00\x20\x00\x01"
-          expected << "\x00" * 15 + "\x01"
-          expected << "\x00" * 15 + "\x02"
+          expected = +"\x60\x00\x00\x00\x00\x20\x00\x01"
+          expected << "\x00" * 15 << "\x01"
+          expected << "\x00" * 15 << "\x02"
           expected << "\x3a\x00\x05\x02\x00\x00\x01\x00"
           expected << "\x82\x00\x7d\xaa"
           expected << "\x00\x00\x00\x00"

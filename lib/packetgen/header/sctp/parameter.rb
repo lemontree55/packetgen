@@ -26,9 +26,9 @@ module PacketGen
         end
       end
 
-      Parameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                            length_class: Types::Int16,
-                                            field_in_length: 'TLV')
+      Parameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                length_class: BinStruct::Int16,
+                                                attr_in_length: 'TLV')
       # Base class/factory for {InitChunk} and {InitAckChunk} parameters
       # @author Sylvain Daubert
       class Parameter
@@ -62,10 +62,10 @@ module PacketGen
       end
       Parameter.define_type_enum(Parameter::TYPES)
 
-      IPv4Parameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                length_class: Types::Int16,
-                                                value_class: IP::Addr,
-                                                field_in_length: 'TLV')
+      IPv4Parameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                    length_class: BinStruct::Int16,
+                                                    value_class: IP::Addr,
+                                                    attr_in_length: 'TLV')
 
       # IPv4 address parameter
       # @author Sylvain Daubert
@@ -75,10 +75,10 @@ module PacketGen
       IPv4Parameter.define_type_enum(Parameter::TYPES)
       IPv4Parameter.define_type_default('IPv4')
 
-      IPv6Parameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                length_class: Types::Int16,
-                                                value_class: IPv6::Addr,
-                                                field_in_length: 'TLV')
+      IPv6Parameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                    length_class: BinStruct::Int16,
+                                                    value_class: IPv6::Addr,
+                                                    attr_in_length: 'TLV')
 
       # IPv6 address parameter
       # @author Sylvain Daubert
@@ -88,10 +88,10 @@ module PacketGen
       IPv6Parameter.define_type_enum(Parameter::TYPES)
       IPv6Parameter.define_type_default('IPv6')
 
-      StateCookieParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                       length_class: Types::Int16,
-                                                       value_class: Types::String,
-                                                       field_in_length: 'TLV')
+      StateCookieParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                           length_class: BinStruct::Int16,
+                                                           value_class: BinStruct::String,
+                                                           attr_in_length: 'TLV')
 
       # State Cookie parameter
       # @author Sylvain Daubert
@@ -106,10 +106,10 @@ module PacketGen
       StateCookieParameter.define_type_enum(Parameter::TYPES)
       StateCookieParameter.define_type_default('StateCookie')
 
-      UnrecognizedParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                        length_class: Types::Int16,
-                                                        value_class: Parameter,
-                                                        field_in_length: 'TLV')
+      UnrecognizedParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                            length_class: BinStruct::Int16,
+                                                            value_class: Parameter,
+                                                            attr_in_length: 'TLV')
 
       # Unrecognized parameter
       # @author Sylvain Daubert
@@ -124,10 +124,10 @@ module PacketGen
       UnrecognizedParameter.define_type_enum(Parameter::TYPES)
       UnrecognizedParameter.define_type_default('Unrecognized')
 
-      HostnameParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                    length_class: Types::Int16,
-                                                    value_class: Types::CString,
-                                                    field_in_length: 'TLV')
+      HostnameParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                        length_class: BinStruct::Int16,
+                                                        value_class: BinStruct::CString,
+                                                        attr_in_length: 'TLV')
 
       # Hostname address parameter
       # @author Sylvain Daubert
@@ -137,10 +137,10 @@ module PacketGen
       HostnameParameter.define_type_enum(Parameter::TYPES)
       HostnameParameter.define_type_default('Hostname')
 
-      SupportedAddrTypesParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                              length_class: Types::Int16,
-                                                              value_class: Types::ArrayOfInt16,
-                                                              field_in_length: 'TLV')
+      SupportedAddrTypesParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                  length_class: BinStruct::Int16,
+                                                                  value_class: BinStruct::ArrayOfInt16,
+                                                                  attr_in_length: 'TLV')
 
       # Supported address types parameter
       # @author Sylvain Daubert
@@ -158,10 +158,10 @@ module PacketGen
       SupportedAddrTypesParameter.define_type_enum(Parameter::TYPES)
       SupportedAddrTypesParameter.define_type_default('SupportedAddrTypes')
 
-      CookiePreservativeParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                              length_class: Types::Int16,
-                                                              value_class: Types::Int32,
-                                                              field_in_length: 'TLV')
+      CookiePreservativeParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                                  length_class: BinStruct::Int16,
+                                                                  value_class: BinStruct::Int32,
+                                                                  attr_in_length: 'TLV')
 
       # Cookie Preservative parameter
       # @author Sylvain Daubert
@@ -176,9 +176,9 @@ module PacketGen
       CookiePreservativeParameter.define_type_enum(Parameter::TYPES)
       CookiePreservativeParameter.define_type_default('CookiePreservative')
 
-      ECNParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                               length_class: Types::Int16,
-                                               field_in_length: 'TLV')
+      ECNParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                   length_class: BinStruct::Int16,
+                                                   attr_in_length: 'TLV')
 
       # ECN parameter
       # @author Sylvain Daubert
@@ -193,9 +193,9 @@ module PacketGen
       ECNParameter.define_type_enum(Parameter::TYPES)
       ECNParameter.define_type_default('ECN')
 
-      HearbeatInfoParameter = Types::AbstractTLV.create(type_class: Types::Int16Enum,
-                                                        length_class: Types::Int16,
-                                                        field_in_length: 'TLV')
+      HearbeatInfoParameter = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                            length_class: BinStruct::Int16,
+                                                            attr_in_length: 'TLV')
 
       # Heartbeat Information parameter
       # @author Sylvain Daubert
@@ -207,7 +207,7 @@ module PacketGen
 
       # Array of {Parameter}s and {ParameterMixin}.
       # @author Sylvain Daubert
-      class ArrayOfParameter < Types::Array
+      class ArrayOfParameter < BinStruct::Array
         set_of Parameter
 
         private

@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
   module PcapNG
     describe SHB do
-      before(:each) { @shb = SHB.new }
+      before { @shb = SHB.new }
 
-      it 'should have correct initialization values' do
+      it 'has correct initialization values' do
         expect(@shb).to be_a(SHB)
         expect(@shb.endian).to eq(:little)
         expect(@shb.type).to eq(PcapNG::SHB_TYPE.to_i)
@@ -20,14 +22,14 @@ module PacketGen
       end
 
       context 'when reading' do
-        it 'should accept a String' do
+        it 'accepts a String' do
           str = ::File.read(::File.join(__dir__, 'sample.pcapng'), 52)
-          expect { @shb.read(str) }.to_not raise_error
+          expect { @shb.read(str) }.not_to raise_error
           expect(@shb.block_len).to eq(52)
           expect(@shb.options?).to be(true)
         end
 
-        it 'should accept an IO' do
+        it 'accepts an IO' do
           ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
             @shb.read(f)
           end

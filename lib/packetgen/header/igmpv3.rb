@@ -18,12 +18,12 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A IGMP header consists of:
-    # * a {#type} field ({Types::Int8Enum} type),
-    # * a {#max_resp_time} field ({Types::Int8} type),
-    # * a {#checksum} field ({Types::Int16} type),
+    # * a {#type} field ({BinStruct::Int8Enum} type),
+    # * a {#max_resp_time} field ({BinStruct::Int8} type),
+    # * a {#checksum} field ({BinStruct::Int16} type),
     # * and a {#body}, containing more fields (see below).
     #
-    # A IGMPv3 header may have additionnal fields. These fields are handled by
+    # A IGMPv3 header may have additionnal fields. These attributes.are handled by
     # additional headers (see {IGMPv3::MQ}).
     #
     # == Create a IGMPv3 header
@@ -50,14 +50,14 @@ module PacketGen
     #   igmp.max_resp_code   #=> 9728  error due to encoding as a floating point value
     #
     # === IGMPv3 Membership Query
-    # With IGMPv3, a Membership Query packet has more fields than with IGMPv2. To
+    # With IGMPv3, a Membership Query packet has more attributes.than with IGMPv2. To
     # handle those fields, an additional header should be used:
     #   pkt = PacketGen.gen('IP').add('IGMPv3', type: 'MembershipQuery').add('IGMPv3::MQ')
     #   pkt.igmpv3      #=> PacketGen::Header::IGMPv3
     #   pkt.igmpv3_mq   #=> PacketGen::Header::IGMPv3::MQ
     #
     # === IGMPv3 Membership Report
-    # With IGMPv3, a Membership Report packet has more fields than with IGMPv2. To
+    # With IGMPv3, a Membership Report packet has more attributes.than with IGMPv2. To
     # handle those fields, an additional header should be used:
     #   pkt =  PacketGen.gen('IP').add('IGMPv3', type: 'MembershipQuery').add('IGMPv3::MR')
     #   pkt.igmpv3      #=> PacketGen::Header::IGMPv3
@@ -71,7 +71,7 @@ module PacketGen
         'MembershipReport' => 0x22,
       }.freeze
 
-      remove_field :group_addr
+      remove_attr :group_addr
 
       # Encode value for IGMPv3 Max Resp Code and QQIC.
       # Value may be encoded as a float, so some error may occur.

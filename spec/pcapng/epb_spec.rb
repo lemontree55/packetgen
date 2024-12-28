@@ -5,9 +5,9 @@ require_relative '../spec_helper'
 module PacketGen
   module PcapNG
     describe EPB do
-      before(:each) { @epb = EPB.new }
+      before { @epb = EPB.new }
 
-      it 'should have correct initialization values' do
+      it 'has correct initialization values' do
         expect(@epb).to be_a(EPB)
         expect(@epb.endian).to eq(:little)
         expect(@epb.type).to eq(PcapNG::EPB_TYPE.to_i)
@@ -21,9 +21,9 @@ module PacketGen
       end
 
       context 'when reading' do
-        it 'should accept a String' do
+        it 'accepts a String' do
           str = ::File.read(::File.join(__dir__, 'sample.pcapng'))[84, 112]
-          expect { @epb.read(str) }.to_not raise_error
+          expect { @epb.read(str) }.not_to raise_error
           expect(@epb.type).to eq(PcapNG::EPB_TYPE.to_i)
           expect(@epb.block_len).to eq(112)
           expect(@epb.interface_id).to eq(0)
@@ -34,7 +34,7 @@ module PacketGen
           expect(@epb.options?).to be(false)
         end
 
-        it 'should accept an IO' do
+        it 'accepts an IO' do
           ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
             f.seek(84, :CUR)
             @epb.read f
@@ -50,7 +50,7 @@ module PacketGen
         end
       end
 
-      it 'should decode packet timestamp with default resolution' do
+      it 'decodes packet timestamp with default resolution' do
         ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
           f.seek(84, :CUR)
           @epb.read f
@@ -59,7 +59,7 @@ module PacketGen
         expect(@epb.timestamp.round).to eq(Time.utc(2009, 10, 11, 19, 29, 6))
       end
 
-      it 'should decode packet timestamp with interface resolution' do
+      it 'decodes packet timestamp with interface resolution' do
         ::File.open(::File.join(__dir__, 'sample.pcapng')) do |f|
           f.seek(84, :CUR)
           @epb.read f
@@ -76,7 +76,7 @@ module PacketGen
         expect(@epb.timestamp.round).to eq(Time.utc(2009, 10, 11, 19, 29, 6))
       end
 
-      context '#timestamp=' do
+      describe '#timestamp=' do
         it 'sets timestamp from a Time object' do
           @epb.timestamp = Time.utc(2009, 10, 11, 19, 29, 6.244202r)
           expect(@epb.tsh).to eq(292_269)

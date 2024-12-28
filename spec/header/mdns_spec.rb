@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../spec_helper'
 
 module PacketGen
@@ -10,41 +12,42 @@ module PacketGen
           expect(UDP).to know_header(MDNS).with(sport: 5353)
           expect(UDP).to know_header(MDNS).with(dport: 5353)
         end
+
         it 'accepts to be added in UDP packets' do
           pkt = PacketGen.gen('UDP')
-          expect { pkt.add('MDNS') }.to_not raise_error
+          expect { pkt.add('MDNS') }.not_to raise_error
           expect(pkt.udp.dport).to eq(5353)
         end
       end
 
-      context 'sections' do
+      context 'with sections' do
         let(:dns) { MDNS.new }
 
         it 'may add a Question to question section' do
           q = DNS::Question.new(dns, name: 'www.example.org')
-          expect { dns.qd << q }.to change { dns.qdcount }.by(1)
-          expected_str = "\x00" * 5 + "\x01" + "\x00" * 6 +
-                         generate_label_str(%w(www example org)) +
+          expect { dns.qd << q }.to change(dns, :qdcount).by(1)
+          expected_str = "\x00" * 5 << "\x01" << "\x00" * 6 <<
+                         generate_label_str(%w[www example org]) <<
                          "\x00\x01\x00\x01"
-          expect(dns.to_s).to eq(binary expected_str)
+          expect(dns.to_s).to eq(binary(expected_str))
         end
 
         it 'may add a RR to answer section' do
           an = DNS::RR.new(dns, name: 'www.example.org', type: 'AAAA', ttl: 3600,
-                           rdata: IPAddr.new('2000::1').hton)
-          expect { dns.an << an }.to change { dns.ancount }.by(1)
+                                rdata: IPAddr.new('2000::1').hton)
+          expect { dns.an << an }.to change(dns, :ancount).by(1)
           expected_str = "\x00" * 7 + "\x01" + "\x00" * 4 +
-                         generate_label_str(%w(www example org)) +
+                         generate_label_str(%w[www example org]) +
                          "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" +
                          "\x00" * 14 + "\x01"
-          expect(dns.to_s).to eq(binary expected_str)
+          expect(dns.to_s).to eq(binary(expected_str))
         end
       end
 
       describe '#read' do
         it 'reads a mDNS question header' do
           pkt = Packet.parse(mdns_raw_packets[0])
-          expect(pkt.is? 'MDNS').to be(true)
+          expect(pkt.is?('MDNS')).to be(true)
 
           mdns = pkt.mdns
           expect(mdns.qr?).to be(false)
@@ -62,7 +65,7 @@ module PacketGen
 
         it 'reads a mDNS question header' do
           pkt = Packet.parse(mdns_raw_packets[1])
-          expect(pkt.is? 'MDNS').to be(true)
+          expect(pkt.is?('MDNS')).to be(true)
 
           mdns = pkt.mdns
           expect(mdns.qr?).to be(true)
@@ -91,6 +94,7 @@ module PacketGen
             expect(pkt.ip.dst).to eq('224.0.0.251')
           end
         end
+
         context '(IPv6)' do
           let(:pkt) { Packet.gen('Eth').add('IPv6').add('UDP').add('MDNS') }
 

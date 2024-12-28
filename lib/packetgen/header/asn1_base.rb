@@ -21,7 +21,7 @@ module PacketGen
       include Headerable
 
       class << self
-        # Define some methods from given ASN.1 fields to mimic {Base} attributes
+        # Define some methods from given ASN.1 attributes.to mimic {Base} attributes
         # @param [Array<Symbol>] attributes
         # @return [void]
         def define_attributes(*attributes)

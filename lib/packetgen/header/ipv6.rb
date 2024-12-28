@@ -37,16 +37,16 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A IPv6 header consists of:
-    # * a first 32-bit word ({#u32}, of {Types::Int32} type) composed of:
+    # * a first 32-bit word ({#u32}, of {BinStruct::Int32} type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 8-bit {#traffic_class} field,
     #   * a 20-bit {#flow_label} field,
-    # * a payload length field ({#length}, {Types::Int16} type}),
-    # * a next header field ({#next}, {Types::Int8} type),
+    # * a payload length field ({#length}, {BinStruct::Int16} type}),
+    # * a next header field ({#next}, {BinStruct::Int8} type),
     # * a hop-limit field ({#hop}, +Int8+ type),
     # * a source address field ({#src}, {IPv6::Addr} type),
     # * a destination address field ({#dst}, +IPv6::Addr+ type),
-    # * and a {#body} ({Types::String} type).
+    # * and a {#body} ({BinStruct::String} type).
     #
     # == Create a IPv6 header
     #  # standalone
@@ -95,38 +95,36 @@ module PacketGen
       # @!attribute u32
       #  First 32-bit word of IPv6 header
       #  @return [Integer]
-      define_field :u32, Types::Int32, default: 0x6000_0000
-      # @!attribute length
-      #  16-bit word of IPv6 payload length
-      #  @return [Integer]
-      define_field :length, Types::Int16
-      # @!attribute next
-      #  8-bit IPv6 next payload value
-      #  @return [Integer]
-      define_field :next, Types::Int8
-      # @!attribute hop
-      #  8-bit IPv6 hop limit
-      #  @return [Integer]
-      define_field :hop, Types::Int8, default: 64
-      # @!attribute src
-      #  IPv6 source address
-      #  @return [Addr]
-      define_field :src, Addr, default: '::1'
-      # @!attribute dst
-      #  IPv6 destination address
-      #  @return [Addr]
-      define_field :dst, Addr, default: '::1'
-      # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String
-
       # @!attribute version
       #   @return [Integer] 4-bit version attribute
       # @!attribute traffic_class
       #   @return [Integer] 8-bit traffic_class attribute
       # @!attribute flow_label
       #   @return [Integer] 20-bit flow_label attribute
-      define_bit_fields_on :u32, :version, 4, :traffic_class, 8, :flow_label, 20
+      define_bit_attr :u32, default: 0x60000000, version: 4, traffic_class: 8, flow_label: 20
+      # @!attribute length
+      #  16-bit word of IPv6 payload length
+      #  @return [Integer]
+      define_attr :length, BinStruct::Int16
+      # @!attribute next
+      #  8-bit IPv6 next payload value
+      #  @return [Integer]
+      define_attr :next, BinStruct::Int8
+      # @!attribute hop
+      #  8-bit IPv6 hop limit
+      #  @return [Integer]
+      define_attr :hop, BinStruct::Int8, default: 64
+      # @!attribute src
+      #  IPv6 source address
+      #  @return [Addr]
+      define_attr :src, Addr, default: '::1'
+      # @!attribute dst
+      #  IPv6 destination address
+      #  @return [Addr]
+      define_attr :dst, Addr, default: '::1'
+      # @!attribute body
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String
 
       # Compute length and set +len+ field
       # @return [Integer]
@@ -143,14 +141,14 @@ module PacketGen
         sum
       end
 
-      # Send IPv6 packet on wire. All fields may be set (even {#version}).
+      # Send IPv6 packet on wire. All attributes.may be set (even {#version}).
       # @param [String] _iface interface name (not used)
       # @return [void]
       # @since 3.0.0 no more limitations on +flow_label+, +length+ and +src+ fields.
       def to_w(_iface=nil)
         sock = Socket.new(Socket::AF_INET6, Socket::SOCK_RAW, Socket::IPPROTO_RAW)
         sockaddrin = Socket.sockaddr_in(0, dst)
-        sock.send to_s, 0, sockaddrin
+        sock.send(to_s, 0, sockaddrin)
         sock.close
       end
 

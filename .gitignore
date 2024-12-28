@@ -11,3 +11,5 @@
 /.vscode/
 *~
 tags
+.ruby-version
+bin/rdbg

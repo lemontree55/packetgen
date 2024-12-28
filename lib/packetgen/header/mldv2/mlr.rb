@@ -38,28 +38,28 @@ module PacketGen
       #   .                                                               .
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      # +type+, +code+ and +checksum+ are fields from {ICMPv6} header.
+      # +type+, +code+ and +checksum+ are attributes.from {ICMPv6} header.
       #
-      # MLR fields are:
-      # * {#reserved} ({Types::Int16}),
-      # * {#number_of_mar} (number of mcast address records, {Types::Int16}),
+      # MLR attributes.are:
+      # * {#reserved} ({BinStruct::Int16}),
+      # * {#number_of_mar} (number of mcast address records, {BinStruct::Int16}),
       # * {#records} ({McastAddressRecords}).
       # @author Sylvain Daubert
       class MLR < Base
         # @!attribute reserved
         #  16-bit reserved field
         # @return [Integer]
-        define_field :reserved, Types::Int16, default: 0
+        define_attr :reserved, BinStruct::Int16, default: 0
         # @!attribute number_of_mar
         #  16-bit Number of group records in {#records}
         #  @return [Integer]
-        define_field :number_of_mar, Types::Int16, default: 0
+        define_attr :number_of_mar, BinStruct::Int16, default: 0
 
         # @!attribute records
         #  Array of Mcast Address Records
         #  @return [McastAddressRecords]
-        define_field :records, McastAddressRecords,
-                     builder: ->(h, t) { t.new(counter: h[:number_of_mar]) }
+        define_attr :records, McastAddressRecords,
+                    builder: ->(h, t) { t.new(counter: h[:number_of_mar]) }
       end
     end
 

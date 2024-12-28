@@ -14,13 +14,13 @@ module PacketGen
   # @author Sylvain Daubert
   module PcapNG
     # Section Header Block type number
-    SHB_TYPE = Types::Int32.new(0x0A0D0D0A, :little).freeze
+    SHB_TYPE = BinStruct::Int32.new(value: 0x0A0D0D0A, endian: :little).freeze
     # Interface Description Block type number
-    IDB_TYPE = Types::Int32.new(1, :little).freeze
+    IDB_TYPE = BinStruct::Int32.new(value: 1, endian: :little).freeze
     # Simple Packet Block type number
-    SPB_TYPE = Types::Int32.new(3, :little).freeze
+    SPB_TYPE = BinStruct::Int32.new(value: 3, endian: :little).freeze
     # Enhanced Packet Block type number
-    EPB_TYPE = Types::Int32.new(6, :little).freeze
+    EPB_TYPE = BinStruct::Int32.new(value: 6, endian: :little).freeze
 
     # IEEE 802.3 Ethernet (10Mb, 100Mb, 1000Mb, and up)
     LINKTYPE_ETHERNET = 1

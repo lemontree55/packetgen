@@ -11,10 +11,10 @@ module PacketGen
     # IEEE 802.1X / EAPOL
     #
     # A IEEE 802.1X header consists of:
-    # * a {#version} ({Types::Int8}),
-    # * a packet {#type} ({Types::Int8}),
-    # * a {#length} ({Types::Int16}),
-    # * and a body (a {Types::String} or another Header class).
+    # * a {#version} ({BinStruct::Int8}),
+    # * a packet {#type} ({BinStruct::Int8}),
+    # * a {#length} ({BinStruct::Int16}),
+    # * and a body (a {BinStruct::String} or another Header class).
     # == Create a Dot1x header
     #   pkt1 = PacketGen.gen('Eth').add('Dot1x', type: 1)
     #   pkt2 = PacketGen.gen('Eth').add('Dot1x')
@@ -37,16 +37,16 @@ module PacketGen
 
       # @!attribute version
       #  @return [Integer] 8-bit Protocol Version
-      define_field :version, Types::Int8, default: 1
+      define_attr :version, BinStruct::Int8, default: 1
       # @!attribute type
       #  @return [Integer] 8-bit Packet Type
-      define_field :type, Types::Int8Enum, enum: TYPES
+      define_attr :type, BinStruct::Int8Enum, enum: TYPES
       # @!attribute length
       #  @return [Integer] 16-bit body length
-      define_field :length, Types::Int16
+      define_attr :length, BinStruct::Int16
       # @!attribute body
-      #  @return [Types::String,Header::Base]
-      define_field :body, Types::String, builder: ->(h, t) { t.new(length_from: h[:length]) }
+      #  @return [BinStruct::String,Header::Base]
+      define_attr :body, BinStruct::String, builder: ->(h, t) { t.new(length_from: h[:length]) }
 
       # Get human readable type
       # @return [String]

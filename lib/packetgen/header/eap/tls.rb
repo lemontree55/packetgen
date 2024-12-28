@@ -13,27 +13,25 @@ module PacketGen
       # {https://tools.ietf.org/html/rfc5216 RFC 5216}
       #
       # {EAP::TLS} has following fields:
-      # * {#flags} ({Types::Int8}),
-      # * optionally {#tls_length} ({Types::Int32}), if +#l?+ is +true+,
-      # * {#body} ({Types::String}).
+      # * {#flags} ({BinStruct::Int8}),
+      # * optionally {#tls_length} ({BinStruct::Int32}), if +#l?+ is +true+,
+      # * {#body} ({BinStruct::String}).
       # @author Sylvain Daubert
       # @since 2.1.4
       class TLS < EAP
-        update_field :type, default: 13
+        update_attr :type, default: 13
         # @!attribute flags
         #  @return [Integer] 8-bit flags
-        define_field_before :body, :flags, Types::Int8
-
         # @!attribute l
-        #  Say if length field is included. Defined on {#flags} field.
-        #  @return [Boolean]
+        #  Say if length field is included
+        #  @return [Integer]
         # @!attribute m
-        #  Say if there are more fragments. Defined on {#flags} field.
-        #  @return [Boolean]
+        #  Say if there are more fragments
+        #  @return [Integer]
         # @!attribute s
-        #  If set, this message is a TLS-Start. Defined on {#flags} field.
-        #  @return [Boolean]
-        define_bit_fields_on :flags, :l, :m, :s, :reserved, 5
+        #  If set, this message is a TLS-Start
+        #  @return [Integer]
+        define_bit_attr_before :body, :flags, l: 1, m: 1, s: 1, reserved: 5
         alias length_present? l?
         alias more_fragments? m?
         alias tls_start? s?
@@ -43,8 +41,8 @@ module PacketGen
         #  TLS message or set of messages that is being fragmented. So, it
         #  cannot be automatically calculated (no +#calc_length+ method).
         #  @return [Integer] 32-bit TLS length
-        define_field_before :body, :tls_length, Types::Int32,
-                            optional: ->(h) { h.l? }
+        define_attr_before :body, :tls_length, BinStruct::Int32,
+                           optional: lambda(&:l?)
 
         # @return [String]
         def inspect

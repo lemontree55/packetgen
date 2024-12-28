@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require_relative '../../spec_helper'
 
 module PacketGen
   module Header
     class DNS
-
       describe OPT do
         let(:dns) { DNS.new }
 
@@ -16,7 +17,7 @@ module PacketGen
             expect(opt.ttl).to eq(0)
             expect(opt.ext_rcode).to eq(0)
             expect(opt.version).to eq(0)
-            expect(opt.do?).to eq(false)
+            expect(opt.do?).to be(false)
             expect(opt.rdlength).to eq(0)
             expect(opt.rdata).to eq('')
           end
@@ -34,10 +35,10 @@ module PacketGen
             }
             opt = OPT.new(dns, options)
 
-            expect(opt.name).to eq(options.delete :name)
+            expect(opt.name).to eq(options.delete(:name))
             options.each do |key, value|
               meth = key.to_s
-              meth << '?' if  value.is_a?(TrueClass) or value.is_a?(FalseClass)
+              meth << '?' if value.is_a?(TrueClass) || value.is_a?(FalseClass)
               expect(opt.send(meth)).to eq(value)
             end
           end
@@ -52,7 +53,7 @@ module PacketGen
             expect(opt.udp_size).to eq(1024)
             expect(opt.ext_rcode).to eq(0x10)
             expect(opt.version).to eq(1)
-            expect(opt.do?).to eq(true)
+            expect(opt.do?).to be(true)
             expect(opt.z).to eq(0x41ac)
           end
         end
@@ -91,24 +92,24 @@ module PacketGen
         describe '#to_s' do
           it 'returns a binary string' do
             opt = OPT.new(dns, name: 'example.net', udp_size: 512, version: 10)
-            expected_str = [7, 'example', 3, 'net', 0, 41, 512, 0xa0000, 0].
-                           pack('CA7CA3CnnNn')
-            expect(opt.to_s).to eq(binary expected_str)
+            expected_str = [7, 'example', 3, 'net', 0, 41, 512, 0xa0000, 0]
+                           .pack('CA7CA3CnnNn')
+            expect(opt.to_s).to eq(binary(expected_str))
           end
         end
 
         describe '#to_human' do
           it 'returns a human readable string' do
             opt = OPT.new(dns, udp_size: 600, ext_rcode: 45, version: 1, do: true)
-            expect(opt.to_human).to eq('. OPT UDPsize:600 extRCODE:45 EDNSversion:1' \
-                                       ' flags:do options:none')
+            expect(opt.to_human).to eq('. OPT UDPsize:600 extRCODE:45 EDNSversion:1 ' \
+                                       'flags:do options:none')
             opt = OPT.new(dns, name: 'org')
-            expect(opt.to_human).to eq('org. OPT UDPsize:512 extRCODE:0 EDNSversion:0' \
-                                       ' flags:none options:none')
+            expect(opt.to_human).to eq('org. OPT UDPsize:512 extRCODE:0 EDNSversion:0 ' \
+                                       'flags:none options:none')
           end
         end
 
-        context '(DNS options)' do
+        context 'with DNS options' do
           let(:opt) { OPT.new(dns) }
 
           it 'accepts DNS options' do
@@ -123,8 +124,7 @@ module PacketGen
 
           it 'sets DNS options in binary string' do
             opt.options << { code: 48, data: '12' }
-            expect(opt.to_s).to eq([0, 41, 512, 0, 0].pack('CnnNn') +
-                                   "\x00\x30\x00\x0212")
+            expect(opt.to_s).to eq("#{[0, 41, 512, 0, 0].pack('CnnNn')}\x00\x30\x00\x0212")
           end
         end
       end
