@@ -3,6 +3,36 @@
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Packetgen 4.0.0 - 2024-12-28
+
+## Added
+
+* Add `Pcap.write` method to write pcap files.
+* `Packet.write` now writes a pcap file if given name has a `.pcap` extension. Otherwise, still writing a pcapng file.
+
+## Fixed
+
+* Clean up code.
+* `PcapNG`: factorize code in `PcapNG::Block#initialize` to simplify subclasses.
+* Fix up plenty of minor documentation errors.
+
+## Changed
+
+* Use `BinStruct` module from `bin_struct` gem instead of `Types` module.
+* `Utils::ARPSpoofer#active?` now returns `false` instead of `nil` on unknown target IP.
+* `Header::IP#flags` is removed in favor of `#flag_mf` and `#flag_df`.
+
+## Removed
+
+* Remove deprecated features:
+  * `Header::Dot11::SubMngt#add_element`
+  * `PcapNG::File#file_to_array`
+  * `PcapNG::File#array_to_file`
+  * `Types::TLV` class
+  * `Types::AbstractTLV#header_in_length`
+* Remove `Types` module. This module has been extracted in new `bin_struct` gem.
+* Remove support for Ruby 2.7.
+
 ## Packetgen 3.3.3 - 2024-07-15
 
 ### Fixed
@@ -115,17 +145,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 * Remove some limitations on Types::String and Types::CString:
-    * Add #encode, #slice, #slice!,
-    * Make #<< return itself,
-    * Add #[]= (Types::String only).
+  * Add #encode, #slice, #slice!,
+  * Make #<< return itself,
+  * Add #[]= (Types::String only).
 
 ## Packetgen 3.1.6
 
 ### Deprecated
 
 * PcapNG module:
-    * Deprecate PcapNG::File#array_to_file in favor of PcapNG::File#read_array and PcapNG::File#read_hash
-    * Deprecate PcapNG::File#file_to_array in favor of PcapNG::File#to_a and PcapNG::File#to_h
+  * Deprecate PcapNG::File#array_to_file in favor of PcapNG::File#read_array and PcapNG::File#read_hash
+  * Deprecate PcapNG::File#file_to_array in favor of PcapNG::File#to_a and PcapNG::File#to_h
 
 ### Added
 
