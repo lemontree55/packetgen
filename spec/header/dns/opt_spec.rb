@@ -38,7 +38,7 @@ module PacketGen
             expect(opt.name).to eq(options.delete(:name))
             options.each do |key, value|
               meth = key.to_s
-              meth << '?' if value.is_a?(TrueClass) || value.is_a?(FalseClass)
+              meth = "#{meth}?" if value.is_a?(TrueClass) || value.is_a?(FalseClass)
               expect(opt.send(meth)).to eq(value)
             end
           end

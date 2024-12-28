@@ -68,7 +68,7 @@ module PacketGen
 
           options.each do |key, value|
             meth = key.to_s
-            meth << '?' if value.is_a?(TrueClass) or value.is_a?(FalseClass)
+            meth = "#{meth}?" if value.is_a?(TrueClass) or value.is_a?(FalseClass)
             expect(gre.send(meth)).to eq(value)
           end
         end
