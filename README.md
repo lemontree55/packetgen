@@ -1,6 +1,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/packetgen.svg)](https://badge.fury.io/rb/packetgen)
-[![Action status](https://github.com/lemontree55/packetgen/workflows/ci/badge.svg?branch=master)](https://github.com/lemontree55/packetgen/actions?query=workflow%3Aci)
+[![Action status](https://github.com/lemontree55/packetgen/actions/workflows/ci.yml/badge.svg)](https://github.com/lemontree55/packetgen/actions/workflows/ci.yml)
 
 # PacketGen
 
