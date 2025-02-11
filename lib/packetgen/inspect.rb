@@ -72,7 +72,7 @@ module PacketGen
     # @param [Integer] level
     # @return [String]
     def self.inspect_attribute(attr, value, level=1)
-      type = value.class.to_s.sub(/.*::/, '')
+      type = value.type_name
       self.format(type, attr, value.format_inspect, level)
     end
 
