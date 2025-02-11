@@ -60,8 +60,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
-      # of {LSR LSRs}.
+      # This class defines a specialized array to handle series of {LSR LSRs}.
       # @author Sylvain Daubert
       class ArrayOfLSR < BinStruct::Array
         set_of LSR

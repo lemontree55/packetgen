@@ -11,18 +11,18 @@ module PacketGen
     class DNS
       # @!parse
       #  # DNS option is a TLV object:
-      #  # * {#code} is a {BinStruct::Int16},
-      #  # * {#length} is a {BinStruct::Int16},
-      #  # * {#data} is a {BinStruct::String}.
+      #  # * {#code} is a BinStruct::Int16,
+      #  # * +#length+ is a BinStruct::Int16,
+      #  # * {#data} is a BinStruct::String.
       #  #
       #  # @since 1.3.0
-      #  # @since 3.1.0 defined with {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 defined with BinStruct::AbstractTLV
       #  # @!parse class Option < BinStruct::AbstractTLV; end
       #  # @!attribute code
-      #  #   Alias for {#type}
+      #  #   Alias for +#type+
       #  #   @return [Integer]
       #  # @!attribute data
-      #  #   Alias for {#value}
+      #  #   Alias for +#value+
       #  #   @return [BinStruct::String]
       #  class Option < BinStruct::AbstractTLV; end
       # @private

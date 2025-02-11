@@ -22,7 +22,7 @@ module PacketGen
       class Options < BinStruct::Array
         set_of DHCPv6::Option
 
-        # Separator used in {#to_human}.
+        # Separator used in +#to_human+.
         HUMAN_SEPARATOR = ';'
 
         private

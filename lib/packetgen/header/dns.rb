@@ -65,7 +65,7 @@ module PacketGen
     #
     # == Add a question to DNS question section
     # Adding a {Question} with {QDSection#<<} automagically increments {#qdcount}.
-    # To not modify +qdcount+, use {QDSection#push}.
+    # To not modify +qdcount+, use +QDSection#push+.
     #  # add a question about example.net IP address. Increment qdcount
     #  dns.qd << PacketGen::Header::DNS::Question.new(dns, name: 'example.net')
     #  # or
@@ -77,7 +77,7 @@ module PacketGen
     #
     # == Add a ressource record to a DNS section
     # Adding a {RR} with {RRSection#<< RRSection#<<} automagically increments section counter.
-    # To not modify it, use {RRSection#push RRSection#push}
+    # To not modify it, use +RRSection#push RRSection#push+
     #  # add a RR to answer section. Increment ancount
     #  dns.an << PacketGen::Header::DNS::RR.new(dns, name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton)
     #  # or

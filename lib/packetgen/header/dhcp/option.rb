@@ -58,12 +58,12 @@ module PacketGen
       }.freeze
 
       # @!parse
-      #  # Option class with string value. {#type #type} and {#length #length} are
-      #  # {BinStruct::Int8}.
+      #  # Option class with string value. +#type+ and +#length+ are
+      #  # +BinStruct::Int8+.
       #  #
       #  # See also {IPAddrOption}, {Int8Option}, {Int16Option} and {Int32Option}.
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Option < BinStruct::AbstractTLV; end
       # @private
       Option = BinStruct::AbstractTLV.create
@@ -71,7 +71,7 @@ module PacketGen
       # @!parse
       #  # {Option} class with IP address value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class IPAddrOption < BinStruct::AbstractTLV; end
       # @private
       IPAddrOption = BinStruct::AbstractTLV.create(value_class: IP::Addr)
@@ -79,7 +79,7 @@ module PacketGen
       # @!parse
       #  # {Option} class with int8 value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Int8Option < BinStruct::AbstractTLV; end
       # @private
       Int8Option = BinStruct::AbstractTLV.create(value_class: BinStruct::Int8)
@@ -87,7 +87,7 @@ module PacketGen
       # @!parse
       #  # {Option} class with int16 value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of {+inStruct::AbstractTLV+
       #  class Int16Option < BinStruct::AbstractTLV; end
       # @private
       Int16Option = BinStruct::AbstractTLV.create(value_class: BinStruct::Int16)
@@ -95,7 +95,7 @@ module PacketGen
       # @!parse
       #  # {Option} class with int32 value
       #  # @since 2.2.0
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Int32Option < BinStruct::AbstractTLV; end
       # @private
       Int32Option = BinStruct::AbstractTLV.create(value_class: BinStruct::Int32)

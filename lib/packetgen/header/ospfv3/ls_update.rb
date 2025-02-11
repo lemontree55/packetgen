@@ -38,7 +38,7 @@ module PacketGen
       #
       # == Add LSAs to a LSUpdate payload
       # Adding LSAs with {ArrayOfLSA#<< ArrayOfLSA#<<} automagically update
-      # {#lsas_count}. To not update it, use {ArrayOfLSA#push ArrayOfLSA#push}.
+      # {#lsas_count}. To not update it, use +ArrayOfLSA#push+.
       #   lsu.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42 }
       #   lsu.lsas_count     #=> 1
       #   # add a link to Router LSA

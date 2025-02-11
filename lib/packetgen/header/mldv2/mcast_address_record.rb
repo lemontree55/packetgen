@@ -99,7 +99,7 @@ module PacketGen
       class McastAddressRecords < BinStruct::Array
         set_of McastAddressRecord
 
-        # Separator used in {#to_human}.
+        # Separator used in +#to_human+.
         HUMAN_SEPARATOR = ';'
       end
     end

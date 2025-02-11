@@ -94,7 +94,7 @@ module PacketGen
       class GroupRecords < BinStruct::Array
         set_of GroupRecord
 
-        # Separator used in {#to_human}.
+        # Separator used in +#to_human+.
         HUMAN_SEPARATOR = ';'
       end
     end
