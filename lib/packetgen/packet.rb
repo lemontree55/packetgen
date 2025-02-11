@@ -142,7 +142,8 @@ module PacketGen
     # @param [String] protocol
     # @param [Hash] options protocol specific options
     # @return [self]
-    # @raise [BindingError] unknown protocol
+    # @raise [ArgumentError] unknown protocol
+    # @raise [BindingError] unknown binding
     def add(protocol, options={})
       klass = check_protocol(protocol)
 
@@ -366,6 +367,18 @@ module PacketGen
     def reply
       pkt = dup
       pkt.reply!
+    end
+
+    # Append an already defined header to packet
+    # @param [Headerable] header
+    # @return [self]
+    # @raise [ArgumentError] unknown protocol
+    # @raise [BindingError] unknown binding
+    # @since 4.1.0
+    # @author LemonTree55
+    def <<(header)
+      add_header(header)
+      self
     end
 
     private

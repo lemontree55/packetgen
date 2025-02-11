@@ -547,5 +547,15 @@ module PacketGen
         expect(reply_pkt.udp.dport).to eq(pkt.udp.sport)
       end
     end
+
+    describe '#<<' do
+      it 'appends an already defined header to packet' do
+        pkt = Packet.gen('IP')
+        tcp = Header::TCP.new(dport: 80)
+        pkt << tcp
+        expect(pkt.ip[:body]).to eq(tcp)
+        expect(pkt.ip.protocol).to eq(Header::TCP::IP_PROTOCOL)
+      end
+    end
   end
 end
