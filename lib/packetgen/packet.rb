@@ -211,8 +211,8 @@ module PacketGen
       end
     end
 
-    # Get packet body
-    # @return [Types]
+    # Get packet body. If packet (i.e. last header) has no +:body+ field, return +nil+.
+    # @return [Headerable,nil]
     def body
       last_header[:body] if last_header.respond_to?(:body)
     end
@@ -220,7 +220,10 @@ module PacketGen
     # Set packet body
     # @param [String] str
     # @return [void]
+    # @raise [Error] Packet (i.e. last header) has no +:body+ field.
     def body=(str)
+      raise Error, 'no body in last headeré' unless last_header.respond_to?(:body)
+
       last_header.body = str
     end
 
