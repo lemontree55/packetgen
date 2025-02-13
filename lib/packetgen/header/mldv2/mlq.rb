@@ -57,9 +57,9 @@ module PacketGen
       #  *                                                               *
       #  |                                                               |
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      # +type+, +code+ and +checksum+ are attributes.from {ICMPv6} header.
+      # +type+, +code+ and +checksum+ are attributes from {ICMPv6} header.
       #
-      # MLQ attributes.are:
+      # MLQ attributes are:
       # * {#max_resp_code #max_resp_code} ({BinStruct::Int16}),
       # * {#reserved #reserved} ({BinStruct::Int16}),
       # * {#mcast_addr #mcast_addr} ({IPv6::Addr}),

@@ -13,7 +13,7 @@ module PacketGen
     #    * +#calc_checksum+, which computes header checksum,
     #    * +#calc_length+, which computes header length,
     #    * {#parse?},
-    #    * +#reply!+, which inverts needed attributes.to forge a response.
+    #    * +#reply!+, which inverts needed attributes to forge a response.
     # @author Sylvain Daubert
     class Base < BinStruct::Struct
       include Headerable
@@ -151,7 +151,7 @@ module PacketGen
 
         # Bind a upper header to current one.
         # @param [Class] header_klass header class to bind to current class
-        # @param [Hash] args current class attributes.and their value when +header_klass+
+        # @param [Hash] args current class attributes and their value when +header_klass+
         #   is embedded in current class.
         #
         #   Given value may be a lambda, whose alone argument is the value extracted

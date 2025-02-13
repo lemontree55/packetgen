@@ -38,9 +38,9 @@ module PacketGen
       #   .                                                               .
       #   |                                                               |
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-      # +type+, +code+ and +checksum+ are attributes.from {ICMPv6} header.
+      # +type+, +code+ and +checksum+ are attributes from {ICMPv6} header.
       #
-      # MLR attributes.are:
+      # MLR attributes are:
       # * {#reserved} ({BinStruct::Int16}),
       # * {#number_of_mar} (number of mcast address records, {BinStruct::Int16}),
       # * {#records} ({McastAddressRecords}).

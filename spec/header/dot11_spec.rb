@@ -11,7 +11,7 @@ module PacketGen
           ppi.calc_length
           expect(ppi.length).to eq(8)
 
-          # Force length greater then ppi_attributes.real length to enable reading
+          # Force length greater then ppi_attributes real length to enable reading
           ppi.length = 1_000
           ppi.ppi_fields = '12345'
           ppi.calc_length # Compute real length
@@ -27,7 +27,7 @@ module PacketGen
           rt.calc_length
           expect(rt.length).to eq(8)
 
-          # Force length greater then radio_attributes.real length to enable reading
+          # Force length greater then radio_attributes real length to enable reading
           rt.length = 1_000
           rt.radio_fields = '123456'
           rt.calc_length # Compute real length

@@ -357,7 +357,7 @@ module PacketGen
       private
 
       def remove_from_applicable_attributes(attributes)
-        attributes = [attributes] unless attributes.is_a? Array
+        attributes = [attributes] unless attributes.is_a?(Array)
         @applicable_attributes -= attributes
       end
 

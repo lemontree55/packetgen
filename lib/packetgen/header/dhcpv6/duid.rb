@@ -25,7 +25,7 @@ module PacketGen
         #  @return [Integer]
         define_attr :type, BinStruct::Int16Enum, enum: TYPES
         # @!attribute body
-        #  @abstract replaced by specific attributes.in subclasses
+        #  @abstract replaced by specific attributes in subclasses
         #  DUID data.
         #  @return [String]
         define_attr :body, BinStruct::String

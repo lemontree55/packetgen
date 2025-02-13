@@ -141,7 +141,7 @@ module PacketGen
         sum
       end
 
-      # Send IPv6 packet on wire. All attributes.may be set (even {#version}).
+      # Send IPv6 packet on wire. All attributes may be set (even {#version}).
       # @param [String] _iface interface name (not used)
       # @return [void]
       # @since 3.0.0 no more limitations on +flow_label+, +length+ and +src+ fields.

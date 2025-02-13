@@ -4,13 +4,13 @@ require 'tempfile'
 require_relative '../spec_helper'
 require_relative 'file_spec_helper'
 
-# Clear options attributes.from a PcapNG::Block
+# Clear options attributes from a PcapNG::Block
 def block_clear_options(blk)
   blk.options = ''
   blk.recalc_block_len
 end
 
-# Clear options attributes.from a PcapNG::File
+# Clear options attributes from a PcapNG::File
 def file_clear_options(file)
   file.sections.each do |sec|
     block_clear_options(sec)

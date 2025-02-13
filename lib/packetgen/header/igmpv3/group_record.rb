@@ -11,7 +11,7 @@ module PacketGen
     class IGMPv3
       # Class to handle IGMPv3 Group Records.
       #
-      # A Group Record is a block of attributes.containing information
+      # A Group Record is a block of attributes containing information
       # pertaining to the sender's membership in a single multicast group on
       # the interface from which the Report is sent.
       #

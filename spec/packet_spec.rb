@@ -207,7 +207,7 @@ module PacketGen
         expect(@pkt.ip(2).protocol).to eq(0)
       end
 
-      it 'sets provided attributes.in arguments' do
+      it 'sets provided attributes in arguments' do
         @pkt.add('TCP', sport: 12_345, dport: 5_678)
         expect(@pkt.tcp.sport).to eq(12_345)
         expect(@pkt.tcp.dport).to eq(5_678)
@@ -342,7 +342,7 @@ module PacketGen
         expect(packet.ip.checksum).to eq(0x75df)
       end
 
-      it 'does not calculate calculatable attributes.if calc is false', :sudo do
+      it 'does not calculate calculatable attributes if calc is false', :sudo do
         Thread.new do
           sleep 0.1
           pkt.to_w('lo', calc: false)

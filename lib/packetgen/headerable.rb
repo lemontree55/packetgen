@@ -51,7 +51,7 @@ module PacketGen
     end
 
     # @abstract Should be redefined by subclasses. This method should check invariant
-    #   attributes.from header.
+    #   attributes from header.
     # Called by {Packet#parse} when guessing first header to check if header is correct
     # @return [Boolean]
     def parse?
