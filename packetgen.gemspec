@@ -39,7 +39,7 @@ Gem::Specification.new do |spec|
   # Ruby 3.0
   spec.required_ruby_version = '>= 3.0.0'
 
-  spec.add_dependency 'bin_struct', '~>0.3.0'
+  spec.add_dependency 'bin_struct', '~>0.4.0'
   spec.add_dependency 'digest-crc', '~> 0'
   spec.add_dependency 'interfacez', '~>1.0'
   spec.add_dependency 'pcaprub', '~>0.13.0'
