@@ -168,7 +168,8 @@ module PacketGen
     def self.mitm(target1, target2, options={}, &block)
       options = { iface: PacketGen.default_iface }.merge(options)
 
-      spoofer = Utils::ARPSpoofer.new(options)
+      spoofer_options = options.slice(:timeout, :interval, :iface)
+      spoofer = Utils::ARPSpoofer.new(**spoofer_options.compact)
       spoofer.add target1, target2, options
       spoofer.add target2, target1, options
 
