@@ -163,23 +163,23 @@ module PacketGen
         #   non-trivial checks should be made.
         # @return [void]
         # @example Basic examples
-        #   # Bind Header2 to Header1 when field1 from Header1 has a value of 42
-        #   Header1.bind Header2, field1: 42
-        #   # Bind Header3 to Header1 when field1 from Header1 has a value of 43
-        #   # and field2 has value 43 or 44
-        #   Header1.bind Header3, field1: 43, field2: 43
-        #   Header1.bind Header3, field1: 43, field2: 44
+        #   # Bind TCP to IP when protocol attribute from IP has a value of 66
+        #   PacketGen::Header::IP.bind PacketGen::Header::TCP, protocol: 66
+        #   # Bind UDP to IP when protocol from IP has a value of 177
+        #   # and tos has value 43 or 44
+        #   PacketGen::Header::IP .bind PacketGen::Header::UDP, protocol: 177, tod: 43
+        #   PacketGen::Header::IP .bind PacketGen::Header::UDP, protocol: 177, tod: 44
         # @example Defining a binding on a field using a lambda.
-        #   # Bind Header4 to Header1 when field1 from Header1 has a value
-        #   # greater or equal to 44. When adding a Header2 to a Header1
+        #   # Bind DHCP to Eth when ethertype from Eth has a value
+        #   # greater or equal to 44. When adding a DHCP to a Eth
         #   # with Packet#add, force value to 44.
-        #   Header1.bind Header4, field1: ->(v) { v.nil? ? 44 : v >= 44 }
+        #   PacketGen::Header::Eth.bind PacketGen::Header::DHCP, ethertype: ->(v) { v.nil? ? 44 : v >= 44 }
         # @example Defining a binding using procs key
-        #   # Bind Header5 to Header1 when field1 from Header1 has a value of 41
-        #   # and first two bytes of header1's body are null.
-        #   # When adding a Header2 to a Header1 with Packet#add, force value to 44.
-        #   Header1.bind Header5, procs: [->(hdr) { hdr.field1 = 41 }
-        #                                 ->(hdr) { hdr.field1 == 41 && hdr.body[0..1] == "\x00\x00" }]
+        #   # Bind IPv6 to IP when protocol from IP has a value of 255
+        #   # and first two bytes of IP's body are 0x600.
+        #   # When adding a IPv6 to a IP with Packet#add, force value to 255.
+        #   PacketGen::Header::IP.bind PacketGen::Header::IPv6, procs: [->(hdr) { hdr.field1 = 255 },
+        #                                                               ->(hdr) { hdr.field1 == 255 && hdr.body[0..1] == "\x60\x00" }]
         # @since 2.7.0
         def bind(header_klass, args={})
           bindings = @known_headers[header_klass]

@@ -13,6 +13,7 @@ group :develoment do
   gem 'rspec', '~> 3.12'
   gem 'ruby-lsp'
   gem 'yard', '~> 0.9'
+  gem 'yard-doctest'
 end
 
 group :noci do

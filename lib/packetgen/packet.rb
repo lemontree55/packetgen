@@ -146,6 +146,7 @@ module PacketGen
     # @raise [BindingError] unknown binding
     # @see #<<
     # @example
+    #  pkt = PacketGen::Packet.gen('Eth')
     #  # Add a IP header
     #  pkt.add('IP')
     #  # Add a TCP header, with some attributes and body set
