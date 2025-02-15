@@ -144,6 +144,12 @@ module PacketGen
     # @return [self]
     # @raise [ArgumentError] unknown protocol
     # @raise [BindingError] unknown binding
+    # @see #<<
+    # @example
+    #  # Add a IP header
+    #  pkt.add('IP')
+    #  # Add a TCP header, with some attributes and body set
+    #  pkt.add('TCP', dport: 80, seqnum: 123456, body: "abcd".b)
     def add(protocol, options={})
       klass = check_protocol(protocol)
 
@@ -378,6 +384,13 @@ module PacketGen
     # @raise [ArgumentError] unknown protocol
     # @raise [BindingError] unknown binding
     # @since 4.1.0
+    # @example
+    #  pkt = PacketGen.gen('Eth')
+    #  # Add a new header from its type
+    #  pkt.add('IP')
+    #  # Add a new pre-generated header
+    #  pkt << PacketGen::Header::TCP.new
+    # @see #add
     # @author LemonTree55
     def <<(header)
       add_header(header)
