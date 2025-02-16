@@ -103,14 +103,14 @@ module PacketGen
           expect(pkt.ipv6_hopbyhop.options[1].to_human).to eq('pad2')
           expect(pkt.ipv6_hopbyhop.next).to eq(ICMPv6::IP_PROTOCOL)
           expect(pkt.icmpv6.checksum).to eq(0x7daa)
-          expected = +"\x60\x00\x00\x00\x00\x20\x00\x01"
-          expected << "\x00" * 15 << "\x01"
-          expected << "\x00" * 15 << "\x02"
-          expected << "\x3a\x00\x05\x02\x00\x00\x01\x00"
-          expected << "\x82\x00\x7d\xaa"
-          expected << "\x00\x00\x00\x00"
-          expected << "\x00" * 16
-          expect(pkt.to_s).to eq(binary(expected))
+          expected = +"\x60\x00\x00\x00\x00\x20\x00\x01".b
+          expected << "\x00".b * 15 << "\x01".b
+          expected << "\x00".b * 15 << "\x02".b
+          expected << "\x3a\x00\x05\x02\x00\x00\x01\x00".b
+          expected << "\x82\x00\x7d\xaa".b
+          expected << "\x00\x00\x00\x00".b
+          expected << "\x00".b * 16
+          expect(pkt.to_s).to eq(expected)
         end
       end
     end

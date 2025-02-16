@@ -93,7 +93,8 @@ module PacketGen
   # @param [String] str
   # @return [String] binary encoded string
   def self.force_binary(str)
-    str.dup.force_encoding(Encoding::BINARY)
+    Deprecation.deprecated(self, :force_binary, "String#b")
+    str.b
   end
 
   # Get default network interface (ie. first non-loopback declared interface)

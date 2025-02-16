@@ -27,7 +27,7 @@ module PacketGen
           clear
           return self if str.nil?
 
-          PacketGen.force_binary str
+          str = str.b unless str.encoding == Encoding::BINARY
           while !str.empty? && (self.size < @counter.to_i)
             rr = RR.new(@dns).read(str)
             rr = OPT.new(@dns).read(str) if rr.type?('OPT')

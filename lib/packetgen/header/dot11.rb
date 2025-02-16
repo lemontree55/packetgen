@@ -279,7 +279,7 @@ module PacketGen
         if self.instance_of?(Dot11)
           return self if str.nil?
 
-          force_binary str
+          str = str.b unless str.encoding == Encoding::BINARY
           self[:frame_ctrl].read(str[0, 2])
 
           case type
@@ -308,7 +308,7 @@ module PacketGen
       # @return [String]
       def to_s
         define_applicable_attributes
-        @applicable_attributes.map { |f| force_binary @attributes[f].to_s }.join
+        @applicable_attributes.map { |f| @attributes[f].to_s.b }.join
       end
 
       # Get human readable type

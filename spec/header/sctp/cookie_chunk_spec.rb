@@ -40,7 +40,7 @@ module PacketGen
           it 'converts a CookieEchoChunk to String' do
             cookie = CookieEchoChunk.new(cookie: 'cookie')
             cookie.calc_length
-            bin = binary("\x0a\x00\x00\x0acookie\x00\x00")
+            bin = "\x0a\x00\x00\x0acookie\x00\x00".b
             expect(cookie.to_s).to eq(bin)
           end
         end
@@ -78,7 +78,7 @@ module PacketGen
         describe '#to_s' do
           it 'converts a CookieEchoChunk to String' do
             cookie = CookieAckChunk.new
-            bin = binary("\x0b\x00\x00\x04")
+            bin = "\x0b\x00\x00\x04".b
             expect(cookie.to_s).to eq(bin)
           end
         end

@@ -63,18 +63,18 @@ module PacketGen
           clear
           return self if str.nil?
 
-          PacketGen.force_binary(str)
+          strb = str.to_s.b
           start = 0
           loop do
-            index = str[start, 2].unpack1('n')
+            index = strb[start, 2].unpack1('n')
             if pointer?(index)
               # Pointer on another label
-              @pointer = str[start, 2]
+              @pointer = strb[start, 2]
               break
             else
-              label = add_label_from(str[start..])
+              label = add_label_from(strb[start..])
               start += label.sz
-              break if label.empty? || str[start..].empty?
+              break if label.empty? || strb[start..].empty?
             end
           end
           # force resolution of compressed names

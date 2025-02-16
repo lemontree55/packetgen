@@ -19,7 +19,7 @@ module PacketGen
           return s if no_padding
 
           padlen = -(s.size % -4)
-          s << force_binary("\x00" * padlen)
+          s << "\x00".b * padlen
         end
 
         # Say if binary string is padded

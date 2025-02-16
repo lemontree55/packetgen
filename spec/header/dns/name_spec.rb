@@ -17,7 +17,7 @@ module PacketGen
 
         describe '#read' do
           it 'sets Name from a binary string' do
-            name.read(binary("\0"))
+            name.read("\0".b)
             expect(name.to_human).to eq('.')
 
             name.read generate_label_str(%w[www example net])
@@ -29,7 +29,7 @@ module PacketGen
             name.dns = dns
 
             offset = DNS.new.sz
-            str = binary("\x03www#{[0xc0, offset].pack('C2')}")
+            str = "\x03www#{[0xc0, offset].pack('C2')}".b
             name.read(str)
             expect(name.to_human).to eq('www.example.net.')
           end

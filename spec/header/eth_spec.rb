@@ -91,7 +91,7 @@ module PacketGen
         end
 
         it 'send a Eth header on wire', :sudo do
-          body = binary("\x00" * 64)
+          body = "\x00".b * 64
           pkt = Packet.gen('Eth', dst: 'ff:ff:ff:ff:ff:ff',
                                   src: 'ff:ff:ff:ff:ff:ff').add('IP', body: body)
           Thread.new do
@@ -113,8 +113,7 @@ module PacketGen
       describe '#to_s' do
         it 'returns a binary string' do
           ethx = Eth.new(dst: '00:01:02:03:04:05', ethertype: 0x800).to_s
-          expected = binary("\x00\x01\x02\x03\x04\x05" \
-                            "\x00\x00\x00\x00\x00\x00\x08\x00")
+          expected = "\x00\x01\x02\x03\x04\x05\x00\x00\x00\x00\x00\x00\x08\x00".b
           expect(ethx).to eq(expected)
         end
       end

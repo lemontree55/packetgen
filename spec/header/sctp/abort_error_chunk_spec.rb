@@ -11,7 +11,7 @@ COMMON_ERROR_CAUSES = '<InvalidStreamId: 4660>,<MissingMandatoryParameter: 1,2,3
 HUMAN_ABORT_CHUNK = "<chunk:ABORT,flags:t,causes:#{COMMON_ERROR_CAUSES}>"
 HUMAN_ERROR_CHUNK = "<chunk:ERROR,causes:#{COMMON_ERROR_CAUSES}>"
 
-COMMON_BINARY_ERROR_CAUSES = binary("\x00\x01\x00\x08\x12\x34\x00\x00" \
+COMMON_BINARY_ERROR_CAUSES = "\x00\x01\x00\x08\x12\x34\x00\x00" \
                                     "\x00\x02\x00\x0a\x00\x01\x00\x02\x00\x03\x00\x00" \
                                     "\x00\x03\x00\x08\x00\x06\xf6\x1d" \
                                     "\x00\x04\x00\x04" \
@@ -25,9 +25,9 @@ COMMON_BINARY_ERROR_CAUSES = binary("\x00\x01\x00\x08\x12\x34\x00\x00" \
                                     "\x00\x0a\x00\x04" \
                                     "\x00\x0b\x00\x20\x00\x05\x00\x08\x01\x01\x01\x0f\x00\x06\x00\x14\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02" \
                                     "\x00\x0c\x00\x07abc\x00" \
-                                    "\x00\x0d\x00\x06ef\x00\x00").freeze
-BINARY_ABORT_CHUNK = binary("\x06\x01\x00\xbc") + COMMON_BINARY_ERROR_CAUSES
-BINARY_ERROR_CHUNK = binary("\x09\x00\x00\xbc") + COMMON_BINARY_ERROR_CAUSES
+                                    "\x00\x0d\x00\x06ef\x00\x00".b.freeze
+BINARY_ABORT_CHUNK = "\x06\x01\x00\xbc".b + COMMON_BINARY_ERROR_CAUSES
+BINARY_ERROR_CHUNK = "\x09\x00\x00\xbc".b + COMMON_BINARY_ERROR_CAUSES
 
 MySCTP = PacketGen::Header::SCTP
 

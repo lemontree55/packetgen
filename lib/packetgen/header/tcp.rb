@@ -195,7 +195,7 @@ module PacketGen
       end
 
       # Set all flags at once
-      # @parameter [Integer] value
+      # @param [Integer] value
       # @return [Integer]
       def flags=(value)
         new_u16 = (self.u16 & 0xfe00) | (value & 0x1ff)

@@ -38,7 +38,3 @@ end
 def read_raw_packets(filename)
   PacketGen::PcapNG::File.new.read_packet_bytes(File.join(__dir__, 'header', filename))
 end
-
-def binary(str)
-  PacketGen.force_binary(str)
-end

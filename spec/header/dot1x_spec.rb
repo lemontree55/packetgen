@@ -84,7 +84,7 @@ module PacketGen
           it 'returns a binary string' do
             dot1x = Dot1x.new
             expected = "\x01\x00\x00\x00"
-            expect(dot1x.to_s).to eq(binary(expected))
+            expect(dot1x.to_s).to eq(expected.b)
           end
         end
 

@@ -77,7 +77,7 @@ module PacketGen
           igmp = IGMP.new(type: 'MembershipQuery', max_resp_time: 20,
                           group_addr: '224.0.0.1')
           igmp.calc_checksum
-          expected = binary("\x11\x14\x0e\xea\xe0\x00\x00\x01")
+          expected = "\x11\x14\x0e\xea\xe0\x00\x00\x01".b
           expect(igmp.to_s).to eq(expected)
         end
       end
@@ -101,10 +101,10 @@ module PacketGen
           expect(pkt.ip.ttl).to eq(1)
           expect(pkt.ip.options.size).to eq(1)
           expect(pkt.ip.options[0]).to be_a(IP::RA)
-          expected = +"\x46\x00\x00\x20\x00\x00\x00\x00\x01\x02\xd7\x92"
-          expected << "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00"
-          expected << "\x11\x00\xee\xff\x00\x00\x00\x00"
-          expect(pkt.to_s).to eq(binary(expected))
+          expected = "\x46\x00\x00\x20\x00\x00\x00\x00\x01\x02\xd7\x92" \
+            "\x4b\x0c\x22\x38\xe0\x00\x00\x01\x94\x04\x00\x00" \
+            "\x11\x00\xee\xff\x00\x00\x00\x00".b
+          expect(pkt.to_s).to eq(expected)
         end
       end
     end

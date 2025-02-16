@@ -216,21 +216,21 @@ module PacketGen
         it 'may add a Question to question section' do
           q = DNS::Question.new(dns, name: 'www.example.org')
           expect { dns.qd << q }.to change(dns, :qdcount).by(1)
-          expected_str = +"\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00" <<
+          expected_str = +"\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00".b <<
                          generate_label_str(%w[www example org]) <<
-                         "\x00\x01\x00\x01"
-          expect(dns.to_s).to eq(binary(expected_str))
+                         "\x00\x01\x00\x01".b
+          expect(dns.to_s).to eq(expected_str)
         end
 
         it 'may add a RR to answer section' do
           an = DNS::RR.new(dns, name: 'www.example.org', type: 'AAAA', ttl: 3600,
                                 rdata: IPAddr.new('2000::1').hton)
           expect { dns.an << an }.to change(dns, :ancount).by(1)
-          expected_str = +"\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00" <<
+          expected_str = +"\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00".b <<
                          generate_label_str(%w[www example org]) <<
                          "\x00\x1c\x00\x01\x00\x00\x0e\x10\x00\x10\x20" \
-                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01"
-          expect(dns.to_s).to eq(binary(expected_str))
+                         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01".b
+          expect(dns.to_s).to eq(expected_str)
         end
       end
     end

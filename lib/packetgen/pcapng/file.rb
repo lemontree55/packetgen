@@ -41,7 +41,7 @@ module PacketGen
       # @param [String] str
       # @return [self]
       def read(str)
-        PacketGen.force_binary(str)
+        str = str.b unless str.encoding == Encoding::BINARY
         io = StringIO.new(str)
         parse_section(io)
         self

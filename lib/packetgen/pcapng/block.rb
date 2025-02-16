@@ -78,7 +78,7 @@ module PacketGen
       def to_io(str_or_io)
         return str_or_io if str_or_io.respond_to?(:read)
 
-        StringIO.new(force_binary(str_or_io.to_s))
+        StringIO.new(str_or_io.to_s.b)
       end
 
       def remove_padding(io, data_len)

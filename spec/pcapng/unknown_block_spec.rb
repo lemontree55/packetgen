@@ -38,8 +38,8 @@ module PacketGen
           @ub.type = 42
           @ub.body = '123'
 
-          str = "\x2a\x00\x00\x00\x10\x00\x00\x00123\x00\x10\x00\x00\x00"
-          expect(@ub.to_s).to eq(binary(str))
+          str = "\x2a\x00\x00\x00\x10\x00\x00\x00123\x00\x10\x00\x00\x00".b
+          expect(@ub.to_s).to eq(str)
         end
       end
     end

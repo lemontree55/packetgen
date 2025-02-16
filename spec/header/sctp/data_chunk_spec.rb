@@ -66,7 +66,7 @@ module PacketGen
           data = DataChunk.new(flag_i: true, tsn: 1, stream_id: 0x15a3, stream_sn: 0x51, ppid: 0x7f0025a3)
           data[:body] << 'abc'
           data.calc_length
-          golden = binary("\x00\x08\x00\x13\x00\x00\x00\x01\x15\xa3\x00\x51\x7f\x00\x25\xa3abc\x00")
+          golden = "\x00\x08\x00\x13\x00\x00\x00\x01\x15\xa3\x00\x51\x7f\x00\x25\xa3abc\x00".b
           expect(data.to_s).to eq(golden)
         end
 

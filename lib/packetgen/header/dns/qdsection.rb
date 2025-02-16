@@ -32,7 +32,7 @@ module PacketGen
           clear
           return self if str.nil?
 
-          PacketGen.force_binary str
+          str = str.b unless str.encoding == Encoding::ASCII_8BIT
           while !str.empty? && (self.size < @counter.to_i)
             question = Question.new(@dns).read(str)
             str.slice!(0, question.sz)

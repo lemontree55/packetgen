@@ -20,7 +20,7 @@ module PacketGen
 
     def initialize
       @headers = [].freeze
-      @binary_str = PacketGen.force_binary('')
+      @binary_str = ::String.new # Return empty string with encoding ASCII-8BIT, so BINARY
     end
 
     # Unknown packet, so unknown protocol.
@@ -40,7 +40,7 @@ module PacketGen
     # @param [String] str
     # @return [void]
     def body=(str)
-      @binary_str = PacketGen.force_binary(str)
+      @binary_str = str.b
     end
 
     # Write packet to a PCapNG file on disk.
@@ -56,7 +56,7 @@ module PacketGen
     # @param [String] binary_str
     # @return [self]
     def parse(binary_str, _first_header: nil)
-      @binary_str = PacketGen.force_binary(binary_str)
+      @binary_str = binary_str.b
       self
     end
 

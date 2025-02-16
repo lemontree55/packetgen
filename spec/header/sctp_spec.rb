@@ -85,8 +85,8 @@ module PacketGen
 
           expect(chunk.parameters[0]).to be_a(SCTP::StateCookieParameter)
           expect(chunk.parameters[0].length).to eq(196)
-          expect(chunk.parameters[0].value[0, 2]).to eq(binary("\xb3\x49"))
-          expect(chunk.parameters[0].value[-2, 2]).to eq(binary("\x00\x00"))
+          expect(chunk.parameters[0].value[0, 2]).to eq("\xb3\x49".b)
+          expect(chunk.parameters[0].value[-2, 2]).to eq("\x00\x00".b)
         end
 
         it 'sets COOKIE_ECHO chunk' do
@@ -98,7 +98,7 @@ module PacketGen
           expect(chunk.type).to eq(SCTP::BaseChunk::TYPES['COOKIE_ECHO'])
           expect(chunk.length).to eq(196)
           expect(chunk.cookie.size).to eq(192)
-          expect(chunk.cookie[0, 4]).to eq(binary("\xb3\x49\x30\x15"))
+          expect(chunk.cookie[0, 4]).to eq("\xb3\x49\x30\x15".b)
         end
 
         it 'sets COOKIE_ACK chunk' do

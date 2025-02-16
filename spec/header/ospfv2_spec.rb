@@ -85,8 +85,8 @@ module PacketGen
           expect(ospf.checksum).to eq(0x273b)
           expect(ospf.human_au_type).to eq('NO_AUTH')
           expect(ospf.authentication).to eq(0)
-          expect(ospf.body.to_s[0]).to eq(binary("\xff"))
-          expect(ospf.body.to_s[-1]).to eq(binary("\x00"))
+          expect(ospf.body.to_s[0]).to eq("\xff".b)
+          expect(ospf.body.to_s[-1]).to eq("\x00".b)
         end
       end
 
@@ -105,8 +105,8 @@ module PacketGen
           ospf.calc_length
           ospf.calc_checksum
 
-          expected = binary("\x02\x01\x00\x18\xc0\xa8\xaa\x08" \
-                            "\x00\x00\x00\x01\x93\x34\x00\x00")
+          expected = "\x02\x01\x00\x18\xc0\xa8\xaa\x08" \
+                     "\x00\x00\x00\x01\x93\x34\x00\x00".b
           expected << [0].pack('Q')
           expect(ospf.to_s).to eq(expected)
         end

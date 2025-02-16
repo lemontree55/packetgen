@@ -115,8 +115,8 @@ module PacketGen
         it 'returns a binary string' do
           udp = UDP.new(body: [0, 1, 2, 3].pack('C*'))
           udp.calc_length
-          expected_str = "\x00" * 4 << "\x00\x0c\x00\x00\x00\x01\x02\x03"
-          expect(udp.to_s).to eq(binary(expected_str))
+          expected_str = "\x00".b * 4 << "\x00\x0c\x00\x00\x00\x01\x02\x03".b
+          expect(udp.to_s).to eq(expected_str)
         end
       end
 

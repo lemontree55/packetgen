@@ -93,7 +93,7 @@ module PacketGen
           let(:init) { InitChunk.new(initiate_tag: 0xfffefdfc, nos: 1, nis: 2) }
 
           it 'converts a simple InitChunk to String' do
-            bin = binary("\x01\x00\x00\x00\xff\xfe\xfd\xfc\x00\x00\x00\x00\x00\x01\x00\x02\x00\x00\x00\x00")
+            bin = "\x01\x00\x00\x00\xff\xfe\xfd\xfc\x00\x00\x00\x00\x00\x01\x00\x02\x00\x00\x00\x00".b
             expect(init.to_s).to eq(bin)
           end
 
@@ -102,9 +102,9 @@ module PacketGen
             init.parameters << { type: 'IPv4', value: '1.2.3.4' }
             init.calc_length
 
-            bin = binary("\x01\x00\x00\x20\xff\xfe\xfd\xfc\x00\x00\x00\x00\x00\x01\x00\x02\x00\x00\x00\x00")
-            bin << binary("\x80\x00\x00\x04")
-            bin << binary("\x00\x05\x00\x08\x01\x02\x03\x04")
+            bin = "\x01\x00\x00\x20\xff\xfe\xfd\xfc\x00\x00\x00\x00\x00\x01\x00\x02\x00\x00\x00\x00".b
+            bin << "\x80\x00\x00\x04".b
+            bin << "\x00\x05\x00\x08\x01\x02\x03\x04".b
             expect(init.to_s).to eq(bin)
           end
         end

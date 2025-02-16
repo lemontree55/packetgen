@@ -39,7 +39,7 @@ module PacketGen
         describe '#to_s' do
           it 'converts to binary String' do
             shutdown = ShutdownChunk.new(ctsn_ack: 0xfffefdfc)
-            bin = binary("\x07\x00\x00\x08\xff\xfe\xfd\xfc")
+            bin = "\x07\x00\x00\x08\xff\xfe\xfd\xfc".b
             expect(shutdown.to_s).to eq(bin)
           end
         end
@@ -77,7 +77,7 @@ module PacketGen
         describe '#to_s' do
           it 'converts to binary String' do
             shutdown = ShutdownAckChunk.new
-            bin = binary("\x08\x00\x00\x04")
+            bin = "\x08\x00\x00\x04".b
             expect(shutdown.to_s).to eq(bin)
           end
         end
@@ -115,7 +115,7 @@ module PacketGen
         describe '#to_s' do
           it 'converts to binary String' do
             shutdown = ShutdownCompleteChunk.new
-            bin = binary("\x0e\x00\x00\x04")
+            bin = "\x0e\x00\x00\x04".b
             expect(shutdown.to_s).to eq(bin)
           end
         end

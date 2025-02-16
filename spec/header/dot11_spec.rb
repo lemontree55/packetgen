@@ -120,7 +120,7 @@ module PacketGen
           expect(pkts[1].is?('Dot11::Management')).to be(true)
           expect(pkts[1].dot11_probereq.elements[1].human_type).to eq('Rates')
           expect(pkts[1].dot11_probereq.elements[1].value)
-            .to eq(binary("\x82\x84\x8b\x96\x0c\x12\x18\x24"))
+            .to eq("\x82\x84\x8b\x96\x0c\x12\x18\x24".b)
           expect(pkts[3].is?('Dot11::Management')).to be(true)
           expect(pkts[3].dot11_proberesp.timestamp).to eq(0x26bbcad38)
           expect(pkts[3].dot11_proberesp.beacon_interval).to eq(0x64)

@@ -97,7 +97,7 @@ module PacketGen
           expect(pkt.eap.human_type).to eq('Expanded Types')
           expect(pkt.eap.vendor_id).to eq(0x372a)
           expect(pkt.eap.vendor_type).to eq(1)
-          expect(pkt.body).to eq(binary("\x01\x00"))
+          expect(pkt.body).to eq("\x01\x00".b)
 
           pkt = Packet.parse(raws.last)
           expect(pkt.is?('EAP')).to be(true)
@@ -111,17 +111,17 @@ module PacketGen
       describe '#to_s' do
         it 'returns a binary string without type field' do
           eap = EAP.new(code: 'Success')
-          expect(eap.to_s).to eq(binary("\x03\x00\x00\x04"))
+          expect(eap.to_s).to eq("\x03\x00\x00\x04".b)
         end
 
         it 'returns a binary string with type field' do
           eap = EAP.new(code: 'Request', type: 46)
-          expect(eap.to_s).to eq(binary("\x01\x00\x00\x05\x2e"))
+          expect(eap.to_s).to eq("\x01\x00\x00\x05\x2e".b)
         end
 
         it 'returns a binary string with type and vendor fields' do
           eap = EAP.new(code: 'Request', type: 254)
-          expect(eap.to_s).to eq(binary("\x01\x00\x00\x0c\xfe\x00\x00\x00\x00\x00\x00\x00"))
+          expect(eap.to_s).to eq("\x01\x00\x00\x0c\xfe\x00\x00\x00\x00\x00\x00\x00".b)
         end
       end
 

@@ -2,10 +2,10 @@
 
 require_relative '../spec_helper'
 
-DUID_LLT_DATA = binary("\x00\x01\x00\x01\x29\xc0\xde\x21\x00\x11\x22\x33\x44\x55").freeze
-DUID_EN_DATA = binary("\x00\x02\x00\x00\x00\t\f\xC0\x84\xDD\x03\x00\t\x12").freeze
-DUID_LL_DATA = binary("\x00\x03\x00\x01\x00\x11\x22\x33\x44\x55").freeze
-DUID_OTHER_DATA = binary("\x00\xF0\x00\x00\x00\x00").freeze
+DUID_LLT_DATA = "\x00\x01\x00\x01\x29\xc0\xde\x21\x00\x11\x22\x33\x44\x55".b.freeze
+DUID_EN_DATA = "\x00\x02\x00\x00\x00\t\f\xC0\x84\xDD\x03\x00\t\x12".b.freeze
+DUID_LL_DATA = "\x00\x03\x00\x01\x00\x11\x22\x33\x44\x55".b.freeze
+DUID_OTHER_DATA = "\x00\xF0\x00\x00\x00\x00".b.freeze
 
 module PacketGen
   module Header
@@ -179,7 +179,7 @@ module PacketGen
           expect(d.type).to eq(DHCPv6::DUID::TYPES['DUID-EN'])
           expect(d.human_type).to eq('DUID-EN')
           expect(d.en).to eq(9)
-          expect(d.identifier).to eq(binary("\f\xC0\x84\xDD\x03\x00\t\x12"))
+          expect(d.identifier).to eq("\f\xC0\x84\xDD\x03\x00\t\x12".b)
         end
 
         it 'infers a DUID::LL object when reading a DUID-LL header' do
@@ -195,7 +195,7 @@ module PacketGen
           d = duid.read(DUID_OTHER_DATA)
           expect(d).to be_a(DHCPv6::DUID)
           expect(d.type).to eq(0xf0)
-          expect(d.body).to eq(binary("\x00\x00\x00\x00"))
+          expect(d.body).to eq("\x00\x00\x00\x00".b)
         end
       end
 

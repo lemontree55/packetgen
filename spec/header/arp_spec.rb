@@ -146,8 +146,8 @@ module PacketGen
                         src_ip: '192.168.1.105',
                         dst_ip: '192.168.1.2')
           expected = "\x00\x01\x08\x00\x06\x04\x00\x01\x00\x1b\x11\x51\xb7\xce" \
-                     "\xc0\xa8\x01\x69\x00\x00\x00\x00\x00\x00\xc0\xa8\x01\x02"
-          expect(arp.to_s).to eq(binary(expected))
+                     "\xc0\xa8\x01\x69\x00\x00\x00\x00\x00\x00\xc0\xa8\x01\x02".b
+          expect(arp.to_s).to eq(expected)
         end
       end
 

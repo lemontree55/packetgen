@@ -93,7 +93,7 @@ module PacketGen
             expect(options.first).to be_a(ECHO)
             expect(options.first.value).to eq(0x87654321)
             expect(options.last).to be_a(TS)
-            expected_ts_value = binary("\x01\x23\x45\x67\x89\xab\xcd\xef")
+            expected_ts_value = "\x01\x23\x45\x67\x89\xab\xcd\xef".b
             expect(options.last.value).to eq(expected_ts_value)
           end
 
@@ -131,7 +131,7 @@ module PacketGen
             expect(options.first).to be_a(ECHO)
             expect(options.first.value).to eq(0x87654321)
             expect(options.last).to be_a(TS)
-            expected_ts_value = binary("\x01\x23\x45\x67\x89\xab\xcd\xef")
+            expected_ts_value = "\x01\x23\x45\x67\x89\xab\xcd\xef".b
             expect(options.last.value).to eq(expected_ts_value)
           end
 

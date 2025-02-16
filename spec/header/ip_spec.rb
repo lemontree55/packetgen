@@ -129,8 +129,8 @@ module PacketGen
           expect(ip.body).to be_a(Header::ICMP)
 
           raw_pkt = PacketGen.gen('IP', src: '192.168.0.1', dst: '192.168.1.2', ihl: 9, protocol: 254).to_s
-          raw_pkt << binary("\x01\x83\x07\x04\xc0\xa8\x00\xfe")
-          raw_pkt << binary("\x88\x04\x01\x02\x94\x04\x00\x00")
+          raw_pkt << "\x01\x83\x07\x04\xc0\xa8\x00\xfe".b
+          raw_pkt << "\x88\x04\x01\x02\x94\x04\x00\x00".b
           raw_pkt << 'body'
           pkt = PacketGen.parse(raw_pkt, first_header: 'IP')
           expect(pkt.ip.ihl).to eq(9)
@@ -217,7 +217,7 @@ module PacketGen
         end
 
         it 'sends a IP header on wire', :sudo do
-          body = binary("\x00" * 64)
+          body = "\x00".b * 64
           pkt = Packet.gen('IP').add('UDP', sport: 35_535, dport: 65_535, body: body)
           Thread.new do
             sleep 0.1
@@ -242,8 +242,8 @@ module PacketGen
         ip = IP.new
         idx = [ip.id].pack('n')
         expected = "\x45\x00\x00\x14#{idx}\x00\x00\x40\x00\x00\x00" \
-                   "\x7f\x00\x00\x01\x7f\x00\x00\x01"
-        expect(ip.to_s).to eq(binary(expected))
+                   "\x7f\x00\x00\x01\x7f\x00\x00\x01".b
+        expect(ip.to_s).to eq(expected)
       end
     end
 
@@ -308,7 +308,7 @@ module PacketGen
       describe '#<<' do
         it 'accepts options as Option-subclass objects' do
           ip.options << IP::RA.new
-          expect(ip.options.to_s).to eq(binary("\x94\x04\x00\x00"))
+          expect(ip.options.to_s).to eq("\x94\x04\x00\x00".b)
         end
 
         it 'accepts options as hashes' do

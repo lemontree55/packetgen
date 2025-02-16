@@ -218,8 +218,7 @@ module PacketGen
           ipv6.calc_length
           expected = +"\x60\x00\x00\x00\x00\x04\x00\x40"
           expected << ("\x00" * 15 << "\x01") * 2 << 'body'
-          binary expected
-          expect(ipv6.to_s).to eq(expected)
+          expect(ipv6.to_s).to eq(expected.b)
         end
       end
 
