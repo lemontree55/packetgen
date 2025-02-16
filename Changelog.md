@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 
 * Fix `Inspect.inspect_attribute`: bit attribute type is now human-readable on inspect.
+* Fix `Packet#body` documentation. It returns `nil` if packet has no body.
+* Fix `Packet#body=`: it now raises `Error` exception if packet has no body, instead of `NoMethodError` one.
+* Fix `Utils.mitm`, which crashed on instanciating `Utils::ARPSpoofer`.
+* Update yard documentation
+
+## Deprecated
+
+* Deprecate `PacketGen.force_binary` in favor of Ruby's `String#b`.
 
 ## Packetgen 4.0.0 - 2024-12-28
 
