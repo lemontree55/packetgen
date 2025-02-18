@@ -9,7 +9,7 @@
 module PacketGen
   module Header
     class DNS
-      # DNS Name, defined as a suite of labels. A label is of type {BinStruct::IntString}.
+      # DNS Name, defined as a suite of labels. A label is of type +BinStruct::IntString+.
       # @author Sylvain Daubert
       # @author LemonTree55
       class Name < BinStruct::Array

@@ -61,12 +61,7 @@ module PacketGen
       str << Inspect::FMT_ATTR % [type, attr, value]
     end
 
-    # Format an attribute for +#inspect+.
-    # 3 cases are handled:
-    # * attribute value is a {BinStruct::Int}: show value as integer and in
-    #   hexdecimal format,
-    # * attribute value responds to +#to_human+: call it,
-    # * else, +#to_s+ is used to format attribute value.
+    # Format an attribute for +#inspect+. Call +#format_inspect} on +value+.
     # @param [Symbol] attr attribute name
     # @param [Object] value attribute value
     # @param [Integer] level

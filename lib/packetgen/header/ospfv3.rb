@@ -24,15 +24,15 @@ module PacketGen
     #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # An OSPFv3 header consists of:
-    # * a {#version} field ({BinStruct::Int8}),
-    # * a {#type} field ({BinStruct::Int8Enum}),
-    # * a {#length} field ({BinStruct::Int16}). The length includes the header,
-    # * a {#router_id} field ({BinStruct::Int32}),
-    # * an {#area_id} field ({BinStruct::Int32}),
-    # * a {#checksum} field ({BinStruct::Int16}),
-    # * an {#instance_id} field ({BinStruct::Int8}),
-    # * a {#reserved} field ({BinStruct::Int8}),
-    # * and a {#body} ({BinStruct::String}).
+    # * a {#version} field (+BinStruct::Int8+),
+    # * a {#type} field (+BinStruct::Int8Enum+),
+    # * a {#length} field (+BinStruct::Int16+). The length includes the header,
+    # * a {#router_id} field (+BinStruct::Int32+),
+    # * an {#area_id} field (+BinStruct::Int32+),
+    # * a {#checksum} field (+BinStruct::Int16+),
+    # * an {#instance_id} field (+BinStruct::Int8+),
+    # * a {#reserved} field (+BinStruct::Int8+),
+    # * and a {#body} (+BinStruct::String+).
     #
     # == Create an OSPFv3 header
     #   # standalone

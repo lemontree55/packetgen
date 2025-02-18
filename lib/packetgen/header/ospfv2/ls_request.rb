@@ -9,7 +9,7 @@
 module PacketGen
   module Header
     class OSPFv2
-      # This class handle a LS request, which is composed 3 {BinStruct::Int32} fields:
+      # This class handle a LS request, which is composed 3 +BinStruct::Int32+ fields:
       # * {#type},
       # * {#link_state_id},
       # * and {#advertising_router}.
@@ -43,7 +43,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized BinStruct::Array to handle series
       # of {LSR LSRs}.
       # @author Sylvain Daubert
       class ArrayOfLSR < BinStruct::Array

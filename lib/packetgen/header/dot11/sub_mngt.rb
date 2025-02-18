@@ -28,8 +28,8 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 0.
       #
       # Add fields:
-      # * {#cap} ({BinStruct::Int16le}),
-      # * {#listen_interval} ({BinStruct::Int16le}).
+      # * {#cap} (+BinStruct::Int16le+),
+      # * {#listen_interval} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class AssoReq < SubMngt
         # @!attribute cap
@@ -47,9 +47,9 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 1.
       #
       # Add fields:
-      # * {#cap} ({BinStruct::Int16le}),
-      # * {#status} ({BinStruct::Int16le}),
-      # * {#aid} ({BinStruct::Int16le}).
+      # * {#cap} (+BinStruct::Int16le+),
+      # * {#status} (+BinStruct::Int16le+),
+      # * {#aid} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class AssoResp < SubMngt
         # @!attribute cap
@@ -70,8 +70,8 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 2.
       #
       # Add fields:
-      # * {#cap} ({BinStruct::Int16le}),
-      # * {#listen_interval} ({BinStruct::Int16le}),
+      # * {#cap} (+BinStruct::Int16le+),
+      # * {#listen_interval} (+BinStruct::Int16le+),
       # * {#current_ap} ({Eth::MacAddr}).
       # @author Sylvain Daubert
       class ReAssoReq < AssoReq
@@ -87,9 +87,9 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 3.
       #
       # Add fields:
-      # * {#cap} ({BinStruct::Int16le}),
-      # * {#status} ({BinStruct::Int16le}),
-      # * {#aid} ({BinStruct::Int16le}).
+      # * {#cap} (+BinStruct::Int16le+),
+      # * {#status} (+BinStruct::Int16le+),
+      # * {#aid} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class ReAssoResp < AssoResp
       end
@@ -112,9 +112,9 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 5.
       #
       # Add fields:
-      # * {#timestamp} ({BinStruct::Int64le}),
-      # * {#beacon_interval} ({BinStruct::Int16le}),
-      # * {#cap} ({BinStruct::Int16le}).
+      # * {#timestamp} (+BinStruct::Int64le+),
+      # * {#beacon_interval} (+BinStruct::Int16le+),
+      # * {#cap} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class ProbeResp < SubMngt
         # @!attribute timestamp
@@ -135,9 +135,9 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 8.
       #
       # Add fields:
-      # * {#timestamp} ({BinStruct::Int64le}),
-      # * {#interval} ({BinStruct::Int16le}),
-      # * {#cap} ({BinStruct::Int16le}).
+      # * {#timestamp} (+BinStruct::Int64le+),
+      # * {#interval} (+BinStruct::Int16le+),
+      # * {#cap} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class Beacon < SubMngt
         # @!attribute timestamp
@@ -168,7 +168,7 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 10.
       #
       # Add fields:
-      # * {#reason} ({BinStruct::Int16le}).
+      # * {#reason} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class Disas < SubMngt
         # @!attribute reason
@@ -183,9 +183,9 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 11.
       #
       # Add fields:
-      # * {#algo} ({BinStruct::Int16le}),
-      # * {#seqnum} ({BinStruct::Int16le}),
-      # * {#status} ({BinStruct::Int16le}).
+      # * {#algo} (+BinStruct::Int16le+),
+      # * {#seqnum} (+BinStruct::Int16le+),
+      # * {#status} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class Auth < SubMngt
         # @!attribute algo
@@ -206,7 +206,7 @@ module PacketGen
       # Specialize {Dot11::Management} with +subtype+ set to 12.
       #
       # Add fields:
-      # * {#reason} ({BinStruct::Int16le}).
+      # * {#reason} (+BinStruct::Int16le+).
       # @author Sylvain Daubert
       class DeAuth < SubMngt
         # @!attribute reason

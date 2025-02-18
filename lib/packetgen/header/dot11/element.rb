@@ -15,7 +15,7 @@ module PacketGen
       #  #
       #  # An {Element} is a piece of data contained in a Dot11 management frame.
       #  # @since 1.4.0
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Element < BinStruct::AbstractTLV; end
       # @private
       Element = BinStruct::AbstractTLV.create

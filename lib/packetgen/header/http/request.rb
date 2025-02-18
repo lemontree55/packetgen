@@ -10,9 +10,9 @@ module PacketGen
   module Header
     module HTTP
       # An HTTP/1.1 Request packet consists of:
-      # * the http verb ({BinStruct::String}).
-      # * the path ({BinStruct::String}).
-      # * the version ({BinStruct::String}).
+      # * the http verb (+BinStruct::String+).
+      # * the path (+BinStruct::String+).
+      # * the version (+BinStruct::String+).
       # * associated http headers ({HTTP::Headers}).
       #
       # == Create a HTTP Request header

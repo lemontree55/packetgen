@@ -10,11 +10,11 @@ module PacketGen
   module Header
     module HTTP
       # An HTTP/1.1 Response packet consists of:
-      # * the version ({BinStruct::String}).
-      # * the status code ({BinStruct::String}).
-      # * the status message ({BinStruct::String}).
+      # * the version (+BinStruct::String+).
+      # * the status code (+BinStruct::String+).
+      # * the status message (+BinStruct::String+).
       # * associated http headers ({HTTP::Headers}).
-      # * the actual http payload body ({BinStruct::String}).
+      # * the actual http payload body (+BinStruct::String+).
       #
       # == Create a HTTP Response header
       #   # standalone

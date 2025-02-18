@@ -16,15 +16,15 @@ module PacketGen
       # (data frame).
       #
       # A IEEE 802.11 data header consists of:
-      # * a {#frame_ctrl} ({BinStruct::Int16}),
-      # * a {#id}/duration ({BinStruct::Int16le}),
+      # * a {#frame_ctrl} (+BinStruct::Int16+),
+      # * a {#id}/duration (+BinStruct::Int16le+),
       # * a {#mac2} ({Eth::MacAddr}),
       # * a {#mac3} ({Eth::MacAddr}),
-      # * a {#sequence_ctrl} ({BinStruct::Int16}),
+      # * a {#sequence_ctrl} (+BinStruct::Int16+),
       # * sometimes a {#mac4} ({Eth::MacAddr}),
-      # * sometimes a {#qos_ctrl} ({BinStruct::Int16}),
-      # * a {#body} (a {BinStruct::String} or another {Base} class),
-      # * and a Frame check sequence ({#fcs}, of type {BinStruct::Int32le}).
+      # * sometimes a {#qos_ctrl} (+BinStruct::Int16+),
+      # * a {#body} (a +BinStruct::String+ or another {Base} class),
+      # * and a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+).
       # @author Sylvain Daubert
       class Data < Dot11
         # @param [Hash] options

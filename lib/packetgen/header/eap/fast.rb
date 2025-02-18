@@ -13,9 +13,9 @@ module PacketGen
       # Secure Tunneling, {https://tools.ietf.org/html/rfc4851 RFC 4851}
       #
       # {EAP::FAST} has following fields:
-      # * {#flags} ({BinStruct::Int8}),
-      # * optionally {#message_length} ({BinStruct::Int32}), if +#l?+ is +true+,
-      # * {#body} ({BinStruct::String}).
+      # * {#flags} (+BinStruct::Int8+),
+      # * optionally {#message_length} (+BinStruct::Int32+), if +#l?+ is +true+,
+      # * {#body} (+BinStruct::String+).
       # @author Sylvain Daubert
       # @since 2.1.4
       class FAST < TTLS

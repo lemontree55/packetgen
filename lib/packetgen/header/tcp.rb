@@ -29,9 +29,9 @@ module PacketGen
     #   |                             data                              |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A TCP header consists of:
-    # * a source port ({#sport}, {BinStruct::Int16} type),
+    # * a source port ({#sport}, +BinStruct::Int16+ type),
     # * a destination port ({#dport}, +Int16+ type),
-    # * a sequence number ({#seqnum}, {BinStruct::Int32} type),
+    # * a sequence number ({#seqnum}, +BinStruct::Int32+ type),
     # * an acknownledge number ({#acknum}, +Int32+ type),
     # * a 16-bit field ({#u16}, +Int16+ type) composed of:
     #   * a 4-bit {#data_offset} self[attr],
@@ -41,7 +41,7 @@ module PacketGen
     # * a {#checksum} field (+Int16+ type),
     # * a urgent pointer ({#urg_pointer}, +Int16+ type),
     # * an optional {#options} field ({Options} type),
-    # * and a {#body} ({BinStruct::String} type).
+    # * and a {#body} (+BinStruct::String+ type).
     #
     # == Create a TCP header
     #  # standalone

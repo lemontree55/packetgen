@@ -37,16 +37,16 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A IPv6 header consists of:
-    # * a first 32-bit word ({#u32}, of {BinStruct::Int32} type) composed of:
+    # * a first 32-bit word ({#u32}, of +BinStruct::Int32+ type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 8-bit {#traffic_class} field,
     #   * a 20-bit {#flow_label} field,
-    # * a payload length field ({#length}, {BinStruct::Int16} type}),
-    # * a next header field ({#next}, {BinStruct::Int8} type),
+    # * a payload length field ({#length}, +BinStruct::Int16+ type}),
+    # * a next header field ({#next}, +BinStruct::Int8+ type),
     # * a hop-limit field ({#hop}, +Int8+ type),
     # * a source address field ({#src}, {IPv6::Addr} type),
     # * a destination address field ({#dst}, +IPv6::Addr+ type),
-    # * and a {#body} ({BinStruct::String} type).
+    # * and a {#body} (+BinStruct::String+ type).
     #
     # == Create a IPv6 header
     #  # standalone

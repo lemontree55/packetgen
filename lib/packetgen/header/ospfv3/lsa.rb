@@ -40,7 +40,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {Link Links}.
       # @author Sylvain Daubert
       class ArrayOfLink < BinStruct::Array
@@ -62,8 +62,8 @@ module PacketGen
       #
       # A LSA router payload is composed of:
       # * a header (see methods inherited from {LSAHeader}),
-      # * a 8-bit flag word {#flags} ({BinStruct::Int8}),
-      # * a 24-bit {#options} field ({BinStruct::Int24}),
+      # * a 8-bit flag word {#flags} (+BinStruct::Int8+),
+      # * a 24-bit {#options} field (+BinStruct::Int24+),
       # * and an array of {#links} ({ArrayOfLink}).
       # @author Sylvain Daubert
       class LSARouter < LSAHeader
@@ -109,8 +109,8 @@ module PacketGen
       # This class handles OSPFv3 LSA Intra-Area-Prefix payloads.
       #
       # An Intra-Area-Prefix payloads is composed of:
-      # * a 16-bit {#prefix_count} field ({BinStruct::Int16}),
-      # * a 16-bit {#ref_ls_type} field ({BinStruct::Int16Enum}),
+      # * a 16-bit {#prefix_count} field (+BinStruct::Int16+),
+      # * a 16-bit {#ref_ls_type} field (+BinStruct::Int16Enum+),
       # * a 32-bit {#ref_link_state_id} ({IP::Addr}),
       # * a 32-bit {#ref_advertising_router} ({IP::Addr}),
       # * and an array of {IPv6Prefix} ({#prefixes}, {ArrayOfIPv6Prefix}). In
@@ -150,10 +150,10 @@ module PacketGen
       # This class handles OSPFv3 LSA Link payloads.
       #
       # A Link payloads is composed of:
-      # * a 8-bit {#router_priority} field ({BinStruct::Int8}),
-      # * a 24-bit {#options} field ({BinStruct::Int24}),
+      # * a 8-bit {#router_priority} field (+BinStruct::Int8+),
+      # * a 24-bit {#options} field (+BinStruct::Int24+),
       # * a 128-bit IPv6 {#interface_addr} ({IPv6::Addr}),
-      # * a 32-bit {#prefix_count} field ({BinStruct::Int32}),
+      # * a 32-bit {#prefix_count} field (+BinStruct::Int32+),
       # * and an array of {IPv6Prefix} ({#prefixes}, {ArrayOfIPv6Prefix}).
       # @author Sylvain Daubert
       class LSALink < LSAHeader
@@ -178,7 +178,7 @@ module PacketGen
         define_attr :prefixes, ArrayOfIPv6Prefix, builder: ->(h, t) { t.new(counter: h[:prefix_count]) }
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {LSA LSAs} or {LSAHeader LSAHeaders}. It recognizes known LSA types
       # and infers correct type.
       # @author Sylvain Daubert

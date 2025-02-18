@@ -23,7 +23,7 @@ module PacketGen
       #   |                              ...                              |
       #
       # This paylod is implemented with two fields:
-      # * {#lsas_count}, a {BinStruct::Int32} field,
+      # * {#lsas_count}, a +BinStruct::Int32+ field,
       # * and {#lsas}, an {ArrayOfLSA} object.
       #
       # == Create a LSUpdate payload

@@ -31,13 +31,13 @@ module PacketGen
       #   |                              ...                              |
       #
       # A DB description payload is composed of:
-      # * a 16-bit {#mtu} field ({BinStruct::Int16}),
-      # * a 8-bit {#options} field ({BinStruct::Int8}),
-      # * a 8-bit {#flags} field ({BinStruct::Int8}). Supported flags are:
+      # * a 16-bit {#mtu} field (+BinStruct::Int16+),
+      # * a 8-bit {#options} field (+BinStruct::Int8+),
+      # * a 8-bit {#flags} field (+BinStruct::Int8+). Supported flags are:
       #   * {i_flag},
       #   * {m_flag},
       #   * {ms_flag},
-      # * a 32-bit {#sequence_number} field ({BinStruct::Int32}),
+      # * a 32-bit {#sequence_number} field (+BinStruct::Int32+),
       # * and an array of {LSAHeader LSAHeaders} ({#lsas}, {ArrayOfLSA}).
       #
       # == Create a DbDescription payload

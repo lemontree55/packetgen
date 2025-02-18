@@ -10,7 +10,7 @@ module PacketGen
   module Header
     # A TFTP (Trivial File Transfer Protocol,
     # {https://tools.ietf.org/html/rfc1350 RFC 1350}) header consists of:
-    # * a {#opcode} ({BinStruct::Int16Enum}),
+    # * a {#opcode} (+BinStruct::Int16Enum+),
     # * and a body. Its content depends on opcode.
     #
     # Specialized subclasses exists to handle {TFTP::RRQ Read Request},

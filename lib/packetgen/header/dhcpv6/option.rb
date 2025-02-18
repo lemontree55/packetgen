@@ -10,9 +10,9 @@ module PacketGen
   module Header
     class DHCPv6
       # A DHCPv6 consists of:
-      # * a {#type} ({BinStruct::Int16}),
-      # * a {#length} ({BinStruct::Int16}),
-      # * and a {#data} ({BinStruct::String}).
+      # * a {#type} (+BinStruct::Int16+),
+      # * a {#length} (+BinStruct::Int16+),
+      # * and a {#data} (+BinStruct::String+).
       #
       # Subclasses handles known options. These subclasses may remove {#data}
       # field to replace it by specific option field(s).
@@ -217,7 +217,7 @@ module PacketGen
       end
 
       # List of requested options for {ORO} option.
-      # Set of {BinStruct::Int16}
+      # Set of +BinStruct::Int16+
       # @author Sylvain Daubert
       class RequestedOptions < BinStruct::Array
         set_of BinStruct::Int16

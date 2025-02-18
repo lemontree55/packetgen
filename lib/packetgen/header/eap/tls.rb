@@ -13,9 +13,9 @@ module PacketGen
       # {https://tools.ietf.org/html/rfc5216 RFC 5216}
       #
       # {EAP::TLS} has following fields:
-      # * {#flags} ({BinStruct::Int8}),
-      # * optionally {#tls_length} ({BinStruct::Int32}), if +#l?+ is +true+,
-      # * {#body} ({BinStruct::String}).
+      # * {#flags} (+BinStruct::Int8+),
+      # * optionally {#tls_length} (+BinStruct::Int32+), if +#l?+ is +true+,
+      # * {#body} (+BinStruct::String+).
       # @author Sylvain Daubert
       # @since 2.1.4
       class TLS < EAP

@@ -18,9 +18,9 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A IGMP header consists of:
-    # * a {#type} field ({BinStruct::Int8Enum} type),
-    # * a {#max_resp_time} field ({BinStruct::Int8} type),
-    # * a {#checksum} field ({BinStruct::Int16} type),
+    # * a {#type} field (+BinStruct::Int8Enum+ type),
+    # * a {#max_resp_time} field (+BinStruct::Int8+ type),
+    # * a {#checksum} field (+BinStruct::Int16+ type),
     # * and a {#body}, containing more fields (see below).
     #
     # A IGMPv3 header may have additionnal fields. These attributes are handled by

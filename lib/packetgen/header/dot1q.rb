@@ -11,9 +11,9 @@ module PacketGen
     # IEEE 802.1Q VLAN tagging
     #
     # A VLAN tag consists of:
-    # * a {#tci Tag Control Information} ({BinStruct::Int16}),
-    # * a {#ethertype} ({BinStruct::Int16}),
-    # * and a body (a {BinStruct::String} or another Header class).
+    # * a {#tci Tag Control Information} (+BinStruct::Int16+),
+    # * a {#ethertype} (+BinStruct::Int16+),
+    # * and a body (a +BinStruct::String+ or another Header class).
     #
     # == Create a Dot1q header
     #   # Create a IP packet in VLAN #43

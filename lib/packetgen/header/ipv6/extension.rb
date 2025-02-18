@@ -25,9 +25,9 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # Such a header consists of:
-      # * a {#next} header field ({BinStruct::Int8}),
-      # * a {#length} field ({BinStruct::Int8}),
-      # * an {#options} field ({BinStruct::String}),
+      # * a {#next} header field (+BinStruct::Int8+),
+      # * a {#length} field (+BinStruct::Int8+),
+      # * an {#options} field (+BinStruct::String+),
       # * and a {#body}, containing next header.
       # @author Sylvain Daubert
       class Extension < Base

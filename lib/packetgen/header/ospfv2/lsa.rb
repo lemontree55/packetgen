@@ -45,7 +45,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {TosMetric TOS metrics}.
       # @author Sylvain Daubert
       class ArrayOfTosMetric < BinStruct::Array
@@ -83,7 +83,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {Link Links}.
       # @author Sylvain Daubert
       class ArrayOfLink < BinStruct::Array
@@ -94,8 +94,8 @@ module PacketGen
       #
       # A LSA router payload is composed of:
       # * a header (see methods inherited from {LSAHeader}),
-      # * a 16-bit flag word {#u16} ({BinStruct::Int16}),
-      # * a 16-bit {#link_count} field ({BinStruct::Int16}),
+      # * a 16-bit flag word {#u16} (+BinStruct::Int16+),
+      # * a 16-bit {#link_count} field (+BinStruct::Int16+),
       # * an array of {#links} ({ArrayOfLink}).
       # @author Sylvain Daubert
       class LSARouter < LSAHeader
@@ -164,7 +164,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {External Externals}.
       # @author Sylvain Daubert
       class ArrayOfExternal < BinStruct::Array
@@ -189,7 +189,7 @@ module PacketGen
                     builder: ->(h, t) { t.new(length_from: -> { h.length - 24 }) }
       end
 
-      # This class defines a specialized {BinStruct::Array array} to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {LSA LSAs}. It recognizes known LSA types and infers correct type.
       # @author Sylvain Daubert
       class ArrayOfLSA < BinStruct::Array

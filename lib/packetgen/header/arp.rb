@@ -9,9 +9,9 @@
 module PacketGen
   module Header
     # An ARP header consists of:
-    # * a hardware type ({#hrd} or {#htype}) field ({BinStruct::Int16}),
+    # * a hardware type ({#hrd} or {#htype}) field (+BinStruct::Int16+),
     # * a protocol type ({#pro} or {#ptype}) field (+Int16+),
-    # * a hardware address length ({#hln} or {#hlen}) field ({BinStruct::Int8}),
+    # * a hardware address length ({#hln} or {#hlen}) field (+BinStruct::Int8+),
     # * a protocol address length ({#pln} or {#plen}) field (+Int8+),
     # * a {#opcode} (or {#op}) field (+Int16+),
     # * a source hardware address ({#sha} or {#src_mac}) field ({Eth::MacAddr}),
@@ -122,7 +122,7 @@ module PacketGen
 
       private
 
-      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:disable Metrics
       def handle_options(options)
         options[:hrd] ||= options[:htype]
         options[:pro] ||= options[:ptype]
@@ -134,7 +134,7 @@ module PacketGen
         options[:tha] ||= options[:dst_mac]
         options[:tpa] ||= options[:dst_ip]
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:enable Metrics
 
       def invert_addresses
         self.spa, self.tpa = self.tpa, self.spa

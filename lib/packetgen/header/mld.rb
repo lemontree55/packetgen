@@ -26,8 +26,8 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A MLD header consists of:
-    # * a {#max_resp_delay} field ({BinStruct::Int16} type),
-    # * a {#reserved} field ({BinStruct::Int16} type),
+    # * a {#max_resp_delay} field (+BinStruct::Int16+ type),
+    # * a {#reserved} field (+BinStruct::Int16+ type),
     # * a {#mcast_addr} field ({Header::IPv6::Addr} type),
     # * and a {#body} (unused for MLDv1).
     #

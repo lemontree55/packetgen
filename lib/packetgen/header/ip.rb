@@ -27,11 +27,11 @@ module PacketGen
     #   |                    Options                    |    Padding    |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A IP header consists of:
-    # * a first byte ({#u8} of {BinStruct::Int8} type) composed of:
+    # * a first byte ({#u8} of +BinStruct::Int8+ type) composed of:
     #   * a 4-bit {#version} field,
     #   * a 4-bit IP header length ({#ihl}) field,
-    # * a Type of Service field ({#tos}, {BinStruct::Int8} type),
-    # * a total length ({#length}, {BinStruct::Int16} type),
+    # * a Type of Service field ({#tos}, +BinStruct::Int8+ type),
+    # * a total length ({#length}, +BinStruct::Int16+ type),
     # * a ID ({#id}, +Int16+ type),
     # * a {#frag} worg (+Int16+) composed of:
     #   * 3 1-bit flags ({#flag_rsv}, {#flag_df} and {#flag_mf}),
@@ -42,7 +42,7 @@ module PacketGen
     # * a source IP address ({#src}, {Addr} type),
     # * a destination IP address ({#dst}, +Addr+ type),
     # * an optional {#options} field ({Options} type),
-    # * and a {#body} ({BinStruct::String} type).
+    # * and a {#body} (+BinStruct::String+ type).
     #
     # == Create a IP header
     #  # standalone

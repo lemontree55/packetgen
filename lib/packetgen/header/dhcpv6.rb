@@ -22,8 +22,8 @@ module PacketGen
     #   |                                                               |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A DHCPv6 header is made of:
-    # * a {#msg_type} field ({BinStruct::Int8Enum}),
-    # * a {#transaction_id} field ({BinStruct::Int24}),
+    # * a {#msg_type} field (+BinStruct::Int8Enum+),
+    # * a {#transaction_id} field (+BinStruct::Int24+),
     # * and an {#options} field ({DHCPv6::Options}).
     #
     # == Create a DHCPv6 header

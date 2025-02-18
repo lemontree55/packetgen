@@ -16,12 +16,12 @@ module PacketGen
       # (control frame).
       #
       # A IEEE 802.11 control header consists of:
-      # * a {#frame_ctrl} ({BinStruct::Int16}),
-      # * a {#id}/duration ({BinStruct::Int16le}),
+      # * a {#frame_ctrl} (+BinStruct::Int16+),
+      # * a {#id}/duration (+BinStruct::Int16le+),
       # * a {#mac1} ({Eth::MacAddr}).
       # * sometimes a {#mac2} ({Eth::MacAddr}),
-      # * a {#body} (a {BinStruct::String} or another {Base} class),
-      # * and a Frame check sequence ({#fcs}, of type {BinStruct::Int32le}).
+      # * a {#body} (a +BinStruct::String+ or another {Base} class),
+      # * and a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+).
       # @author Sylvain Daubert
       class Control < Dot11
         # Control subtypes

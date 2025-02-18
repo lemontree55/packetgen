@@ -28,11 +28,11 @@ module PacketGen
       #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #   |                        ...                                    |
       # A HELLO payload consists of:
-      # * a {#interface_id} field ({BinStruct::Int32}),
-      # * a {#priority} field ({BinStruct::Int8}),
-      # * an {#options} field ({BinStruct::Int24}),
-      # * a {#hello_interval} field ({BinStruct::Int16}),
-      # * a {#dead_interval} field ({BinStruct::Int16}),
+      # * a {#interface_id} field (+BinStruct::Int32+),
+      # * a {#priority} field (+BinStruct::Int8+),
+      # * an {#options} field (+BinStruct::Int24+),
+      # * a {#hello_interval} field (+BinStruct::Int16+),
+      # * a {#dead_interval} field (+BinStruct::Int16+),
       # * a {#designated_router} field ({IP::Addr}),
       # * a {#backup_designated_router} field ({IP::Addr}),
       # * a {#neighbors} array containing neighbors as {IP::Addr}.

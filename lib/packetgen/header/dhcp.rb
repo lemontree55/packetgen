@@ -12,7 +12,7 @@ module PacketGen
     # RFC 2131}
     #
     # A DHCP header is quite simple. It is composed of:
-    # * a {#magic} field ({BinStruct::Int32}) to retrieve it in a BOOTP header,
+    # * a {#magic} field (+BinStruct::Int32+) to retrieve it in a BOOTP header,
     # * a, {#options} field ({Options} type, which is a collection of DHCP
     #   options).
     #

@@ -11,10 +11,10 @@ module PacketGen
     # IEEE 802.1X / EAPOL
     #
     # A IEEE 802.1X header consists of:
-    # * a {#version} ({BinStruct::Int8}),
-    # * a packet {#type} ({BinStruct::Int8}),
-    # * a {#length} ({BinStruct::Int16}),
-    # * and a body (a {BinStruct::String} or another Header class).
+    # * a {#version} (+BinStruct::Int8+),
+    # * a packet {#type} (+BinStruct::Int8+),
+    # * a {#length} (+BinStruct::Int16+),
+    # * and a body (a +BinStruct::String+ or another Header class).
     # == Create a Dot1x header
     #   pkt1 = PacketGen.gen('Eth').add('Dot1x', type: 1)
     #   pkt2 = PacketGen.gen('Eth').add('Dot1x')

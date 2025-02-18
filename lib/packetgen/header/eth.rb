@@ -11,8 +11,8 @@ module PacketGen
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
     # * a source MAC address (MacAddr),
-    # * a {#ethertype} ({BinStruct::Int16}),
-    # * and a body (a {BinStruct::String} or another Header class).
+    # * a {#ethertype} (+BinStruct::Int16+),
+    # * and a body (a +BinStruct::String+ or another Header class).
     #
     # == Create a Ethernet header
     #  # standalone

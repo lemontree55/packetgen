@@ -12,23 +12,23 @@ module PacketGen
     # RFC 951}
     #
     # A BOOTP header consists of:
-    # * an operation code field ({#op} of type {BinStruct::Int8Enum}),
-    # * a hardware address type ({#htype} of type {BinStruct::Int8}),
-    # * a hardware address length ({#hlen} of type {BinStruct::Int8}),
-    # * a {#hops} field ({BinStruct::Int8}),
-    # * a transaction ID ({#xid} of type {BinStruct::Int32}),
-    # * a {#secs} field (){BinStruct::Int16}),
-    # * a {#flags} field (){BinStruct::Int16}):
+    # * an operation code field ({#op} of type +BinStruct::Int8Enum+),
+    # * a hardware address type ({#htype} of type +BinStruct::Int8+),
+    # * a hardware address length ({#hlen} of type +BinStruct::Int8+),
+    # * a {#hops} field (+BinStruct::Int8+),
+    # * a transaction ID ({#xid} of type +BinStruct::Int32+),
+    # * a {#secs} field ()+BinStruct::Int16+),
+    # * a {#flags} field ()+BinStruct::Int16+):
     #   * a 1-bit broadcast flag ({#b}),
     #   * a 15-bit Must Be Zero field ({#mbz}),
     # * a {#ciaddr} field ({IP::Addr}),
     # * a {#yiaddr} field ({IP::Addr}),
     # * a {#siaddr} field ({IP::Addr}),
     # * a {#giaddr} field ({IP::Addr}),
-    # * a {#chaddr} field (16-byte {BinStruct::String}),
-    # * a {#sname} field (64-byte {BinStruct::CString}),
-    # * a {#file} field (128-byte {BinStruct::CString}),
-    # * and a body ({BinStruct::String}).
+    # * a {#chaddr} field (16-byte +BinStruct::String+),
+    # * a {#sname} field (64-byte +BinStruct::CString+),
+    # * a {#file} field (128-byte +BinStruct::CString+),
+    # * and a body (+BinStruct::String+).
     #
     # == Create a BOOTP header
     #   # standalone

@@ -12,10 +12,10 @@ module PacketGen
     # Logical-Link Control header
     #
     # A LLC header consists of:
-    # * a {#dsap} ({BinStruct::Int8}),
-    # * a {#ssap} ({BinStruct::Int8}),
-    # * a {#control} ({BinStruct::Int8}),
-    # * and a {#body} (a {BinStruct::String} or another {Base} class).
+    # * a {#dsap} (+BinStruct::Int8+),
+    # * a {#ssap} (+BinStruct::Int8+),
+    # * a {#control} (+BinStruct::Int8+),
+    # * and a {#body} (a +BinStruct::String+ or another {Base} class).
     # @author Sylvain Daubert
     # @since 1.4.0
     class LLC < Base
@@ -38,9 +38,9 @@ module PacketGen
     # Sub-Network Access Protocol
     #
     # A SNAP header consists of:
-    # * a {#oui} ({BinStruct::OUI}),
-    # * a {#proto_id} ({BinStruct::Int16}),
-    # * and a {#body} (a {BinStruct::String} or another {Base} class).
+    # * a {#oui} (+BinStruct::OUI+),
+    # * a {#proto_id} (+BinStruct::Int16+),
+    # * and a {#body} (a +BinStruct::String+ or another {Base} class).
     # @author Sylvain Daubert
     # @since 1.4.0
     class SNAP < Base

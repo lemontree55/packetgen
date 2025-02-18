@@ -12,15 +12,15 @@ module PacketGen
     # {https://tools.ietf.org/html/rfc3748 RFC 3748}
     #
     # A EAP header has:
-    # * a {#code} field ({BinStruct::Int8Enum}),
-    # * a {#id} field ({BinStruct::Int8}),
-    # * a {#length} field ({BinStruct::Int16}).
+    # * a {#code} field (+BinStruct::Int8Enum+),
+    # * a {#id} field (+BinStruct::Int8+),
+    # * a {#length} field (+BinStruct::Int16+).
     # Request (code 1) and Response (code 2) packets also have:
     # * a {#type} field (+BinStruct::Int8Enum+).
     # And Expanded Types (type 254) packets also have:
-    # * a {#vendor_id} field ({BinStruct::Int24}),
-    # * a {#vendor_type} field ({BinStruct::Int32}).
-    # Finally, all packets have a {#body} ({BinStruct::String}).
+    # * a {#vendor_id} field (+BinStruct::Int24+),
+    # * a {#vendor_type} field (+BinStruct::Int32+).
+    # Finally, all packets have a {#body} (+BinStruct::String+).
     #
     # == Create EAP headers
     # An EAP header may be created this way:

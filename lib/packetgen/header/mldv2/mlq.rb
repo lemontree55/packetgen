@@ -60,15 +60,15 @@ module PacketGen
       # +type+, +code+ and +checksum+ are attributes from {ICMPv6} header.
       #
       # MLQ attributes are:
-      # * {#max_resp_code #max_resp_code} ({BinStruct::Int16}),
-      # * {#reserved #reserved} ({BinStruct::Int16}),
+      # * {#max_resp_code #max_resp_code} (+BinStruct::Int16+),
+      # * {#reserved #reserved} (+BinStruct::Int16+),
       # * {#mcast_addr #mcast_addr} ({IPv6::Addr}),
-      # * {#flags} ({BinStruct::Int8}), with sub-fields:
+      # * {#flags} (+BinStruct::Int8+), with sub-fields:
       #   * a 4-bit {#flag_resv} field,
       #   * a 1-bit {#flag_s} boolean,
       #   * a 3-bit {#flag_qrv} field,
-      # * {#qqic} ({BinStruct::Int8}),
-      # * {#number_of_sources} ({BinStruct::Int16}),
+      # * {#qqic} (+BinStruct::Int8+),
+      # * {#number_of_sources} (+BinStruct::Int16+),
       # * and {#source_addr}, a {IPv6::ArrayOfAddr}.
       #
       # == Max Resp Delay

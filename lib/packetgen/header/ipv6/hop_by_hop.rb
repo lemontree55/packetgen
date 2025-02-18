@@ -11,7 +11,7 @@ module PacketGen
     class IPv6
       # @!parse
       #  # Option for {HopByHop} IPv6 extension header.
-      #  # @since 3.1.0 subclass of {BinStruct::AbstractTLV}
+      #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Option <AbstractTLV; end
       # @private
       Option = BinStruct::AbstractTLV.create
@@ -96,8 +96,8 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # Hop-by-hop IPv6 extension header consists of:
-      # * a {#next} header field ({BinStruct::Int8}),
-      # * a {#length} field ({BinStruct::Int8}),
+      # * a {#next} header field (+BinStruct::Int8+),
+      # * a {#length} field (+BinStruct::Int8+),
       # * an {#options} field ({Options}),
       # * and a {#body}, containing next header.
       # @author Sylvain Daubert

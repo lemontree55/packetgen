@@ -107,18 +107,18 @@ module PacketGen
     # @abstract This is a base class to demultiplex different IEEE 802.11 frames when
     #   parsing.
     # A IEEE 802.11 header may consist of at least:
-    # * a {#frame_ctrl} ({BinStruct::Int16}),
-    # * a {#id}/duration ({BinStruct::Int16le}),
+    # * a {#frame_ctrl} (+BinStruct::Int16+),
+    # * a {#id}/duration (+BinStruct::Int16le+),
     # * and a {#mac1} ({Eth::MacAddr}).
     # Depending on frame type and subtype, it may also contains:
     # * a {#mac2} ({Eth::MacAddr}),
     # * a {#mac3} ({Eth::MacAddr}),
-    # * a {#sequence_ctrl} ({BinStruct::Int16}),
+    # * a {#sequence_ctrl} (+BinStruct::Int16+),
     # * a {#mac4} ({Eth::MacAddr}),
-    # * a {#qos_ctrl} ({BinStruct::Int16}),
-    # * a {#ht_ctrl} ({BinStruct::Int32}),
-    # * a {#body} (a {BinStruct::String} or another {Base} class),
-    # * a Frame check sequence ({#fcs}, of type {BinStruct::Int32le})
+    # * a {#qos_ctrl} (+BinStruct::Int16+),
+    # * a {#ht_ctrl} (+BinStruct::Int32+),
+    # * a {#body} (a +BinStruct::String+ or another {Base} class),
+    # * a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+)
     #
     # == Header accessors
     # As Dot11 header types are defined under Dot11 namespace, Dot11 header accessors

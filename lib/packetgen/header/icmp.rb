@@ -15,9 +15,9 @@ module PacketGen
     #   |     Type      |     Code      |          Checksum             |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A ICMP header consists of:
-    # * a {#type} field ({BinStruct::Int8} type),
-    # * a {#code} field ({BinStruct::Int8} type),
-    # * a {#checksum} field ({BinStruct::Int16} type),
+    # * a {#type} field (+BinStruct::Int8+ type),
+    # * a {#code} field (+BinStruct::Int8+ type),
+    # * a {#checksum} field (+BinStruct::Int16+ type),
     # * and a {#body}.
     #
     # == Create a ICMP header
