@@ -93,7 +93,7 @@ module PacketGen
   # @param [String] str
   # @return [String] binary encoded string
   def self.force_binary(str)
-    Deprecation.deprecated(self, :force_binary, "String#b")
+    Deprecation.deprecated(self, :force_binary, 'String#b')
     str.b
   end
 

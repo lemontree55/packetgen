@@ -30,11 +30,11 @@ module PacketGen
       base_name = "#{klass}#{klass_method ? '.' : '#'}"
       complete_deprecated_method_name = "#{base_name}#{deprecated_method}"
       unless new_method.nil?
-        complete_new_method_name = if %w[# .].any?{ |punct| new_method.include?(punct) }
-          new_method
-        else
-          "#{base_name}#{new_method}"
-        end
+        complete_new_method_name = if %w[# .].any? { |punct| new_method.include?(punct) }
+                                     new_method
+                                   else
+                                     "#{base_name}#{new_method}"
+                                   end
       end
 
       file, line = caller(2..2).first.split(':')[0, 2]
