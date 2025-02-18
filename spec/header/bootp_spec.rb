@@ -19,6 +19,22 @@ module PacketGen
         end
       end
 
+      describe '#initialize' do
+      let(:bootp) { BOOTP.new }
+
+        it 'generate 16-byte chaddr' do
+          expect(bootp[:chaddr].sz).to eq(16)
+        end
+
+        it 'generate 64-byte sname' do
+          expect(bootp[:sname].sz).to eq(64)
+        end
+
+        it 'generate 128-byte file' do
+          expect(bootp[:file].sz).to eq(128)
+        end
+      end
+
       describe '#read' do
         it 'read a BOOTP header' do
           raw = read_raw_packets('dhcp.pcapng').first

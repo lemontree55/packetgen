@@ -184,8 +184,8 @@ module PacketGen
 
           chunk0 = sctp.chunks[0]
           chunk1 = sctp.chunks[1]
-          chunk0.body << '1234'
-          chunk1.body << '12345678'
+          chunk0[:body] << '1234'
+          chunk1[:body] << '12345678'
           sctp.calc_length
           expect(chunk0.length).to eq(8)
           expect(chunk1.length).to eq(12)
