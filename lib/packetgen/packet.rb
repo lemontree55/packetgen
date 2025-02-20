@@ -301,6 +301,7 @@ module PacketGen
         add_header(next_hdr, previous_header: prev_hdr) if prev_hdr && next_hdr
       end
       invalidate_header_cache
+      self
     rescue ArgumentError => e
       raise FormatError, e.message
     end
