@@ -25,9 +25,10 @@ module PacketGen
         #  @return [Integer]
         define_attr :type, BinStruct::Int16
         # @!attribute length
-        #  16-bit option length
+        #  16-bit option length. Length of data part.
         #  @return [Integer]
         define_attr :length, BinStruct::Int16
+        # @!scope class
         # @!attribute data
         #  variable length option data.
         #  @return [String]
@@ -216,13 +217,6 @@ module PacketGen
         end
       end
 
-      # List of requested options for {ORO} option.
-      # Set of +BinStruct::Int16+
-      # @author Sylvain Daubert
-      class RequestedOptions < BinStruct::Array
-        set_of BinStruct::Int16
-      end
-
       # DHCPv6 Option Request Option
       # @author Sylvain Daubert
       class ORO < Option
@@ -231,7 +225,7 @@ module PacketGen
 
         # @!attribute options
         #   @return [RequestedOptions]
-        define_attr :options, RequestedOptions, builder: ->(h, t) { t.new(length_from: h[:length]) }
+        define_attr :options, BinStruct::ArrayOfInt16, builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         # Get human-readable data
         # @return [String]
@@ -280,6 +274,9 @@ module PacketGen
       # @author Sylvain Daubert
       class RelayMessage < Option
         update_attr :type, default: 9
+        # @!attribute data
+        #  variable length option data.
+        #  @return [String]
       end
 
       # DHCPv6 Server Unicast option
@@ -302,8 +299,31 @@ module PacketGen
 
       # DHCPv6 Status Code option
       # @author Sylvain Daubert
-      class StatusCode < ElapsedTime
+      class StatusCode < Option
         update_attr :type, default: 13
+        remove_attr :data
+
+        # @!attribute status_code
+        #  16-bit status code
+        #  @return [Integer]
+        define_attr :status_code, BinStruct::Int16
+        # @!attribute status_message
+        #  UTF-8 encoded text string suitable for display to an end user
+        #  @return [::String]
+        define_attr :status_message, BinStruct::String
+
+        # @param [Hash] options
+        def initialize(options={})
+          options[:length] = options[:status_message].to_s.size + 2 if options[:status_message]
+          super
+          self.length = self.sz - 4 if options[:status_message].nil?
+        end
+
+        # Get human-readable data (status code)
+        # @return [String]
+        def human_data
+          status_code.to_s
+        end
       end
 
       # DHCPv6 Rapid Commit option

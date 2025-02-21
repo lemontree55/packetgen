@@ -140,12 +140,21 @@ module PacketGen
         end
 
         it 'accepts a StatusCode option as a hash' do
-          dhcpv6.options << { type: 'StatusCode', value: 1 }
+          dhcpv6.options << { type: 'StatusCode', status_code: 1 }
           expect(dhcpv6.options.size).to eq(1)
           expect(dhcpv6.options.first).to be_a(DHCPv6::StatusCode)
           expect(dhcpv6.options.first.type).to eq(13)
           expect(dhcpv6.options.first.length).to eq(2)
           expect(dhcpv6.options.first.to_human).to eq('StatusCode:1')
+        end
+
+        it 'accepts a StatusCode option as a hash, with a message' do
+          dhcpv6.options << { type: 'StatusCode', status_code: 2, status_message: 'code 2' }
+          expect(dhcpv6.options.size).to eq(1)
+          expect(dhcpv6.options.first).to be_a(DHCPv6::StatusCode)
+          expect(dhcpv6.options.first.type).to eq(13)
+          expect(dhcpv6.options.first.length).to eq(8)
+          expect(dhcpv6.options.first.to_human).to eq('StatusCode:2')
         end
 
         it 'accepts a RapidCommit option as a hash' do
