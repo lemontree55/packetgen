@@ -32,6 +32,7 @@ module PacketGen
           end
         end
 
+        # @return [Hash]
         def known_headers
           @known_headers ||= {}.freeze
         end

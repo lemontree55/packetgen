@@ -30,6 +30,8 @@ module PacketGen
     # Get protocol number from its name
     # @param [String] name
     # @return [Integer,nil] return nil for unknown protocol names
+    # @example
+    #   PacketGen::Proto.getprotobyname('tcp') #=> 6
     def self.getprotobyname(name)
       @cache[name]
     end
@@ -37,6 +39,8 @@ module PacketGen
     # Get protocol name from its number
     # @param [Integer] num
     # @return [String,nil] return nil for unknown protocol numbers
+    # @example
+    #   PacketGen::Proto.getprotobynumber(6) #=> 'tcp'
     def self.getprotobynumber(num)
       @cache.key(num)
     end

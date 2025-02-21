@@ -7,50 +7,58 @@
 # Copyright (C) 2016 Sylvain Daubert <sylvain.daubert@laposte.net>
 # This program is published under MIT license.
 
-# rubocop:disable Metrics/ClassLength
-
 module PacketGen
   # An object of type {Packet} handles a network packet. This packet may contain
   # multiple protocol headers, starting from MAC layer or from Network (OSI) layer.
   #
-  # Creating a packet is fairly simple:
-  #  Packet.gen 'IP', src: '192.168.1.1', dst: '192.168.1.2'
+  # A Packet is created using {.gen} method. Headers may be added to this packet using {#add}.
+  # It may also be created from parsing a binary string, using {.parse} method.
   #
-  # == Create a packet
-  # Packets may be hand-made or parsed from a binary string:
-  #  Packet.gen('IP', src: '192.168.1.1', dst: '192.168.1.2').add('UDP', sport: 45000, dport: 23)
-  #  Packet.parse(binary_string)
+  # @example Very simple packet
+  #   # Create a packet with a single IP header. IP source and destination addresses are set.
+  #   pkt = PacketGen::Packet.gen('IP', src: '192.168.1.1', dst: '192.168.1.2')
   #
-  # == Access packet information
-  #  pkt = Packet.gen('IP').add('UDP')
-  #  # read information
-  #  pkt.udp.sport
-  #  pkt.ip.ttl
-  #  # set information
-  #  pkt.udp.dport = 2323
-  #  pkt.ip.ttl = 1
-  #  pkt.ip(ttl: 1, id: 1234)
+  # @example Parsing a binary string
+  #  # a IP/ICMP packet, as binary string
+  #  binary_string = "E\x00\x00\x1C\xAA`\x00\x00@\x01M-\xC0\xA8\x01\x01\xC0\xA8\x01\x02\x00\b;1abcd".b
+  #  pkt = PacketGen::Packet.parse(binary_string)
+  #  pkt.is?('IP')    #=> true
+  #  pkt.is?('ICMP')  #=> true
   #
-  # == Save a packet to a file
-  #  pkt.write('file.pcapng')
+  # Information for each level is accessible through the associated header. Header is accessible through a
+  # method defined with its name at packet level (i.e. +#ip+ for a IP header).
   #
-  # == Get packets
-  # Packets may be captured from wire:
-  #  Packet.capture do |packet|
-  #    do_some_stuffs
-  #  end
-  #  packets = Packet.capture(iface: 'eth0', max: 5)  # get 5 packets from eth0
+  # @example Accessing header information
+  #   pkt = PacketGen::Packet.gen('IP').add('UDP')
+  #   # read information
+  #   pkt.udp.sport #=> 0
+  #   pkt.ip.ttl    #=> 64
+  #   # set information
+  #   pkt.udp.dport = 2323
+  #   pkt.ip.ttl = 1
+  #   # Set multiple attributes at once
+  #   pkt.ip(ttl: 1, id: 1234)
   #
-  # Packets may also be read from a file:
-  #  packets = Packet.read(file.pcapng)
+  # Packets may be written to files using {#write}:
+  #   pkt = PacketGen::Packet.gen('Eth')
+  #   pkt.write('file.pcapng')
   #
-  # == Save packets to a file
-  #  Packet.write 'file.pcapng', packets
+  # Packets may be captured from network interfaces:
+  #   # Capture all packets from default interface. Never end.
+  #   PacketGen::Packet.capture do |packet|
+  #     do_some_stuffs
+  #   end
   #
+  #   # Get 5 packets from eth0 interface
+  #   packets = Packet.capture(iface: 'eth0', max: 5)
+  #
+  # Finally, packets may also be read from a file:
+  #   packets = Packet.read(file.pcapng)
   # @author Sylvain Daubert
+  # @author LemonTree55
   class Packet
     # Get packet headers, ordered as they appear in the packet.
-    # @return [Array<Header::Base>]
+    # @return [Array<Headerable>]
     attr_reader :headers
     # Activaye or deactivate header cache (activated by default)
     # @return [Boolean]
@@ -182,6 +190,7 @@ module PacketGen
     end
 
     # Check if a protocol header is embedded in packet.
+    # @example
     #   pkt = PacketGen.gen('IP').add('UDP')
     #   pkt.is?('IP')   #=> true
     #   pkt.is?('TCP')  #=> false
@@ -219,15 +228,17 @@ module PacketGen
     end
 
     # Get packet body. If packet (i.e. last header) has no +:body+ field, return +nil+.
-    # @return [Headerable,nil]
+    # @return [Headerable,BinStruct::String,nil]
     def body
       last_header[:body] if last_header.respond_to?(:body)
     end
 
     # Set packet body
-    # @param [String] str
+    # @param [String] str Binary string
     # @return [void]
     # @raise [Error] Packet (i.e. last header) has no +:body+ field.
+    # @note To set a {Headerable} object, prefer #{<<}
+    # @see #<<
     def body=(str)
       raise Error, 'no body in last headeré' unless last_header.respond_to?(:body)
 
@@ -281,6 +292,13 @@ module PacketGen
     # @return [self] +self+ updated with new headers from +other+
     # @raise [BindingError] do not known how to encapsulate
     # @since 1.1.0
+    # @example
+    #   # Create a first IP packet
+    #   ip1 = PacketGen::Packet.gen('IP', id: 1)
+    #   # Create second IP packet, to encapsulate in first
+    #   ip2 = PacketGen.gen('IP', id: 2)
+    #   ip1.encapsulate(ip2)
+    #   ip1.ip(2) == ip2.ip
     def encapsulate(other, parsing: false)
       other.headers.each_with_index do |h, i|
         add_header(h, parsing: i.positive? || parsing)
@@ -293,6 +311,12 @@ module PacketGen
     # @raise [FormatError] any headers not in +self+
     # @raise [BindingError] removed headers result in an unknown binding
     # @since 1.1.0
+    # @example
+    #  # IP/IP encapsulation
+    #  pkt = PacketGen::Packet.gen('IP', id: 1).add('IP', id:2)
+    #  # Remove outer IP header
+    #  pkt.decapsulate(pkt.ip(1))
+    #  pkt.ip.id #=> 2
     def decapsulate(*hdrs)
       hdrs.each do |hdr|
         prev_hdr = previous_header(hdr)
@@ -346,7 +370,7 @@ module PacketGen
       to_s == other.to_s
     end
 
-    # +true+ is {#==} is +true+ with another packet, or if +other+ is a protocol name String, whose protocol is in Packet.
+    # +true+ if {#==} is +true+ with another packet, or if +other+ is a protocol name String, whose protocol is in Packet.
     # @param [Packet] other
     # @return [Boolean]
     # @since 3.1.2
@@ -363,6 +387,7 @@ module PacketGen
 
     # Invert all possible attributes in packet to create a reply.
     # @return [self]
+    # @note Only modify headers responding to +#reply!+.
     # @since 2.7.0
     def reply!
       headers.each do |header|
@@ -374,6 +399,7 @@ module PacketGen
     # Forge a new packet from current one with all possible fields
     # inverted. The new packet may be a reply to current one.
     # @return [Packet]
+    # @note Only modify headers responding to +#reply!+.
     # @since 2.7.0
     def reply
       pkt = dup

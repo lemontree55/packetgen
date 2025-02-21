@@ -11,8 +11,8 @@ module PacketGen
     class DHCPv6
       # Container class for DHCPv6 {Option options}.
       #
-      # == Add DHCPv6 options to an +Options+ instance
-      #   options = PacketGen::Header::DHCP::Options.new
+      # @example Add DHCPv6 options to an +Options+ instance
+      #   options = PacketGen::Header::DHCPv6::Options.new
       #   # Add an ElapsedTime option
       #   options << { type: 'ElapsedTime', value: 3600 }
       #   # Add a ClientID. Here, use integer type

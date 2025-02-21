@@ -9,7 +9,13 @@
 module PacketGen
   # This mixin module defines minimal API for a class to act as a header
   # in {Packet}.
+  #
+  # Some others methods may optionally be defined by a {Headerable} object:
+  # * +#calc_length+ to calculate length from content. It should be defined if header as a length attribute.
+  # * +#calc_checksum+ to calculate checksum. It should be defined if header as a checksum attriibute.
+  # * +#reply+ to invert fields in header for a reply.
   # @author Sylvain Daubert
+  # @author LemonTree55
   # @since 3.0.2
   module Headerable
     # This modules handles class methods for {Headerable headerable classes}.
@@ -74,8 +80,8 @@ module PacketGen
       @packet
     end
 
-    # @abstract This method is called when a header is added to a packet.
-    #   This base method does nothing but may be overriden by subclasses.
+    # @abstract This base method does nothing but may be overriden by subclasses.
+    # This method is called when a header is added to a packet.
     # @param [Packet] packet packet to which self is added
     # @return [void]
     def added_to_packet(packet) end

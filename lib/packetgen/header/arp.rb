@@ -20,13 +20,13 @@ module PacketGen
     # * a target protocol address ({#tpa} or {#dst_ip}) field (+IP::Addr+),
     # * and a {#body}.
     #
-    # == Create a ARP header
+    # @example Create a ARP header
     #  # standalone
     #  arp = PacketGen::Header::ARP.new
     #  # in a packet
     #  pkt = PacketGen.gen('Eth').add('ARP')
     #  # access to ARP header
-    #  pkt.arp   # => PacketGen::Header::ARP
+    #  pkt.arp.protocol_name   # => "ARP"
     #
     # @author Sylvain Daubert
     class ARP < Base
@@ -122,8 +122,7 @@ module PacketGen
 
       private
 
-      # rubocop:disable Metrics
-      def handle_options(options)
+            def handle_options(options)
         options[:hrd] ||= options[:htype]
         options[:pro] ||= options[:ptype]
         options[:hln] ||= options[:hlen]

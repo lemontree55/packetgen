@@ -9,9 +9,9 @@
 module PacketGen
   module Header
     class DHCP
-      # Container class for {Option DHCP Options}.
+      # Container class for {Option DHCP Options}. Accepted options are listed on {DHCP::DHCP_OPTIONS}.
       #
-      # == Add DHCP options to an +Options+ instance
+      # @example Add DHCP options to an +Options+ instance
       #   options = PacketGen::Header::DHCP::Options.new
       #   # Add a lease_time option
       #   options << { type: 'lease_time', value: 3600 }

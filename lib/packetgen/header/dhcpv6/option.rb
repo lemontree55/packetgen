@@ -9,7 +9,7 @@
 module PacketGen
   module Header
     class DHCPv6
-      # A DHCPv6 consists of:
+      # A DHCPv6 option consists of:
       # * a {#type} (+BinStruct::Int16+),
       # * a {#length} (+BinStruct::Int16+),
       # * and a {#data} (+BinStruct::String+).

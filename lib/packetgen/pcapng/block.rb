@@ -10,6 +10,7 @@ module PacketGen
   module PcapNG
     # @abstract Base class for all block types
     # @author Sylvain Daubert
+    # @author LemonTree55
     class Block < BinStruct::Struct
       # @return [:little, :big]
       attr_accessor :endian

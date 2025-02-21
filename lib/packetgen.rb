@@ -13,6 +13,7 @@ require 'interfacez'
 
 # PacketGen is a network packet generator and analyzor.
 # @author Sylvain Daubert
+# @author LemonTree
 module PacketGen
   # Base exception class for PacketGen exceptions
   class Error < StandardError; end
@@ -33,12 +34,15 @@ module PacketGen
     # @return [Headerable]
     attr_reader :hdr
 
+    # @param [Headerable] prev_hdr
+    # @param [Headerable] hdr
     def initialize(prev_hdr, hdr)
       super()
       @prev_hdr = prev_hdr
       @hdr = hdr
     end
 
+    # @return [String]
     def message
       "#{prev_hdr.class} knowns no layer association with #{hdr.protocol_name}. " \
         "Try #{prev_hdr.class}.bind_layer(#{hdr.class}, " \
@@ -92,6 +96,7 @@ module PacketGen
   # Force binary encoding for +str+
   # @param [String] str
   # @return [String] binary encoded string
+  # @deprecated Use +String#b+ instead.
   def self.force_binary(str)
     Deprecation.deprecated(self, :force_binary, 'String#b')
     str.b
@@ -121,7 +126,7 @@ module PacketGen
   # Shortcut to get a header class
   # @example builtin class
   #   # same as PacketGen::Header::Dot11:Data.new(id: 0xfedc)
-  #   dot11 = PacketGen.header('Dot11::Data', id: 0xfedc)  #=> PacketGen::Header::Dot11:Data
+  #   dot11 = PacketGen.header('Dot11::Data', id: 0xfedc)
   # @example plugin class
   #   require 'packet-plugin-smb'
   #   # same as PacketGen::Plugin::SMB::CloseRequest.new(fid: 0x1234)

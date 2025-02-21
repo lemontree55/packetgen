@@ -38,6 +38,7 @@ module PacketGen
         #   @return [IPv6::Addr]
         define_attr :peer, IPv6::Addr
         # @!attribute options
+        #   Set of {Option}s
         #   @return [DHCPv6::Options]
         define_attr :options, DHCPv6::Options
       end

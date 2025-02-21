@@ -13,21 +13,20 @@ module PacketGen
     #
     # A DHCP header is quite simple. It is composed of:
     # * a {#magic} field (+BinStruct::Int32+) to retrieve it in a BOOTP header,
-    # * a, {#options} field ({Options} type, which is a collection of DHCP
+    # * a {#options} field ({Options} type, which is a collection of DHCP
     #   options).
     #
     # In PacketGen, a DHCP header is always a secondary header after {BOOTP} one.
     #
-    # == Create a DHCP header
+    # @example Create a DHCP header
     #   # standalone
     #   dhcp = PacketGen::Header::DHCP.new
     #   # in a packet
-    #   pkt = PacketGen.gen('IP').add('BOOTP').add('DHCP')
+    #   pkt = PacketGen.gen('IP').add('UDP').add('BOOTP').add('DHCP')
     #   # access to DHCP header
-    #   pkt.dhcp      # => PacketGen::Header::DHCP
+    #   pkt.dhcp.class      # => PacketGen::Header::DHCP
     #
-    # == Add options
-    # Options may be added these ways:
+    # @example Add options to a DHCP header
     #   dhcp = PacketGen::Header::DHCP.new
     #   # Add a lease_time option
     #   dhcp.options << { type: 'lease_time', value: 3600 }

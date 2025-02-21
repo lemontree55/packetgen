@@ -8,9 +8,24 @@
 
 module PacketGen
   module PcapNG
-    # PcapNG::File is a complete Pcap-NG file handler.
+    # PcapNG::File is a complete Pcap-NG file handler. It provides methods to:
+    # * read and write PcapNG files,
+    # * process packets from such files.
+    #
+    # @example Writing a file
+    #   pkt1 = PacketGen.gen('IP', id: 1).add('TCP')
+    #   pkt2 = PacketGen.gen('IP', id: 2).add('UDP')
+    #   file = PacketGen::PcapNG::File.new
+    #   file.read_array([pkt1, pkt2])
+    #   file.write('/tmp/file.pcapng')
+    #
+    # @example Reading a file
+    #   file = PacketGen::PcapNG::File.new
+    #   pkts = file.read_packets('/tmp/file.pcapng')
+    #
     # @author Sylvain Daubert
-    class File # rubocop:disable Metrics/ClassLength
+    # @author LemonTree55
+    class File
       # Known link types
       KNOWN_LINK_TYPES = {
         LINKTYPE_ETHERNET => 'Eth',
@@ -29,14 +44,14 @@ module PacketGen
       end.freeze
 
       # Get file sections
-      # @return [Array]
+      # @return [Array<SHB>]
       attr_accessor :sections
 
       def initialize
         @sections = []
       end
 
-      # Read a string to populate the object. Note that this appends new blocks to
+      # Read a binary string to populate the object. Note that this appends new blocks to
       # the Pcapng::File object.
       # @param [String] str
       # @return [self]
@@ -59,11 +74,19 @@ module PacketGen
 
       # Read a given file and analyze it.
       # If given a block, it will yield PcapNG::EPB or PcapNG::SPB objects.
-      # This is the only way to get packet timestamps.
+      # This is the only way to get packet timestamps (via {EPB#timestamp}).
       # @param [String] fname pcapng file name
       # @yieldparam [EPB,SPB] block
       # @return [Integer] return number of yielded blocks (only if a block is given)
       # @raise [ArgumentError] cannot read +fname+
+      # @example Parse packets and get their timestamp
+      #   hsh = {}
+      #   file = PacketGen::PcapNG::File.new
+      #   file.readfile('/tmp/file.pcapng') do |xpb|
+      #     ts = xpb.is_a?(PacketGen::PcapNG::EPB) ? xpb.timestamp : nil
+      #     pkt = PacketGen.parse(xpb.data)
+      #     hsh[pkt] = ts
+      #   end
       def readfile(fname, &blk)
         raise ArgumentError, "cannot read file #{fname}" unless ::File.readable?(fname)
 
@@ -168,13 +191,15 @@ module PacketGen
       end
 
       # Writes the {File} to a file.
-      # @param [Hash] options
-      # @option options [Boolean] :append (default: +false+) if set to +true+,
+      # @param [String] filename file name to write
+      # @param [Boolean] append if set to +true+,
       #   the packets are appended to the file, rather than overwriting it
-      # @return [Array] array of 2 elements: filename and size written
-      # @todo for 4.0, replace +options+ by +append+ kwarg
-      def to_file(filename, options={})
-        mode = options[:append] && ::File.exist?(filename) ? 'ab' : 'wb'
+      # @return [Array(String, Integer)] array of 2 elements: filename and size written
+      # @since 4.1.0 Options hash with single +:append+ option is replaced by +append+ keyword argument.
+      # @see #append
+      # @see #write
+      def to_file(filename, append: false)
+        mode = append && ::File.exist?(filename) ? 'ab' : 'wb'
         ::File.open(filename, mode) { |f| f.write(self.to_s) }
         [filename, self.to_s.size]
       end
@@ -182,14 +207,16 @@ module PacketGen
 
       # Shorthand method for writing to a file.
       # @param [#to_s] filename
-      # @return [Array] see return value from {#to_file}
+      # @return [Array(String, Integer)]
+      # @see #to_file
       def write(filename='out.pcapng')
         self.to_file(filename.to_s, append: false)
       end
 
       # Shorthand method for appending to a file.
       # @param [#to_s] filename
-      # @return [Array] see return value from {#to_file}
+      # @return [Array(String, Integer)]
+      # @see #to_file
       def append(filename='out.pcapng')
         self.to_file(filename.to_s, append: true)
       end

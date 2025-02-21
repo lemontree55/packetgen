@@ -8,7 +8,8 @@
 
 module PacketGen
   module PcapNG
-    # {IDB} represents a Interface Description Block (IDB) of a pcapng file.
+    # {IDB} represents an Interface Description Block (IDB) of a pcapng file. It is associated to a network interfaces.
+    # It contains packet data as {EPB} and/or {SPB}.
     #
     # == IDB Definition
     #   Int32   :type           Default: 0x00000001

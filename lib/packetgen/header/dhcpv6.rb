@@ -24,20 +24,18 @@ module PacketGen
     # A DHCPv6 header is made of:
     # * a {#msg_type} field (+BinStruct::Int8Enum+),
     # * a {#transaction_id} field (+BinStruct::Int24+),
-    # * and an {#options} field ({DHCPv6::Options}).
+    # * and an {#options} field ({DHCPv6::Options}). This field is a container for {DHCPv6::Option} objects.
     #
-    # == Create a DHCPv6 header
+    # @example Create a DHCPv6 header
     #   # standalone
-    #  dhcpv6 = PacketGen::Header::DHCPv6.new(msg_type: 'SOLLICIT')
-    #  # in a packet
-    #  pkt = PacketGen.gen('IPv6').add('DHCPv6', msg_type: 'SOLLICIT')
-    #  # access to DHCPv6 header from packet
-    #  pkt.dhcpv6    #=> PacketGen::Header::DHCPv6
+    #   dhcpv6 = PacketGen::Header::DHCPv6.new(msg_type: 'SOLLICIT')
+    #   # in a packet
+    #   pkt = PacketGen.gen('IPv6').add('UDP').add('DHCPv6', msg_type: 'SOLLICIT')
+    #   # access to DHCPv6 header from packet
+    #   pkt.dhcpv6.class    #=> PacketGen::Header::DHCPv6
     #
-    # == Add options
-    # DHCPv6 options are defined by subclasses of {DHCPv6::Option}.
-    #
-    # Options may be added by pushing a hash to {#options}:
+    # @example Add options
+    #   # Options may be added by pushing a hash to #options:
     #   dhcpv6 = PacketGen::Header::DHCPv6.new(msg_type: 'SOLLICIT')
     #   dhcpv6.options << { type: 'Preference', value: 1 }
     # @author Sylvain Daubert
@@ -75,9 +73,10 @@ module PacketGen
       define_attr :msg_type, BinStruct::Int8Enum, enum: MESSAGE_TYPES
       # @!attribute transaction_id
       #   24-bit transaction ID
-      # @return [Integer]
+      #   @return [Integer]
       define_attr :transaction_id, BinStruct::Int24
       # @!attribute options
+      #   Set of {Option}s
       #   @return [DHCPv6::Options]
       define_attr :options, DHCPv6::Options
 

@@ -14,7 +14,9 @@ module PacketGen
     #    * +#calc_length+, which computes header length,
     #    * {#parse?},
     #    * +#reply!+, which inverts needed attributes to forge a response.
+    # {Base} class defines {.bind} method, to bind headers to outer ones.
     # @author Sylvain Daubert
+    # @author LemonTree55
     class Base < BinStruct::Struct
       include Headerable
 
@@ -54,7 +56,7 @@ module PacketGen
       # @api private
       # Class to handle a header association from procs
       class ProcBinding
-        # @param [Array<Proc>] procs first proc is used to set fields, second proc is
+        # @param [Array(Proc,Proc)] procs first proc is used to set fields, second proc is
         #  used to check binding
         def initialize(procs)
           @set = procs.shift
@@ -77,11 +79,11 @@ module PacketGen
       end
 
       # @api private
-      # Class to handle header associations
+      # Class to handle a set of header associations ({Binding} or/and {ProcBinding})
       class Bindings
         include Enumerable
 
-        # @return [Array<Binding>]
+        # @return [Array<Binding,ProcBinding>]
         attr_accessor :bindings
 
         def initialize
@@ -92,7 +94,7 @@ module PacketGen
           @bindings << []
         end
 
-        # @param [Object] arg
+        # @param [Binding,ProcBinding] arg
         # @return [Bindings] self
         def <<(arg)
           @bindings.last << arg
@@ -100,6 +102,7 @@ module PacketGen
 
         # each iterator
         # @return [void]
+        # @yieldparam [Binding,ProcBinding] binding
         def each(&block)
           @bindings.each(&block)
         end
@@ -109,7 +112,7 @@ module PacketGen
           @bindings.empty?
         end
 
-        # Return binding as a hash.
+        # Return bindings as a hash.
         # @return [Hash]
         def to_h
           hsh = {}
@@ -146,7 +149,7 @@ module PacketGen
       class << self
         # @api private
         # Get known headers
-        # @return [Hash] keys: header classes, values: hashes
+        # @return [Hash{Headerable => Bindings}]
         attr_reader :known_headers
 
         # Bind a upper header to current one.
@@ -167,8 +170,8 @@ module PacketGen
         #   PacketGen::Header::IP.bind PacketGen::Header::TCP, protocol: 66
         #   # Bind UDP to IP when protocol from IP has a value of 177
         #   # and tos has value 43 or 44
-        #   PacketGen::Header::IP .bind PacketGen::Header::UDP, protocol: 177, tod: 43
-        #   PacketGen::Header::IP .bind PacketGen::Header::UDP, protocol: 177, tod: 44
+        #   PacketGen::Header::IP .bind PacketGen::Header::UDP, protocol: 177, tos: 43
+        #   PacketGen::Header::IP .bind PacketGen::Header::UDP, protocol: 177, tos: 44
         # @example Defining a binding on a field using a lambda.
         #   # Bind DHCP to Eth when ethertype from Eth has a value
         #   # greater or equal to 44. When adding a DHCP to a Eth
@@ -176,10 +179,10 @@ module PacketGen
         #   PacketGen::Header::Eth.bind PacketGen::Header::DHCP, ethertype: ->(v) { v.nil? ? 44 : v >= 44 }
         # @example Defining a binding using procs key
         #   # Bind IPv6 to IP when protocol from IP has a value of 255
-        #   # and first two bytes of IP's body are 0x600.
+        #   # and first two bytes of IP's body are 0x6000.
         #   # When adding a IPv6 to a IP with Packet#add, force value to 255.
-        #   PacketGen::Header::IP.bind PacketGen::Header::IPv6, procs: [->(hdr) { hdr.field1 = 255 },
-        #                                                               ->(hdr) { hdr.field1 == 255 && hdr.body[0..1] == "\x60\x00" }]
+        #   PacketGen::Header::IP.bind PacketGen::Header::IPv6, procs: [->(hdr) { hdr.protocol = 255 },
+        #                                                               ->(hdr) { hdr.protocol == 255 && hdr.body[0..1] == "\x60\x00" }]
         # @since 2.7.0
         def bind(header_klass, args={})
           bindings = @known_headers[header_klass]
@@ -221,7 +224,7 @@ module PacketGen
       # @api private
       # Get +header+ id in {Packet#headers} array
       # @param [Header] header
-      # @return [Integer]
+      # @return [Integer] header id
       # @raise [FormatError] +header+ not in a packet
       def header_id(header)
         raise FormatError, "header of type #{header.class} not in a packet" if packet.nil?
@@ -247,7 +250,7 @@ module PacketGen
       end
 
       # @api private
-      # Get link layer header from given header
+      # Get link layer ({Eth} or {Dot11}) header from given header
       # @param [Header] header
       # @return [Header]
       # @raise [FormatError] no link layer header in packet

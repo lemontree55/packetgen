@@ -14,21 +14,27 @@ module PacketGen
   #
   # == Add a foreign header class
   # PacketGen permits adding your own header classes.
-  # First, define the new header class. By example:
-  #  module MyModule
-  #    class MyHeader < PacketGen::Header::Base
-  #      define_attr :field1, BinStruct::Int32
-  #      define_attr :field2, BinStruct::Int32
-  #    end
+  # First, define the new header class. Then, this class must be declared to PacketGen using {Header.add_class}.
+  # Finally, bindings must be declared.
+  #
+  # @example Foreign header class
+  #   # Define a new header
+  #   module MyModule
+  #     class MyHeader < PacketGen::Header::Base
+  #       define_attr :field1, BinStruct::Int32
+  #       define_attr :field2, BinStruct::Int32
+  #     end
   #   end
-  # Then, class must be declared to PacketGen:
-  #  PacketGen::Header.add_class(MyModule::MyHeader)
-  # Finally, bindings must be declared:
-  #  # bind MyHeader as IP protocol number 254 (needed by Packet#parse and Packet#add)
-  #  PacketGen::Header::IP.bind_header(MyModule::MyHeader, protocol: 254)
-  # And use it:
-  #  pkt = Packet.gen('IP').add('MyHeader', field1: 0x12345678, field3: 0x87654321)
+  #
+  #   # Declare the new header to PacketGen
+  #   PacketGen::Header.add_class(MyModule::MyHeader)
+  #   # bind it as IP protocol number 254 (needed by Packet#parse and Packet#add)
+  #   PacketGen::Header::IP.bind(MyModule::MyHeader, protocol: 254)
+  #
+  #   # Use it
+  #   pkt = PacketGen.gen('IP').add('MyModule::MyHeader', field1: 0x12345678, field3: 0x87654321)
   # @author Sylvain Daubert
+  # @author LemonTree55
   module Header
     @added_header_classes = {}
 

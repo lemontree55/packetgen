@@ -8,7 +8,7 @@
 
 module PacketGen
   module PcapNG
-    # {SPB} represents a Section Simple Packet Block (SPB) of a pcapng file.
+    # {SPB} represents a Simple Packet Block (SPB) of a pcapng file.
     #
     # == Pcapng::SPB Definition
     #   Int32   :type           Default: 0x00000003

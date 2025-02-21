@@ -8,7 +8,8 @@
 
 module PacketGen
   module PcapNG
-    # {SHB} represents a Section Header Block (SHB) of a pcapng file.
+    # {SHB} represents a Section Header Block (SHB) of a pcapng file. A SHB contains {IDB}, which contain
+    # {EPB} and/or {SPB}.
     #
     # == SHB Definition
     #   Int32   :type           Default: 0x0A0D0D0A

@@ -17,8 +17,8 @@ module PacketGen
     # * a hardware address length ({#hlen} of type +BinStruct::Int8+),
     # * a {#hops} field (+BinStruct::Int8+),
     # * a transaction ID ({#xid} of type +BinStruct::Int32+),
-    # * a {#secs} field ()+BinStruct::Int16+),
-    # * a {#flags} field ()+BinStruct::Int16+):
+    # * a {#secs} field (+BinStruct::Int16+),
+    # * a {#flags} field (+BinStruct::Int16+):
     #   * a 1-bit broadcast flag ({#b}),
     #   * a 15-bit Must Be Zero field ({#mbz}),
     # * a {#ciaddr} field ({IP::Addr}),
@@ -30,13 +30,13 @@ module PacketGen
     # * a {#file} field (128-byte +BinStruct::CString+),
     # * and a body (+BinStruct::String+).
     #
-    # == Create a BOOTP header
+    # @example Create a BOOTP header
     #   # standalone
     #   bootp = PacketGen::Header::BOOTP.new
     #   # in a packet
-    #   pkt = PacketGen.gen('IP').add('BOOTP')
+    #   pkt = PacketGen.gen('IP').add('UDP').add('BOOTP')
     #   # access to BOOTP header
-    #   pkt.bootp      # => PacketGen::Header::BOOTP
+    #   pkt.bootp.protocol_name      # => "BOOTP"
     # @author Sylvain Daubert
     # @since 2.2.0
     class BOOTP < Base

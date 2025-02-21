@@ -61,7 +61,7 @@ module PacketGen
       #  # Option class with string value. +#type+ and +#length+ are
       #  # +BinStruct::Int8+.
       #  #
-      #  # See also {IPAddrOption}, {Int8Option}, {Int16Option} and {Int32Option}.
+      #  # See also specialized {IPAddrOption}, {Int8Option}, {Int16Option} and {Int32Option}.
       #  # @since 2.2.0
       #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Option < BinStruct::AbstractTLV; end
