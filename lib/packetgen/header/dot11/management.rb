@@ -22,22 +22,25 @@ module PacketGen
       # * a {#mac2} ({Eth::MacAddr}),
       # * a {#mac3} ({Eth::MacAddr}),
       # * a {#sequence_ctrl} (+BinStruct::Int16+),
-      # * a {#body} (a +BinStruct::String+ or another {Base} class),
+      # * a {#body} (a +BinStruct::String+ or another {Headerable} class),
       # * and a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+).
       #
       # Management frames should be constructed with more headers from
-      # {SubMngt} subclasses.
+      # {SubMngt} subclasses. Some frames also need to have {Element}.
       #
-      # By example, build a {DeAuth} frame:
+      # @example Build a {DeAuth} frame:
       #   PacketGen.gen('Dot11::Management').add('Dot11::DeAuth')
       #
-      # Some frames need to have {Element}. By example a {Beacon} frame:
-      #   pkt = PacketGen.gen('Dot11::Management', mac1: broadcast, mac2: bssid, mac3: bssid).
-      #                   add('Dot11::Beacon')
-      #   pkt.dot11_beacon.add_elements(type: 'SSID', value: ssid)
-      #   pkt.dot11_beacon.add_elements(type: 'Rates', value: "\x82\x84\x8b\x96\x12\x24\x48\x6c")
-      #   pkt.dot11_beacon.add_elements(type: 'DSset', value: "\x06")
-      #   pkt.dot11_beacon.add_elements(type: 'TIM', value: "\x00\x01\x00\x00")
+      # @example a {Beacon} frame with elements:
+      #   bssid = '00:01:02:03:04:05'
+      #   pkt = PacketGen.gen('Dot11::Management', mac1: 'ff:ff:ff:ff:ff:ff', mac2: bssid, mac3: bssid)
+      #                  .add('Dot11::Beacon')
+      #   # Directly add elements to Beacon
+      #   pkt.dot11_beacon.elements << { type: 'SSID', value: "SSIDSSID" }
+      #   pkt.dot11_beacon.elements << { type: 'Rates', value: "\x82\x84\x8b\x96\x12\x24\x48\x6c" }
+      #   # Add elements to beacon through management header
+      #   pkt.dot11_management.add_element(type: 'DSset', value: "\x06")
+      #   pkt.dot11_management.add_element(type: 'TIM', value: "\x00\x01\x00\x00")
       # @author Sylvain Daubert
       class Management < Dot11
         # @param [Hash] options
@@ -48,7 +51,7 @@ module PacketGen
           define_applicable_attributes
         end
 
-        # Add an {Element}
+        # Add an {Element} to header in body (for example, a {Dot11::Beacon})
         # @param [Integer,String] type element type
         # @param [Object] value element value
         # @return [self]

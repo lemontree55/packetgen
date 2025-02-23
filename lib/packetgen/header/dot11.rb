@@ -103,7 +103,6 @@ module PacketGen
     end
     self.add_class RadioTap
 
-    # IEEE 802.11 header
     # @abstract This is a base class to demultiplex different IEEE 802.11 frames when
     #   parsing.
     # A IEEE 802.11 header may consist of at least:
@@ -117,44 +116,41 @@ module PacketGen
     # * a {#mac4} ({Eth::MacAddr}),
     # * a {#qos_ctrl} (+BinStruct::Int16+),
     # * a {#ht_ctrl} (+BinStruct::Int32+),
-    # * a {#body} (a +BinStruct::String+ or another {Base} class),
+    # * a {#body} (a +BinStruct::String+ or another {Headerable} class),
     # * a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+)
     #
     # == Header accessors
     # As Dot11 header types are defined under Dot11 namespace, Dot11 header accessors
-    # have a specific name. By example, to access to a {Dot11::Beacon} header,
+    # have a specific name. For example, to access to a {Dot11::Beacon} header,
     # accessor is +#dot11_beacon+.
     #
     # == Create Dot11 packets
     # As {Dot11} is an abstract class, you have to use one of its subclasses to
-    # instanciate a IEEE802.11 header.
+    # instanciate a IEEE802.11 header (see examples below).
     #
-    # === IEEE802.11 control frames
-    # Control frames may be created this way:
+    # @example Create IEEE802.11 control frames
     #   pkt = PacketGen.gen('Dot11::Control', subtype: 13) # Ack control frame
-    #   pkt.dot11_control     # => PacketGen::Header::Dot11::Control
+    #   pkt.dot11_control.class   # => PacketGen::Header::Dot11::Control
     #   # #dot11 is a shortcut for #dot11_control
-    #   pkt.dot11             # => PacketGen::Header::Dot11::Control
+    #   pkt.dot11.class           # => PacketGen::Header::Dot11::Control
     #
-    # === IEEE802.11 management frames
-    # Management frames may be created this way:
+    # @example Create IEEE802.11 management frames
     #   pkt = PacketGen.gen('Dot11::Management')
-    #   pkt.dot11_management     # => PacketGen::Header::Dot11::Management
+    #   pkt.dot11_management.class   # => PacketGen::Header::Dot11::Management
     #   # #dot11 is a shortcut for #dot11_management
-    #   pkt.dot11                # => PacketGen::Header::Dot11::Management
-    # Management frames are usually specialized, AssociationRequest by example:
+    #   pkt.dot11.class              # => PacketGen::Header::Dot11::Management
+    #   # Management frames are usually specialized, AssociationRequest by example
     #   pkt.add('Dot11::AssoReq')
-    #   pkt.dot11_assoreq        # => PacketGen::Header::Dot11::AssoReq
-    # Management frames also may contain some elements (see IEEE 802.11 standard):
-    #   pkt.dot11_assoreq.add_elements(type: 'SSID', value: "My SSID")
-    #   pkt.dot11_assoreq.add_elements(type: 'Rates', value: supported_rates)
+    #   pkt.dot11_assoreq .class     # => PacketGen::Header::Dot11::AssoReq
+    #   # Management frames also may contain some elements (see IEEE 802.11 standard)
+    #   pkt.dot11_assoreq.elements << { type: 'SSID', value: "My SSID" }
+    #   pkt.dot11_assoreq.elements << { type: 'Rates', value: "\x8c\x12\x98\x24\xb0" }
     #
-    # === IEEE802.11 data frames
-    # Data frames may be created this way:
+    # @example Create IEEE802.11 data frames
     #   pkt = PacketGen.gen('Dot11::Data')
-    #   pkt.dot11_data     # => PacketGen::Header::Dot11::Data
+    #   pkt.dot11_data.class   # => PacketGen::Header::Dot11::Data
     #   # #dot11 is a shortcut for #dot11_data
-    #   pkt.dot11          # => PacketGen::Header::Dot11::Data
+    #   pkt.dot11.class        # => PacketGen::Header::Dot11::Data
     #
     # == Parse Dot11 packets
     # When parsing a Dot11 packet, Dot11 subclass is created from +type+ value.
@@ -163,13 +159,12 @@ module PacketGen
     # for a control frame, +Packet#dot11_control+ may also be used.
     #
     # == Send Dot11 packets
-    # To send a Dot11 packet, a RadioTap header is needed:
+    # To send a Dot11 packet, a RadioTap or PPI header is needed (depending on your hardware):
     #   pkt = PacketGen.gen('RadioTap')
     #   pkt.add('Dot11::Management', mac1: client, mac2: bssid, mac3: bssid)
     #   pkt.add('Dot11::Beacon')
-    #   pkt.dot11_beacon.add_element(type: 'SSID', value: 'My SSID')
-    #   pkt.dot11_beacon.add_element(type: 'Rates', value: "\x85\x0c")
-    #   pkt.calc
+    #   pkt.dot11_management.add_element(type: 'SSID', value: 'My SSID')
+    #   pkt.dot11_management.add_element(type: 'Rates', value: "\x85\x0c")
     #   pkt.to_w('wlan0')
     # @author Sylvain Daubert
     # @since 1.4.0
@@ -226,10 +221,12 @@ module PacketGen
       define_attr :mac3, Eth::MacAddr
       # @!attribute sequence_ctrl
       #  @return [Integer] 16-bit sequence control word
-      # @!attribute sequence_number (12-bit field from {#sequence_ctrl})
+      # @!attribute sequence_number
+      #  12-bit field from {#sequence_ctrl}
       #  @return [Integer]
       #  @since 2.1.3
-      # @!attribute fragment_number (4-bit field from {#sequence_ctrl})
+      # @!attribute fragment_number
+      #  4-bit attribute from {#sequence_ctrl}
       #  @return [Integer]
       #  @since 2.1.3
       define_bit_attr :sequence_ctrl, sequence_number: 12, fragment_number: 4
@@ -243,9 +240,11 @@ module PacketGen
       #  @return [Integer] 16-bit HT control word
       define_attr :ht_ctrl, BinStruct::Int32
       # @!attribute body
+      #  Dot11 body, if any
       #  @return [BinStruct::String]
       define_attr :body, BinStruct::String
       # @!attribute fcs
+      #  Checksum of the Dot11 frame.
       #  @return [BinStruct::Int32le]
       define_attr :fcs, BinStruct::Int32le
 
@@ -260,7 +259,7 @@ module PacketGen
         @applicable_attributes = old_attributes
       end
 
-      # Get all used field names
+      # Get all used attribute names
       # @return [Array<Symbol>]
       def attributes
         @applicable_attributes
@@ -305,6 +304,7 @@ module PacketGen
         fcs
       end
 
+      # Generate binary string
       # @return [String]
       def to_s
         define_applicable_attributes
@@ -343,7 +343,7 @@ module PacketGen
         Inject.inject(iface: iface, data: self)
       end
 
-      # Callback called when a Dot11 header is added to a packet
+      # Callback called when a Dot11 header is added to a packet.
       # Here, add +#dot11+ method as a shortcut to existing
       # +#dot11_(control|management|data)+.
       # @param [Packet] packet

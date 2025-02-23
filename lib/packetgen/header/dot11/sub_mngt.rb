@@ -19,6 +19,7 @@ module PacketGen
       # may be accessed through {#elements}.
       # @author Sylvain Daubert
       class SubMngt < Base
+        # Elements of submngt header
         # @return [Array<Element>]
         define_attr :elements, ArrayOfElements
       end

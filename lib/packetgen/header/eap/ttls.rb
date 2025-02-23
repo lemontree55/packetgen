@@ -21,20 +21,23 @@ module PacketGen
       class TTLS < EAP
         update_attr :type, default: 21
         # @!attribute flags
-        #  @return [Integer] 8-bit flags
-        # @!attribute l
-        #  Say if length field is included
+        #  8-bit flags
         #  @return [Integer]
-        # @!attribute m
+        # @!attribute l?
+        #  Say if {#message_length} field is included
+        #  @return [Integer]
+        # @!attribute m?
         #  Say if there are more fragments
         #  @return [Integer]
-        # @!attribute s
+        # @!attribute s?
         #  If set, this message is a TLS-Start
         #  @return [Integer]
         # @!attribute reserved
-        #  @return [Integer] 2-bit reserved integer
+        #   2-bit reserved integer
+        #  @return [Integer]
         # @!attribute version
-        #  @return [Integer] 3-bit version
+        #  3-bit version
+        #  @return [Integer]
         define_bit_attr_before :body, :flags, l: 1, m: 1, s: 1, reserved: 2, version: 3
         alias length_present? l?
         alias more_fragments? m?

@@ -224,7 +224,7 @@ module PacketGen
         remove_attr :data
 
         # @!attribute options
-        #   @return [RequestedOptions]
+        #   @return [BinStruct::ArrayOfInt16]
         define_attr :options, BinStruct::ArrayOfInt16, builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         # Get human-readable data

@@ -120,6 +120,7 @@ module PacketGen
           end
         end
 
+        # Human-readable string for this question
         # @return [String]
         def to_human
           if self[:name].dns.is_a? MDNS

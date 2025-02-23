@@ -12,7 +12,7 @@ module PacketGen
     class Dot11
       # IEEE 802.11 control frame header
       #
-      # This class make a {Dot11} header with {#type} set to +1+
+      # This class makes a {Dot11} header with {#type} set to +1+
       # (control frame).
       #
       # A IEEE 802.11 control header consists of:
@@ -20,7 +20,7 @@ module PacketGen
       # * a {#id}/duration (+BinStruct::Int16le+),
       # * a {#mac1} ({Eth::MacAddr}).
       # * sometimes a {#mac2} ({Eth::MacAddr}),
-      # * a {#body} (a +BinStruct::String+ or another {Base} class),
+      # * a {#body} (a +BinStruct::String+ or another {Headerable} class),
       # * and a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+).
       # @author Sylvain Daubert
       class Control < Dot11

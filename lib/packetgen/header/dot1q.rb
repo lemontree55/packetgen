@@ -13,11 +13,12 @@ module PacketGen
     # A VLAN tag consists of:
     # * a {#tci Tag Control Information} (+BinStruct::Int16+),
     # * a {#ethertype} (+BinStruct::Int16+),
-    # * and a body (a +BinStruct::String+ or another Header class).
+    # * and a body (a +BinStruct::String+ or another {Headerable} class).
     #
-    # == Create a Dot1q header
+    # @example Create a Dot1q header
     #   # Create a IP packet in VLAN #43
     #   pkt = PacketGen.gen('Eth').add('Dot1q', vid: 43).add('IP')
+    #   pkt.is?('Dot1q')   #=> true
     # @author Sylvain Daubert
     # @since 1.4.0
     class Dot1q < Base

@@ -21,7 +21,7 @@ module PacketGen
         end
 
         # Read RR section from a string
-        # @param [String] str binary string
+        # @param [String] str binary binary string
         # @return [RRSection] self
         def read(str)
           clear

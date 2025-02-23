@@ -22,24 +22,12 @@ module PacketGen
     # * a {#vendor_type} field (+BinStruct::Int32+).
     # Finally, all packets have a {#body} (+BinStruct::String+).
     #
-    # == Create EAP headers
-    # An EAP header may be created this way:
-    #   # create a request header with default type (1)
-    #   eap = EAP.new(code: 1)   # => PacketGen::Header::EAP
-    #   # the same
-    #   eap = EAP.new(code: 'Request')   # => PacketGen::Header::EAP
-    #   # create a Response header of type Nak
-    #   nak = EAP.new(code: 'Response', type: 'Nak')
-    #
     # === Specialized headers
     # Some EAP has a specialized class:
-    # * EAP-MD5,
-    # * EAP-TLS,
-    # * EAP-TTLS,
-    # * EAP-FAST.
-    # Creating such a header is fairly simple:
-    #   # Generate a EAP-TLS Response (type is forced to 13)
-    #   eap = EAP::TLS.new(code: 2)     # => PacketGen::Header::EAP::TLS
+    # * EAP-MD5 ({EAP::MD5}),
+    # * EAP-TLS ({EAP::TLS}),
+    # * EAP-TTLS ({EAP::TTLS}),
+    # * EAP-FAST ({EAP::FAST}).
     #
     # == Header accessors
     # EAP headers may be accessed through +Packet#eap+ accessor.
@@ -54,7 +42,29 @@ module PacketGen
     # So result of parsing a EAP header may be a {EAP}, {EAP::MD5}, {EAP::TLS},
     # {EAP::TTLS} or {EAP::FAST} instance. But this instance is still accessible
     # through +Packet#eap+.
+    #
+    # @example Create EAP headers
+    #   # create a request header with default type (1)
+    #   eap = PacketGen::Header::EAP.new(code: 1)
+    #   eap.human_code   #=> 'Request'
+    #   # the same
+    #   eap = PacketGen::Header::EAP.new(code: 'Request')
+    #   eap.code         #=> 1
+    #   # create a Response header of type Nak
+    #   nak = PacketGen::Header::EAP.new(code: 'Response', type: 'Nak')
+    #   nak.code      #=> 2
+    #   nak.type      #=> 3
+    #
+    # @example Create a specialized EAP header
+    #   eap = PacketGen::Header::EAP::TLS.new(code: 2)
+    #   eap.class    #=> PacketGen::Header::EAP::TLS
+    #
+    # @example Parse a specialized class from a binary string
+    #   pkt = PacketGen.parse("\x01\x00\x00\x0e\x04\x04\x00\x01\x02\x03name", first_header: 'EAP')
+    #   pkt.eap.class   # => PacketGen::Header::EAP::MD5
+    #
     # @author Sylvain Daubert
+    # @author LemonTree55
     # @since 2.1.4
     class EAP < Base
       # EAP known codes
@@ -81,41 +91,48 @@ module PacketGen
       }.freeze
 
       # @!attribute code
-      #  @return [Integer] 8-bit EAP code
+      #  8-bit EAP code. See {CODES known EAP codes}
+      #  @return [Integer]
       define_attr :code, BinStruct::Int8Enum, enum: CODES
 
       # @!attribute id
-      #  @return [Integer] 8-bit identifier
+      #  8-bit identifier
+      #  @return [Integer]
       define_attr :id, BinStruct::Int8
 
       # @!attribute length
-      #  @return [Integer] 16-bit length of EAP packet
+      #  16-bit length of EAP packet
+      #  @return [Integer]
       define_attr :length, BinStruct::Int16, default: 4
 
       # @!attribute type
-      #  This field is present only for Request or Response packets,
-      #  with type different from Expanded Types (254).
-      #  @return [Integer] 8-bit request or response type
+      #  8-bit request or response type.
+      #  This field is present only for Request or Response packets.
+      #  See {TYPES known EAP types}.
+      #  @return [Integer]
       define_attr :type, BinStruct::Int8Enum,
                   enum: TYPES,
                   optional: lambda(&:type?)
 
       # @!attribute vendor_id
+      #  24-bit vendor ID.
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
-      #  @return [Integer] 24-bit vendor ID
+      #  @return [Integer]
       define_attr :vendor_id, BinStruct::Int24,
                   optional: ->(eap) { eap.type? && (eap.type == 254) }
 
       # @!attribute vendor_type
+      #  32-bit vendor type.
       #  This field is present only for Request or Response packets,
       #  with type equal to +Expanded Types+ (254).
-      #  @return [Integer] 32-bit vendor type
+      #  @return [Integer]
       define_attr :vendor_type, BinStruct::Int32,
                   optional: ->(eap) { eap.type? && (eap.type == 254) }
 
       # @!attribute body
-      #  @return [BinStruct::String, Header::Base]
+      #  EAP packet body
+      #  @return [BinStruct::String, Headerable]
       define_attr :body, BinStruct::String
 
       # @return [EAP]
@@ -129,7 +146,7 @@ module PacketGen
 
       # Populate object from a binary string
       # @param [String] str
-      # @return [Dot11] may return a subclass object if a more specific class
+      # @return [EAP] may return a subclass object if a more specific class
       #   may be determined
       def read(str)
         super
@@ -189,11 +206,19 @@ module PacketGen
         code == CODES['Failure']
       end
 
+      # Is packet a NAK?
+      # @return [Boolean]
+      # @since 4.1.0
+      # @author LemonTree55
+      def nak?
+        (code == 2) && (type == 3)
+      end
+
       # Return an array of desired authentication types from a Nak packet
       # @return [Array<Integer>]
       # @raise [ParseError] not a Nak packet
       def desired_auth_type
-        raise ParseError, 'not a Nak response' if (code != 2) && (type != 3)
+        raise ParseError, 'not a Nak response' unless nak?
 
         body.to_s.unpack('C*')
       end

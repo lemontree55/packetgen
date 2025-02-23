@@ -18,12 +18,13 @@ module PacketGen
       # A IEEE 802.11 data header consists of:
       # * a {#frame_ctrl} (+BinStruct::Int16+),
       # * a {#id}/duration (+BinStruct::Int16le+),
+      # * a {#mac1} ({Eth::MacAddr}),
       # * a {#mac2} ({Eth::MacAddr}),
       # * a {#mac3} ({Eth::MacAddr}),
       # * a {#sequence_ctrl} (+BinStruct::Int16+),
       # * sometimes a {#mac4} ({Eth::MacAddr}),
       # * sometimes a {#qos_ctrl} (+BinStruct::Int16+),
-      # * a {#body} (a +BinStruct::String+ or another {Base} class),
+      # * a {#body} (a +BinStruct::String+ or another {Headerable} class),
       # * and a Frame check sequence ({#fcs}, of type +BinStruct::Int32le+).
       # @author Sylvain Daubert
       class Data < Dot11
@@ -65,14 +66,14 @@ module PacketGen
           self
         end
 
-        # Get destination MAC address
+        # Get destination MAC address. {#from_ds} and {#to_ds} must be set before using these method.
         # @return [String]
         def dst
           _src_mac, dst_mac = src_dst_from_mac
           self.send(dst_mac)
         end
 
-        # Set destination MAC address
+        # Set destination MAC address. {#from_ds} and {#to_ds} must be set before using these method.
         # @param [String] mac MAC address to set
         # @return [String]
         def dst=(mac)
@@ -80,14 +81,14 @@ module PacketGen
           self.send(:"#{dst_mac}=", mac)
         end
 
-        # Get source MAC address
+        # Get source MAC address. {#from_ds} and {#to_ds} must be set before using these method.
         # @return [String]
         def src
           src_mac, = src_dst_from_mac
           self.send(src_mac)
         end
 
-        # Set source MAC address
+        # Set source MAC address. {#from_ds} and {#to_ds} must be set before using these method.
         # @param [String] mac MAC address to set
         # @return [String]
         def src=(mac)

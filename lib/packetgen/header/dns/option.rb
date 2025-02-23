@@ -30,7 +30,7 @@ module PacketGen
                                              length_class: BinStruct::Int16,
                                              aliases: { code: :type, data: :value })
 
-      # Array of {Option}.
+      # Array of {Option}s.
       # @since 3.1.1
       class ArrayOfOptions < BinStruct::Array
         set_of Option

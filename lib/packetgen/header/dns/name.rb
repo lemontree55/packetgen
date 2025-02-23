@@ -16,6 +16,7 @@ module PacketGen
         # Mask to decode a pointer on another label
         POINTER_MASK = 0xc000
 
+        # DNS message to which this name is attached. Used to decode compressed names
         # @return [DNS]
         attr_accessor :dns
 
@@ -49,14 +50,14 @@ module PacketGen
         end
 
         # Clear name
-        #   @return [void]
+        # @return [void]
         def clear
           super
           @pointer = nil
           @pointer_name = nil
         end
 
-        # Read a sequence of label from a string
+        # Read a sequence of label from a binary string
         # @param [String] str binary string
         # @return [Name] self
         def read(str)

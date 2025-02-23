@@ -15,6 +15,7 @@ module PacketGen
       #
       # a OPT record may contain zero or more {Option options} in its {#rdata}.
       # @author Sylvain Daubert
+      # @author LemonTree55
       # @since 1.3.0
       # @since 3.1.1 {#options} is a {ArrayOfOptions}
       class OPT < RR
@@ -118,11 +119,13 @@ module PacketGen
         alias udp_size rrclass
         alias udp_size= rrclass=
 
+        # Get human-readable string for flags
         # @return [String]
         def human_flags
           do? ? 'do' : 'none'
         end
 
+        # Get human-readable string for this OPT
         # @return [String]
         def to_human
           "#{name} #{human_type} UDPsize:#{udp_size} " \

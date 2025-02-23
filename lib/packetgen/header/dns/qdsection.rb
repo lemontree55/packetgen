@@ -25,7 +25,7 @@ module PacketGen
         #  @param [Question] q
         #  @return [Question]
 
-        # Read Question section from a string
+        # Read Question section from a binary string
         # @param [String] str binary string
         # @return [QDSection] self
         def read(str)

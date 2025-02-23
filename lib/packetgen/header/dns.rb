@@ -33,70 +33,77 @@ module PacketGen
     # * {#ns}, authoritary section,
     # * {#ar}, additional information section.
     #
-    # == Create a DNS header
-    #  # standalone
-    #  dns = PacketGen::Header::DNS.new
-    #  # in a IP packet
-    #  pkt = PacketGen.gen('IP').add('DNS')
-    #  # access to DNS header
-    #  pkt.dns   # => PacketGen::Header::DNS
+    # @example Create a DNS header
+    #   # standalone
+    #   dns = PacketGen::Header::DNS.new
+    #   # in a IP packet
+    #   pkt = PacketGen.gen('IP').add('UDP').add('DNS')
+    #   # access to DNS header
+    #   pkt.dns.class   # => PacketGen::Header::DNS
     #
-    # == DNS attributes
-    #  dns.id = 0x1234
-    #  dns.qr = false
-    #  # opcode may be set as an Integer (all values are possible)
-    #  # or as a String (only keys from PacketGen::Header::DNS::OPCODES)
-    #  dns.opcode = 0xe       # set as integer, value not defined in standard
-    #  dns.opcode = 'query'   # set as string
-    #  dns.aa = dns.tc = dns.rd = dns.ra = false
-    #  # rcode may be set as an Integer (all values are possible)
-    #  # or as a String (only keys from PacketGen::Header::DNS::RCODES)
-    #  dns.rcode = 11
-    #  dns.rcode = 'refused'
-    #  dns.qdcount = 123
-    #  dns.ancount = 0x1234
-    #  dns.nscount = 1
-    #  dns.arcount = 0
-    # One can also access to DNS sections:
-    #  dns.qd   # => PacketGen::Header::DNS::QDSection
-    #  dns.an   # => PacketGen::Header::DNS::RRSection
-    #  dns.ns   # => PacketGen::Header::DNS::RRSection
-    #  dns.ar   # => PacketGen::Header::DNS::RRSection
+    # @example DNS attributes
+    #   dns = PacketGen::Header::DNS.new
+    #   dns.id = 0x1234
+    #   dns.qr = false
+    #   # opcode may be set as an Integer (all values are possible)
+    #   # or as a String (only keys from PacketGen::Header::DNS::OPCODES)
+    #   dns.opcode = 0xe       # set as integer, value not defined in standard
+    #   dns.opcode = 'query'   # set as string
+    #   # Set flags
+    #   dns.aa = dns.tc = dns.rd = dns.ra = false
+    #   # rcode may be set as an Integer (all values are possible)
+    #   # or as a String (only keys from PacketGen::Header::DNS::RCODES)
+    #   dns.rcode = 11
+    #   dns.rcode = 'refused'
+    #   # Section counts may be set by hand. They also be set automatically when adding
+    #   # an element to a section.
+    #   dns.qdcount = 123
+    #   dns.ancount = 0x1234
+    #   dns.nscount = 1
+    #   dns.arcount = 0
+    #   # Access to DNS sections:
+    #   dns.qd.class   # => PacketGen::Header::DNS::QDSection
+    #   dns.an.class   # => PacketGen::Header::DNS::RRSection
+    #   dns.ns.class   # => PacketGen::Header::DNS::RRSection
+    #   dns.ar.class   # => PacketGen::Header::DNS::RRSection
     #
-    # == Add a question to DNS question section
-    # Adding a {Question} with {QDSection#<<} automagically increments {#qdcount}.
-    # To not modify +qdcount+, use +QDSection#push+.
-    #  # add a question about example.net IP address. Increment qdcount
-    #  dns.qd << PacketGen::Header::DNS::Question.new(dns, name: 'example.net')
-    #  # or
-    #  dns.qd << { rtype: 'Question', name: 'example.net' }
-    #  # add a question about example.net IPv6 address. Dot not modify qdcount
-    #  dns.qd.push PacketGen::Header::DNS::Question.new(dns, name: 'example.net', type: 'AAAA')
-    #  # or
-    #  dns.qd.push({ rtype: 'Question', name: 'example.net', type: 'AAAA' })
+    # @example Add a question to DNS question section
+    #   dns = PacketGen::Header::DNS.new
+    #   # add a question about example.net IP address. Increment qdcount
+    #   dns.qd << PacketGen::Header::DNS::Question.new(dns, name: 'example.net')
+    #   # or
+    #   dns.qd << { rtype: 'Question', name: 'example.net' }
+    #   dns.qdcount    #=> 2
+    #   # add a question about example.net IPv6 address. Dot not modify qdcount
+    #   dns.qd.push(PacketGen::Header::DNS::Question.new(dns, name: 'example.net', type: 'AAAA'))
+    #   # or
+    #   dns.qd.push(rtype: 'Question', name: 'example.net', type: 'AAAA')
+    #   dns.qdcount    #=> 2
     #
-    # == Add a ressource record to a DNS section
-    # Adding a {RR} with {RRSection#<< RRSection#<<} automagically increments section counter.
-    # To not modify it, use +RRSection#push RRSection#push+
-    #  # add a RR to answer section. Increment ancount
-    #  dns.an << PacketGen::Header::DNS::RR.new(dns, name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton)
-    #  # or
-    #  dns.an << { rtype: 'RR', name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton }
-    #  # add a RR to NS section. Dot not modify nscount
-    #  rdata = PacketGen::Header::DNS::Name.new(dns).parse('dns.net')
-    #  dns.ns.push PacketGen::Header::DNS::RR.new(dns, name: 'example.net', type: 'NS', rdata: rdata)
-    #  # or
-    #  dns.ns.push(rtype: 'RR', name: 'example.net', type: 'NS', rdata: rdata)
+    # @example Add a ressource record to a DNS section
+    #   dns = PacketGen::Header::DNS.new
+    #   # add a RR to answer section. Increment ancount
+    #   dns.an << PacketGen::Header::DNS::RR.new(dns, name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton)
+    #   # or
+    #   dns.an << { rtype: 'RR', name: 'example.net', rdata: IPAddr.new('1.2.3.4').hton }
+    #   dns.ancount   #=> 2
+    #   # add a RR to NS section. Dot not modify nscount
+    #   rdata = PacketGen::Header::DNS::Name.new(dns: dns).from_human('dns.net')
+    #   dns.ns.push(PacketGen::Header::DNS::RR.new(dns, name: 'example.net', type: 'NS', rdata: rdata))
+    #   # or
+    #   dns.ns.push(rtype: 'RR', name: 'example.net', type: 'NS', rdata: rdata)
+    #   dns.nscount   #=> 0
     #
-    # == Extended DNS EDNS(0)
-    #  # Add an OPT to ar section
-    #  dns.ar << PacketGen::Header::DNS::OPT.new(dns, udp_size: 4096, ext_rcode: 43)
-    #  # or
-    #  dns.ar << { rtype: 'OPT', udp_size: 4096, ext_rcode: 43 }
-    #  # add an option to OPT record
-    #  dns.ar.last.options << PacketGen::Header::DNS::Option.new(code: 48, data: '12')
-    #  # or
-    #  dns.ar.last.options << { code: 48, data: '12' }
+    # @example Extended DNS (EDNS(0)) options
+    #   dns = PacketGen::Header::DNS.new
+    #   # Add an OPT to ar section
+    #   dns.ar << PacketGen::Header::DNS::OPT.new(dns, udp_size: 4096, ext_rcode: 43)
+    #   # or
+    #   dns.ar << { rtype: 'OPT', udp_size: 4096, ext_rcode: 43 }
+    #   # add an option to OPT record
+    #   dns.ar.last.options << PacketGen::Header::DNS::Option.new(code: 48, data: '12')
+    #   # or
+    #   dns.ar.last.options << { code: 48, data: '12' }
     # @author Sylvain Daubert
     # @since 1.3.0
     class DNS < Base
@@ -140,6 +147,7 @@ module PacketGen
       }.freeze
 
       # @!attribute id
+      #  16-bit identifier to match up replies and queries
       #  @return [Integer]
       define_attr :id, BinStruct::Int16
       # @!attribute u16
@@ -166,27 +174,35 @@ module PacketGen
       undef opcode=, rcode=
 
       # @!attribute qdcount
+      #  Number of entries in {#qd question section}
       #  @return [Integer]
       define_attr :qdcount, BinStruct::Int16
       # @!attribute ancount
+      #  Number of ressource recors in {#an answer section}
       #  @return [Integer]
       define_attr :ancount, BinStruct::Int16
       # @!attribute nscount
+      #  Number of name resource recors in {#ns authority records section}
       #  @return [Integer]
       define_attr :nscount, BinStruct::Int16
       # @!attribute arcount
+      #  Number of ressources recors in {#ar additional records section}
       #  @return [Integer]
       define_attr :arcount, BinStruct::Int16
       # @!attribute qd
+      #  Question section
       #  @return [QDSection]
       define_attr :qd, QDSection, builder: ->(h, t) { t.new(h, h[:qdcount]) }
       # @!attribute an
+      #  Answer section
       #  @return [RRSection]
       define_attr :an, RRSection, builder: ->(h, t) { t.new(h, h[:ancount]) }
       # @!attribute ns
+      #  Authority records section
       #  @return [RRSection]
       define_attr :ns, RRSection, builder: ->(h, t) { t.new(h, h[:nscount]) }
       # @!attribute ar
+      #  Additional record section
       #  @return [RRSection]
       define_attr :ar, RRSection, builder: ->(h, t) { t.new(h, h[:arcount]) }
 

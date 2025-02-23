@@ -14,12 +14,12 @@ module PacketGen
     # * a {#version} (+BinStruct::Int8+),
     # * a packet {#type} (+BinStruct::Int8+),
     # * a {#length} (+BinStruct::Int16+),
-    # * and a body (a +BinStruct::String+ or another Header class).
-    # == Create a Dot1x header
+    # * and a body (a +BinStruct::String+ or another {Headerable} class).
+    # @example Create a Dot1x header
+    #   # Create with integer type
     #   pkt1 = PacketGen.gen('Eth').add('Dot1x', type: 1)
-    #   pkt2 = PacketGen.gen('Eth').add('Dot1x')
-    #   pkt2.dot1x.type = 'EAP Packet'
-    #   pkt2.dot1x.body.read 'body'
+    #   # Create with human-readable type
+    #   pkt2 = PacketGen.gen('Eth').add('Dot1x', type: 'EAP Packet')
     # @author Sylvain Daubert
     # @since 1.4.0
     class Dot1x < Base

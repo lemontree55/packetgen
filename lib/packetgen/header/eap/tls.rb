@@ -21,14 +21,15 @@ module PacketGen
       class TLS < EAP
         update_attr :type, default: 13
         # @!attribute flags
-        #  @return [Integer] 8-bit flags
-        # @!attribute l
-        #  Say if length field is included
+        #  8-bit flags
         #  @return [Integer]
-        # @!attribute m
+        # @!attribute l?
+        #  Say if {#tls_length 32-bit TLS length attribute} is included.
+        #  @return [Integer]
+        # @!attribute m?
         #  Say if there are more fragments
         #  @return [Integer]
-        # @!attribute s
+        # @!attribute s?
         #  If set, this message is a TLS-Start
         #  @return [Integer]
         define_bit_attr_before :body, :flags, l: 1, m: 1, s: 1, reserved: 5
