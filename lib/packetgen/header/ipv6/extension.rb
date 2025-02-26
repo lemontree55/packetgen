@@ -44,7 +44,7 @@ module PacketGen
         #  Specific options of extension header
         #  @return [String]
         define_attr :options, BinStruct::String,
-                    builder: ->(h, t) { t.new(length_from: -> { h.real_length }) }
+                    builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2}) }
         # @!attribute body
         #  @return [String,Base]
         define_attr :body, BinStruct::String

@@ -120,6 +120,8 @@ module PacketGen
           expect(pkt.is?('IPv6')).to be(true)
           expect(pkt.is?('ICMPv6')).to be(true)
           expect(pkt.is?('IPv6::HopByHop')).to be(true)
+          expect(pkt.ipv6_hopbyhop.next).to eq(58)
+          expect(pkt.ipv6_hopbyhop[:body]).to be_a(Header::ICMPv6)
           expect(pkt.ipv6_hopbyhop.options.size).to eq(11)
           ra = pkt.ipv6_hopbyhop.options[6]
           expect(ra.human_type).to eq('router_alert')
@@ -230,6 +232,31 @@ module PacketGen
           (ip.attributes - %i[body] + %i[version tclass flow_label]).each do |attr|
             expect(str).to include(attr.to_s)
           end
+        end
+      end
+    end
+
+    describe IPv6::HopByHop do
+      let(:hbh) { IPv6::HopByHop.new }
+
+      describe '#options' do
+        it 'accepts router alert option' do
+          hbh.options << { type: 'router_alert', value: [0].pack('n') }
+          expect(hbh.options.first).to be_a(IPv6::Option)
+          expect(hbh.options.first.human_type).to eq('router_alert')
+        end
+      end
+
+      describe '#to_s' do
+        it 'pads empty options' do
+          expect(hbh.to_s).to eq("\x00\x00\x01\x04\x00\x00\x00\x00".b)
+          expect(hbh.options.map(&:human_type)).to eq(%w[padn])
+        end
+
+        it 'pads options' do
+          hbh.options << { type: 'router_alert', value: [0].pack('n') }
+          expect(hbh.to_s).to eq("\x00\x00\x05\x02\x00\x00\x01\x00".b)
+          expect(hbh.options.map(&:human_type)).to eq(%w[router_alert padn])
         end
       end
     end

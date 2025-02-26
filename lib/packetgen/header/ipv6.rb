@@ -197,15 +197,18 @@ module PacketGen
   module Header
     class IPv6
       class << self
+        # @private
         alias old_bind bind
 
         # Bind a upper header to IPv6 and its defined extension headers.
         # @see Base.bind
+        # @author LemonTree55
         def bind(header_klass, args={})
-          IPv6.old_bind header_klass, args
-          [IPv6::HopByHop].each do |klass|
-            klass.bind header_klass, args
-          end
+          IPv6.old_bind(header_klass, args)
+          IPv6.constants
+              .map { |cname| IPv6.const_get(cname) }
+              .select { |klass| klass.is_a?(Class) && (klass < Extension) }
+              .each { |klass| klass.bind(header_klass, args) }
         end
       end
     end

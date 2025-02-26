@@ -50,11 +50,10 @@ module PacketGen
         #  @return [Integer]
         define_attr :a8, BinStruct::Int16
 
-        # rubocop:disable Metrics/AbcSize
-
         # Read a colon-delimited address
         # @param [String] str
         # @return [self]
+        # @raise [ArgumentError] not a colon-delimited IPv6 address
         def from_human(str)
           return self if str.nil?
 
@@ -62,17 +61,11 @@ module PacketGen
           raise ArgumentError, 'string is not a IPv6 address' unless addr.ipv6?
 
           addri = addr.to_i
-          self.a1 = addri >> 112
-          self.a2 = addri >> 96 & 0xffff
-          self.a3 = addri >> 80 & 0xffff
-          self.a4 = addri >> 64 & 0xffff
-          self.a5 = addri >> 48 & 0xffff
-          self.a6 = addri >> 32 & 0xffff
-          self.a7 = addri >> 16 & 0xffff
-          self.a8 = addri & 0xffff
+          8.times do |i|
+            self.send(:"a#{i + 1}=", addri >> (16 * (7 - i)) & 0xffff)
+          end
           self
         end
-        # rubocop:enable Metrics/AbcSize
 
         # Addr6 in human readable form (colon-delimited hex string)
         # @return [String]

@@ -108,6 +108,13 @@ module PacketGen
         #  Specific options of extension header
         #  @return [Options]
         define_attr_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2 }) }
+
+        # Generate binary string. Add padding if needed in {#options}, and update {#length} accordingly.
+        # @return [String]
+        def to_s
+          calc_length
+          super
+        end
       end
     end
 
