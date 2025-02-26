@@ -15,30 +15,31 @@ module PacketGen
     #   |     Type      |     Code      |          Checksum             |
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A ICMPv6 header consists of:
-    # * a +type+ field (+BinStruct::Int8+ type),
-    # * a +code+ field (+BinStruct::Int8+ type),
-    # * a +checksum+ field (+BinStruct::Int16+ type),
-    # * and a +body+.
+    # * a {#type #type} field (+BinStruct::Int8+ type),
+    # * a {#code #code} field (+BinStruct::Int8+ type),
+    # * a {#checksum #checksum} field (+BinStruct::Int16+ type),
+    # * and a {#body #body}.
     #
-    # == Create a ICMPv6 header
+    # @example Create a ICMPv6 header
     #  # standalone
     #  icmpv6 = PacketGen::Header::ICMPv6.new
     #  # in a packet
     #  pkt = PacketGen.gen('IPv6').add('ICMPv6')
     #  # access to ICMPv6 header
-    #  pkt.icmpv6     # => PacketGen::Header::ICMPv6
+    #  pkt.icmpv6.class  # => PacketGen::Header::ICMPv6
     #
-    # == ICMPv6 attributes
+    # @example ICMPv6 attributes
+    #  icmpv6 = PacketGen::Header::ICMPv6.new
     #  icmpv6.code = 0
     #  icmpv6.type = 200
     #  icmpv6.checksum = 0x248a
-    #  icmpv6.body.read 'this is a body'
+    #  icmpv6.body = 'this is a body'
     # @author Sylvain Daubert
     class ICMPv6 < ICMP
       # ICMPv6 internet protocol number
       IP_PROTOCOL = 58
 
-      # Compute checksum and set +checksum+ field
+      # Compute IPV6-style checksum and set +checksum+ field
       # @return [Integer]
       def calc_checksum
         sum = ip_header(self).pseudo_header_checksum

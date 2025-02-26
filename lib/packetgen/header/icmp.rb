@@ -20,19 +20,20 @@ module PacketGen
     # * a {#checksum} field (+BinStruct::Int16+ type),
     # * and a {#body}.
     #
-    # == Create a ICMP header
+    # @example Create a ICMP header
     #  # standalone
     #  icmp = PacketGen::Header::ICMP.new
     #  # in a packet
     #  pkt = PacketGen.gen('IP').add('ICMP')
     #  # access to ICMP header
-    #  pkt.icmp     # => PacketGen::Header::ICMP
+    #  pkt.icmp.class   # => PacketGen::Header::ICMP
     #
-    # == ICMP attributes
+    # @example ICMP attributes
+    #  icmp = PacketGen::Header::ICMP.new
     #  icmp.code = 0
     #  icmp.type = 200
     #  icmp.checksum = 0x248a
-    #  icmp.body.read 'this is a body'
+    #  icmp.body = 'this is a body'
     # @author Sylvain Daubert
     class ICMP < Base
       # ICMP internet protocol number
@@ -51,7 +52,8 @@ module PacketGen
       #  @return [Integer]
       define_attr :checksum, BinStruct::Int16
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      # ICMP body
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
 
       # Compute checksum and set +checksum+ field
@@ -61,9 +63,7 @@ module PacketGen
         self.checksum = IP.reduce_checksum(sum)
       end
     end
-
     self.add_class ICMP
-
     IP.bind ICMP, protocol: ICMP::IP_PROTOCOL
   end
 end

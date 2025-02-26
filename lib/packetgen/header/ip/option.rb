@@ -17,7 +17,11 @@ module PacketGen
         # Push a IP address to the array
         # @param [String,Addr] addr
         # @return [self]
+        # @example
+        #   array = PacketGen::Header::IP::ArrayOfAddr.new
+        #   # #<< uses #push internally
         #   array << '192.168.1.12'
+        #   array.push(PacketGen::Header::IP::Addr.new.from_human('192.18.1.13'))
         def push(addr)
           addr = Addr.new.from_human(addr) unless addr.is_a?(Addr)
           super
@@ -46,7 +50,7 @@ module PacketGen
 
         # @!attribute type
         #  8-bit option type
-        # @return [Integer]
+        #  @return [Integer]
         # @!attribute copied
         #  1-bit copied flag from {#type} field
         #  @return [Integer]
@@ -60,15 +64,17 @@ module PacketGen
         define_bit_attr :type, copied: 1, option_class: 2, number: 5
         # @!attribute length
         #  8-bit option length. If 0, there is no +length+ field in option
-        # @return [Integer]
+        #  @return [Integer]
         define_attr :length, BinStruct::Int8, default: 0, optional: ->(h) { h.type > 1 }
         # @!attribute data
         #  option data
-        # @return [String]
+        #  @return [String]
         define_attr :data, BinStruct::String, optional: ->(h) { h.length > 2 },
                                               builder: ->(h, t) { t.new(length_from: -> { h.length - 2 }) }
 
-        # @return [Hash]
+        # @private
+        # Return a cached hash associating type name to its value.
+        # @return [Hash{String => Integer}]
         def self.types
           return @types if defined? @types
 
@@ -83,6 +89,7 @@ module PacketGen
         end
 
         # Factory to build an option from its type
+        # @param [Hash] options
         # @return [Option]
         def self.build(options={})
           type = options[:type]
@@ -96,6 +103,8 @@ module PacketGen
           klass.new(options)
         end
 
+        # Force type value for subclasses, if not specified
+        # @return [Option]
         def initialize(options={})
           options[:type] = class2type unless options[:type]
 
@@ -153,7 +162,7 @@ module PacketGen
         remove_attr :data
 
         # @!attribute pointer
-        #  8-bit pointer on next address
+        #  8-bit po+++inter on next address
         #  @return [Integer]
         define_attr :pointer, BinStruct::Int8, default: 4
         # @!attribute data
@@ -190,6 +199,8 @@ module PacketGen
         #  @return [Integer]
         define_attr :id, BinStruct::Int16
 
+        # Return a human-readable string
+        # @return [String]
         def to_human
           super << ":#{self.id}"
         end
@@ -204,6 +215,8 @@ module PacketGen
         #  @return [Integer]
         define_attr :value, BinStruct::Int16, default: 0
 
+        # Return a human-readable string
+        # @return [String]
         def to_human
           super << ":#{self.value}"
         end

@@ -48,7 +48,7 @@ module PacketGen
       class MR < Base
         # @!attribute reserved
         #  16-bit reserved field
-        # @return [Integer]
+        #  @return [Integer]
         define_attr :reserved, BinStruct::Int16, default: 0
         # @!attribute number_of_gr
         #  16-bit Number of group records in {#group_records}

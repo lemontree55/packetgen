@@ -43,20 +43,21 @@ module PacketGen
     #   * a 20-bit {#flow_label} field,
     # * a payload length field ({#length}, +BinStruct::Int16+ type}),
     # * a next header field ({#next}, +BinStruct::Int8+ type),
-    # * a hop-limit field ({#hop}, +Int8+ type),
+    # * a hop-limit field ({#hop}, +BinStruct::Int8+ type),
     # * a source address field ({#src}, {IPv6::Addr} type),
-    # * a destination address field ({#dst}, +IPv6::Addr+ type),
+    # * a destination address field ({#dst}, {IPv6::Addr} type),
     # * and a {#body} (+BinStruct::String+ type).
     #
-    # == Create a IPv6 header
+    # @example Create a IPv6 header
     #  # standalone
     #  ipv6 = PacketGen::Header::IPv6.new
     #  # in a packet
     #  pkt = PacketGen.gen('IPv6')
     #  # access to IPv6 header
-    #  pkt.ipv6   # => PacketGen::Header::IPv6
+    #  pkt.ipv6.class   # => PacketGen::Header::IPv6
     #
-    # == IPv6 attributes
+    # @example IPv6 attributes
+    #  ipv6 = PacketGen::Header::IPv6.new
     #  ipv6.u32 = 0x60280001
     #  # the same as
     #  ipv6.version = 6
@@ -68,9 +69,9 @@ module PacketGen
     #  ipv6.next = 6
     #  ipv6.src = '::1'
     #  ipv6.src                # => "::1"
-    #  ipv6[:src]              # => PacketGen::Header::IPv6::Addr
+    #  ipv6[:src].class        # => PacketGen::Header::IPv6::Addr
     #  ipv6.dst = '2001:1234:5678:abcd::123'
-    #  ipv6.body.read 'this is a body'
+    #  ipv6.body ='this is a body'
     #
     # == Add IPv6 extensions
     # In IPv6, optional extensions are encoded in separate headers that
@@ -84,6 +85,7 @@ module PacketGen
     #  # Add another header
     #  pkt.add('UDP')
     # @author Sylvain Daubert
+    # @author LemonTree55
     class IPv6 < Base; end
 
     require_relative 'ipv6/addr'
@@ -96,11 +98,14 @@ module PacketGen
       #  First 32-bit word of IPv6 header
       #  @return [Integer]
       # @!attribute version
-      #   @return [Integer] 4-bit version attribute
+      #   4-bit version attribute
+      #   @return [Integer]
       # @!attribute traffic_class
-      #   @return [Integer] 8-bit traffic_class attribute
+      #   8-bit traffic_class attribute
+      #   @return [Integer]
       # @!attribute flow_label
-      #   @return [Integer] 20-bit flow_label attribute
+      #    20-bit flow_label attribute
+      #   @return [Integer]
       define_bit_attr :u32, default: 0x60000000, version: 4, traffic_class: 8, flow_label: 20
       # @!attribute length
       #  16-bit word of IPv6 payload length
@@ -123,10 +128,11 @@ module PacketGen
       #  @return [Addr]
       define_attr :dst, Addr, default: '::1'
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  IPv6 body
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
 
-      # Compute length and set +len+ field
+      # Compute length and set {#length} field
       # @return [Integer]
       def calc_length
         Base.calculate_and_set_length self, header_in_size: false
@@ -168,7 +174,7 @@ module PacketGen
       end
 
       # Check version field
-      # @see [Base#parse?]
+      # @see Base#parse?
       def parse?
         version == 6
       end

@@ -23,6 +23,7 @@ module PacketGen
           5 => 'router_alert'
         }.freeze
 
+        # Get human-readable string
         # @return [String]
         def to_human
           case type
@@ -35,13 +36,15 @@ module PacketGen
       end
       Option.define_type_enum Option::TYPES.invert
 
-      # Special option pad1, for {HopByHop} IPv6 extension header
+      # Special option pad1 (one-byte option), for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
       class Pad1 < BinStruct::Struct
         # @!attribute pad
-        # @return [Integer]
+        #   Pad1 option type
+        #   @return [Integer]
         define_attr :pad, BinStruct::Int8, default: 0
 
+        # Get human-readable string
         # @return [String]
         def to_human
           'pad1'
@@ -96,16 +99,19 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # Hop-by-hop IPv6 extension header consists of:
-      # * a {#next} header field (+BinStruct::Int8+),
-      # * a {#length} field (+BinStruct::Int8+),
+      # * a {#next #next} header field (+BinStruct::Int8+),
+      # * a {#length #length} field (+BinStruct::Int8+),
       # * an {#options} field ({Options}),
-      # * and a {#body}, containing next header.
+      # * and a {#body #body}, containing next header.
+      # @example
+      #  pkt = PacketGen.gen('Eth').add('IPv6').add('IPv6::HopByHop').add('ICMPv6')
+      #  pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: "\x00\x00".b }
       # @author Sylvain Daubert
       class HopByHop < Extension
         # redefine options field
         remove_attr :options
         # @!attribute options
-        #  Specific options of extension header
+        #  Specific HopByHop options
         #  @return [Options]
         define_attr_before :body, :options, Options, builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2 }) }
 

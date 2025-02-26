@@ -26,19 +26,23 @@ module PacketGen
     # * a {#group_addr} field ({Header::IP::Addr} type),
     # * and a {#body} (unused for IGMPv2).
     #
-    # == Create a IGMP header
+    # After adding a IGMP header to a packet, you have to call {#igmpize} to ensure
+    # resulting packet conforms to RFC 2236.
+    #
+    # @example Create a IGMP header
     #  # standalone
     #  igmp = PacketGen::Header::IGMP.new
     #  # in a packet
     #  pkt = PacketGen.gen('IP').add('IGMP')
     #  # access to IGMP header
-    #  pkt.igmp    # => PacketGen::Header::IGMP
+    #  pkt.igmp.class  # => PacketGen::Header::IGMP
     #
-    # == IGMP attributes
-    #  icmp.type = 'MembershipQuery'   # or 0x11
-    #  icmp.max_resp_time = 20
-    #  icmp.checksum = 0x248a
-    #  icmp.group_addr = '224.0.0.1'
+    # @example IGMP attributes
+    #  igmp = PacketGen::Header::IGMP.new
+    #  igmp.type = 'MembershipQuery'   # or 0x11
+    #  igmp.max_resp_time = 20
+    #  igmp.checksum = 0x248a
+    #  igmp.group_addr = '224.0.0.1'
     # @author Sylvain Daubert
     # @since 2.4.0
     class IGMP < Base
@@ -70,12 +74,14 @@ module PacketGen
       #  @return [IP::Addr]
       define_attr :group_addr, IP::Addr, default: '0.0.0.0'
       # @!attribute body
+      #  IGMP body (not used in IGMPv2)
       #  @return [String,Base]
       define_attr :body, BinStruct::String
 
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
+      #   Define +#igmpize+ method onto +packet+. This method calls {#igmpize}.
       def added_to_packet(packet)
         igmp_idx = packet.headers.size
         packet.instance_eval "def igmpize() @headers[#{igmp_idx}].igmpize; end" # def igmpize() @headers[2].igmpize; end
@@ -103,6 +109,11 @@ module PacketGen
       #    pkt.igmp.igmpize
       #    # second method
       #    pkt.igmpize
+      # @example
+      #   pkt = PacketGen.gen('IP').add('IGMP', type: 'MembershipQuery', max_resp_time: 20, group_addr: '1.2.3.4')
+      #   pkt.igmpize
+      #   pkt.ip.ttl     #=> 1
+      #   pkt.ip.options.map(&:class) #=> [PacketGen::Header::IP::RA]
       # @return [void]
       def igmpize
         iph = ip_header(self)

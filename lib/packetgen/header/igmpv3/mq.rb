@@ -49,7 +49,7 @@ module PacketGen
         #  First 8-bit field, composed of {#resv}, {#flag_s} and {#qrv}
         #  @return [Integer]
         # @!attribute resv
-        #  4-bit reserved field in
+        #  4-bit reserved field
         #  @return [Integer]
         # @!attribute flag_s
         #  1-bit S flag (Suppress Router-Side Processing)

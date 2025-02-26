@@ -18,7 +18,7 @@ module PacketGen
         #  @return [Integer] IP address first byte
         define_attr :a1, BinStruct::Int8
         # @!attribute a2
-        #  @return [Integer] IP address seconf byte
+        #  @return [Integer] IP address second byte
         define_attr :a2, BinStruct::Int8
         # @!attribute a3
         #  @return [Integer] IP address third byte
@@ -27,6 +27,7 @@ module PacketGen
         #  @return [Integer] IP address fourth byte
         define_attr :a4, BinStruct::Int8
 
+        ## Regex to match IPv4 addresses
         IPV4_ADDR_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
 
         # Read a dotted address
@@ -51,7 +52,7 @@ module PacketGen
           attributes.map { |f| self[f].to_i.to_s }.join('.')
         end
 
-        # Addr as an integer
+        # Addr as a 32-bit integer
         # @return [Integer]
         def to_i
           (self.a1 << 24) | (self.a2 << 16) | (self.a3 << 8) |
@@ -64,6 +65,9 @@ module PacketGen
           self.a1 >= 224 && self.a1 <= 239
         end
 
+        # Check equality.
+        # Equal is other has same class and all attributes are equal.
+        # @return [Boolean]
         def ==(other)
           other.is_a?(self.class) &&
             attributes.all? { |attr| self[attr].value == other[attr].value }

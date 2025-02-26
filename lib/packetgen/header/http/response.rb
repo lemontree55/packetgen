@@ -13,22 +13,23 @@ module PacketGen
       # * the version (+BinStruct::String+).
       # * the status code (+BinStruct::String+).
       # * the status message (+BinStruct::String+).
-      # * associated http headers ({HTTP::Headers}).
-      # * the actual http payload body (+BinStruct::String+).
+      # * associated HTTP headers ({HTTP::Headers}).
+      # * the actual HTTP payload body (+BinStruct::String+).
       #
-      # == Create a HTTP Response header
+      # Note: When creating a HTTP Response packet, +sport+ and +dport+
+      # attributes of TCP header are not set.
+      #
+      # @example Create a HTTP Response header
       #   # standalone
       #   http_resp = PacketGen::Header::HTTP::Response.new
       #   # in a packet
       #   pkt = PacketGen.gen("IP").add("TCP").add("HTTP::Response")
       #   # access to HTTP Response header
-      #   pkt.http_response # => PacketGen::Header::HTTP::Response
+      #   pkt.http_response.class # => PacketGen::Header::HTTP::Response
       #
-      # Note: When creating a HTTP Response packet, +sport+ and +dport+
-      # attributes of TCP header are not set.
-      #
-      # == HTTP Response attributes
-      #   http_resp.version     = "HTTP/1.1"
+      # @example HTTP Response attributes
+      #   http_resp = PacketGen::Header::HTTP::Response.new
+      #   http_resp.version     #=> "HTTP/1.1"
       #   http_resp.status_code = "200"
       #   http_resp.status_mesg = "OK"
       #   http_resp.body        = "this is a body"
@@ -39,20 +40,24 @@ module PacketGen
       # @author LemonTree55
       class Response < Base
         # @!attribute version
+        #   HTTP version
         #   @return [BinStruct::String]
         define_attr :version,     BinStruct::String, default: 'HTTP/1.1'
         # @!attribute status_code
+        #   Response status code
         #   @return [BinStruct::String]
         define_attr :status_code, BinStruct::String
         # @!attribute status_mesg
+        #   Response status message
         #   @return [BinStruct::String]
         define_attr :status_mesg, BinStruct::String
         # @!attribute headers
         #   associated http/1.1 headers
-        #   @return [BinStruct::String]
+        #   @return [HTTP::Headers]
         define_attr :headers, HTTP::Headers
         # @!attribute body
-        #   @return [HTTP::PHeaders]
+        #   Response body
+        #   @return [BinStruct::String]
         define_attr :body, BinStruct::String
 
         # @param [Hash] options
@@ -67,7 +72,7 @@ module PacketGen
         end
 
         # Read in the HTTP portion of the packet, and parse it.
-        # @return [PacketGen::HTTP::Response]
+        # @return [self]
         def read(str)
           headers, data = collect_headers_and_data(str)
 
@@ -80,6 +85,8 @@ module PacketGen
           self
         end
 
+        # May be parsed as a HTTP response if version is +HTTP/1.x+.
+        # @return [Boolean]
         def parse?
           version.start_with?('HTTP/1.')
         end

@@ -10,26 +10,32 @@ module PacketGen
   module Header
     # An Ethernet header consists of:
     # * a destination MAC address ({MacAddr}),
-    # * a source MAC address (MacAddr),
+    # * a source MAC address ({MacAddr}),
     # * a {#ethertype} (+BinStruct::Int16+),
-    # * and a body (a +BinStruct::String+ or another Header class).
+    # * and a body (a +BinStruct::String+ or another {Headerable} class).
     #
-    # == Create a Ethernet header
+    # @example Create a Ethernet header
     #  # standalone
     #  eth = PacketGen::Header::Eth.new
     #  # in a packet
     #  pkt = PacketGen.gen('Eth')
     #  # access to Ethernet header
-    #  pkt.eth   # => PacketGen::Header::Eth
+    #  pkt.eth.class   # => PacketGen::Header::Eth
     #
-    # == Ethernet attributes
+    # @example Access to Ethernet attributes
+    #  eth = PacketGen::Header::Eth.new(src: '00:01:01:01:01:01', ethertype: 0x1234)
+    #  # Set destination MAC address
     #  eth.dst = "00:01:02:03:04:05"
-    #  eth.src        # => "00:01:01:01:01:01"
-    #  eth[:src]      # => PacketGen::Header::Eth::MacAddr
-    #  eth.ethertype  # => 16-bit Integer
+    #  # Access source MAC address, human-redable
+    #  eth.src            # => "00:01:01:01:01:01"
+    #  # Access to MacAddr object
+    #  eth[:src].class    # => PacketGen::Header::Eth::MacAddr
+    #  eth.ethertype      # => 0x1234
+    #  # Set Ethernet body
     #  eth.body = "This is a body"
     #
     # @author Sylvain Daubert
+    # @author LemonTree55
     class Eth < Base
       # Ethernet MAC address, as a group of 6 bytes
       # @author Sylvain Daubert
@@ -58,6 +64,10 @@ module PacketGen
         # Read a human-readable string to populate +MacAddr+
         # @param [String] str
         # @return [self]
+        # @example
+        #   mac = PacketGen::Header::Eth::MacAddr.new
+        #   mac.from_human('01:02:03:04:05:06')
+        #   mac.a5  # => 6
         def from_human(str)
           return self if str.nil?
 
@@ -76,6 +86,8 @@ module PacketGen
           attributes.map { |m| '%02x' % self[m] }.join(':')
         end
 
+        # Equality check. +true+ only if +other+ is a MacAddr, and each address byte is the same.
+        # @return [Boolean]
         def ==(other)
           other.is_a?(self.class) &&
             attributes.all? { |attr| self[attr].value == other[attr].value }
@@ -83,16 +95,18 @@ module PacketGen
       end
 
       # @!attribute dst
-      #  @return [MacAddr] Destination MAC address
+      #  Destination MAC address
+      #  @return [::String]
       define_attr :dst, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute src
-      #  @return [MacAddr] Source MAC address
+      #  Source MAC address
+      #  @return [::String]
       define_attr :src, MacAddr, default: '00:00:00:00:00:00'
       # @!attribute ethertype
       #  @return [Integer] 16-bit integer to determine payload type
       define_attr :ethertype, BinStruct::Int16, default: 0
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
 
       # send Eth packet on wire.

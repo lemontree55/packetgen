@@ -14,24 +14,26 @@ module PacketGen
       # * the path (+BinStruct::String+).
       # * the version (+BinStruct::String+).
       # * associated http headers ({HTTP::Headers}).
+      # * and a {#body} (+BinStruct::String+).
       #
-      # == Create a HTTP Request header
+      # Note: When creating a HTTP Request packet, {TCP#sport} and {TCP#dport}
+      # attributes are not set.
+      #
+      # @example Create a HTTP Request header
       #   # standalone
-      #   http_rqst = PacketGen::Header::HTTP::Request.new
+      #   http_request = PacketGen::Header::HTTP::Request.new
       #   # in a packet
       #   pkt = PacketGen.gen("IP").add("TCP").add("HTTP::Request")
       #   # access to HTTP Request header
-      #   pkt.http_request # => PacketGen::Header::HTTP::Request
+      #   pkt.http_request.class # => PacketGen::Header::HTTP::Request
       #
-      # Note: When creating a HTTP Request packet, +sport+ and +dport+
-      # attributes of TCP header are not set.
-      #
-      # == HTTP Request attributes
-      #   http_rqst.version = "HTTP/1.1"
-      #   http_rqst.verb  = "GET"
-      #   http_rqst.path    = "/meow.html"
-      #   http_rqst.headers = "Host: tcpdump.org"     # string or
-      #   http_rqst.headers = { "Host": "tcpdump.org" } # even a hash
+      # @example HTTP Request attributes
+      #   http_request = PacketGen::Header::HTTP::Request.new
+      #   http_request.version #=> "HTTP/1.1"
+      #   http_request.verb  = "GET"
+      #   http_request.path    = "/meow.html"
+      #   http_request.headers = "Host: tcpdump.org"     # string or
+      #   http_request.headers = { "Host": "tcpdump.org" } # even a hash
       #
       # @author Kent 'picat' Gruber
       # @author Sylvain Daubert
@@ -39,13 +41,16 @@ module PacketGen
       # @since 3.1.0 Rename +#method+ into {#verb} to not mask +Object#method+.
       class Request < Base
         # @!attribute verb
+        #   HTTP verb (method)
         #   @return [BinStruct::String]
         #   @since 3.1.0
         define_attr :verb, BinStruct::String
         # @!attribute path
+        #   Requested path
         #   @return [BinStruct::String]
         define_attr :path,    BinStruct::String
         # @!attribute version
+        #   HTTP version
         #   @return [BinStruct::String]
         define_attr :version, BinStruct::String, default: 'HTTP/1.1'
         # @!attribute headers
@@ -53,6 +58,7 @@ module PacketGen
         #   @return [HTTP::Headers]
         define_attr :headers, HTTP::Headers
         # @!attribute body
+        #   HTTP request body, if any
         #   @return [BinStruct::String]
         define_attr :body, BinStruct::String
 
@@ -67,7 +73,7 @@ module PacketGen
         end
 
         # Read in the HTTP portion of the packet, and parse it.
-        # @return [PacketGen::HTTP::Request]
+        # @return [self]
         def read(str)
           lines = lines(str)
           first_line_words = lines.shift.split
@@ -83,6 +89,8 @@ module PacketGen
           self
         end
 
+        # May be parsed as a HTTP request if verb is known, and if version is +HTTP/1.x+.
+        # @return [Boolean]
         def parse?
           VERBS.include?(self.verb) && self.version.start_with?('HTTP/1.')
         end

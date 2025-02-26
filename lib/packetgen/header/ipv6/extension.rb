@@ -9,7 +9,7 @@
 module PacketGen
   module Header
     class IPv6
-      # Base class to handle IPv6 extensions
+      # Base class to handle IPv6 extensions.
       # @abstract You should not use this class but its subclasses.
       # A IPv6 extension header has the following format:
       #   0                   1                   2                   3
@@ -46,7 +46,8 @@ module PacketGen
         define_attr :options, BinStruct::String,
                     builder: ->(h, t) { t.new(length_from: -> { h.real_length - 2}) }
         # @!attribute body
-        #  @return [String,Base]
+        #  Next header in IPv6 packet
+        #  @return [String,Headerable]
         define_attr :body, BinStruct::String
 
         # Get real extension header length
@@ -55,7 +56,7 @@ module PacketGen
           (length + 1) * 8
         end
 
-        # Compute length and set +len+ field
+        # Compute length and set {#length}+ attribute
         # @return [Integer]
         def calc_length
           self.length = (options.sz + 2) / 8 - 1

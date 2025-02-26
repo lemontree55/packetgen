@@ -18,23 +18,24 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # A IGMP header consists of:
-    # * a {#type} field (+BinStruct::Int8Enum+ type),
-    # * a {#max_resp_time} field (+BinStruct::Int8+ type),
-    # * a {#checksum} field (+BinStruct::Int16+ type),
-    # * and a {#body}, containing more fields (see below).
+    # * a {#type #type} field (+BinStruct::Int8Enum+ type),
+    # * a {#max_resp_time #max_resp_time} field (+BinStruct::Int8+ type),
+    # * a {#checksum #checksum} field (+BinStruct::Int16+ type),
+    # * and a {#body #body}, containing more fields (see below).
     #
     # A IGMPv3 header may have additionnal fields. These attributes are handled by
     # additional headers (see {IGMPv3::MQ}).
     #
-    # == Create a IGMPv3 header
+    # @example Create a IGMPv3 header
     #  # standalone
     #  igmp = PacketGen::Header::IGMPv3.new
     #  # in a packet
     #  pkt = PacketGen.gen('IP').add('IGMPv3')
     #  # access to IGMPv3 header
-    #  pkt.igmp    # => PacketGen::Header::IGMPv3
+    #  pkt.igmpv3.class  # => PacketGen::Header::IGMPv3
     #
-    # == IGMPv3 attributes
+    # @example IGMPv3 attributes
+    #  igmp = PacketGen::Header::IGMPv3.new
     #  igmp.type = 'MembershipQuery'   # or 0x11
     #  igmp.max_resp_time = 20
     #  igmp.checksum = 0x248a

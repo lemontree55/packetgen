@@ -76,14 +76,19 @@ module PacketGen
         define_attr :source_addr, IP::ArrayOfAddr,
                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
         # @!attribute aux_data
+        #    Not used in IGMPv3
         #  @return [String]
         define_attr :aux_data, BinStruct::String,
                     builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
 
+        # Human-readable type
+        # @return [String]
         def human_type
           self[:type].to_human
         end
 
+        # Human-readable description of a group record
+        # @return [String]
         def to_human
           "#{human_type}(ma:#{multicast_addr}|src:#{source_addr.to_human})"
         end

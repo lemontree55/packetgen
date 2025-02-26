@@ -26,12 +26,12 @@ module PacketGen
         end
 
         describe '#initialize' do
-          it 'creates a TCP header with default values' do
+          it 'creates a HTTP::Request header with default values' do
             http_req = Request.new
             expect(http_req).to be_a(Request)
           end
 
-          it 'creates a TCP header with given options' do
+          it 'creates a HTTP::Request header with given options' do
             http_req = Request.new(verb: 'GET', path: '/', headers: { 'User-Agent' => 'dummy/1.0' })
             expect(http_req).to be_a(Request)
             expect(http_req.verb).to eq('GET')

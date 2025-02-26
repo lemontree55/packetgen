@@ -21,12 +21,18 @@ module PacketGen
       # Fixup IP header according to RFC 6762:
       # * set ethernet multicast address to +01:00:5E:00:00:FB+ (for IPv4)
       #   or +33:33:00:00:00:FB+ (for IPv6),
-      # * set IPv4 address to 224.0.0.251 or IPv6 address to ff02::fb.
+      # * set IPv4 address to +224.0.0.251+ or IPv6 address to +ff02::fb+.
       # This method may be called as:
       #    # first way
       #    pkt.mdns.mdnsize
       #    # second way
-      #    pkt.mdnsize
+      #    pkt.
+      # @example
+      #   pkt = PacketGen.gen('Eth').add('IP').add('UDP').add('MDNS')
+      #   pkt.mdnsize
+      #   pkt.eth.dst   #=> "01:00:5e:00:00:fb"
+      #   pkt.ip.dst    #=> "224.0.0.251"
+      # @return [void]
       def mdnsize
         iph = ip_header(self)
         case iph
@@ -42,6 +48,7 @@ module PacketGen
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
+      # Add +#mdnsize+ method to +packet+. This method calls {#mdnsize}.
       # @since 2.7.0 Set UDP sport according to bindings, only if sport is 0.
       #  Needed by new bind API.
       def added_to_packet(packet)

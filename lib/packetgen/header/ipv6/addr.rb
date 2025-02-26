@@ -14,6 +14,7 @@ module PacketGen
     class IPv6
       # IPv6 address, as a group of 8 2-byte words
       # @author Sylvain Daubert
+      # @author LemonTree55
       class Addr < BinStruct::Struct
         include BinStruct::Structable
 
@@ -67,7 +68,7 @@ module PacketGen
           self
         end
 
-        # Addr6 in human readable form (colon-delimited hex string)
+        # Return IPv6 address in human readable form (colon-delimited hex string)
         # @return [String]
         def to_human
           IPAddr.new(to_a.map { |a| a.to_i.to_s(16) }.join(':')).to_s
@@ -85,6 +86,9 @@ module PacketGen
           self.a1 & 0xff00 == 0xff00
         end
 
+        # Check equaliy to +other+.
+        # Equal if other has the same class, and all attributes are equal
+        # @return [Boolean]
         def ==(other)
           other.is_a?(self.class) &&
             attributes.all? { |attr| self[attr].value == other[attr].value }
@@ -99,7 +103,11 @@ module PacketGen
         # Push a IPv6 address to the array
         # @param [String,Addr] addr
         # @return [self]
-        #   array << '2001:1234::125'
+        # @example
+        #   array = PacketGen::Header::IPv6::ArrayOfAddr.new
+        #   # #<< uses #push internally
+        #   array << '2001::1'
+        #   array.push(PacketGen::Header::IPv6::Addr.new.from_human('1:2:3:abcd::1'))
         def push(addr)
           addr = Addr.new.from_human(addr) unless addr.is_a?(Addr)
           super

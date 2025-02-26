@@ -15,21 +15,25 @@ module PacketGen
     # * a {#dsap} (+BinStruct::Int8+),
     # * a {#ssap} (+BinStruct::Int8+),
     # * a {#control} (+BinStruct::Int8+),
-    # * and a {#body} (a +BinStruct::String+ or another {Base} class).
+    # * and a {#body} (a +BinStruct::String+ or another {Headerable} class).
     # @author Sylvain Daubert
     # @since 1.4.0
     class LLC < Base
       # @!attribute dsap
-      #  @return [Integer] 8-bit dsap value
+      #  8-bit Destination Service Access Point value
+      #  @return [Integer]
       define_attr :dsap, BinStruct::Int8
       # @!attribute ssap
-      #  @return [Integer] 8-bit ssap value
+      #  8-bit Source Service Access Point value
+      #  @return [Integer]
       define_attr :ssap, BinStruct::Int8
       # @!attribute control
-      #  @return [Integer] 8-bit control value
+      #  8-bit control value
+      #  @return [Integer]
       define_attr :control, BinStruct::Int8
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  LLC body
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
     end
     self.add_class LLC
@@ -40,18 +44,21 @@ module PacketGen
     # A SNAP header consists of:
     # * a {#oui} (+BinStruct::OUI+),
     # * a {#proto_id} (+BinStruct::Int16+),
-    # * and a {#body} (a +BinStruct::String+ or another {Base} class).
+    # * and a {#body} (a +BinStruct::String+ or another {Headerable} class).
     # @author Sylvain Daubert
     # @since 1.4.0
     class SNAP < Base
       # @!attribute oui
+      #  If +00:00:00+, {#proto_id} is an EtherType. Else, {#proto_id} is specified by organization specified BY +OUI+.
       #  @return [BinStruct::OUI]
       define_attr :oui, BinStruct::OUI
       # @!attribute proto_id
-      #  @return [Integer] 16-bit protocol id
+      #  16-bit protocol id
+      #  @return [Integer]
       define_attr :proto_id, BinStruct::Int16
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  SNAP header
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
     end
     self.add_class SNAP

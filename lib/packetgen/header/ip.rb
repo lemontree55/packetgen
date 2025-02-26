@@ -32,27 +32,28 @@ module PacketGen
     #   * a 4-bit IP header length ({#ihl}) field,
     # * a Type of Service field ({#tos}, +BinStruct::Int8+ type),
     # * a total length ({#length}, +BinStruct::Int16+ type),
-    # * a ID ({#id}, +Int16+ type),
-    # * a {#frag} worg (+Int16+) composed of:
+    # * a ID ({#id}, +BinStruct::Int16+ type),
+    # * a {#frag} worg (+BinStruct::Int16+) composed of:
     #   * 3 1-bit flags ({#flag_rsv}, {#flag_df} and {#flag_mf}),
     #   * a 13-bit {#fragment_offset} field,
     # * a Time-to-Live ({#ttl}) field (+Int8+),
-    # * a {#protocol} field (+Int8+),
-    # * a {#checksum} field (+Int16+),
+    # * a {#protocol} field (+BinStruct::Int8+),
+    # * a {#checksum} field (+BinStruct::Int16+),
     # * a source IP address ({#src}, {Addr} type),
-    # * a destination IP address ({#dst}, +Addr+ type),
+    # * a destination IP address ({#dst}, {Addr} type),
     # * an optional {#options} field ({Options} type),
     # * and a {#body} (+BinStruct::String+ type).
     #
-    # == Create a IP header
+    # @example Create a IP header
     #  # standalone
     #  ip = PacketGen::Header::IP.new
     #  # in a packet
     #  pkt = PacketGen.gen('IP')
     #  # access to IP header
-    #  pkt.ip   # => PacketGen::Header::IP
+    #  pkt.ip.class   # => PacketGen::Header::IP
     #
-    # == IP attributes
+    # @example IP attributes
+    #  ip = PacketGen::Header::IP.new
     #  ip.u8 = 0x45
     #  # the same as
     #  ip.version = 4
@@ -66,21 +67,20 @@ module PacketGen
     #  ip.flag_mf = true
     #  ip.fragment_offset = 0x31
     #
-    #  ip.flag_rsv?  # => Boolean
-    #  ip.flag_df?   # => Boolean
-    #  ip.flag_mf?   # => Boolean
+    #  ip.flag_rsv?  # => false
+    #  ip.flag_df?   # => false
+    #  ip.flag_mf?   # => true
     #
     #  ip.ttl = 0x40
     #  ip.protocol = 6
     #  ip.checksum = 0xffff
     #  ip.src = '127.0.0.1'
     #  ip.src                # => "127.0.0.1"
-    #  ip[:src]              # => PacketGen::Header::IP::Addr
+    #  ip[:src].class        # => PacketGen::Header::IP::Addr
     #  ip.dst = '127.0.0.2'
-    #  ip.body.read 'this is a body'
+    #  ip.body = 'this is a body'
     #
-    # == Add IP options
-    # IP has an {#options} attribute used to store datagram options.
+    # @example Add IP options
     #  pkt = PacketGen.gen('IP')
     #  # add option from class
     #  pkt.ip.options << PacketGen::Header::IP::RA.new
@@ -101,52 +101,68 @@ module PacketGen
       #  First byte of IP header. May be accessed through {#version} and {#ihl}.
       #  @return [Integer] first byte of IP header.
       # @!attribute version
-      #   @return [Integer] 4-bit version attribute
+      #   4-bit version attribute
+      #   @return [Integer]
       # @!attribute ihl
-      #   @return [Integer] 4-bit IP header length attribute
+      #   4-bit IP header length attribute, as 32-bit word count.
+      #   Default to 5 (IP header without option).
+      #   @return [Integer]
       define_bit_attr :u8, default: 0x45, version: 4, ihl: 4
       # @!attribute tos
       #   @return [Integer] 8-bit Type of Service self[attr]
       define_attr :tos, BinStruct::Int8, default: 0
       # @!attribute length
-      #   @return [Integer] 16-bit IP total length
+      #   16-bit IP total length, including this header.
+      #   @return [Integer]
       define_attr :length, BinStruct::Int16, default: 20
       # @!attribute id
       #   @return [Integer] 16-bit ID
       define_attr :id, BinStruct::Int16, default: ->(_) { rand(65_535) }
       # @!attribute frag
-      #   @return [Integer] 16-bit frag word
+      #   16-bit frag word
+      #   @return [Integer]
       # @!attribute flag_rsv
-      #   @return [Boolean] reserved bit from flags
+      #   reserved bit from flags
+      #   @return [Boolean]
       # @!attribute flag_df
-      #   @return [Boolean] Don't Fragment flag
+      #   Don't Fragment flag
+      #   @return [Boolean]
       # @!attribute flag_mf
-      #   @return [Boolean] More Fragment flags
+      #   More Fragment flags
+      #   @return [Boolean]
       # @!attribute fragment_offset
-      #   @return [Integer] 13-bit fragment offset
+      #   13-bit fragment offset
+      #   @return [Integer]
       define_bit_attr :frag, flag_rsv: 1, flag_df: 1, flag_mf: 1, fragment_offset: 13
       # @!attribute ttl
-      #   @return [Integer] 8-bit Time To Live self[attr]
+      #   8-bit Time To Live
+      #   @return [Integer]
       define_attr :ttl, BinStruct::Int8, default: 64
       # @!attribute protocol
-      #   @return [Integer] 8-bit upper protocol self[attr]
+      #   8-bit upper protocol
+      #   @return [Integer]
       define_attr :protocol, BinStruct::Int8
       # @!attribute checksum
-      #   @return [Integer] 16-bit IP header checksum
+      #   16-bit IP header checksum
+      #   @return [Integer]
       define_attr :checksum, BinStruct::Int16, default: 0
       # @!attribute src
-      #   @return [Addr] source IP address
+      #   source IP address
+      #   @return [Addr]
       define_attr :src, Addr, default: '127.0.0.1'
       # @!attribute dst
-      #   @return [Addr] destination IP address
+      #   destination IP address
+      #   @return [Addr]
       define_attr :dst, Addr, default: '127.0.0.1'
       # @!attribute options
+      #  IP options
       #  @since 2.2.0
-      #  @return [BinStruct::String]
+      #  @return [Options]
       define_attr :options, Options, optional: ->(h) { h.ihl > 5 },
                                      builder: ->(h, t) { t.new(length_from: -> { (h.ihl - 5) * 4 }) }
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  IP body
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
 
       # Helper method to compute sum of 16-bit words. Used to compute IP-style
@@ -224,7 +240,8 @@ module PacketGen
       end
 
       # Check version field
-      # @see [Base#parse?]
+      # @see Base#parse?
+      # @return [Boolean]
       def parse?
         (version == 4) && (ihl >= 5)
       end

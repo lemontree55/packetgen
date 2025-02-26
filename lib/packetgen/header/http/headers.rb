@@ -9,14 +9,15 @@
 module PacketGen
   module Header
     # @since 2.2.0
+    # @author Kent 'picat' Gruber
     module HTTP
       # @abstract Base class for HTTP headers.
       # @author Kent 'picat' Gruber
       class Headers
         include BinStruct::Structable
 
-        # Underlying Headers data (or nil).
-        # @return [Hash, nil]
+        # Underlying Headers data.
+        # @return [Hash{String => String}, nil]
         attr_reader :data
         alias to_h data
 
@@ -25,7 +26,7 @@ module PacketGen
         end
 
         # Populate object from a string or directly from a hash.
-        # @param [String, Hash] s_or_h
+        # @param [String, Hash{String=>String}] s_or_h
         # @return [self]
         def read(s_or_h)
           case s_or_h
@@ -69,14 +70,14 @@ module PacketGen
           d.join("\r\n") << "\r\n\r\n"
         end
 
-        # Get a human readable string.
+        # Get a human readable hash.
         # @return [Hash]
         def to_human
           @data
         end
 
         # Read human-readable data to populate header data.
-        # @param [Hash] data
+        # @param [Hash{String=>String}] data
         # @return [self]
         def from_human(data)
           read(data)
