@@ -450,6 +450,13 @@ module PacketGen
             expect(lsa_array.last).to be_a(OSPFv2::LSA)
           end
         end
+
+        it '#<< increments associated counter' do
+          counter = BinStruct::Int16.new(value: 0)
+          lsa_array = OSPFv2::ArrayOfLSA.new(counter: counter)
+          lsa_array << { type: 'Summary-IP'}
+          expect(counter.to_i).to eq(1)
+        end
       end
     end
   end

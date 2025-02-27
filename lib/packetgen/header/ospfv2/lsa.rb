@@ -196,11 +196,11 @@ module PacketGen
         set_of LSAHeader
 
         # @param [Hash] options
-        # @option options [BinStruct::Int] counter Int object used as a counter for this set
-        # @option options [Boolean] only_headers if +true+, only {LSAHeader LSAHeaders}
+        # @option options [BinStruct::Int] :counter +BinStruct::Int+ object used as a counter for this set
+        # @option options [Boolean] :only_headers if +true+, only {LSAHeader LSAHeaders}
         #  will be added to this array.
         def initialize(options={})
-          super()
+          super
           @only_headers = options[:only_headers] || false
         end
 
