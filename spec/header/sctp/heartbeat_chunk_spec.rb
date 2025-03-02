@@ -21,7 +21,7 @@ module PacketGen
               type: 0x1234,
               flags: 0xaa,
               length: 42,
-              info: HearbeatInfoParameter.new(value: 'abcd')
+              info: HearbeatInfo.new(value: 'abcd')
             }
             data = HeartbeatChunk.new(options)
             options.each do |key, value|

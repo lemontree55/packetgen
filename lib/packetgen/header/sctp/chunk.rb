@@ -345,6 +345,16 @@ module PacketGen
         end
       end
 
+      # Heartbeat Information.
+      # @author LemonTree55
+      # @since 3.4.0
+      # @since 4.1.0 Replace +HeartbeatInfoParameter+.
+      HearbeatInfo = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
+                                                   length_class: BinStruct::Int16,
+                                                   attr_in_length: 'TLV')
+      HearbeatInfo.define_type_enum({ 'HearbeatInfo' => 1 }.freeze)
+      HearbeatInfo.define_type_default('HearbeatInfo')
+
       # Heartbeat Request Chunk
       #         0                   1                   2                   3
       #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -356,11 +366,14 @@ module PacketGen
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
+      # @author LemonTree55
+      # @since 3.4.0
+      # @since 4.1.0 {#info} is now a {HeartbeatInfo}
       class HeartbeatChunk < BaseChunk
         # @!attribute info
         #   Array of Heartbeat information TLV.
         #   @return [BinStruct::ArrayOfInt32]
-        define_attr :info, HearbeatInfoParameter
+        define_attr :info, HearbeatInfo
 
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['HEARTBEAT'] unless options.key?(:type)
