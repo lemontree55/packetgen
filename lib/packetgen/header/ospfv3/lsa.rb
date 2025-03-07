@@ -15,24 +15,33 @@ module PacketGen
         include BinStruct::Structable
 
         # @!attribute type
+        #  Kind of interface being described. One of the following:
+        #    * 1: Point-to-point connection to another router
+        #    * 2: Connection to a transit network
+        #    * 4: Virtual link
         #  @return [Integer]
         define_attr :type, BinStruct::Int8
         # @!attribute reserved
         #  @return [Integer]
         define_attr :reserved, BinStruct::Int8, default: 0
         # @!attribute metric
+        #  Cost of using this router interface.
         #  @return [Integer]
         define_attr :metric, BinStruct::Int16
         # @!attribute interface_id
+        #  ID for the interface being described.
         #  @return [Integer]
         define_attr :interface_id, BinStruct::Int32
         # @!attribute neighbor_interface_id
+        #  Interface ID the neighbor router has associated with this link.
         #  @return [Integer]
         define_attr :neighbor_interface_id, BinStruct::Int32
         # @!attribute neighbor_router_id
+        #  Router ID of the neighbor router.
         #  @return [String]
         define_attr :neighbor_router_id, IP::Addr
 
+        # Human-readable description
         # @return [String]
         def to_human
           "Link<type:#{type},metric:#{metric},id:#{interface_id}," \
@@ -71,17 +80,22 @@ module PacketGen
         #  8-bit flag word
         #  @return [Integer]
         # @!attribute nt_flag
+        #  If set, the router is an NSSA border router that is translating NSSA-LSAs into AS-external-LSAs.
         #  @return [Integer]
         # @!attribute v_flag
+        #  If set, router is an endpoint or one or many  fully adjacent virtual links.
         #  @return [Integer]
         # @!attribute e_flag
+        #  If set, router is an AS boundary router.
         #  @return [Integer]
         # @!attribute b_flag
+        #  If set, router is an area border router.
         #  @return [Integer]
         define_bit_attr :flags, zz: 3, nt_flag: 1, x_flag: 1, v_flag: 1, e_flag: 1, b_flag: 1
         # @!macro define_ospfv3_options
         OSPFv3.define_options(self)
         # @attribute links
+        #  Router interfaces, as a list of {Link} objects.
         #  @return [ArrayOfLink]
         define_attr :links, ArrayOfLink, builder: ->(h, t) { t.new(length_from: -> { h.length - h.offset_of(:links) }) }
       end

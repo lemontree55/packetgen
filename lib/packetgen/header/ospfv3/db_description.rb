@@ -43,15 +43,16 @@ module PacketGen
       # * a 32-bit {#sequence_number} field (+BinStruct::Int32+),
       # * and an array of {LSAHeader LSAHeaders} ({#lsas}, {ArrayOfLSA}).
       #
-      # == Create a DbDescription payload
+      # @example Create a DbDescription payload
       #   # standalone
       #   dbd = PacketGen::Header::OSPFv3::DbDescription.new
       #   # in a packet
-      #   pkt = PacketGen.gen('IPv6', src: source_ip).add('OSPFv3').add('OSPFv3::DbDescription')
+      #   pkt = PacketGen.gen('IPv6').add('OSPFv3').add('OSPFv3::DbDescription')
       #   # access to DbDescription payload
-      #   pkt.ospfv3_dbdescription    # => PacketGen::Header::OSPFv3::DbDescription
+      #   pkt.ospfv3_dbdescription.class    # => PacketGen::Header::OSPFv3::DbDescription
       #
-      # == DbDescription attributes
+      # @example DbDescription attributes
+      #   dbd = PacketGen::Header::OSPFv3::DbDescription.new
       #   dbd.reserved = 0
       #   # set options. Options may also be set one by one with #v6_opt, #e_opt,
       #   # #n_opt, #r_opt and #dc_opt
@@ -61,8 +62,6 @@ module PacketGen
       #   dbd.seqnum = 0x800001
       #   # add a LSA Router header
       #   dbd.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42, checksum: 0x1234, length: 56 }
-      #   # a header may also be set from an existing lsa
-      #   dbd.lsas << existing_lsa.to_lsa_header
       # @author Sylvain Daubert
       class DbDescription < Base
         # @!attribute reserved
@@ -70,7 +69,7 @@ module PacketGen
         #  @return [Integer]
         define_attr :reserved, BinStruct::Int8, default: 0
 
-        # @!macro define_options
+        # @!macro define_ospfv3_options
         OSPFv3.define_options(self)
 
         # @!attribute mtu
@@ -101,7 +100,7 @@ module PacketGen
 
         # @!attribute lsas
         #  Array of LSA headers
-        #  @return [ArrayOfLSAHeader]
+        #  @return [ArrayOfLSA]
         define_attr :lsas, ArrayOfLSA, builder: ->(_h, t) { t.new(only_headers: true) }
       end
     end

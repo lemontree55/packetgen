@@ -11,7 +11,7 @@ require_relative 'padded32'
 module PacketGen
   module Header
     class SCTP
-      # BaseChunk class, defining SCTP chunk common fields
+      # Base SCTP chunk class, defining SCTP chunk common fields.
       #   0                   1                   2                   3
       #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -61,13 +61,13 @@ module PacketGen
           str << '>'
         end
 
+        # Get human-readable type
         # @return [::String,Integer]
         def human_type
           self[:type].to_human
         end
 
-        # Calculate and set chunk length
-        # @todo do not count last parameter padding
+        # Calculate and set chunk {#length}
         # @return [Integer]
         def calc_length
           self.length = to_s(no_padding: true).size
@@ -124,7 +124,7 @@ module PacketGen
         define_attr :body, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
       end
 
-      # Data chunk
+      # Data chunk. This SCTP chunk embeds user data.
       #   0                   1                   2                   3
       #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -143,7 +143,7 @@ module PacketGen
       # @author Sylvain Daubert
       class DataChunk < BaseChunk
         # @!attribute tsn
-        #   32-bit TSN for this DATA chunk
+        #   32-bit Transmission Sequence Number for this DATA chunk
         #   @return [Integer]
         define_attr :tsn, BinStruct::Int32
         # @!attribute stream_id
@@ -159,7 +159,7 @@ module PacketGen
         #  @return [Integer]
         define_attr :ppid, BinStruct::Int32
         # @!attribute body
-        #  SCTP chunk value
+        #  User data
         #  @return [String]
         define_attr :body, BinStruct::String, builder: ->(h, t) { t.new(length_from: -> { h.length - 4 }) }
 
@@ -168,13 +168,13 @@ module PacketGen
         #  IMMEDIATE flag
         #  @return [Integer]
         # @!attribute flag_u
-        #  UNORDERED flag
+        #  UNORDERED flag. If set, no Stream Sequence Number is assigned to this chunk.
         #  @return [Integer]
         # @!attribute flag_b
-        #  BEGINNING fragment flag
+        #  BEGINNING fragment flag. If set, indicate the first fragment of a user message.
         #  @return [Integer]
         # @!attribute flag_e
-        #  ENDING fragment flag
+        #  ENDING fragment flag. If set, indicate the last fragment of a user message.
         #  @return [Integer]
         define_bit_attr_after :type, :flags, flag_res: 4, flag_i: 1, flag_u: 1, flag_b: 1, flag_e: 1
 
@@ -190,7 +190,7 @@ module PacketGen
         end
       end
 
-      # Init Chunk
+      # Init Chunk. This chunk is used to initiate an SCTP association.
       #         0                   1                   2                   3
       #   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -241,13 +241,14 @@ module PacketGen
         end
 
         # Calculate lengths, including parameters ones.
-        # @return [void]
+        # @return [Integer] chunk length
         def calc_length
           parameters.each(&:calc_length)
           super
         end
 
-        # @return [::String]
+        # Get human-redable description.
+        # @return [String]
         def to_human
           str = "<chunk:#{human_type}"
           flags_str = flags_to_human
@@ -345,10 +346,11 @@ module PacketGen
         end
       end
 
-      # Heartbeat Information.
-      # @author LemonTree55
-      # @since 3.4.0
-      # @since 4.1.0 Replace +HeartbeatInfoParameter+.
+      # @!parse
+      #  # Heartbeat Information.
+      #  # @author LemonTree55
+      #  # @since 4.1.0 Replace +HeartbeatInfoParameter+
+      #  class HeartbeatInfo < BinStruct::AbstractTLV; end
       HearbeatInfo = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
                                                    length_class: BinStruct::Int16,
                                                    attr_in_length: 'TLV')
@@ -371,8 +373,8 @@ module PacketGen
       # @since 4.1.0 {#info} is now a {HeartbeatInfo}
       class HeartbeatChunk < BaseChunk
         # @!attribute info
-        #   Array of Heartbeat information TLV.
-        #   @return [BinStruct::ArrayOfInt32]
+        #   Heartbeat information TLV.
+        #   @return [HearbeatInfo]
         define_attr :info, HearbeatInfo
 
         def initialize(options={})
@@ -392,6 +394,8 @@ module PacketGen
       #  \                                                               \
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       # @author Sylvain Daubert
+      # @since 3.4.0
+      # @since 4.1.0 {#info} is now a {HeartbeatInfo}
       class HeartbeatAckChunk < HeartbeatChunk
         def initialize(options={})
           options[:type] = BaseChunk::TYPES['HEARTBEAT_ACK'] unless options.key?(:type)
@@ -412,7 +416,8 @@ module PacketGen
       # @author Sylvain Daubert
       class ErrorChunk < BaseChunk
         # @!attribute error_causes
-        #  @return [ArrayofError]
+        #  Causes for this error chunk
+        #  @return [ArrayOfError]
         define_attr :error_causes, ArrayOfError
 
         def initialize(options={})
@@ -420,13 +425,14 @@ module PacketGen
           super
         end
 
-        # Calculate lengths, including parameters ones.
+        # Calculate lengths, including causes ones.
         # @return [void]
         def calc_length
           error_causes.each(&:calc_length)
           super
         end
 
+        # Get human-readable description
         # @return [::String]
         def to_human
           str = "<chunk:#{human_type}"
@@ -451,6 +457,7 @@ module PacketGen
       class AbortChunk < ErrorChunk
         remove_attr :flags
         # @!attribute flag_t
+        #  Reflecting bit
         #  @return [Integer]
         define_bit_attr_after :type, :flags, flag_res: 7, flag_t: 1
 
@@ -515,6 +522,7 @@ module PacketGen
       # @author Sylvain Daubert
       class CookieEchoChunk < BaseChunk
         # @!attribute cookie
+        #  Cookie value
         #  @return [String]
         define_attr :cookie, BinStruct::String
 

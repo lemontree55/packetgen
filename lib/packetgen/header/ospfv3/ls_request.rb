@@ -22,10 +22,10 @@ module PacketGen
       #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       #
       # It is composed of:
-      # * a 16-bit {#reserved} field,
-      # * a 16-bit {#type} field,
-      # * a 32-bit {#link_state_id} field,
-      # * and a 32-bit {#advertising_router} field.
+      # * a 16-bit {#reserved} field (+BinStruct::Int16+),
+      # * a 16-bit {#type} field (+BinStruct::Int16+),
+      # * a 32-bit {#link_state_id} field ({IP::Addr}),
+      # * and a 32-bit {#advertising_router} field ({IP::Addr}).
       # @author Sylvain Daubert
       class LSR < BinStruct::Struct
         include BinStruct::Structable
@@ -82,17 +82,18 @@ module PacketGen
       # This paylod is implemented as a unique field: {#lsrs}, which is an
       # {ArrayOfLSR} object.
       #
-      # == Create a LSRequest payload
+      # @example Create a LSRequest payload
       #   # standalone
       #   lsr = PacketGen::Header::OSPFv3::LSRequest.new
       #   # in a packet
-      #   pkt = PacketGen.gen('IPv6', src: source_ip).add('OSPFv3').add('OSPFv3::LSRequest')
+      #   pkt = PacketGen.gen('IPv6').add('OSPFv3').add('OSPFv3::LSRequest')
       #   # make IPv6 header correct for OSPF
       #   pkt.ospfize
       #   # access to LSRequest payload
-      #   pkt.ospfv3_lsrequest    # => PacketGen::Header::OSPFv3::LSRequest
+      #   pkt.ospfv3_lsrequest.class    # => PacketGen::Header::OSPFv3::LSRequest
       #
-      # == Add LSA requests to a LSRequest
+      # @example Add LSA requests to a LSRequest
+      #   lsr = PacketGen::Header::OSPFv3::LSRequest.new
       #   lsr.lsrs << { type: 'Router', link_state_id: '0.0.0.1', advertising_router: '1.1.1.1'}
       # @author Sylvain Daubert
       class LSRequest < Base

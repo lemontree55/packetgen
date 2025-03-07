@@ -75,7 +75,7 @@ module PacketGen
         #  @return [Integer]
         define_attr :length, BinStruct::Int16
 
-        # Compute and set Fletcher-16 checksum on LSA
+        # Compute and set Fletcher-16 {#checksum} on LSA
         # @return [Integer]
         def calc_checksum
           c0 = c1 = 0
@@ -93,7 +93,7 @@ module PacketGen
           self.checksum = (x << 8) | y
         end
 
-        # Compute length and set +length+ field
+        # Compute length and set {#length} field
         # @return [Integer]
         def calc_length
           self.length = Base.calculate_and_set_length(self)
@@ -105,6 +105,7 @@ module PacketGen
           self[:type].to_human
         end
 
+        # Get human-readable description
         # @return [String]
         def to_human
           "LSA<#{human_type},#{link_state_id},#{advertising_router}>"

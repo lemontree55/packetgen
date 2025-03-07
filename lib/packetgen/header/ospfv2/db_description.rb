@@ -40,15 +40,17 @@ module PacketGen
       # * a 32-bit {#sequence_number} field (+BinStruct::Int32+),
       # * and an array of {LSAHeader LSAHeaders} ({#lsas}, {ArrayOfLSA}).
       #
-      # == Create a DbDescription payload
+      # @example Create a DbDescription payload
       #   # standalone
       #   dbd = PacketGen::Header::OSPFv2::DbDescription.new
       #   # in a packet
-      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::DbDescription')
+      #   pkt = PacketGen.gen('IP').add('OSPFv2').add('OSPFv2::DbDescription')
+      #   pkt.ospfize
       #   # access to DbDescription payload
-      #   pkt.ospfv2_dbdescription    # => PacketGen::Header::OSPFv2::DbDescription
+      #   pkt.ospfv2_dbdescription.class    # => PacketGen::Header::OSPFv2::DbDescription
       #
-      # == DbDescription attributes
+      # @example DbDescription attributes
+      #   dbd = PacketGen::Header::OSPFv2::DbDescription.new
       #   dbd.mtu = 1500
       #   # set options. Options may also be set one by one with {#mt_opt},
       #   # {#e_opt}, {#mc_opt}, {#n_opt}, {#l_opt}, {#dc_opt}, {#o_opt} and {#dn_opt}
@@ -57,8 +59,6 @@ module PacketGen
       #   dbd.seqnum = 0x800001
       #   # add a LSA Router header
       #   dbd.lsas << { type: 'Router', age: 40, link_state_id: '0.0.0.1', advertising_router: '1.1.1.1', sequence_number: 42, checksum: 0x1234, length: 56 }
-      #   # a header may also be set from an existing lsa
-      #   dbd.lsas << existing_lsa.to_lsa_header
       # @author Sylvain Daubert
       class DbDescription < Base
         # @!attribute mtu

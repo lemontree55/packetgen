@@ -8,7 +8,7 @@
 
 module PacketGen
   module Header
-    # This class supports MLDv1 (RFC 2710).
+    # This class supports Multicast Listener Discovery for IPv6 (RFC 2710).
     #
     # From RFC 2710, a MLD header has the following format:
     #    0                   1                   2                   3
@@ -31,18 +31,19 @@ module PacketGen
     # * a {#mcast_addr} field ({Header::IPv6::Addr} type),
     # * and a {#body} (unused for MLDv1).
     #
-    # == Create a MLD header
+    # @example Create a MLD header
     #  # standalone
     #  mld = PacketGen::Header::MLD.new
     #  # in a packet
     #  pkt = PacketGen.gen('IPv6').add('ICMPv6').add('MLD')
     #  # access to MLD header
-    #  pkt.mld    # => PacketGen::Header::MLD
+    #  pkt.mld.class    # => PacketGen::Header::MLD
     #
-    # == MLD attributes
-    #  pkt.icmpv6.type = 130       # ICMPv6 type 130 is MLD Multicast Listener Query
+    # @example MLD attributes
+    #  pkt = PacketGen.gen('IPv6').add('ICMPv6').add('MLD')
+    #  pkt.icmpv6.type = 130        # ICMPv6 type 130 is MLD Multicast Listener Query
     #  pkt.mld.max_resp_delay = 20
-    #  pkt.mld.group_addr = '::'
+    #  pkt.mld.mcast_addr = '::'
     # @author Sylvain Daubert
     # @since 2.4.0
     class MLD < Base
@@ -61,12 +62,13 @@ module PacketGen
       #  @return [IPv6::Addr]
       define_attr :mcast_addr, IPv6::Addr, default: '::'
       # @!attribute body
-      #  @return [String,Base]
+      #  @return [String,Headerable]
       define_attr :body, BinStruct::String
 
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
+      # This method adds +#mldize+ method to +packet+. This method calls {#mldize}.
       def added_to_packet(packet)
         mld_idx = packet.headers.size
         packet.instance_eval "def mldize() @headers[#{mld_idx}].mldize; end" # def mldize() @headers[3].mldize; end

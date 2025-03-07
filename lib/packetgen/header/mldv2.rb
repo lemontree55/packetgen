@@ -8,7 +8,7 @@
 
 module PacketGen
   module Header
-    # This module contains all MLDv2 specific classes.
+    # This module contains all Multicast Listener Discovery Version 2 (MLDv2) specific classes.
     # @author Sylvain Daubert
     # @since 2.4.0
     module MLDv2

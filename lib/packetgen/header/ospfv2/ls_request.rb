@@ -43,7 +43,7 @@ module PacketGen
         end
       end
 
-      # This class defines a specialized BinStruct::Array to handle series
+      # This class defines a specialized +BinStruct::Array+ to handle series
       # of {LSR LSRs}.
       # @author Sylvain Daubert
       class ArrayOfLSR < BinStruct::Array
@@ -65,17 +65,18 @@ module PacketGen
       # This paylod is implemented as a unique field: {#lsrs}, which is an
       # {ArrayOfLSR} object.
       #
-      # == Create a LSRequest payload
+      # @example Create a LSRequest payload
       #   # standalone
       #   lsr = PacketGen::Header::OSPFv2::LSRequest.new
       #   # in a packet
-      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::LSRequest')
+      #   pkt = PacketGen.gen('IP').add('OSPFv2').add('OSPFv2::LSRequest')
       #   # make IP header correct for OSPF
       #   pkt.ospfize
       #   # access to LSRequest payload
-      #   pkt.ospfv2_lsrequest    # => PacketGen::Header::OSPFv2::LSRequest
+      #   pkt.ospfv2_lsrequest.class    # => PacketGen::Header::OSPFv2::LSRequest
       #
-      # == Add LSA requests to a LSRequest
+      # @example Add LSA requests to a LSRequest
+      #   lsr = PacketGen::Header::OSPFv2::LSRequest.new
       #   lsr.lsrs << { type: 'Router', link_state_id: '0.0.0.1', advertising_router: '1.1.1.1'}
       # @author Sylvain Daubert
       class LSRequest < Base

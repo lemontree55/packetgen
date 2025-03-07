@@ -81,14 +81,19 @@ module PacketGen
         define_attr :source_addr, IPv6::ArrayOfAddr,
                     builder: ->(h, t) { t.new(counter: h[:number_of_sources]) }
         # @!attribute aux_data
+        #  Auxiliary data
         #  @return [String]
         define_attr :aux_data, BinStruct::String,
                     builder: ->(h, t) { t.new(length_from: -> { h[:aux_data_len].to_i * 4 }) }
 
+        # Get human-readable type
+        # @return [String]
         def human_type
           self[:type].to_human
         end
 
+        # Get human-readable description
+        # @return [String]
         def to_human
           "#{human_type}(ma:#{multicast_addr}|src:#{source_addr.to_human})"
         end

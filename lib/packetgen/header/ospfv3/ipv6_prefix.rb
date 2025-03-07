@@ -51,7 +51,7 @@ module PacketGen
         define_attr :reserved, BinStruct::Int16
         # @!attribute prefix
         #  IPv6 Prefix as an array of 32-bit words
-        #  @return [Prefix]
+        #  @return [BinStruct::ArrayOfInt32]
         define_attr :prefix, BinStruct::ArrayOfInt32, builder: ->(h, t) { t.new(length_from: -> { h.length / 8 }) }
 
         # Get human-readable prefix
@@ -68,7 +68,10 @@ module PacketGen
         # Set prefix from a human-readable string. This method cannot set
         # {#options} field.
         # @param [String] str
-        # @return [void]
+        # @return [self]
+        # @example
+        #   prefix = PacketGen::Header::OSPFv3::IPv6Prefix.new.from_human("2000::/64")
+        #   prefix.to_human #=> "2000::/64"
         def from_human(str)
           ary, len = ary_and_prefix_len_from_str(str)
 
@@ -81,6 +84,7 @@ module PacketGen
             end
           end
           self.length = len
+          self
         end
 
         private

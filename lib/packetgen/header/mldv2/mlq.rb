@@ -73,7 +73,7 @@ module PacketGen
       #
       # == Max Resp Delay
       # Max Resp Delay is the real delay value. Max Resp Code is the encoded
-      # delay. So {#max_resp_delay} and {#max_resp_code} attributes reflect this
+      # delay. So {#max_resp_delay} and {#max_resp_code #max_resp_code} attributes reflect this
       # difference.
       # @author Sylvain Daubert
       class MLQ < MLD

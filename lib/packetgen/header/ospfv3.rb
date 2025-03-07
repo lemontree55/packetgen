@@ -32,28 +32,7 @@ module PacketGen
     # * a {#checksum} field (+BinStruct::Int16+),
     # * an {#instance_id} field (+BinStruct::Int8+),
     # * a {#reserved} field (+BinStruct::Int8+),
-    # * and a {#body} (+BinStruct::String+).
-    #
-    # == Create an OSPFv3 header
-    #   # standalone
-    #   ospf = PacketGen::Header::OSPFv3.new
-    #   # in a packet
-    #   pkt = PacketGen.gen('IPv6', src: source_ip).add('OSPFv3')
-    #   # make IPv6 header correct for OSPF
-    #   pkt.ospfize
-    #   # or make it correct with specific destination address
-    #   pkt.ospfize(dst: :all_spf_routers)
-    #   # access to OSPF header
-    #   pkt.ospfv3    # => PacketGen::Header::OSPFv3
-    #
-    # == OSPFv3 attributes
-    #  ospf.version              # => 3
-    #  ospf.type = 'LS_ACK'      # or 5
-    #  ospf.length = 154
-    #  ospf.router_id = 0xc0a80001
-    #  ospf.area_id = 1
-    #  ospf.checksum = 0xabcd
-    #  ospf.instance_id = 0
+    # * and a {#body} (+BinStruct::String+ or {Headerable}).
     #
     # == OSPFv3 body
     # OSPFv3 {#body} should contain OSPF payload for given {#type}:
@@ -62,7 +41,30 @@ module PacketGen
     # * {OSPFv3::LSRequest},
     # * {OSPFv3::LSUpdate},
     # * or {OSPFv3::LSAck}.
+    #
+    # @example Create an OSPFv3 header
+    #   # standalone
+    #   ospf = PacketGen::Header::OSPFv3.new
+    #   # in a packet
+    #   pkt = PacketGen.gen('IPv6').add('OSPFv3')
+    #   # make IPv6 header correct for OSPF
+    #   pkt.ospfize
+    #   # or make it correct with specific destination address
+    #   pkt.ospfize(dst: :all_spf_routers)
+    #   # access to OSPF header
+    #   pkt.ospfv3.class    # => PacketGen::Header::OSPFv3
+    #
+    # @example OSPFv3 attributes
+    #   ospf = PacketGen::Header::OSPFv3.new
+    #   ospf.version              # => 3
+    #   ospf.type = 'LS_ACK'      # or 5
+    #   ospf.length = 154
+    #   ospf.router_id = 0xc0a80001
+    #   ospf.area_id = 1
+    #   ospf.checksum = 0xabcd
+    #   ospf.instance_id = 0
     # @author Sylvain Daubert
+    # @author LemonTree55
     # @since 2.5.0
     class OSPFv3 < Base
       # IP protocol number for OSPF
@@ -80,7 +82,7 @@ module PacketGen
       #  @return [Integer]
       define_attr :type, BinStruct::Int8Enum, enum: TYPES
       # @!attribute length
-      #  16-bit OSPF packet length
+      #  16-bit OSPF packet length. Header is included in length
       #  @return [Integer]
       define_attr :length, BinStruct::Int16
       # @!attribute router_id
@@ -104,7 +106,8 @@ module PacketGen
       #  @return [Integer]
       define_attr :reserved, BinStruct::Int8, default: 0
       # @!attribute body
-      #  @return [String,Base]
+      #  OSPFv3 body
+      #  @return [String,Headerable]
       define_attr :body, BinStruct::String
 
       # @api private
@@ -142,12 +145,13 @@ module PacketGen
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
+      # Add +#ospfize+ method to +packet+. This method calls {#ospfize}.
       def added_to_packet(packet)
         ospf_idx = packet.headers.size
         packet.instance_eval "def ospfize(**kwargs) @headers[#{ospf_idx}].ospfize(**kwargs); end" # def ospfize(**kwargs) @headers[2].ospfize(**kwargs); end
       end
 
-      # Compute checksum and set +checksum+ field
+      # Compute checksum and set {#checksum} attribute
       # @return [Integer]
       def calc_checksum
         ipv6 = ip_header(self)
@@ -164,7 +168,7 @@ module PacketGen
         self[:type].to_human
       end
 
-      # Compute length and set +length+ field
+      # Compute length and set {#length} attribute
       # @return [Integer]
       def calc_length
         self[:length].value = Base.calculate_and_set_length(self)
@@ -179,8 +183,8 @@ module PacketGen
       #    pkt.ospfv3.ospfize
       #    # second way
       #    pkt.ospfize
-      # @param [String,Symbol,nil] dst destination address. May be a dotted IP
-      #   address (by example '224.0.0.5') or a Symbol (+:all_spf_routers+ or
+      # @param [String,Symbol,nil] dst destination address. May be a coloned IP
+      #   address (by example +1::1234:5+) or a Symbol (+:all_spf_routers+ or
       #   +:all_d_routers+)
       # @return [void]
       def ospfize(dst: nil)

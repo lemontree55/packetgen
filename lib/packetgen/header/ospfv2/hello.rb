@@ -37,17 +37,18 @@ module PacketGen
       # * a {#backup_designated_router} field ({IP::Addr}),
       # * a {#neighbors} array containing neighbors as {IP::Addr}.
       #
-      # == Create a HELLO payload
+      # @example Create a HELLO payload
       #   # standalone
       #   hello = PacketGen::Header::OSPFv2::Hello.new
       #   # in a packet
-      #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2').add('OSPFv2::Hello')
+      #   pkt = PacketGen.gen('IP').add('OSPFv2').add('OSPFv2::Hello')
       #   # make IP header correct for OSPF
       #   pkt.ospfize
       #   # access to Hello payload
-      #   pkt.ospfv2_hello    # => PacketGen::Header::OSPFv2::Hello
+      #   pkt.ospfv2_hello.class    # => PacketGen::Header::OSPFv2::Hello
       #
-      # == HELLO attributes
+      # @example HELLO attributes
+      #   hello = PacketGen::Header::OSPFv2::Hello.new
       #   hello.network_mask = '255.255.255.0'
       #   hello.hello_interval = 10
       #   hello.options = 0
@@ -82,12 +83,12 @@ module PacketGen
         #  @return [Integer]
         define_attr :dead_interval, BinStruct::Int32
         # @!attribute designated_router
-        #  The identity of the Designated Router for this network, in the
+        #  The identity (as an IP address) of the Designated Router for this network, in the
         #  view of the sending router.
         #  @return [String]
         define_attr :designated_router, IP::Addr
         # @!attribute backup_designated_router
-        #  The identity of the Backup Designated Router for this network,
+        #  The identity (as an IP address) of the Backup Designated Router for this network,
         #  in the view of the sending router.
         #  @return [String]
         define_attr :backup_designated_router, IP::Addr

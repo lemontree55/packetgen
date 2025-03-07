@@ -9,7 +9,7 @@
 module PacketGen
   module Header
     # This class supports OSPFv2 (RFC 2328).
-    # A OSPFv2 header has the following format:
+    # An OSPFv2 header has the following format:
     #
     #    0                   1                   2                   3
     #    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -36,29 +36,30 @@ module PacketGen
     # * a {#checksum} field (+BinStruct::Int16+),
     # * an {#au_type} field (+BinStruct::Int16Enum+),
     # * an {#authentication} field (+BinStruct::Int64+),
-    # * and a {#body} (+BinStruct::String+).
+    # * and a {#body} (+BinStruct::String+ or {Headerable}).
     #
-    # == Create an OSPFv2 header
+    # @example Create an OSPFv2 header
     #   # standalone
     #   ospf = PacketGen::Header::OSPFv2.new
     #   # in a packet
-    #   pkt = PacketGen.gen('IP', src: source_ip).add('OSPFv2')
+    #   pkt = PacketGen.gen('IP').add('OSPFv2')
     #   # make IP header correct for OSPF
     #   pkt.ospfize
     #   # or make it correct with specific destination address
     #   pkt.ospfize(dst: :all_spf_routers)
     #   # access to OSPF header
-    #   pkt.ospfv2    # => PacketGen::Header::OSPFv2
+    #   pkt.ospfv2.class    # => PacketGen::Header::OSPFv2
     #
-    # == OSPFv2 attributes
-    #  ospf.version              # => 2
-    #  ospf.type = 'LS_ACK'      # or 5
-    #  ospf.length = 154
-    #  ospf.router_id = 0xc0a80001
-    #  ospf.area_id = 1
-    #  ospf.checksum = 0xabcd
-    #  ospf.au_type = 'NO_AUTH'  # or 0
-    #  ospf.authentication = 0
+    # @example OSPFv2 attributes
+    #   ospf = PacketGen::Header::OSPFv2.new
+    #   ospf.version              # => 2
+    #   ospf.type = 'LS_ACK'      # or 5
+    #   ospf.length = 154
+    #   ospf.router_id = 0xc0a80001
+    #   ospf.area_id = 1
+    #   ospf.checksum = 0xabcd
+    #   ospf.au_type = 'NO_AUTH'  # or 0
+    #   ospf.authentication = 0
     #
     # == OSPFv2 body
     # OSPFv2 {#body} should contain OSPF payload for given {#type}:
@@ -124,7 +125,8 @@ module PacketGen
       #  @return [Integer]
       define_attr :authentication, BinStruct::Int64
       # @!attribute body
-      #  @return [String,Base]
+      #  OSPF body
+      #  @return [String,Headerable]
       define_attr :body, BinStruct::String
 
       # @api private
@@ -164,12 +166,15 @@ module PacketGen
       # @api private
       # @note This method is used internally by PacketGen and should not be
       #       directly called
+      # @param [Packet] packet
+      # @return [void]
+      # Add +#ospfize+ method to +packet+. This method calls {#ospfize}.
       def added_to_packet(packet)
         ospf_idx = packet.headers.size
         packet.instance_eval "def ospfize(**kwargs) @headers[#{ospf_idx}].ospfize(**kwargs); end" # def ospfize(**kwargs) @headers[2].ospfize(**kwargs); end
       end
 
-      # Compute checksum and set +checksum+ field
+      # Compute checksum and set {#checksum} attribute
       # @return [Integer]
       def calc_checksum
         # #authentication field is not used in checksum calculation,
@@ -198,7 +203,7 @@ module PacketGen
         self[:au_type].to_human
       end
 
-      # Compute length and set +length+ field
+      # Compute length and set {#length} attribute
       # @return [Integer]
       def calc_length
         self[:length].value = Base.calculate_and_set_length(self)
@@ -213,7 +218,7 @@ module PacketGen
       #    pkt.ospfv2.ospfize
       #    # second way
       #    pkt.ospfize
-      # @param [String,Symbol,nil] dst destination address. May be a dotted IP
+      # @param [String,Symbolnil] dst destination address. May be a dotted IP
       #   address (by example '224.0.0.5') or a Symbol (+:all_spf_routers+ or
       #   +:all_d_routers+)
       # @return [void]

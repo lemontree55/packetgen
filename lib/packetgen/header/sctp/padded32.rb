@@ -11,8 +11,8 @@ module PacketGen
     class SCTP
       # Mixin to handle 32-bit padding in SCTP classes
       module Padded32
-        # Handle padding
-        # @param [Bool] no_padding
+        # Generate binary string and handle padding
+        # @param [Bool] no_padding Do not append padding when generating binary string.
         # @return [::String]
         def to_s(no_padding: false)
           s = super()

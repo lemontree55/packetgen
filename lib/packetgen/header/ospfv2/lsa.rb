@@ -58,18 +58,27 @@ module PacketGen
         include BinStruct::Structable
 
         # @!attribute id
+        #  Identify the link
         #  @return [IP::Addr]
         define_attr :id, IP::Addr
         # @!attribute data
+        #  Link data
         #  @return [IP::Addr]
         define_attr :data, IP::Addr
         # @!attribute type
+        #  Link type.
+        #  * 1: Point-to-point connection to another router
+        #  * 2: Connection to a transit network
+        #  * 3: Connection to a stub network
+        #  * 4: Virtual link
         #  @return [Integer]
         define_attr :type, BinStruct::Int8
         # @!attribute tos_count
+        #  Count of #{#tos TOS metrics}
         #  @return [Integer]
         define_attr :tos_count, BinStruct::Int8
         # @!attribute metric
+        #  The cost of using this router link
         #  @return [Integer]
         define_attr :metric, BinStruct::Int16
         # @!attribute tos
@@ -77,6 +86,7 @@ module PacketGen
         #  @return [ArrayOfTosMetric]
         define_attr :tos, ArrayOfTosMetric, builder: ->(h, t) { t.new(counter: h[:tos_count]) }
 
+        # Get human-readable description
         # @return [String]
         def to_human
           "<type:#{type},metric:#{metric},id:#{id},data:#{data}>"
@@ -103,10 +113,13 @@ module PacketGen
         #  16-bit flag word
         #  @return [Integer]
         # @attribute v_flag
+        #  Virtual link point flag
         #  @return [Integer]
-        # @attribute e_flag
+        # @attribute e_flag*
+        #  AS boundary flag
         #  @return [Integer]
         # @attribute b_flag
+        #  Area border router flag
         #  @return [Integer]
         define_bit_attr :u16, z: 5, v_flag: 1, e_flag: 1, b_flag: 1, zz: 8
         # @attribute link_count
@@ -114,6 +127,7 @@ module PacketGen
         #  @return [Integer]
         define_attr :link_count, BinStruct::Int16
         # @attribute links
+        #  Router links
         #  @return [ArrayOfLink]
         define_attr :links, ArrayOfLink, builder: ->(h, t) { t.new(counter: h[:link_count]) }
       end
@@ -138,26 +152,35 @@ module PacketGen
 
       # This class handles external links in {LSAASExternal LSA AS-External payloads}.
       # @author Sylvain Daubert
+      # @author LemonTree55
       class External < BinStruct::Struct
         include BinStruct::Structable
 
         # @!attribute u8
+        #  1st byte containing {#e_flag} and #{tos}
         #  @return [Integer]
         # @!attribute e_flag
+        #  1-bit type of external metric.
+        #  If set, {#metric} is Type 2 external metric, else it is Type1.
         #  @return [Integer]
         # @!attribute tos
+        #  7-bit TOS
         #  @return [Integer]
         define_bit_attr :u8, e_flag: 1, tos: 7
         # @!attribute metric
+        #  Cost of this route
         #  @return [Integer]
         define_attr :metric, BinStruct::Int24
         # @!attribute forwarding_addr
+        #  Forwarding address
         #  @return [IP::Addr]
         define_attr :forwarding_addr, IP::Addr
         # @!attribute ext_route_tag
+        #  32-bit external route tag. Not used by OSPF protocol.
         #  @return [Integer]
         define_attr :ext_route_tag, BinStruct::Int32
 
+        # Get human-readable string
         # @return [String]
         def to_human
           "<type:#{e_flag? ? 2 : 1},tos:#{tos},metric:#{metric},fwaddr:#{forwarding_addr},tag:#{ext_route_tag}>"

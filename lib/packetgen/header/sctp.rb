@@ -26,6 +26,13 @@ module PacketGen
     #  |                           Chunk #n                            |
     #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
+    # A SCTP header is composed of:
+    # * {#sport}, source port number (+BinStruct::Int16+),
+    # * {#dport}, destination port number (+BinStruct::Int16+),
+    # * {#verification_tag} (+BinStruct::Int32+),
+    # * {#checksum} (+BinStruct::Int32le+),
+    # * {#chunks}, list of {BaseChunk chunks} ({ArrayOfChunk}).
+    #
     # @author Sylvain Daubert
     # @author LemonTree55
     # @since 3.4.0
@@ -58,7 +65,7 @@ module PacketGen
       #  @return [Integer]
       define_attr :verification_tag, BinStruct::Int32
       # @!attribute checksum
-      #  32-bit TCP checksum
+      #  32-bit TCP checksum. This is a CRC32C checkum, computed on SCTP header and all its chunks.
       #  @return [Integer]
       define_attr :checksum, BinStruct::Int32le
       # @!attribute chunks
@@ -66,7 +73,8 @@ module PacketGen
       #  @return [ArrayOfChunk]
       define_attr :chunks, ArrayOfChunk
 
-      # Compute SCTP checksum
+      # Compute SCTP checksum and set {#checksum} attribute.
+      # @return [Integer]
       def calc_checksum
         self.checksum = 0
         crc32c = Digest::CRC32c.new
@@ -74,7 +82,8 @@ module PacketGen
         self.checksum = crc32c.checksum
       end
 
-      # Compute SCTP chunks length
+      # Compute SCTP chunk lengths
+      # @return [void]
       def calc_length
         self.chunks.each(&:calc_length)
       end

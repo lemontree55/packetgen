@@ -37,17 +37,18 @@ module PacketGen
       # * a {#backup_designated_router} field ({IP::Addr}),
       # * a {#neighbors} array containing neighbors as {IP::Addr}.
       #
-      # == Create a HELLO payload
+      # @example Create a HELLO payload
       #   # standalone
       #   hello = PacketGen::Header::OSPFv3::Hello.new
       #   # in a packet
-      #   pkt = PacketGen.gen('IPv6', src: source_ip).add('OSPFv3').add('OSPFv3::Hello')
+      #   pkt = PacketGen.gen('IPv6').add('OSPFv3').add('OSPFv3::Hello')
       #   # make IPv6 header correct for OSPF
       #   pkt.ospfize
       #   # access to Hello payload
-      #   pkt.ospfv3_hello    # => PacketGen::Header::OSPFv3::Hello
+      #   pkt.ospfv3_hello.class    # => PacketGen::Header::OSPFv3::Hello
       #
-      # == HELLO attributes
+      # @example HELLO attributes
+      #   hello = PacketGen::Header::OSPFv3::Hello.new
       #   hello.interface_id = 1
       #   hello.priority = 1
       #   # set options. Options may also be set one by one with #v6_opt, #e_opt,
