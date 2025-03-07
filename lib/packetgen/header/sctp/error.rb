@@ -9,31 +9,18 @@
 module PacketGen
   module Header
     class SCTP
-      # Common methods to all error causes
-      # @author Sylvain Daubert
-      module ErrorMixin
-        include Padded32
-
-        # Get error name
-        # @return [String]
-        def error_name
-          self.class.name.split('::').last.delete_suffix('Error')
-        end
-
-        # @return [String]
-        def to_human
-          "<#{error_name}: #{value}>"
-        end
-      end
-
+      # @!parse
+      #  # Base class/factory for {AbortChunk} and {ErrorChunk} error causes
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 No more include +ErrorMixin+
+      #  class Error < BinStruct::AbstractTLV; end
       Error = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
                                             length_class: BinStruct::Int16,
                                             attr_in_length: 'TLV')
 
-      # Base class/factory for {AbortChunk} and {ErrorChunk} error causes
-      # @author Sylvain Daubert
       class Error
-        include ErrorMixin
+        include Padded32
 
         # Error Causes/Types
         TYPES = {
@@ -52,18 +39,33 @@ module PacketGen
           'ProtocolViolation' => 13
         }.freeze
 
+        # Get error name
+        # @return [String]
+        def error_name
+          self.class.name.split('::').last.delete_suffix('Error')
+        end
+
+        # Get human-readable description
+        # @return [String]
+        def to_human
+          "<#{error_name}: #{value}>"
+        end
+
+        # Set +#value+ from +value+
         # @param [Object] value
+        # @return self
         def from_human(value)
           if value.is_a?(self[:value].class)
             self[:value] = value
           else
             self[:value].from_human(value)
           end
+          self
         end
       end
       Error.define_type_enum(Error::TYPES)
 
-      # Handle array of {Error} and {ErrorMixin} classes.
+      # Handle array of {Error} classes.
       # @author Sylvain Daubert
       class ArrayOfError < BinStruct::Array
         set_of Error
@@ -79,20 +81,36 @@ module PacketGen
         end
 
         def real_klass_name(type_name)
-          type_name + 'Error' # rubocop:disable Style/StringConcatenation
+          type_name + 'Error'
         end
       end
 
-      InvalidStreamIdError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                           length_class: BinStruct::Int16,
-                                                           value_class: BinStruct::Int32,
-                                                           attr_in_length: 'TLV')
+      # @!parse
+      #  # Base class for error without value.
+      #  # @author LemonTree55
+      #  # @since 4.1.0 Derived from {Error}
+      #  class NoValueError < Error; end
+      NoValueError = Error.derive
 
-      # InvalidStreamIdentifier error
-      # @author Sylvain Daubert
+      class NoValueError
+        # Get human-readable string
+        # @return [String]
+        def to_human
+          "<#{error_name}>"
+        end
+      end
+
+      # @!parse
+      #  # InvalidStreamIdentifier error
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class InvalidStreamIdError < Error; end
+      InvalidStreamIdError = Error.derive(value_class: BinStruct::Int32)
+      InvalidStreamIdError.define_type_default('InvalidStreamId')
+
       class InvalidStreamIdError
-        include ErrorMixin
-
         # Get stream Id value
         # @return [Integer]
         def stream_identifier
@@ -107,86 +125,77 @@ module PacketGen
           stream_id
         end
 
-        # @return [::String]
+        # Get human-readable string
+        # @return [String]
         def to_human
           "<#{error_name}: #{stream_identifier}>"
         end
 
+        # Set +#value+ from an Integer
         # @param [Integer] val
         def from_human(val)
           super
           self.value <<= 16 if self[:value] < BinStruct::Int
         end
       end
-      InvalidStreamIdError.define_type_enum(Error::TYPES)
-      InvalidStreamIdError.define_type_default('InvalidStreamId')
 
-      MissingMandatoryParameterError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                                     length_class: BinStruct::Int16,
-                                                                     value_class: BinStruct::ArrayOfInt16,
-                                                                     attr_in_length: 'TLV')
+      # @!parse
+      #  # MissingMandatoryParameter error. Indicate that one or more
+      #  # mandatory TLV parameters are missing in a received {InitChunk}
+      #  # or {InitAckChunk}.
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class MissingMandatoryParameterError < Error; end
+      MissingMandatoryParameterError = Error.derive(value_class: BinStruct::ArrayOfInt16)
+      MissingMandatoryParameterError.define_type_default('MissingMandatoryParameter')
 
-      # MissingMandatoryParameter error. Indicate that one or more
-      # mandatory TLV parameters are missing in a received {InitChunk}
-      # or {InitAckChunk}.
-      # @author Sylvain Daubert
       class MissingMandatoryParameterError
-        include ErrorMixin
-
-        # @return [::String]
+        # Get human-readable string
+        # @return [String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
       end
-      MissingMandatoryParameterError.define_type_enum(Error::TYPES)
-      MissingMandatoryParameterError.define_type_default('MissingMandatoryParameter')
 
-      StaleCookieError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                       length_class: BinStruct::Int16,
-                                                       value_class: BinStruct::Int32,
-                                                       attr_in_length: 'TLV')
-
-      # StaleCookie error. Indicates the receipt of a valid State Cookie that
-      # has expired.
-      # @author Sylvain Daubert
-      class StaleCookieError
-        include ErrorMixin
-      end
-      StaleCookieError.define_type_enum(Error::TYPES)
+      # @!parse
+      #  # StaleCookie error. Indicates the receipt of a valid State Cookie that
+      #  # has expired.
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class StaleCookieError < Error; end
+      StaleCookieError = Error.derive(value_class: BinStruct::Int32)
       StaleCookieError.define_type_default('StaleCookie')
 
-      OutOfResourceError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                         length_class: BinStruct::Int16,
-                                                         attr_in_length: 'TLV')
-
-      # Out of ressource error. Indicates that the sender is out of resource.
-      # @author Sylvain Daubert
-      class OutOfResourceError
-        include ErrorMixin
-
-        # @return [::String]
-        def to_human
-          "<#{error_name}>"
-        end
-      end
-      OutOfResourceError.define_type_enum(Error::TYPES)
+      # @!parse
+      #  # Out of ressource error. Indicates that the sender is out of resource.
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class OutOfResourceError < NoValueError; end
+      OutOfResourceError = NoValueError.derive
       OutOfResourceError.define_type_default('OutOfResource')
 
-      UnresolvableAddressError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                               length_class: BinStruct::Int16,
-                                                               value_class: Parameter,
-                                                               attr_in_length: 'TLV')
+      # @!parse
+      #  # Unresolvable address error. Indicates that the sender is not able to resolve the specified
+      #  # address parameter (type of address is not supported)
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class UnresolvableAddressError < Error; end
+      UnresolvableAddressError = Error.derive(value_class: Parameter)
+      UnresolvableAddressError.define_type_default('UnresolvableAddress')
 
-      # Out of ressource error. Indicates that the sender is out of resource.
-      # @author Sylvain Daubert
       class UnresolvableAddressError
-        include ErrorMixin
-
-        # Set +value+ by accepting {ParameterMixin} classes.
-        # @param [ParameterMixin] val
-        # @return [ParameterMixin]
+        # Set +value+ by accepting {Parameter} classes.
+        # @param [Parameter] val
+        # @return [Parameter]
         def value=(val)
-          if val.is_a?(ParameterMixin)
+          if val.is_a?(Parameter)
             self[:value] = val
             calc_length
             val
@@ -195,152 +204,115 @@ module PacketGen
           end
         end
 
-        # @return [::String]
+        # Get human-readable string
+        # @return [String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
       end
-      UnresolvableAddressError.define_type_enum(Error::TYPES)
-      UnresolvableAddressError.define_type_default('UnresolvableAddress')
 
-      UnrecognizedChunkTypeError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                                 length_class: BinStruct::Int16,
-                                                                 value_class: BaseChunk,
-                                                                 attr_in_length: 'TLV')
-
-      # Unrecognized chunk type error. The receiver does not understand the chunk and the upper bits of the 'Chunk Type'
-      # are set to 01 or 11.
-      # @author Sylvain Daubert
-      class UnrecognizedChunkTypeError
-        include ErrorMixin
-
-        # @return [::String]
-        def to_human
-          "<#{error_name}: #{self[:value].to_human}>"
-        end
-      end
-      UnrecognizedChunkTypeError.define_type_enum(Error::TYPES)
+      # @!parse
+      #  # Unrecognized chunk type error. The receiver does not understand the chunk and the upper bits of the 'Chunk Type'
+      #  # are set to 01 or 11.
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class UnrecognizedChunkTypeError < Error; end
+      UnrecognizedChunkTypeError = Error.derive(value_class: BaseChunk)
       UnrecognizedChunkTypeError.define_type_default('UnrecognizedChunkType')
 
-      InvalidMandatoryParameterError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                                     length_class: BinStruct::Int16,
-                                                                     attr_in_length: 'TLV')
-
-      # Invalid mandatory parameter error. Returned to the originator of an INIT or INIT ACK chunk when one of the
-      # mandatory parameters is set to an invalid value.
-      # @author Sylvain Daubert
-      class InvalidMandatoryParameterError
-        include ErrorMixin
-
-        # @return [::String]
+      class UnrecognizedChunkTypeError
+        # Get human-readable string
+        # @return [String]
         def to_human
-          "<#{error_name}>"
+          "<#{error_name}: #{self[:value].to_human}>"
         end
       end
-      InvalidMandatoryParameterError.define_type_enum(Error::TYPES)
+
+      # @!parse
+      #  # Invalid mandatory parameter error. Returned to the originator of an INIT or INIT ACK chunk when one of the
+      #  # mandatory parameters is set to an invalid value.
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class InvalidMandatoryParameterError < NoValueError; end
+      InvalidMandatoryParameterError = NoValueError.derive
       InvalidMandatoryParameterError.define_type_default('InvalidMandatoryParameter')
 
-      UnrecognizedParametersError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                                  length_class: BinStruct::Int16,
-                                                                  value_class: ArrayOfParameter,
-                                                                  attr_in_length: 'TLV')
-
-      # Unrecognized parameters error. Returned to the originator of the INIT ACK chunk if the receiver does not
-      # recognize one or more Optional TLV parameters in the INIT ACK chunk.
-      # @author Sylvain Daubert
-      class UnrecognizedParametersError
-        include ErrorMixin
-
-        # @return [::String]
-        def to_human
-          "<#{error_name}: #{self[:value].to_human}>"
-        end
-      end
-      UnrecognizedParametersError.define_type_enum(Error::TYPES)
+      # @!parse
+      #  # Unrecognized parameters error. Returned to the originator of the INIT ACK chunk if the receiver does not
+      #  # recognize one or more Optional TLV parameters in the INIT ACK chunk.
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class UnrecognizedParametersError < Error; end
+      UnrecognizedParametersError = Error.derive(value_class: ArrayOfParameter)
       UnrecognizedParametersError.define_type_default('UnrecognizedParameters')
 
-      NoUserDataError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                      length_class: BinStruct::Int16,
-                                                      value_class: BinStruct::Int32,
-                                                      attr_in_length: 'TLV')
-
-      # No user data error. Returned when a received {DataChunk} was received with no data.
-      # @author Sylvain Daubert
-      class NoUserDataError
-        include ErrorMixin
-      end
-      NoUserDataError.define_type_enum(Error::TYPES)
-      NoUserDataError.define_type_default('NoUserData')
-
-      CookieReceivedWhileShuttingDownError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                                           length_class: BinStruct::Int16,
-                                                                           attr_in_length: 'TLV')
-
-      # Cookie received while shutting down error.
-      # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
-      # @author Sylvain Daubert
-      class CookieReceivedWhileShuttingDownError
-        include ErrorMixin
-
-        # @return [::String]
-        def to_human
-          "<#{error_name}>"
-        end
-      end
-      CookieReceivedWhileShuttingDownError.define_type_enum(Error::TYPES)
-      CookieReceivedWhileShuttingDownError.define_type_default('CookieReceivedWhileShuttingDown')
-
-      RestartAssociationWithNewAddressError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                                            length_class: BinStruct::Int16,
-                                                                            value_class: ArrayOfParameter,
-                                                                            attr_in_length: 'TLV')
-
-      # Cookie received while shutting down error.
-      # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
-      # @author Sylvain Daubert
-      class RestartAssociationWithNewAddressError
-        include ErrorMixin
-
-        # @return [::String]
+      class UnrecognizedParametersError
+        # Get human-readable string
+        # @return [String]
         def to_human
           "<#{error_name}: #{self[:value].to_human}>"
         end
       end
-      RestartAssociationWithNewAddressError.define_type_enum(Error::TYPES)
+
+      # @!parse
+      #  # No user data error. Returned when a received {DataChunk} was received with no data.
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class NoUserDataError < Error; end
+      NoUserDataError = Error.derive(value_class: BinStruct::Int32)
+      NoUserDataError.define_type_default('NoUserData')
+
+      # @!parse
+      #  # Cookie received while shutting down error.
+      #  # A COOKIE ECHO chunk was received while the endpoint was in the SHUTDOWN-ACK-SENT state.
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class CookieReceivedWhileShuttingDownError < NoValueError; end
+      CookieReceivedWhileShuttingDownError = NoValueError.derive
+      CookieReceivedWhileShuttingDownError.define_type_default('CookieReceivedWhileShuttingDown')
+
+      # @!parse
+      #  # INIT added an address out of association.
+      #  # @author Sylvain Daubert
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class RestartAssociationWithNewAddressError < Error; end
+      RestartAssociationWithNewAddressError = Error.derive(value_class: ArrayOfParameter)
       RestartAssociationWithNewAddressError.define_type_default('RestartAssociationWithNewAddress')
 
-      UserInitiatedAbortError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                              length_class: BinStruct::Int16,
-                                                              attr_in_length: 'TLV')
-
-      # User-Initiated abort error.
-      # @author Sylvain Daubert
-      class UserInitiatedAbortError
-        include ErrorMixin
-
-        # @return [::String]
+      class RestartAssociationWithNewAddressError
+        # Get human-readable string
+        # @return [String]
         def to_human
-          "<#{error_name}>"
+          "<#{error_name}: #{self[:value].to_human}>"
         end
       end
-      UserInitiatedAbortError.define_type_enum(Error::TYPES)
+
+      # @!parse
+      #  # User-Initiated abort error.
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class UserInitiatedAbortError < NoValueError; end
+      UserInitiatedAbortError = NoValueError.derive
       UserInitiatedAbortError.define_type_default('UserInitiatedAbort')
 
-      ProtocolViolationError = BinStruct::AbstractTLV.create(type_class: BinStruct::Int16Enum,
-                                                             length_class: BinStruct::Int16,
-                                                             attr_in_length: 'TLV')
-
-      # Protocol violation error.
-      # @author Sylvain Daubert
-      class ProtocolViolationError
-        include ErrorMixin
-
-        # @return [::String]
-        def to_human
-          "<#{error_name}>"
-        end
-      end
-      ProtocolViolationError.define_type_enum(Error::TYPES)
+      # @!parse
+      #  # User-Initiated abort error.
+      #  # @author LemonTree55
+      #  # @since 3.4.0
+      #  # @since 4.1.0 Derived from {Error}
+      #  class ProtocolViolationError < NoValueError; end
+      ProtocolViolationError = NoValueError.derive
       ProtocolViolationError.define_type_default('ProtocolViolation')
     end
   end

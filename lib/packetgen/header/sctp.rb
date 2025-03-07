@@ -27,7 +27,9 @@ module PacketGen
     #  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     #
     # @author Sylvain Daubert
+    # @author LemonTree55
     # @since 3.4.0
+    # @since 4.1.0 Remove +ErrorMixin+ and +ParameterMixin+
     class SCTP < Base; end
   end
 end
