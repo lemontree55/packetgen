@@ -13,6 +13,14 @@ module PacketGen
     class TCP
       # Container for TCP {Option options} in {TCP TCP header}.
       # @author Sylvain Daubert
+      # @since 1.0.0
+      # @since 4.1.0 +#<<+ accepts +:kind+ parameter in hash
+      # @example Add an option from a hash
+      #   opts = PacketGen::Header::TCP::Options.new
+      #   # Option kind may be set using :opt
+      #   opts << { opt: 'MSS', value: 1250 }
+      #   # It may aldo be set using :kind
+      #   opts << { kind: 'EOL' }
       class Options < BinStruct::Array
         set_of Option
 

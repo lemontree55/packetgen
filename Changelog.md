@@ -8,18 +8,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 
 * Add `Packet#<<` to append a headerable object to packet.
+* `Header::TCP::Options#<<` now accepts `:kind` parameter when pushing a hash. `:opt` is still accepted.
+
+## Changed
+
+* Remove `Header::DHCPv6::RequestedOptions` and use `BinStruct::ArrayOfInt16` instead.
+* `Header::DHCPv6::StatusCode` now inherits from `Header::DHCPv6::Option` (and no more from ElapsedTime option). It defines 2 new attributes: `status_code` and `status_message`.
+* `Header::SCTP::Parameter` is now a full `BinStruct::AbstractTLV` subclass. It defines methods defined in `ParameterMixin`. All parameter classes are now subclasses of `Parameter`.
+* `Header::SCTP::Error` is now a full `BinStruct::AbstractTLV` subclass. It defines methods defined in `ErrorMixin`. All error classes are now subclasses of `Error`.
+
+## Removed
+
+* `Header::SCTP::ParameterMixin` has been remove as it is no more needed.
+* `Header::SCTP::ErrorMixin` has been remove as it is no more needed.
 
 ## Fixed
 
 * Fix `Inspect.inspect_attribute`: bit attribute type is now human-readable on inspect.
 * Fix `Packet#body` documentation. It returns `nil` if packet has no body.
 * Fix `Packet#body=`: it now raises `Error` exception if packet has no body, instead of `NoMethodError` one.
+* Fix `Packet#decapsulate`: now return `self`, as documented.
+* `Header::IPv6::HopByHop#to_s` now sets extension length.
 * Fix `Utils.mitm`, which crashed on instanciating `Utils::ARPSpoofer`.
-* Update yard documentation
+* Fix `Header::OSPFv2::LSA#initialize`. No more filter out `:counter` parameter.
+* Update yard documentation. Fix all examples.
 
 ## Deprecated
 
 * Deprecate `PacketGen.force_binary` in favor of Ruby's `String#b`.
+* Deprecate `Header::EAP::MD5#optional_name` in favor of `#name`.
 
 ## Packetgen 4.0.0 - 2024-12-28
 

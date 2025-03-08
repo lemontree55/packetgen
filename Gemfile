@@ -12,6 +12,7 @@ group :develoment do
   gem 'rake', '~> 13.0'
   gem 'rspec', '~> 3.12'
   gem 'ruby-lsp'
+  gem 'webrick', '~> 1.9'
   gem 'yard', '~> 0.9'
   gem 'yard-doctest'
 end

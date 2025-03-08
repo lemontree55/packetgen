@@ -225,6 +225,8 @@ module PacketGen
 
         # @!attribute options
         #   @return [BinStruct::ArrayOfInt16]
+        #   @since 2.5.0
+        #   @since 4.1.0 Type +BinStruct::ArrayOfInt16+ instead of custom +RequestedOptions+ (deleted)
         define_attr :options, BinStruct::ArrayOfInt16, builder: ->(h, t) { t.new(length_from: h[:length]) }
 
         # Get human-readable data

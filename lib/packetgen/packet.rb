@@ -239,6 +239,7 @@ module PacketGen
     # @raise [Error] Packet (i.e. last header) has no +:body+ field.
     # @note To set a {Headerable} object, prefer #{<<}
     # @see #<<
+    # @since 4.1.0 raise {Error} if no body on packet
     def body=(str)
       raise Error, 'no body in last headeré' unless last_header.respond_to?(:body)
 
@@ -411,7 +412,6 @@ module PacketGen
     # @return [self]
     # @raise [ArgumentError] unknown protocol
     # @raise [BindingError] unknown binding
-    # @since 4.1.0
     # @example
     #  pkt = PacketGen.gen('Eth')
     #  # Add a new header from its type
@@ -419,6 +419,7 @@ module PacketGen
     #  # Add a new pre-generated header
     #  pkt << PacketGen::Header::TCP.new
     # @see #add
+    # @since 4.1.0
     # @author LemonTree55
     def <<(header)
       add_header(header)

@@ -30,6 +30,7 @@ module PacketGen
       # * an {#options} field (+BinStruct::String+),
       # * and a {#body}, containing next header.
       # @author Sylvain Daubert
+      # @since 2.4.0
       class Extension < Base
         # @!attribute next
         #  8-bit Next header field

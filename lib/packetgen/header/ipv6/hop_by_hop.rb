@@ -11,6 +11,7 @@ module PacketGen
     class IPv6
       # @!parse
       #  # Option for {HopByHop} IPv6 extension header.
+      #  # @since 2.4.0
       #  # @since 3.1.0 subclass of +BinStruct::AbstractTLV+
       #  class Option <AbstractTLV; end
       # @private
@@ -38,6 +39,7 @@ module PacketGen
 
       # Special option pad1 (one-byte option), for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
+      # @since 2.4.0
       class Pad1 < BinStruct::Struct
         # @!attribute pad
         #   Pad1 option type
@@ -53,6 +55,7 @@ module PacketGen
 
       # Array of {Option}, for {HopByHop} IPv6 extension header
       # @author Sylvain Daubert
+      # @since 2.4.0
       class Options < BinStruct::Array
         set_of Option
 
@@ -107,6 +110,7 @@ module PacketGen
       #  pkt = PacketGen.gen('Eth').add('IPv6').add('IPv6::HopByHop').add('ICMPv6')
       #  pkt.ipv6_hopbyhop.options << { type: 'router_alert', value: "\x00\x00".b }
       # @author Sylvain Daubert
+      # @since 2.4.0
       class HopByHop < Extension
         # redefine options field
         remove_attr :options
@@ -117,6 +121,8 @@ module PacketGen
 
         # Generate binary string. Add padding if needed in {#options}, and update {#length} accordingly.
         # @return [String]
+        # @since 2.4.0
+        # @since 4.1.0 Set {Extension#length}.
         def to_s
           calc_length
           super
