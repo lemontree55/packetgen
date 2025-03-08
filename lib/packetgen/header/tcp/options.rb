@@ -11,7 +11,7 @@ require_relative 'option'
 module PacketGen
   module Header
     class TCP
-      # Container for TCP options in {TCP TCP header}.
+      # Container for TCP {Option options} in {TCP TCP header}.
       # @author Sylvain Daubert
       class Options < BinStruct::Array
         set_of Option

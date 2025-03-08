@@ -30,49 +30,55 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A TCP header consists of:
     # * a source port ({#sport}, +BinStruct::Int16+ type),
-    # * a destination port ({#dport}, +Int16+ type),
+    # * a destination port ({#dport}, +BinStruct::Int16+ type),
     # * a sequence number ({#seqnum}, +BinStruct::Int32+ type),
-    # * an acknownledge number ({#acknum}, +Int32+ type),
-    # * a 16-bit field ({#u16}, +Int16+ type) composed of:
-    #   * a 4-bit {#data_offset} self[attr],
+    # * an acknownledge number ({#acknum}, +BinStruct::Int32+ type),
+    # * a 16-bit field ({#u16}, +BinStruct::Int16+ type) composed of:
+    #   * a 4-bit {#data_offset},
     #   * a 3-bit {#reserved} field,
     #   * a 9-bit {#flags} field,
-    # * a {#window} field (+Int16+ type),
-    # * a {#checksum} field (+Int16+ type),
-    # * a urgent pointer ({#urg_pointer}, +Int16+ type),
+    # * a {#window} field (+BinStruct::Int16+ type),
+    # * a {#checksum} field (+BinStruct::Int16+ type),
+    # * a urgent pointer ({#urg_pointer}, +BinStruct::Int16+ type),
     # * an optional {#options} field ({Options} type),
     # * and a {#body} (+BinStruct::String+ type).
     #
-    # == Create a TCP header
+    # @example Create a TCP header
     #  # standalone
     #  tcph = PacketGen::Header::TCP.new
     #  # in a IP packet
     #  pkt = PacketGen.gen('IP').add('TCP')
     #  # access to TCP header
-    #  pkt.tcp   # => PacketGen::Header::TCP
+    #  pkt.tcp.class   # => PacketGen::Header::TCP
     #
-    # == TCP attributes
+    # @example TCP attributes
+    #  tcph = PacketGen::Header::TCP.new
     #  tcph.sport = 4500
     #  tcph.dport = 80
     #  tcph.seqnum = 43
     #  tcph.acknum = 0x45678925
     #  tcph.wsize = 0x240
     #  tcph.urg_pointer = 0x40
-    #  tcph.body.read 'this is a body'
+    #  tcph.body = 'this is a body'
     #
-    # == Flags
-    # TCP flags may be accesed as a 9-bit integer:
+    # @example TCP Flags
+    #  tcph = PacketGen::Header::TCP.new
+    #  # TCP flags may be accesed as a 9-bit integer:
     #  tcph.flags = 0x1002
-    # Each flag may be accessed independently:
-    #  tcph.flag_syn?    # => Boolean
+    #  # Each flag may be accessed independently:
+    #  tcph.flag_syn?    # => true
     #  tcph.flag_rst = true
     #
-    # == Options
-    # {#options} TCP attribute is a {Options}. {Option} may added to it:
-    #  tcph.options << PacketGen::Header::TCP::MSS.new(1250)
-    # or:
-    #  tcph.options << { opt: 'MSS', self[attr]: 1250 }
+    # @example TCP Options
+    #  tcph = PacketGen::Header::TCP.new
+    #  # options TCP attribute is a PacketGen::Header::TCP::Options.
+    #  # PacketGen::Header::TCP::Option may added to it:
+    #  tcph.options << PacketGen::Header::TCP::MSS.new(value: 1250)
+    #  # or
+    #  tcph.options << { kind: 'MSS', value: 1250 }
+    #  tcph.options.last.class #=> PacketGen::Header::TCP::MSS
     # @author Sylvain Daubert
+    # @author LemonTree55
     class TCP < Base
     end
   end
@@ -151,7 +157,8 @@ module PacketGen
       #  @return [Options]
       define_attr :options, TCP::Options, builder: ->(h, t) { t.new(length_from: -> { h.data_offset > 5 ? (h.data_offset - 5) * 4 : 0 }) }
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  TCP body
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
 
       alias source_port sport
@@ -181,7 +188,7 @@ module PacketGen
       # @option options [Integer] :window
       # @option options [Integer] :checksum
       # @option options [Integer] :urg_pointer
-      # @option options [String] :body
+      # @option options [String, Headerable] :body
       def initialize(options={})
         opts = { data_offset: 5 }.merge!(options)
         super(opts)

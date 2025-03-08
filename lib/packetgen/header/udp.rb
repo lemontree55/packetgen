@@ -18,27 +18,29 @@ module PacketGen
     #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     # A UDP header consists of:
     # * a source port field ({#sport}, +BinStruct::Int16+ type),
-    # * a destination port field ({#dport}, +Int16+ type),
-    # * a UDP length field ({#length}, +Int16+ type),
-    # * a {#checksum} field (+Int16+ type),
+    # * a destination port field ({#dport}, +BinStruct:Int16+ type),
+    # * a UDP length field ({#length}, +BinStruct:Int16+ type),
+    # * a {#checksum} field (+BinStruct:Int16+ type),
     # * and a {#body}.
     #
-    # == Create a UDP header
+    # @example Create a UDP header
     #  # standalone
     #  udp = PacketGen::Header::UDP.new
     #  # in a packet
-    #  pkt = PAcketGen.gen('IP').eadd('UDP')
+    #  pkt = PacketGen.gen('IP').add('UDP')
     #  # access to IP header
-    #  pkt.udp    # => PacketGen::Header::UDP
+    #  pkt.udp.class    # => PacketGen::Header::UDP
     #
-    # == UDP attributes
+    # @example UDP attributes
+    #  udp = PacketGen::Header::UDP.new
     #  udp.sport = 65432
     #  udp.dport = 53
     #  udp.length = 43
     #  udp.checksum = 0xffff
-    #  udp.body.read 'this is a UDP body'
+    #  udp.body = 'this is a UDP body'
     #
     # @author Sylvain Daubert
+    # @author LemonTree55
     class UDP < Base
       # IP protocol number for UDP
       IP_PROTOCOL = 17
@@ -60,7 +62,8 @@ module PacketGen
       #  @return [Integer]
       define_attr :checksum, BinStruct::Int16
       # @!attribute body
-      #  @return [BinStruct::String,Header::Base]
+      #  UDP body
+      #  @return [BinStruct::String,Headerable]
       define_attr :body, BinStruct::String
 
       alias source_port sport
@@ -75,7 +78,7 @@ module PacketGen
         self.length += self[:body].sz if self[:body].sz.positive?
       end
 
-      # Compute checksum and set +checksum+ field
+      # Compute checksum and set {#checksum} field
       # @return [Integer]
       def calc_checksum
         ip = ip_header(self)
@@ -86,7 +89,7 @@ module PacketGen
         self.checksum = IP.reduce_checksum(sum)
       end
 
-      # Compute length and set +length+ field
+      # Compute length and set {#length} field
       # @return [Integer]
       def calc_length
         Base.calculate_and_set_length(self)
@@ -100,7 +103,6 @@ module PacketGen
         self
       end
     end
-
     self.add_class UDP
 
     IP.bind UDP, protocol: UDP::IP_PROTOCOL

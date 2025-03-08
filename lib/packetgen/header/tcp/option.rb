@@ -90,7 +90,9 @@ module PacketGen
           end
         end
 
+        # @private
         alias old_set_value value=
+
         # Setter for value attribute
         # @param[String,Integer] val
         # @return [String, Integer]
@@ -159,6 +161,7 @@ module PacketGen
           self[:value] = BinStruct::Int16.new(value: options[:value])
         end
 
+        # Get human-readable description
         # @return [String]
         def to_human
           "MSS:#{value}"
@@ -177,6 +180,7 @@ module PacketGen
           self[:value] = BinStruct::Int8.new(value: options[:value])
         end
 
+        # Get human-readable description
         # @return [String]
         def to_human
           "WS:#{value}"
@@ -208,6 +212,7 @@ module PacketGen
           self[:value] = BinStruct::Int32.new(value: options[:value])
         end
 
+        # Get human-readable description
         # @return [String]
         def to_human
           "WS:#{value}"
@@ -226,6 +231,7 @@ module PacketGen
           self[:value] = BinStruct::Int32.new(value: options[:value])
         end
 
+        # Get human-readable description
         # @return [String]
         def to_human
           "WS:#{value}"
@@ -244,6 +250,7 @@ module PacketGen
           self[:value].read(options[:value] || "\0" * 8)
         end
 
+        # Get human-readable description
         # @return [String]
         def to_human
           value, echo_reply = self[:value].unpack('NN')

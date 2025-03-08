@@ -10,25 +10,26 @@ module PacketGen
   module Header
     # A TFTP (Trivial File Transfer Protocol,
     # {https://tools.ietf.org/html/rfc1350 RFC 1350}) header consists of:
-    # * a {#opcode} (+BinStruct::Int16Enum+),
+    # * an {#opcode} (+BinStruct::Int16Enum+),
     # * and a body. Its content depends on opcode.
     #
     # Specialized subclasses exists to handle {TFTP::RRQ Read Request},
     # {TFTP::WRQ Write Request}, {TFTP::DATA DATA}, {TFTP::ACK ACK} and
     # {TFTP::ERROR ERROR} packets.
     #
-    # == Create a TFTP header
+    # @example Create a TFTP header
     #  # standalone
     #  tftp = PacketGen::Header::TFTP.new
     #  # in a packet
     #  pkt = PacketGen.gen('IP').add('UDP').add('TFTP')
     #  # access to TFTP header
-    #  pkt.tftp   # => PacketGen::Header::TFTP
+    #  pkt.tftp.class   # => PacketGen::Header::TFTP
     #
-    # == TFTP attributes
+    # @example TFTP attributes
+    #  tftp = PacketGen::Header::TFTP.new
     #  tftp.opcode = 'RRQ'
     #  tftp.opcode = 1
-    #  tftp.body.read 'this is a body'
+    #  tftp.body = 'this is a body'
     #
     # == TFTP parsing
     # When parsing, only first packet (read or write request) should be decoded
@@ -46,6 +47,7 @@ module PacketGen
     #   packets[0].tftp.decode!(packets[1..-1])
     #   packets.map { |pkt| pkt.headers.last.class.to_s }.join(',')  # => TFTP::RRQ,TFTP::DATA,UDP,TFTP::ACK
     # @author Sylvain Daubert
+    # @author LemonTree55
     # @since 2.3.0
     class TFTP < Base
       # Known opcodes
@@ -63,7 +65,8 @@ module PacketGen
       define_attr :opcode, BinStruct::Int16Enum, enum: OPCODES
 
       # @!attribute body
-      #   @return [String]
+      #   TFTP body, if opcode is unknown
+      #   @return [String,Headerable]
       define_attr :body, BinStruct::String
 
       def initialize(options={})
@@ -85,7 +88,7 @@ module PacketGen
       def read(str)
         if self.instance_of? TFTP
           super
-          if OPCODES.value? opcode
+          if OPCODES.value?(opcode)
             TFTP.const_get(human_opcode).new.read(str)
           else
             self
@@ -145,7 +148,8 @@ module PacketGen
         pkt.udp.dport = udp_dport
       end
 
-      # TFTP Read Request header
+      # TFTP Read Request header.
+      # This header remove {#body} attribute and repalces it with {#filename} and {#mode}.
       class RRQ < TFTP
         remove_attr :body
 
@@ -171,7 +175,8 @@ module PacketGen
         define_attr_before :body, :block_num, BinStruct::Int16
       end
 
-      # TFTP ACK header
+      # TFTP ACK header.
+      # This header remove {#body} attribute and repalces it with {#block_num}.
       class ACK < TFTP
         remove_attr :body
 
@@ -181,7 +186,8 @@ module PacketGen
         define_attr :block_num, BinStruct::Int16
       end
 
-      # TFTP ERROR header
+      # TFTP ERROR header.
+      # This header remove {#body} attribute and repalces it with {#error_code} and {#error_msg}.
       class ERROR < TFTP
         remove_attr :body
 
