@@ -15,7 +15,44 @@ module PacketGen
     # Simple Network Management Protocol (SNMP)
     #
     # See https://github.com/lemontree55/packetgen/wiki/SNMP
+    #
+    # SNMP is defined from ASN.1:
+    #   Message ::=
+    #     SEQUENCE {
+    #          version
+    #             INTEGER {
+    #                 version-1(0)
+    #             },
+    #          community      -- community name
+    #              OCTET STRING,
+    #          data           -- e.g., PDUs if trivial
+    #              ANY        -- authentication is being used
+    #     }
+    # It has 3 attributes, accessible through +#[]+:
+    # * +:version+, SNMP protocol version (type +RASN1::Types::Integer+ with enumeration),
+    # * +:community+ (type +RASN1::Types::OctetString+),
+    # * +:data+ (type {PDUs}).
+    #
+    # @!attribute version
+    #   version attribute. Shortcut for +snmp[:version].value+.
+    #   String values are: +v1+, +v2+, +v2c+ and +v3+.
+    #   @return [String]
+    # @!attribute community
+    #   community attribute. Shortcut for +snmp[:community].value+.
+    #   @return [String]
+    #
+    # @example
+    #  snmp = PacketGen::Header::SNMP.new(version: "v3",
+    #                                     chosen_pdu: PacketGen::Header::SNMP::PDU_SET,
+    #                                     pdu: { id: 1, varbindlist: [{ name: '1.2.3.4' }] })
+    #  snmp.version        #=> "v3"
+    #  snmp.community      #=> "public"
+    #  snmp.pdu.class      #=> PacketGen::Header::SNMP::SetRequest
+    #  snmp.pdu[:id].value #=> 1
+    #  snmp.pdu[:varbindlist][0][:name].inspect #=> 'name OBJECT ID: "1.2.3.4"'
+    #  snmp.pdu[:varbindlist][0][:name].value   #=> "1.2.3.4"
     # @author Sylvain Daubert
+    # @author LemonTree55
     # @since 2.0.0
     class SNMP < ASN1Base
       # Agents listen to this port
@@ -23,19 +60,26 @@ module PacketGen
       # Configuration sinks listen to this port
       UDP_PORT2 = 162
 
-      # rubocop:disable Naming/ConstantName
-
+      # Implicit tag number for GetRequest PDU type
       PDU_GET      = 0
+      # Implicit tag number for GetNextRequest PDU type
       PDU_NEXT     = 1
+      # Implicit tag number for GetResponse PDU type
       PDU_RESPONSE = 2
+      # Implicit tag number for SetRequest PDU type
       PDU_SET      = 3
+      # Implicit tag number for Trapv1 PDU type
       PDU_TRAPv1   = 4
+      # Implicit tag number for Bulk PDU type
       PDU_BULK     = 5
+      # Implicit tag number for InformRequest PDU type
       PDU_INFORM   = 6
+      # Implicit tag number for Trapv2 PDU type
       PDU_TRAPv2   = 7
+      # Implicit tag number for Report PDU type
       PDU_REPORT   = 8
-      # rubocop:enable Naming/ConstantName
 
+      # Error types
       ERRORS = {
         'no_error' => 0,
         'too_big' => 1,
@@ -63,7 +107,13 @@ module PacketGen
       #                name  OBJECT IDENTIFIER,
       #                value ANY     -- depends on name
       #              }
+      # This class associates a +:name+ (type +RASN1::Types::ObjectId+) to a +:value+ (any RASN1 type).
+      # @example
+      #   vb = PacketGen::Header::SNMP::VarBind.new(name: "1.2.3.4", value: RASN1::Types::OctetString.new(value: "abc"))
+      #   vb[:name].class  # => RASN1::Types::ObjectId
+      #   vb[:name].value  # => "1.2.3.4"
       # @author Sylvain Daubert
+      # @author LemonTree55
       class VarBind < RASN1::Model
         sequence :varbind,
                  content: [objectid(:name),
@@ -72,7 +122,12 @@ module PacketGen
 
       # Class to handle SNMP VariableBindingsList
       #  VarBindList ::= SEQUENCE (SIZE (0..max-bindings)) OF VarBind
+      # This is a sequence of {VarBind}.
+      # @example
+      #  bindings = PacketGen::Header::SNMP::VariableBindings.new
+      #  bindings << { name: "1.2.3.4", value: RASN1::Types::OctetString.new(value: "abc") }
       # @author Sylvain Daubert
+      # @author LemonTree55
       class VariableBindings < RASN1::Model
         sequence_of :bindings, VarBind
 
@@ -124,7 +179,20 @@ module PacketGen
       #              variable-bindings           -- values are sometimes ignored
       #                  VarBindList
       #          }
+      # This class defines a GetRequest SNMP PDU. It defines 4 attributes:
+      # * an +:id+ (request-id, type +RASN1::Types::Integer+),
+      # * an +:error+ (error-status, type +RASN1::Types::Integer with enumeration definition from {ERRORS}),
+      # * an +:error_index+ (type +RASN1::Types::Integer+),
+      # * a +:barbindlist+ (variable-bindings, type {VariableBindings}).
+      #
+      # @example
+      #   req = PacketGen::Header::SNMP::GetRequest.new(id: 1, error: "no_error")
+      #   req[:id].value    #=> 1
+      #   req[:error].value #=> "no_error"
+      #   req[:error].to_i  #=> 0
+      #   req[:varbindlist] << { name: "1.2.3.4", value: RASN1::Types::OctetString.new(value: "abcd") }
       # @author Sylvain Daubert
+      # @author LemonTree55
       class GetRequest < RASN1::Model
         sequence :pdu,
                  implicit: SNMP::PDU_GET, constructed: true,
@@ -140,6 +208,7 @@ module PacketGen
 
       # Class to handle GetNextRequest PDU
       #  GetNextRequest-PDU ::= [1] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @see GetRequest
       # @author Sylvain Daubert
       class GetNextRequest < GetRequest
         root_options implicit: SNMP::PDU_NEXT
@@ -147,6 +216,7 @@ module PacketGen
 
       # Class to handle GetResponse PDU
       #  GetResponse-PDU ::= [2] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @see GetRequest
       # @author Sylvain Daubert
       class GetResponse < GetRequest
         root_options implicit: SNMP::PDU_RESPONSE
@@ -154,6 +224,7 @@ module PacketGen
 
       # Class to handle SetRequest PDU
       #  SetRequest-PDU ::= [3] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @see GetRequest
       # @author Sylvain Daubert
       class SetRequest < GetRequest
         root_options implicit: SNMP::PDU_SET
@@ -177,6 +248,15 @@ module PacketGen
       #                          time-stamp TimeTicks,
       #                          variable-bindings VarBindList
       #                   }
+      # This class defines 6 attributes accessibles through +#[]+:
+      # * +:enterprise+ for request-id (type +RASN1::Types::ObjectId+),
+      # * +:agent_addr+ (type +RASN1::Types::Integer+),
+      # * +:generic_trap+ (type +RASN1::Types::Integer+),
+      # * +:specific_trap+ (type +RASN1::Types::Integer+),
+      # * +:timestamp+ (type +RASN1::Types::Integer+),
+      # * +:varbindlist+ for variable-bindings (type {VariableBindings}).
+      # @author Sylvain Daubert
+      # @author LemonTree55
       class Trapv1 < RASN1::Model
         sequence :trap,
                  implicit: SNMP::PDU_TRAPv1, constructed: true,
@@ -205,7 +285,20 @@ module PacketGen
       #            variable-bindings           -- values are ignored
       #                VarBindList
       #        }
+      #
+      # This class defines 4 values accessibles through +#[]+:
+      # * +:id+ for request-id (type +RASN1::Types::Integer+),
+      # * +:non_repeaters+ (type +RASN1::Types::Integer+),
+      # * +:max_repetitions+ (type +RASN1::Types::Integer+),
+      # * +varbindlist+ for variable-bindings (type {VariableBindings}).
+      # @example
+      #   bulk = PacketGen::Header::SNMP::Bulk.new(id: 1, non_repeaters: 2, max_repetitions: 2)
+      #   bulk[:varbindlist] << { name: '1.2.3.4', value: RASN1::Types::OctetString.new(value: "abcd") }
+      #   bulk[:id].inspect  # => "id INTEGER: 1"
+      #   bulk[:id].value    # => 1
+      #   bulk[:varbindlist][0][:name].value  # => "1.2.3.4"
       # @author Sylvain Daubert
+      # @author LemonTree55
       class Bulk < RASN1::Model
         sequence :bulkpdu,
                  implicit: SNMP::PDU_BULK, constructed: true,
@@ -217,6 +310,7 @@ module PacketGen
 
       # Class to handle InformRequest PDU
       #  InformRequest-PDU ::= [6] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @see GetRequest
       # @author Sylvain Daubert
       class InformRequest < GetRequest
         root_options implicit: SNMP::PDU_INFORM
@@ -224,6 +318,7 @@ module PacketGen
 
       # Class to handle Trapv2 PDU
       #  SNMPv2-Trap-PDU ::= [7] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @see GetRequest
       # @author Sylvain Daubert
       class Trapv2 < GetRequest
         root_options implicit: SNMP::PDU_TRAPv2
@@ -231,6 +326,7 @@ module PacketGen
 
       # Class to handle Report PDU
       #  Report-PDU ::= [8] IMPLICIT PDU   -- PDU definition: see GetRequest
+      # @see GetRequest
       # @author Sylvain Daubert
       class Report < GetRequest
         root_options implicit: SNMP::PDU_REPORT
@@ -248,7 +344,10 @@ module PacketGen
       #             snmpV2-trap      [7] IMPLICIT PDU,
       #             report           [8] IMPLICIT PDU
       #           }
+      # This class is a wrapper. It contains one of {GetRequest}, {GetNextRequest}, {GetResponse}, {SetRequest},
+      # {Trapv1}, {Bulk}, {InformRequest}, {Trapv2} or {Report}.
       # @author Sylvain Daubert
+      # @author LemonTree55
       class PDUs < RASN1::Model
         choice :pdus,
                content: [model(:get_request, GetRequest),
@@ -285,13 +384,13 @@ module PacketGen
         data.root.value[data.chosen] = klass.new(options[:pdu])
       end
 
-      # accessor to data payload
-      # @return [ASN1::BinStruct::Choice]
+      # accessor to data payload. Shortcut for +snmp[:data]+.
+      # @return [ASN1::Types::Choice]
       def data
         @elements[:data]
       end
 
-      # shortcut to PDU
+      # shortcut to PDU (+snmp[:data].chosen_value+).
       # @return [GetRequest, Bulk, Trapv1, nil] return `nil` if no CHOICE was done
       def pdu
         if data.chosen.nil?
@@ -301,6 +400,8 @@ module PacketGen
         end
       end
 
+      # Inspect SNMP header
+      # @return [String]
       def inspect
         str = super
         str << Inspect.shift_level
@@ -316,7 +417,7 @@ module PacketGen
       #       directly called
       # @param [Packet] packet
       # @return [void]
-      # @since 2.7.0 Set UDP sport according to bindings, only if sport is 0.
+      # @since 2.7.0 Set UDP sport according to bindings, only if sport is not set yet (i.e. is zero).
       #  Needed by new bind API.
       def added_to_packet(packet)
         return unless packet.is?('UDP')
