@@ -34,8 +34,8 @@ module PacketGen
         private
 
         def record_from_hash(hsh)
-          if hsh.key? :opt
-            klassname = hsh.delete(:opt)
+          if hsh.key?(:opt) || hsh.key?(:kind)
+            klassname = hsh.delete(:opt) || hsh.delete(:kind)
             raise ArgumentError, 'opt should be a TCP::Option subclass' unless TCP.const_defined?(klassname)
 
             klass = TCP.const_get(klassname)

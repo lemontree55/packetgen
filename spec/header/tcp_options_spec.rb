@@ -144,6 +144,14 @@ module PacketGen
             expect(options[2]).to be_a(NOP)
           end
 
+          it 'accepts kind for setting option kind' do
+            options << { kind: 'SACK' } << { kind: 'MSS', value: 500}
+            expect(options.size).to eq(2)
+            expect(options.sz).to eq(6)
+            expect(options[0]).to be_a(SACK)
+            expect(options[1]).to be_a(MSS)
+          end
+
           it 'raises on unknown option' do
             expect { options << { opt: 'UNKNOWN' } }
               .to raise_error(ArgumentError, /^opt should be/)
